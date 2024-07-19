@@ -685,7 +685,7 @@
             <span class="macro">assert_eq!</span>(codec.class().codec_id()<span class="question-mark">?</span>, <span class="string">"crc32"</span>);
 
             <span class="comment">// create a codec using the class
-            </span><span class="kw">let </span>codec = class.codec_from_config(config.as_borrowed())<span class="question-mark">?</span>;
+            </span><span class="kw">let </span>codec = class.codec_from_config(PyDict::new_bound(py).as_borrowed())<span class="question-mark">?</span>;
 
             <span class="comment">// check the codec's config
             </span><span class="kw">let </span>config = codec.get_config()<span class="question-mark">?</span>;
