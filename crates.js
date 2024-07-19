@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["numcodecs","numcodecs_python"];
