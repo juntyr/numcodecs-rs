@@ -27,20 +27,6 @@ impl Registry {
     ///
     /// Errors if no codec with a matching `id` has been registered, or if
     /// constructing the codec fails.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use pyo3::{prelude::*, types::PyDict};
-    /// # use numcodecs_python::Registry;
-    ///
-    /// Python::with_gil(|py| {
-    ///     let config = PyDict::new_bound(py);
-    ///     config.set_item("id", "crc32");
-    ///
-    ///     let codec = Registry::get_codec(config.as_borrowed()).unwrap();
-    /// });
-    /// ```
     pub fn get_codec<'py>(config: Borrowed<'_, 'py, PyDict>) -> Result<Bound<'py, Codec>, PyErr> {
         static GET_CODEC: GILOnceCell<Py<PyAny>> = GILOnceCell::new();
 
@@ -96,7 +82,7 @@ impl Registry {
 /// [`numcodecs.abc.Codec`]: https://numcodecs.readthedocs.io/en/stable/abc.html#module-numcodecs.abc
 #[repr(transparent)]
 pub struct Codec {
-    codec: PyAny,
+    _codec: PyAny,
 }
 
 /// Methods implemented for [`Codec`]s.
@@ -230,7 +216,7 @@ unsafe impl PyTypeInfo for Codec {
 /// [`numcodecs.abc.Codec`]: https://numcodecs.readthedocs.io/en/stable/abc.html#module-numcodecs.abc
 #[repr(transparent)]
 pub struct CodecClass {
-    class: PyType,
+    _class: PyType,
 }
 
 /// Methods implemented for [`CodecClass`]es.
@@ -313,4 +299,48 @@ unsafe impl PyTypeInfo for CodecClass {
 
 mod sealed {
     pub trait Sealed {}
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn crc32() -> Result<(), PyErr> {
+        Python::with_gil(|py| {
+            let config = PyDict::new_bound(py);
+            config.set_item("id", "crc32")?;
+
+            let codec = Registry::get_codec(config.as_borrowed())?;
+            assert_eq!(codec.class().codec_id()?, "crc32");
+
+            let data = &[1, 2, 3, 4];
+
+            let encoded = codec.encode(
+                numpy::PyArray1::from_slice_bound(py, data)
+                    .as_any()
+                    .as_borrowed(),
+            )?;
+            let decoded = codec.decode(encoded.as_borrowed(), None)?;
+
+            let encoded: Vec<i32> = encoded.extract()?;
+            let decoded: Vec<i32> = decoded.extract()?;
+
+            assert_eq!(encoded, [123]);
+            assert_eq!(decoded, data);
+
+            let config = codec.get_config()?;
+            assert_eq!(config.len(), 1);
+            assert_eq!(
+                config
+                    .get_item("id")?
+                    .map(|i| i.extract::<String>())
+                    .transpose()?
+                    .as_deref(),
+                Some("crc32")
+            );
+
+            Ok(())
+        })
+    }
 }

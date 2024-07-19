@@ -10,13 +10,14 @@ edition = "2021"
 authors = ["Juniper Tyree <juniper.tyree@helsinki.fi>"]
 repository = "https://github.com/juntyr/numcodecs-rs"
 license = "MPL-2.0"
-rust-version = "1.57"
+rust-version = "1.65"
 
 [workspace.dependencies]
 # workspace-internal crates
 numcodecs = { path = "crates/numcodecs-python", default-features = false }
 
 # crates.io third-party dependencies
+numpy = { version = "0.21", default-features = false }
 pyo3 = { version = "0.21", default-features = false }
 
 [workspace.lints.rust]

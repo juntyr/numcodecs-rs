@@ -18,6 +18,7 @@ keywords = ["numcodecs", "compression", "encoding", "python", "pyo3"]
 pyo3 = { workspace = true }
 
 [dev-dependencies]
+numpy = { workspace = true }
 pyo3 = { workspace = true, features = ["auto-initialize"] }
 
 [lints]
