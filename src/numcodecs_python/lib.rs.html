@@ -677,7 +677,7 @@
 
             <span class="comment">// re-register the codec class under a custom name
             </span><span class="kw">let </span>class = codec.class();
-            Registry::register_codec(class, <span class="prelude-val">Some</span>(<span class="string">"my-crc32"</span>))<span class="question-mark">?</span>;
+            Registry::register_codec(class.as_borrowed(), <span class="prelude-val">Some</span>(<span class="string">"my-crc32"</span>))<span class="question-mark">?</span>;
             config.set_item(<span class="string">"id"</span>, <span class="string">"my-crc32"</span>)<span class="question-mark">?</span>;
 
             <span class="comment">// create a codec using registry lookup of the custom name
