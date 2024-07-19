@@ -317,7 +317,7 @@ mod tests {
 
             // re-register the codec class under a custom name
             let class = codec.class();
-            Registry::register_codec(class, Some("my-crc32"))?;
+            Registry::register_codec(class.as_borrowed(), Some("my-crc32"))?;
             config.set_item("id", "my-crc32")?;
 
             // create a codec using registry lookup of the custom name
