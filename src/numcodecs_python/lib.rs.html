@@ -672,7 +672,7 @@
             <span class="kw">let </span>encoded: Vec&lt;u8&gt; = encoded.extract()<span class="question-mark">?</span>;
             <span class="kw">let </span>decoded: Vec&lt;u8&gt; = decoded.extract()<span class="question-mark">?</span>;
 
-            <span class="macro">assert_eq!</span>(encoded, [<span class="number">239</span>, <span class="number">212</span>, <span class="number">5</span>, <span class="number">175</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
+            <span class="macro">assert_eq!</span>(encoded, [<span class="number">205</span>, <span class="number">251</span>, <span class="number">60</span>, <span class="number">182</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
             <span class="macro">assert_eq!</span>(decoded, data);
 
             <span class="kw">let </span>config = codec.get_config()<span class="question-mark">?</span>;
