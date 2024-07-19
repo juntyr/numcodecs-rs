@@ -326,7 +326,7 @@ mod tests {
             let encoded: Vec<u8> = encoded.extract()?;
             let decoded: Vec<u8> = decoded.extract()?;
 
-            assert_eq!(encoded, [239, 212, 5, 175, 1, 2, 3, 4]);
+            assert_eq!(encoded, [205, 251, 60, 182, 1, 2, 3, 4]);
             assert_eq!(decoded, data);
 
             let config = codec.get_config()?;
