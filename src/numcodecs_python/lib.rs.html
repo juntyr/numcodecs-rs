@@ -344,6 +344,20 @@
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
 <a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Rust-bindings for the [`numcodecs`] Python API using [`pyo3`].
 //!
 //! [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
@@ -657,25 +671,24 @@
             <span class="kw">let </span>config = PyDict::new_bound(py);
             config.set_item(<span class="string">"id"</span>, <span class="string">"crc32"</span>)<span class="question-mark">?</span>;
 
-            <span class="kw">let </span>codec = Registry::get_codec(config.as_borrowed())<span class="question-mark">?</span>;
+            <span class="comment">// create a codec using registry lookup
+            </span><span class="kw">let </span>codec = Registry::get_codec(config.as_borrowed())<span class="question-mark">?</span>;
             <span class="macro">assert_eq!</span>(codec.class().codec_id()<span class="question-mark">?</span>, <span class="string">"crc32"</span>);
 
-            <span class="kw">let </span>data = <span class="kw-2">&amp;</span>[<span class="number">1_u8</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
+            <span class="comment">// re-register the codec class under a custom name
+            </span><span class="kw">let </span>class = codec.class();
+            Registry::register_codec(class, <span class="prelude-val">Some</span>(<span class="string">"my-crc32"</span>))<span class="question-mark">?</span>;
+            config.set_item(<span class="string">"id"</span>, <span class="string">"my-crc32"</span>)<span class="question-mark">?</span>;
 
-            <span class="kw">let </span>encoded = codec.encode(
-                numpy::PyArray1::from_slice_bound(py, data)
-                    .as_any()
-                    .as_borrowed(),
-            )<span class="question-mark">?</span>;
-            <span class="kw">let </span>decoded = codec.decode(encoded.as_borrowed(), <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+            <span class="comment">// create a codec using registry lookup of the custom name
+            </span><span class="kw">let </span>codec = Registry::get_codec(config.as_borrowed())<span class="question-mark">?</span>;
+            <span class="macro">assert_eq!</span>(codec.class().codec_id()<span class="question-mark">?</span>, <span class="string">"crc32"</span>);
 
-            <span class="kw">let </span>encoded: Vec&lt;u8&gt; = encoded.extract()<span class="question-mark">?</span>;
-            <span class="kw">let </span>decoded: Vec&lt;u8&gt; = decoded.extract()<span class="question-mark">?</span>;
+            <span class="comment">// create a codec using the class
+            </span><span class="kw">let </span>codec = class.codec_from_config(config.as_borrowed())<span class="question-mark">?</span>;
 
-            <span class="macro">assert_eq!</span>(encoded, [<span class="number">205</span>, <span class="number">251</span>, <span class="number">60</span>, <span class="number">182</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
-            <span class="macro">assert_eq!</span>(decoded, data);
-
-            <span class="kw">let </span>config = codec.get_config()<span class="question-mark">?</span>;
+            <span class="comment">// check the codec's config
+            </span><span class="kw">let </span>config = codec.get_config()<span class="question-mark">?</span>;
             <span class="macro">assert_eq!</span>(config.len(), <span class="number">1</span>);
             <span class="macro">assert_eq!</span>(
                 config
@@ -685,6 +698,21 @@
                     </span>.as_deref(),
                 <span class="prelude-val">Some</span>(<span class="string">"crc32"</span>)
             );
+
+            <span class="comment">// encode and decode data with the codec
+            </span><span class="kw">let </span>data = <span class="kw-2">&amp;</span>[<span class="number">1_u8</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
+            <span class="kw">let </span>encoded = codec.encode(
+                numpy::PyArray1::from_slice_bound(py, data)
+                    .as_any()
+                    .as_borrowed(),
+            )<span class="question-mark">?</span>;
+            <span class="kw">let </span>decoded = codec.decode(encoded.as_borrowed(), <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+
+            <span class="comment">// check the encoded and decoded data
+            </span><span class="kw">let </span>encoded: Vec&lt;u8&gt; = encoded.extract()<span class="question-mark">?</span>;
+            <span class="kw">let </span>decoded: Vec&lt;u8&gt; = decoded.extract()<span class="question-mark">?</span>;
+            <span class="macro">assert_eq!</span>(encoded, [<span class="number">205</span>, <span class="number">251</span>, <span class="number">60</span>, <span class="number">182</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
+            <span class="macro">assert_eq!</span>(decoded, data);
 
             <span class="prelude-val">Ok</span>(())
         })
