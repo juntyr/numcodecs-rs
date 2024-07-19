@@ -325,7 +325,7 @@ mod tests {
             assert_eq!(codec.class().codec_id()?, "crc32");
 
             // create a codec using the class
-            let codec = class.codec_from_config(config.as_borrowed())?;
+            let codec = class.codec_from_config(PyDict::new_bound(py).as_borrowed())?;
 
             // check the codec's config
             let config = codec.get_config()?;
