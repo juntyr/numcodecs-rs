@@ -1,4 +1,4 @@
-# numcodecs-rs
+# numcodecs
 
 ## License
 

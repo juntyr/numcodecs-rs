@@ -1,0 +1,44 @@
+name: rustdoc to gh-pages
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: GitHub Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v2
+
+      - name: Install the Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Build the Documentation
+        run: |
+          RUSTDOCFLAGS="\
+            --enable-index-page \
+            --extern-html-root-url pyo3=https://docs.rs/anyhow/0.21/ \
+            -Zunstable-options\
+          " cargo doc \
+            --all-features \
+            --no-deps
+
+      - name: Deploy the Documentation
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./target/doc
+          keep_files: false

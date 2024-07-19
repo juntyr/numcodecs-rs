@@ -1,4 +1,9 @@
-# numcodecs-rs
+# numcodecs-python
+
+Rust-bindings for the [`numcodecs`] Python API using [`pyo3`].
+
+[`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
+[`pyo3`]: https://docs.rs/pyo3/0.21/pyo3/
 
 ## License
 

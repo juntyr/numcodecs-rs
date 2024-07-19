@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - '*.*'
+  pull_request:
+    branches:
+      - '*'
+  schedule:
+    - cron: '0 0 * * MON'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: Check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        rust: ["1.76", stable, nightly]
+
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v2
+
+      - name: Install the Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+
+      - name: Install power tools
+        uses: taiki-e/install-action@cargo-hack
+
+      - name: Check the powerset
+        run: |
+          cargo hack check --all \
+            --feature-powerset --keep-going
+
+  test:
+    name: Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        rust: ["1.76", stable, nightly]
+        python: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v2
+
+      - name: Install the Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install power tools
+        uses: taiki-e/install-action@cargo-hack
+
+      - name: Install numcodecs
+        run: pip install numcodecs
+      
+      - name: Run the test-suite powerset
+        run: |
+          cargo hack test --workspace \
+            --no-fail-fast --feature-powerset --keep-going
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v2
+
+      - name: Install the Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          profile: minimal
+          components: rustfmt
+          override: true
+
+      - name: Check the code formatting
+        run: cargo fmt --all -- --check
+
+  clippy:
+    name: Clippy
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        rust: ["1.76", stable]
+
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v2
+
+      - name: Install the Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          components: clippy
+          override: true
+
+      - name: Install power tools
+        uses: taiki-e/install-action@cargo-hack
+
+      - name: Check the code style powerset
+        run: |
+          cargo hack clippy --all \
+            --feature-powerset --keep-going \
+            -- -D warnings

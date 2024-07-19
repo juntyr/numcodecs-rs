@@ -1,0 +1,24 @@
+[package]
+name = "numcodecs-python"
+version = "0.1.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "pyo3 bindings to the numcodecs API for buffer compression"
+readme = "README.md"
+categories = ["api-bindings", "compression", "encoding"]
+keywords = ["numcodecs", "compression", "encoding", "python", "pyo3"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pyo3 = { workspace = true }
+
+[dev-dependencies]
+pyo3 = { workspace = true, features = ["auto-initialize"] }
+
+[lints]
+workspace = true

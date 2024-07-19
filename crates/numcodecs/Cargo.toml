@@ -1,0 +1,20 @@
+[package]
+name = "numcodecs"
+version = "0.0.0-reserve.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "numcodecs API for buffer compression"
+readme = "README.md"
+categories = ["compression", "encoding"]
+keywords = ["numcodecs", "compression", "encoding"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[lints]
+workspace = true

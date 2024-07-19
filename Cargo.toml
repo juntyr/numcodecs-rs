@@ -1,0 +1,47 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/numcodecs",
+    "crates/numcodecs-python",
+]
+
+[workspace.package]
+edition = "2021"
+authors = ["Juniper Tyree <juniper.tyree@helsinki.fi>"]
+repository = "https://github.com/juntyr/numcodecs-rs"
+license = "MPL-2.0"
+rust-version = "1.57"
+
+[workspace.dependencies]
+# workspace-internal crates
+numcodecs = { path = "crates/numcodecs-python", default-features = false }
+
+# crates.io third-party dependencies
+pyo3 = { version = "0.21", default-features = false }
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+unstable_features = "forbid"
+unused_crate_dependencies = "warn"
+
+[workspace.lints.clippy]
+complexity = "deny"
+correctness = "deny"
+nursery = "warn"
+pedantic = "warn"
+perf = "deny"
+style = "deny"
+suspicious = "deny"
+
+cargo = { priority = -1, level = "warn" }
+cargo_common_metadata = "warn"
+multiple_crate_versions = "warn"
+
+unwrap_used = "warn"
+expect_used = "warn"
+indexing_slicing = "warn"
+panic = "warn"
+todo = "warn"
+unimplemented = "warn"
+unreachable = "warn"
+module_name_repetitions = "allow"
