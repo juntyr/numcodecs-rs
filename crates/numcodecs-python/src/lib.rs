@@ -314,7 +314,7 @@ mod tests {
             let codec = Registry::get_codec(config.as_borrowed())?;
             assert_eq!(codec.class().codec_id()?, "crc32");
 
-            let data = &[1, 2, 3, 4];
+            let data = &[1_u8, 2, 3, 4];
 
             let encoded = codec.encode(
                 numpy::PyArray1::from_slice_bound(py, data)
@@ -323,10 +323,10 @@ mod tests {
             )?;
             let decoded = codec.decode(encoded.as_borrowed(), None)?;
 
-            let encoded: Vec<i32> = encoded.extract()?;
-            let decoded: Vec<i32> = decoded.extract()?;
+            let encoded: Vec<u8> = encoded.extract()?;
+            let decoded: Vec<u8> = decoded.extract()?;
 
-            assert_eq!(encoded, [123]);
+            assert_eq!(encoded, [239, 212, 5, 175, 1, 2, 3, 4]);
             assert_eq!(decoded, data);
 
             let config = codec.get_config()?;
