@@ -311,24 +311,23 @@ mod tests {
             let config = PyDict::new_bound(py);
             config.set_item("id", "crc32")?;
 
+            // create a codec using registry lookup
             let codec = Registry::get_codec(config.as_borrowed())?;
             assert_eq!(codec.class().codec_id()?, "crc32");
 
-            let data = &[1_u8, 2, 3, 4];
+            // re-register the codec class under a custom name
+            let class = codec.class();
+            Registry::register_codec(class, Some("my-crc32"))?;
+            config.set_item("id", "my-crc32")?;
 
-            let encoded = codec.encode(
-                numpy::PyArray1::from_slice_bound(py, data)
-                    .as_any()
-                    .as_borrowed(),
-            )?;
-            let decoded = codec.decode(encoded.as_borrowed(), None)?;
+            // create a codec using registry lookup of the custom name
+            let codec = Registry::get_codec(config.as_borrowed())?;
+            assert_eq!(codec.class().codec_id()?, "crc32");
 
-            let encoded: Vec<u8> = encoded.extract()?;
-            let decoded: Vec<u8> = decoded.extract()?;
+            // create a codec using the class
+            let codec = class.codec_from_config(config.as_borrowed())?;
 
-            assert_eq!(encoded, [205, 251, 60, 182, 1, 2, 3, 4]);
-            assert_eq!(decoded, data);
-
+            // check the codec's config
             let config = codec.get_config()?;
             assert_eq!(config.len(), 1);
             assert_eq!(
@@ -339,6 +338,21 @@ mod tests {
                     .as_deref(),
                 Some("crc32")
             );
+
+            // encode and decode data with the codec
+            let data = &[1_u8, 2, 3, 4];
+            let encoded = codec.encode(
+                numpy::PyArray1::from_slice_bound(py, data)
+                    .as_any()
+                    .as_borrowed(),
+            )?;
+            let decoded = codec.decode(encoded.as_borrowed(), None)?;
+
+            // check the encoded and decoded data
+            let encoded: Vec<u8> = encoded.extract()?;
+            let decoded: Vec<u8> = decoded.extract()?;
+            assert_eq!(encoded, [205, 251, 60, 182, 1, 2, 3, 4]);
+            assert_eq!(decoded, data);
 
             Ok(())
         })
