@@ -7,7 +7,7 @@ use pyo3::{
     exceptions::{PyIndexError, PyTypeError},
     intern,
     prelude::*,
-    types::{IntoPyDict, PyDict},
+    types::{IntoPyDict, PyDict, PyDictMethods},
 };
 use pythonize::{Depythonizer, Pythonizer};
 use serde::{Deserializer, Serializer};
@@ -256,6 +256,7 @@ impl DynCodec for PyCodec {
 }
 
 impl Clone for PyCodec {
+    #[allow(clippy::expect_used)] // clone is *not* fallible
     fn clone(&self) -> Self {
         Python::with_gil(|py| {
             let config = self
@@ -263,6 +264,10 @@ impl Clone for PyCodec {
                 .bind(py)
                 .get_config()
                 .expect("getting codec config should not fail");
+
+            // removing the `id` field may fail if the config doesn't contain it
+            let _ = config.del_item(intern!(py, "id"));
+
             let codec = self
                 .codec
                 .bind(py)
