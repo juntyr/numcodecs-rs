@@ -63,7 +63,7 @@ impl Codec for PyCodec {
             data.call_method(
                 intern!(py, "setflags"),
                 (),
-                Some(&[(intern!(py, "write"), true)].into_py_dict_bound(py)),
+                Some(&[(intern!(py, "write"), false)].into_py_dict_bound(py)),
             )?;
             let data = data.call_method0(intern!(py, "view"))?;
 
@@ -159,7 +159,7 @@ impl Codec for PyCodec {
             encoded.call_method(
                 intern!(py, "setflags"),
                 (),
-                Some(&[(intern!(py, "write"), true)].into_py_dict_bound(py)),
+                Some(&[(intern!(py, "write"), false)].into_py_dict_bound(py)),
             )?;
             let encoded = encoded.call_method0(intern!(py, "view"))?;
 
