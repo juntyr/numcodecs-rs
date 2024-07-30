@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Codec","CodecClass","Registry"],"trait":["CodecClassMethods","CodecMethods"]};
+window.SIDEBAR_ITEMS = {"struct":["Codec","CodecClass","PyCodec","Registry"],"trait":["CodecClassMethods","CodecMethods"]};
