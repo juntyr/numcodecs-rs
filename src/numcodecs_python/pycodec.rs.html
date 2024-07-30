@@ -277,6 +277,11 @@
 <a href="#277" id="277">277</a>
 <a href="#278" id="278">278</a>
 <a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, sync::Arc};
 
 <span class="kw">use </span>numcodecs::{AnyCowArray, Codec, DynCodec};
@@ -286,7 +291,7 @@
     exceptions::{PyIndexError, PyTypeError},
     intern,
     prelude::<span class="kw-2">*</span>,
-    types::{IntoPyDict, PyDict},
+    types::{IntoPyDict, PyDict, PyDictMethods},
 };
 <span class="kw">use </span>pythonize::{Depythonizer, Pythonizer};
 <span class="kw">use </span>serde::{Deserializer, Serializer};
@@ -535,13 +540,18 @@
 }
 
 <span class="kw">impl </span>Clone <span class="kw">for </span>PyCodec {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+    <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// clone is *not* fallible
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         Python::with_gil(|py| {
             <span class="kw">let </span>config = <span class="self">self
                 </span>.codec
                 .bind(py)
                 .get_config()
                 .expect(<span class="string">"getting codec config should not fail"</span>);
+
+            <span class="comment">// removing the `id` field may fail if the config doesn't contain it
+            </span><span class="kw">let _ </span>= config.del_item(<span class="macro">intern!</span>(py, <span class="string">"id"</span>));
+
             <span class="kw">let </span>codec = <span class="self">self
                 </span>.codec
                 .bind(py)
