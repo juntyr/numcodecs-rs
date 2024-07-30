@@ -347,7 +347,7 @@
             </span>data.call_method(
                 <span class="macro">intern!</span>(py, <span class="string">"setflags"</span>),
                 (),
-                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[(<span class="macro">intern!</span>(py, <span class="string">"write"</span>), <span class="bool-val">true</span>)].into_py_dict_bound(py)),
+                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[(<span class="macro">intern!</span>(py, <span class="string">"write"</span>), <span class="bool-val">false</span>)].into_py_dict_bound(py)),
             )<span class="question-mark">?</span>;
             <span class="kw">let </span>data = data.call_method0(<span class="macro">intern!</span>(py, <span class="string">"view"</span>))<span class="question-mark">?</span>;
 
@@ -443,7 +443,7 @@
             </span>encoded.call_method(
                 <span class="macro">intern!</span>(py, <span class="string">"setflags"</span>),
                 (),
-                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[(<span class="macro">intern!</span>(py, <span class="string">"write"</span>), <span class="bool-val">true</span>)].into_py_dict_bound(py)),
+                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[(<span class="macro">intern!</span>(py, <span class="string">"write"</span>), <span class="bool-val">false</span>)].into_py_dict_bound(py)),
             )<span class="question-mark">?</span>;
             <span class="kw">let </span>encoded = encoded.call_method0(<span class="macro">intern!</span>(py, <span class="string">"view"</span>))<span class="question-mark">?</span>;
 
