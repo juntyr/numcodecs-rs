@@ -31,6 +31,8 @@ unsafe_code = "deny"
 unstable_features = "forbid"
 unused_crate_dependencies = "warn"
 
+missing_docs = "warn"
+
 [workspace.lints.clippy]
 complexity = { priority = -1, level = "deny" }
 correctness = { priority = -1, level = "deny" }

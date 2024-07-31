@@ -30,7 +30,7 @@ mod registry;
 
 pub use codec::{Codec, CodecMethods};
 pub use codec_class::{CodecClass, CodecClassMethods};
-pub use pycodec::PyCodec;
+pub use pycodec::{PyCodec, PyCodecClass};
 pub use registry::Registry;
 
 mod sealed {

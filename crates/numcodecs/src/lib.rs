@@ -19,26 +19,17 @@
 //!
 //! [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 
-use std::{borrow::Cow, error::Error};
+use std::{error::Error, marker::PhantomData};
 
 use ndarray::{CowArray, IxDyn};
 use serde::{Deserializer, Serializer};
 
 /// Compression codec that [`encode`][`Codec::encode`]s and
 /// [`decode`][`Codec::decode`]s numeric n-dimensional arrays.
-pub trait Codec: Clone {
+pub trait Codec: 'static + Send + Sync + Clone {
     /// Error type that may be returned during [`encode`][`Codec::encode`]ing
     /// and [`decode`][`Codec::decode`]ing.
     type Error: 'static + Send + Sync + Error;
-
-    /// Instantiate a codec from a serialized `config`uration.
-    ///
-    /// The config must be compatible with JSON encoding.
-    ///
-    /// # Errors
-    ///
-    /// Errors if constructing the codec fails.
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error>;
 
     /// Encodes the `data` and returns the result.
     ///
@@ -56,7 +47,7 @@ pub trait Codec: Clone {
 
     /// Serializes the configuration parameters for this codec.
     ///
-    /// The config must include an `id` field with the [`DynCodec::codec_id`].
+    /// The config must include an `id` field with the [`DynCodecType::codec_id`].
     /// The config must be compatible with JSON encoding.
     ///
     /// # Errors
@@ -68,6 +59,7 @@ pub trait Codec: Clone {
 /// Numeric n-dimensional arrays with dynamic shapes.
 #[non_exhaustive]
 #[derive(Clone, Debug, PartialEq)]
+#[allow(missing_docs)]
 pub enum AnyCowArray<'a> {
     U8(CowArray<'a, u8, IxDyn>),
     U16(CowArray<'a, u16, IxDyn>),
@@ -81,24 +73,87 @@ pub enum AnyCowArray<'a> {
     F64(CowArray<'a, f64, IxDyn>),
 }
 
-/// Compression codec whose [`CODEC_ID`](`StaticCodec::CODEC_ID`) is statically
-/// known.
-pub trait StaticCodec: 'static + Codec {
+/// Statically typed compression codec.
+pub trait StaticCodec: Codec {
     /// Codec identifier.
     const CODEC_ID: &'static str;
+
+    /// Instantiate a codec from a serialized `config`uration.
+    ///
+    /// The config must be compatible with JSON encoding.
+    ///
+    /// # Errors
+    ///
+    /// Errors if constructing the codec fails.
+    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error>;
 }
 
-/// Compression codec whose [`codec_id`](`DynCodec::codec_id`) is dynamically
-/// known.
+/// Dynamically typed compression codec.
 ///
 /// Every codec that implements [`StaticCodec`] also implements [`DynCodec`].
 pub trait DynCodec: Codec {
+    /// Type object type for this codec.
+    type Type: DynCodecType;
+
+    /// Returns the type object for this codec.
+    fn ty(&self) -> Self::Type;
+}
+
+/// Type object for dynamically typed compression codecs.
+pub trait DynCodecType: 'static + Send + Sync {
+    /// Type of the instances of this codec type object.
+    type Codec: DynCodec<Type = Self>;
+
     /// Codec identifier.
-    fn codec_id(&self) -> Cow<str>;
+    fn codec_id(&self) -> &str;
+
+    /// Instantiate a codec of this type from a serialized `config`uration.
+    ///
+    /// The config must be compatible with JSON encoding.
+    ///
+    /// # Errors
+    ///
+    /// Errors if constructing the codec fails.
+    fn codec_from_config<'de, D: Deserializer<'de>>(
+        &self,
+        config: D,
+    ) -> Result<Self::Codec, D::Error>;
 }
 
 impl<T: StaticCodec> DynCodec for T {
-    fn codec_id(&self) -> Cow<str> {
-        Cow::Borrowed(T::CODEC_ID)
+    type Type = StaticCodecType<Self>;
+
+    fn ty(&self) -> Self::Type {
+        StaticCodecType::of()
+    }
+}
+
+/// Type object for statically typed compression codecs.
+pub struct StaticCodecType<T: StaticCodec> {
+    _marker: PhantomData<T>,
+}
+
+impl<T: StaticCodec> StaticCodecType<T> {
+    /// Statically obtain the type for a statically typed codec.
+    #[must_use]
+    pub const fn of() -> Self {
+        Self {
+            _marker: PhantomData::<T>,
+        }
+    }
+}
+
+impl<T: StaticCodec> DynCodecType for StaticCodecType<T> {
+    type Codec = T;
+
+    fn codec_id(&self) -> &str {
+        T::CODEC_ID
+    }
+
+    fn codec_from_config<'de, D: Deserializer<'de>>(
+        &self,
+        config: D,
+    ) -> Result<Self::Codec, D::Error> {
+        T::from_config(config)
     }
 }

@@ -1,4 +1,4 @@
-use numcodecs::{AnyCowArray, Codec, DynCodec};
+use numcodecs::{AnyCowArray, Codec, DynCodec, DynCodecType};
 use numcodecs_python::{CodecClassMethods, CodecMethods, PyCodec, Registry};
 use numpy::ndarray::ArrayView1;
 use pyo3::{exceptions::PyRuntimeError, prelude::*, types::PyDict};
@@ -61,14 +61,20 @@ fn python_api() -> Result<(), PyErr> {
 #[test]
 fn rust_api() -> Result<(), PyErr> {
     // create a codec using registry lookup
-    let codec = PyCodec::from_config(json!({
+    let codec = PyCodec::from_registry_with_config(json!({
         "id": "crc32",
     }))
     .map_err(|err| PyRuntimeError::new_err(format!("{err}")))?;
-    assert_eq!(codec.codec_id(), "crc32");
+    assert_eq!(codec.ty().codec_id(), "crc32");
 
     // clone the codec
     let codec = codec.clone();
+
+    // create a codec using the type object
+    let codec = codec
+        .ty()
+        .codec_from_config(json!({}))
+        .map_err(|err| PyRuntimeError::new_err(format!("{err}")))?;
 
     // check the codec's config
     let config = codec
