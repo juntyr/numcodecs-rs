@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-99073656bbb10eb3.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (612a33f20 2024-07-29)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-2a506944c89e7bb4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-970bf1bf55bd1c15.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (f8060d282 2024-07-30)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f9142fe437216fc3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -102,6 +102,61 @@
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -123,26 +178,17 @@
 //!
 //! [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 
-</span><span class="kw">use </span>std::{borrow::Cow, error::Error};
+</span><span class="kw">use </span>std::{error::Error, marker::PhantomData};
 
 <span class="kw">use </span>ndarray::{CowArray, IxDyn};
 <span class="kw">use </span>serde::{Deserializer, Serializer};
 
 <span class="doccomment">/// Compression codec that [`encode`][`Codec::encode`]s and
 /// [`decode`][`Codec::decode`]s numeric n-dimensional arrays.
-</span><span class="kw">pub trait </span>Codec: Clone {
+</span><span class="kw">pub trait </span>Codec: <span class="lifetime">'static </span>+ Send + Sync + Clone {
     <span class="doccomment">/// Error type that may be returned during [`encode`][`Codec::encode`]ing
     /// and [`decode`][`Codec::decode`]ing.
     </span><span class="kw">type </span>Error: <span class="lifetime">'static </span>+ Send + Sync + Error;
-
-    <span class="doccomment">/// Instantiate a codec from a serialized `config`uration.
-    ///
-    /// The config must be compatible with JSON encoding.
-    ///
-    /// # Errors
-    ///
-    /// Errors if constructing the codec fails.
-    </span><span class="kw">fn </span>from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(config: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;;
 
     <span class="doccomment">/// Encodes the `data` and returns the result.
     ///
@@ -160,7 +206,7 @@
 
     <span class="doccomment">/// Serializes the configuration parameters for this codec.
     ///
-    /// The config must include an `id` field with the [`DynCodec::codec_id`].
+    /// The config must include an `id` field with the [`DynCodecType::codec_id`].
     /// The config must be compatible with JSON encoding.
     ///
     /// # Errors
@@ -172,6 +218,7 @@
 <span class="doccomment">/// Numeric n-dimensional arrays with dynamic shapes.
 </span><span class="attr">#[non_exhaustive]
 #[derive(Clone, Debug, PartialEq)]
+#[allow(missing_docs)]
 </span><span class="kw">pub enum </span>AnyCowArray&lt;<span class="lifetime">'a</span>&gt; {
     U8(CowArray&lt;<span class="lifetime">'a</span>, u8, IxDyn&gt;),
     U16(CowArray&lt;<span class="lifetime">'a</span>, u16, IxDyn&gt;),
@@ -185,25 +232,88 @@
     F64(CowArray&lt;<span class="lifetime">'a</span>, f64, IxDyn&gt;),
 }
 
-<span class="doccomment">/// Compression codec whose [`CODEC_ID`](`StaticCodec::CODEC_ID`) is statically
-/// known.
-</span><span class="kw">pub trait </span>StaticCodec: <span class="lifetime">'static </span>+ Codec {
+<span class="doccomment">/// Statically typed compression codec.
+</span><span class="kw">pub trait </span>StaticCodec: Codec {
     <span class="doccomment">/// Codec identifier.
     </span><span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
+
+    <span class="doccomment">/// Instantiate a codec from a serialized `config`uration.
+    ///
+    /// The config must be compatible with JSON encoding.
+    ///
+    /// # Errors
+    ///
+    /// Errors if constructing the codec fails.
+    </span><span class="kw">fn </span>from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(config: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;;
 }
 
-<span class="doccomment">/// Compression codec whose [`codec_id`](`DynCodec::codec_id`) is dynamically
-/// known.
+<span class="doccomment">/// Dynamically typed compression codec.
 ///
 /// Every codec that implements [`StaticCodec`] also implements [`DynCodec`].
 </span><span class="kw">pub trait </span>DynCodec: Codec {
+    <span class="doccomment">/// Type object type for this codec.
+    </span><span class="kw">type </span>Type: DynCodecType;
+
+    <span class="doccomment">/// Returns the type object for this codec.
+    </span><span class="kw">fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Type;
+}
+
+<span class="doccomment">/// Type object for dynamically typed compression codecs.
+</span><span class="kw">pub trait </span>DynCodecType: <span class="lifetime">'static </span>+ Send + Sync {
+    <span class="doccomment">/// Type of the instances of this codec type object.
+    </span><span class="kw">type </span>Codec: DynCodec&lt;Type = <span class="self">Self</span>&gt;;
+
     <span class="doccomment">/// Codec identifier.
-    </span><span class="kw">fn </span>codec_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;str&gt;;
+    </span><span class="kw">fn </span>codec_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str;
+
+    <span class="doccomment">/// Instantiate a codec of this type from a serialized `config`uration.
+    ///
+    /// The config must be compatible with JSON encoding.
+    ///
+    /// # Errors
+    ///
+    /// Errors if constructing the codec fails.
+    </span><span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        config: D,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Codec, D::Error&gt;;
 }
 
 <span class="kw">impl</span>&lt;T: StaticCodec&gt; DynCodec <span class="kw">for </span>T {
-    <span class="kw">fn </span>codec_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;str&gt; {
-        Cow::Borrowed(T::CODEC_ID)
+    <span class="kw">type </span>Type = StaticCodecType&lt;<span class="self">Self</span>&gt;;
+
+    <span class="kw">fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Type {
+        StaticCodecType::of()
+    }
+}
+
+<span class="doccomment">/// Type object for statically typed compression codecs.
+</span><span class="kw">pub struct </span>StaticCodecType&lt;T: StaticCodec&gt; {
+    _marker: PhantomData&lt;T&gt;,
+}
+
+<span class="kw">impl</span>&lt;T: StaticCodec&gt; StaticCodecType&lt;T&gt; {
+    <span class="doccomment">/// Statically obtain the type for a statically typed codec.
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>of() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            _marker: PhantomData::&lt;T&gt;,
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;T: StaticCodec&gt; DynCodecType <span class="kw">for </span>StaticCodecType&lt;T&gt; {
+    <span class="kw">type </span>Codec = T;
+
+    <span class="kw">fn </span>codec_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        T::CODEC_ID
+    }
+
+    <span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        config: D,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Codec, D::Error&gt; {
+        T::from_config(config)
     }
 }
 </code></pre></div></section></main></body></html>

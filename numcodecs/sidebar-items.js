@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AnyCowArray"],"trait":["Codec","DynCodec","StaticCodec"]};
+window.SIDEBAR_ITEMS = {"enum":["AnyCowArray"],"struct":["StaticCodecType"],"trait":["Codec","DynCodec","DynCodecType","StaticCodec"]};
