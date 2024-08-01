@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"numcodecs":[["impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.StructuralPartialEq.html\" title=\"trait core::marker::StructuralPartialEq\">StructuralPartialEq</a> for <a class=\"enum\" href=\"numcodecs/enum.AnyCowArray.html\" title=\"enum numcodecs::AnyCowArray\">AnyCowArray</a>&lt;'a&gt;"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
