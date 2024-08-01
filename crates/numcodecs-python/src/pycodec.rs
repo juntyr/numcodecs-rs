@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use numcodecs::{AnyCowArray, Codec, DynCodec, DynCodecType};
+use numcodecs::{
+    AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec,
+    DynCodecType,
+};
 use numpy::{ndarray::ArrayD, PyArray};
 use pyo3::{
     buffer::PyBuffer,
@@ -82,22 +85,22 @@ impl PyCodec {
 impl Codec for PyCodec {
     type Error = PyErr;
 
-    fn encode<'a>(&self, data: AnyCowArray<'a>) -> Result<AnyCowArray<'a>, Self::Error> {
+    fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         Python::with_gil(|py| {
             let this = self.codec.bind(py).clone().into_any();
             #[allow(unsafe_code)] // FIXME
             let data = unsafe {
                 match &data {
-                    AnyCowArray::U8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyCowArray::U16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyCowArray::U32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyCowArray::U64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyCowArray::I8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyCowArray::I16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyCowArray::I32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyCowArray::I64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyCowArray::F32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyCowArray::F64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::U8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::U16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::U32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::U64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::I8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::I16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::I32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::I64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::F32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::F64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
                     _ => return Err(PyTypeError::new_err("unsupported type of data buffer")),
                 }
             };
@@ -109,63 +112,64 @@ impl Codec for PyCodec {
             )?;
             let data = data.call_method0(intern!(py, "view"))?;
 
+            // TODO: use numpy instead
             let encoded = self.codec.bind(py).encode(data.as_borrowed())?;
             let encoded = if let Ok(e) = encoded.extract::<PyBuffer<u8>>() {
-                AnyCowArray::U8(
+                AnyArrayBase::U8(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = encoded.extract::<PyBuffer<u16>>() {
-                AnyCowArray::U16(
+                AnyArrayBase::U16(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = encoded.extract::<PyBuffer<u32>>() {
-                AnyCowArray::U32(
+                AnyArrayBase::U32(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = encoded.extract::<PyBuffer<u64>>() {
-                AnyCowArray::U64(
+                AnyArrayBase::U64(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = encoded.extract::<PyBuffer<i8>>() {
-                AnyCowArray::I8(
+                AnyArrayBase::I8(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = encoded.extract::<PyBuffer<i16>>() {
-                AnyCowArray::I16(
+                AnyArrayBase::I16(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = encoded.extract::<PyBuffer<i32>>() {
-                AnyCowArray::I32(
+                AnyArrayBase::I32(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = encoded.extract::<PyBuffer<i64>>() {
-                AnyCowArray::I64(
+                AnyArrayBase::I64(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = encoded.extract::<PyBuffer<f32>>() {
-                AnyCowArray::F32(
+                AnyArrayBase::F32(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = encoded.extract::<PyBuffer<f64>>() {
-                AnyCowArray::F64(
+                AnyArrayBase::F64(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
@@ -178,22 +182,22 @@ impl Codec for PyCodec {
         })
     }
 
-    fn decode<'a>(&self, encoded: AnyCowArray<'a>) -> Result<AnyCowArray<'a>, Self::Error> {
+    fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         Python::with_gil(|py| {
             let this = self.codec.bind(py).clone().into_any();
             #[allow(unsafe_code)] // FIXME
             let encoded = unsafe {
                 match &encoded {
-                    AnyCowArray::U8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyCowArray::U16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyCowArray::U32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyCowArray::U64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyCowArray::I8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyCowArray::I16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyCowArray::I32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyCowArray::I64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyCowArray::F32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyCowArray::F64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::U8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::U16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::U32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::U64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::I8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::I16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::I32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::I64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::F32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::F64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
                     _ => return Err(PyTypeError::new_err("unsupported type of encoded buffer")),
                 }
             };
@@ -205,64 +209,64 @@ impl Codec for PyCodec {
             )?;
             let encoded = encoded.call_method0(intern!(py, "view"))?;
 
-            // TODO: handle optional out parameter
+            // TODO: use numpy instead
             let decoded = self.codec.bind(py).decode(encoded.as_borrowed(), None)?;
             let decoded = if let Ok(e) = decoded.extract::<PyBuffer<u8>>() {
-                AnyCowArray::U8(
+                AnyArrayBase::U8(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = decoded.extract::<PyBuffer<u16>>() {
-                AnyCowArray::U16(
+                AnyArrayBase::U16(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = decoded.extract::<PyBuffer<u32>>() {
-                AnyCowArray::U32(
+                AnyArrayBase::U32(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = decoded.extract::<PyBuffer<u64>>() {
-                AnyCowArray::U64(
+                AnyArrayBase::U64(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = decoded.extract::<PyBuffer<i8>>() {
-                AnyCowArray::I8(
+                AnyArrayBase::I8(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = decoded.extract::<PyBuffer<i16>>() {
-                AnyCowArray::I16(
+                AnyArrayBase::I16(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = decoded.extract::<PyBuffer<i32>>() {
-                AnyCowArray::I32(
+                AnyArrayBase::I32(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = decoded.extract::<PyBuffer<i64>>() {
-                AnyCowArray::I64(
+                AnyArrayBase::I64(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = decoded.extract::<PyBuffer<f32>>() {
-                AnyCowArray::F32(
+                AnyArrayBase::F32(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
                 )
             } else if let Ok(e) = decoded.extract::<PyBuffer<f64>>() {
-                AnyCowArray::F64(
+                AnyArrayBase::F64(
                     ArrayD::from_shape_vec(e.shape(), e.to_vec(py)?)
                         .map_err(|err| PyIndexError::new_err(format!("{err}")))?
                         .into(),
@@ -272,6 +276,63 @@ impl Codec for PyCodec {
             };
 
             Ok(decoded)
+        })
+    }
+
+    fn decode_into(
+        &self,
+        encoded: AnyArrayView,
+        decoded: AnyArrayViewMut,
+    ) -> Result<(), Self::Error> {
+        Python::with_gil(|py| {
+            let this = self.codec.bind(py).clone().into_any();
+            #[allow(unsafe_code)] // FIXME
+            let encoded = unsafe {
+                match &encoded {
+                    AnyArrayBase::U8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::U16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::U32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::U64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::I8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::I16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::I32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::I64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::F32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    AnyArrayBase::F64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
+                    _ => return Err(PyTypeError::new_err("unsupported type of encoded buffer")),
+                }
+            };
+            // create a fully-immutable view of the data that is safe to pass to Python
+            encoded.call_method(
+                intern!(py, "setflags"),
+                (),
+                Some(&[(intern!(py, "write"), false)].into_py_dict_bound(py)),
+            )?;
+            let encoded = encoded.call_method0(intern!(py, "view"))?;
+
+            let this = self.codec.bind(py).clone().into_any();
+            #[allow(unsafe_code)] // FIXME
+            let decoded = unsafe {
+                match &decoded {
+                    AnyArrayBase::U8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::U16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::U32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::U64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::I8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::I16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::I32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::I64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::F32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    AnyArrayBase::F64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
+                    _ => return Err(PyTypeError::new_err("unsupported type of decoded buffer")),
+                }
+            };
+
+            self.codec
+                .bind(py)
+                .decode(encoded.as_borrowed(), Some(decoded.as_borrowed()))?;
+
+            Ok(())
         })
     }
 

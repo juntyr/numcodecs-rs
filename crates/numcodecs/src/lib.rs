@@ -19,9 +19,12 @@
 //!
 //! [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 
-use std::{error::Error, marker::PhantomData};
+use std::{error::Error, fmt, marker::PhantomData};
 
-use ndarray::{CowArray, IxDyn};
+use ndarray::{
+    ArrayBase, CowRepr, Data, DataMut, IxDyn, OwnedArcRepr, OwnedRepr, RawData, RawDataClone,
+    RawDataSubst, RawViewRepr, ViewRepr,
+};
 use serde::{Deserializer, Serializer};
 
 /// Compression codec that [`encode`][`Codec::encode`]s and
@@ -36,14 +39,28 @@ pub trait Codec: 'static + Send + Sync + Clone {
     /// # Errors
     ///
     /// Errors if encoding the buffer fails.
-    fn encode<'a>(&self, data: AnyCowArray<'a>) -> Result<AnyCowArray<'a>, Self::Error>;
+    fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error>;
 
     /// Decodes the `encoded` data and returns the result.
     ///
     /// # Errors
     ///
-    /// Errors if encoding the buffer fails.
-    fn decode<'a>(&self, encoded: AnyCowArray<'a>) -> Result<AnyCowArray<'a>, Self::Error>;
+    /// Errors if decoding the buffer fails.
+    fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error>;
+
+    /// Decodes the `encoded` data and writes the result into the provided
+    /// `decoded` output.
+    ///
+    /// The output must have the correct type and shape.
+    ///
+    /// # Errors
+    ///
+    /// Errors if decoding the buffer fails.
+    fn decode_into(
+        &self,
+        encoded: AnyArrayView,
+        decoded: AnyArrayViewMut,
+    ) -> Result<(), Self::Error>;
 
     /// Serializes the configuration parameters for this codec.
     ///
@@ -58,19 +75,300 @@ pub trait Codec: 'static + Send + Sync + Clone {
 
 /// Numeric n-dimensional arrays with dynamic shapes.
 #[non_exhaustive]
-#[derive(Clone, Debug, PartialEq)]
 #[allow(missing_docs)]
-pub enum AnyCowArray<'a> {
-    U8(CowArray<'a, u8, IxDyn>),
-    U16(CowArray<'a, u16, IxDyn>),
-    U32(CowArray<'a, u32, IxDyn>),
-    U64(CowArray<'a, u64, IxDyn>),
-    I8(CowArray<'a, i8, IxDyn>),
-    I16(CowArray<'a, i16, IxDyn>),
-    I32(CowArray<'a, i32, IxDyn>),
-    I64(CowArray<'a, i64, IxDyn>),
-    F32(CowArray<'a, f32, IxDyn>),
-    F64(CowArray<'a, f64, IxDyn>),
+pub enum AnyArrayBase<T: AnyRawData> {
+    U8(ArrayBase<T::U8, IxDyn>),
+    U16(ArrayBase<T::U16, IxDyn>),
+    U32(ArrayBase<T::U32, IxDyn>),
+    U64(ArrayBase<T::U64, IxDyn>),
+    I8(ArrayBase<T::I8, IxDyn>),
+    I16(ArrayBase<T::I16, IxDyn>),
+    I32(ArrayBase<T::I32, IxDyn>),
+    I64(ArrayBase<T::I64, IxDyn>),
+    F32(ArrayBase<T::F32, IxDyn>),
+    F64(ArrayBase<T::F64, IxDyn>),
+}
+
+impl<T: AnyRawData> AnyArrayBase<T> {
+    pub fn len(&self) -> usize {
+        match self {
+            Self::U8(a) => a.len(),
+            Self::U16(a) => a.len(),
+            Self::U32(a) => a.len(),
+            Self::U64(a) => a.len(),
+            Self::I8(a) => a.len(),
+            Self::I16(a) => a.len(),
+            Self::I32(a) => a.len(),
+            Self::I64(a) => a.len(),
+            Self::F32(a) => a.len(),
+            Self::F64(a) => a.len(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Self::U8(a) => a.is_empty(),
+            Self::U16(a) => a.is_empty(),
+            Self::U32(a) => a.is_empty(),
+            Self::U64(a) => a.is_empty(),
+            Self::I8(a) => a.is_empty(),
+            Self::I16(a) => a.is_empty(),
+            Self::I32(a) => a.is_empty(),
+            Self::I64(a) => a.is_empty(),
+            Self::F32(a) => a.is_empty(),
+            Self::F64(a) => a.is_empty(),
+        }
+    }
+
+    pub fn shape(&self) -> &[usize] {
+        match self {
+            Self::U8(a) => a.shape(),
+            Self::U16(a) => a.shape(),
+            Self::U32(a) => a.shape(),
+            Self::U64(a) => a.shape(),
+            Self::I8(a) => a.shape(),
+            Self::I16(a) => a.shape(),
+            Self::I32(a) => a.shape(),
+            Self::I64(a) => a.shape(),
+            Self::F32(a) => a.shape(),
+            Self::F64(a) => a.shape(),
+        }
+    }
+
+    pub fn strides(&self) -> &[isize] {
+        match self {
+            Self::U8(a) => a.strides(),
+            Self::U16(a) => a.strides(),
+            Self::U32(a) => a.strides(),
+            Self::U64(a) => a.strides(),
+            Self::I8(a) => a.strides(),
+            Self::I16(a) => a.strides(),
+            Self::I32(a) => a.strides(),
+            Self::I64(a) => a.strides(),
+            Self::F32(a) => a.strides(),
+            Self::F64(a) => a.strides(),
+        }
+    }
+}
+
+impl<
+        T: AnyRawData<
+            U8: Data,
+            U16: Data,
+            U32: Data,
+            U64: Data,
+            I8: Data,
+            I16: Data,
+            I32: Data,
+            I64: Data,
+            F32: Data,
+            F64: Data,
+        >,
+    > AnyArrayBase<T>
+{
+    #[must_use]
+    pub fn view(&self) -> AnyArrayView {
+        match self {
+            Self::U8(a) => AnyArrayView::U8(a.view()),
+            Self::U16(a) => AnyArrayView::U16(a.view()),
+            Self::U32(a) => AnyArrayView::U32(a.view()),
+            Self::U64(a) => AnyArrayView::U64(a.view()),
+            Self::I8(a) => AnyArrayView::I8(a.view()),
+            Self::I16(a) => AnyArrayView::I16(a.view()),
+            Self::I32(a) => AnyArrayView::I32(a.view()),
+            Self::I64(a) => AnyArrayView::I64(a.view()),
+            Self::F32(a) => AnyArrayView::F32(a.view()),
+            Self::F64(a) => AnyArrayView::F64(a.view()),
+        }
+    }
+
+    #[must_use]
+    pub fn cow(&self) -> AnyCowArray {
+        match self {
+            Self::U8(a) => AnyCowArray::U8(a.into()),
+            Self::U16(a) => AnyCowArray::U16(a.into()),
+            Self::U32(a) => AnyCowArray::U32(a.into()),
+            Self::U64(a) => AnyCowArray::U64(a.into()),
+            Self::I8(a) => AnyCowArray::I8(a.into()),
+            Self::I16(a) => AnyCowArray::I16(a.into()),
+            Self::I32(a) => AnyCowArray::I32(a.into()),
+            Self::I64(a) => AnyCowArray::I64(a.into()),
+            Self::F32(a) => AnyCowArray::F32(a.into()),
+            Self::F64(a) => AnyCowArray::F64(a.into()),
+        }
+    }
+}
+
+impl<
+        T: AnyRawData<
+            U8: DataMut,
+            U16: DataMut,
+            U32: DataMut,
+            U64: DataMut,
+            I8: DataMut,
+            I16: DataMut,
+            I32: DataMut,
+            I64: DataMut,
+            F32: DataMut,
+            F64: DataMut,
+        >,
+    > AnyArrayBase<T>
+{
+    #[must_use]
+    pub fn view_mut(&mut self) -> AnyArrayViewMut {
+        match self {
+            Self::U8(a) => AnyArrayViewMut::U8(a.view_mut()),
+            Self::U16(a) => AnyArrayViewMut::U16(a.view_mut()),
+            Self::U32(a) => AnyArrayViewMut::U32(a.view_mut()),
+            Self::U64(a) => AnyArrayViewMut::U64(a.view_mut()),
+            Self::I8(a) => AnyArrayViewMut::I8(a.view_mut()),
+            Self::I16(a) => AnyArrayViewMut::I16(a.view_mut()),
+            Self::I32(a) => AnyArrayViewMut::I32(a.view_mut()),
+            Self::I64(a) => AnyArrayViewMut::I64(a.view_mut()),
+            Self::F32(a) => AnyArrayViewMut::F32(a.view_mut()),
+            Self::F64(a) => AnyArrayViewMut::F64(a.view_mut()),
+        }
+    }
+}
+
+impl<
+        T: AnyRawData<
+            U8: RawDataClone,
+            U16: RawDataClone,
+            U32: RawDataClone,
+            U64: RawDataClone,
+            I8: RawDataClone,
+            I16: RawDataClone,
+            I32: RawDataClone,
+            I64: RawDataClone,
+            F32: RawDataClone,
+            F64: RawDataClone,
+        >,
+    > Clone for AnyArrayBase<T>
+{
+    fn clone(&self) -> Self {
+        match self {
+            Self::U8(a) => Self::U8(a.clone()),
+            Self::U16(a) => Self::U16(a.clone()),
+            Self::U32(a) => Self::U32(a.clone()),
+            Self::U64(a) => Self::U64(a.clone()),
+            Self::I8(a) => Self::I8(a.clone()),
+            Self::I16(a) => Self::I16(a.clone()),
+            Self::I32(a) => Self::I32(a.clone()),
+            Self::I64(a) => Self::I64(a.clone()),
+            Self::F32(a) => Self::F32(a.clone()),
+            Self::F64(a) => Self::F64(a.clone()),
+        }
+    }
+}
+
+impl<
+        T: AnyRawData<
+            U8: Data,
+            U16: Data,
+            U32: Data,
+            U64: Data,
+            I8: Data,
+            I16: Data,
+            I32: Data,
+            I64: Data,
+            F32: Data,
+            F64: Data,
+        >,
+    > fmt::Debug for AnyArrayBase<T>
+{
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::U8(a) => fmt.debug_tuple("U8").field(a).finish(),
+            Self::U16(a) => fmt.debug_tuple("U16").field(a).finish(),
+            Self::U32(a) => fmt.debug_tuple("U32").field(a).finish(),
+            Self::U64(a) => fmt.debug_tuple("U64").field(a).finish(),
+            Self::I8(a) => fmt.debug_tuple("I8").field(a).finish(),
+            Self::I16(a) => fmt.debug_tuple("I16").field(a).finish(),
+            Self::I32(a) => fmt.debug_tuple("I32").field(a).finish(),
+            Self::I64(a) => fmt.debug_tuple("I64").field(a).finish(),
+            Self::F32(a) => fmt.debug_tuple("F32").field(a).finish(),
+            Self::F64(a) => fmt.debug_tuple("F64").field(a).finish(),
+        }
+    }
+}
+
+impl<
+        T: AnyRawData<
+            U8: Data,
+            U16: Data,
+            U32: Data,
+            U64: Data,
+            I8: Data,
+            I16: Data,
+            I32: Data,
+            I64: Data,
+            F32: Data,
+            F64: Data,
+        >,
+    > PartialEq for AnyArrayBase<T>
+{
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::U8(l), Self::U8(r)) => l == r,
+            (Self::U16(l), Self::U16(r)) => l == r,
+            (Self::U32(l), Self::U32(r)) => l == r,
+            (Self::U64(l), Self::U64(r)) => l == r,
+            (Self::I8(l), Self::I8(r)) => l == r,
+            (Self::I16(l), Self::I16(r)) => l == r,
+            (Self::I32(l), Self::I32(r)) => l == r,
+            (Self::I64(l), Self::I64(r)) => l == r,
+            (Self::F32(l), Self::F32(r)) => l == r,
+            (Self::F64(l), Self::F64(r)) => l == r,
+            _ => false,
+        }
+    }
+}
+
+pub type AnyArcArray = AnyArrayBase<OwnedArcRepr<()>>;
+pub type AnyArray = AnyArrayBase<OwnedRepr<()>>;
+pub type AnyArrayView<'a> = AnyArrayBase<ViewRepr<&'a ()>>;
+pub type AnyArrayViewMut<'a> = AnyArrayBase<ViewRepr<&'a mut ()>>;
+pub type AnyCowArray<'a> = AnyArrayBase<CowRepr<'a, ()>>;
+pub type AnyRawArrayView = AnyArrayBase<RawViewRepr<*const ()>>;
+pub type AnyRawArrayViewMut = AnyArrayBase<RawViewRepr<*mut ()>>;
+
+pub trait AnyRawData {
+    type U8: RawData<Elem = u8>;
+    type U16: RawData<Elem = u16>;
+    type U32: RawData<Elem = u32>;
+    type U64: RawData<Elem = u64>;
+    type I8: RawData<Elem = i8>;
+    type I16: RawData<Elem = i16>;
+    type I32: RawData<Elem = i32>;
+    type I64: RawData<Elem = i64>;
+    type F32: RawData<Elem = f32>;
+    type F64: RawData<Elem = f64>;
+}
+
+impl<
+        T: RawDataSubst<u8>
+            + RawDataSubst<u16>
+            + RawDataSubst<u32>
+            + RawDataSubst<u64>
+            + RawDataSubst<i8>
+            + RawDataSubst<i16>
+            + RawDataSubst<i32>
+            + RawDataSubst<i64>
+            + RawDataSubst<f32>
+            + RawDataSubst<f64>,
+    > AnyRawData for T
+{
+    type U8 = <T as RawDataSubst<u8>>::Output;
+    type U16 = <T as RawDataSubst<u16>>::Output;
+    type U32 = <T as RawDataSubst<u32>>::Output;
+    type U64 = <T as RawDataSubst<u64>>::Output;
+    type I8 = <T as RawDataSubst<i8>>::Output;
+    type I16 = <T as RawDataSubst<i16>>::Output;
+    type I32 = <T as RawDataSubst<i32>>::Output;
+    type I64 = <T as RawDataSubst<i64>>::Output;
+    type F32 = <T as RawDataSubst<f32>>::Output;
+    type F64 = <T as RawDataSubst<f64>>::Output;
 }
 
 /// Statically typed compression codec.

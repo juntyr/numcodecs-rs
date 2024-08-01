@@ -15,6 +15,7 @@ keywords = ["numcodecs", "compression", "encoding", "python", "pyo3"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+convert_case = { workspace = true }
 numcodecs = { workspace = true }
 numpy = { workspace = true }
 pyo3 = { workspace = true }
