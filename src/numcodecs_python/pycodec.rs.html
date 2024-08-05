@@ -474,6 +474,8 @@
 <a href="#474" id="474">474</a>
 <a href="#475" id="475">475</a>
 <a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>numcodecs::{
@@ -698,7 +700,8 @@
         })
     }
 
-    <span class="kw">fn </span>decode_into(
+    <span class="attr">#[allow(clippy::too_many_lines)] </span><span class="comment">// FIXME
+    </span><span class="kw">fn </span>decode_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         encoded: AnyArrayView,
         decoded: AnyArrayViewMut,
@@ -772,7 +775,8 @@
                 </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"asarray"</span>))<span class="question-mark">?
                 </span>.call1((decoded_out,))<span class="question-mark">?
                 </span>.extract()<span class="question-mark">?</span>;
-            <span class="kw">if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;u8&gt;&gt;() {
+            <span class="attr">#[allow(clippy::unit_arg)]
+            </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;u8&gt;&gt;() {
                 <span class="kw">if let </span>AnyArrayBase::U8(<span class="kw-2">mut </span>decoded) = decoded {
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
                 }

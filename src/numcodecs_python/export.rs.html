@@ -512,7 +512,6 @@
 <a href="#512" id="512">512</a>
 <a href="#513" id="513">513</a>
 <a href="#514" id="514">514</a>
-<a href="#515" id="515">515</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>numcodecs::{AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType};
 <span class="kw">use </span>numpy::{
     ndarray::{ArrayViewD, ArrayViewMutD, CowArray},
@@ -598,21 +597,20 @@
 
 <span class="kw">impl</span>&lt;T: Codec&gt; AnyCodec <span class="kw">for </span>T {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, PyErr&gt; {
-        &lt;T <span class="kw">as </span>Codec&gt;::encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data).map_err(|err| PyRuntimeError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))
+        &lt;T <span class="kw">as </span>Codec&gt;::encode(<span class="self">self</span>, data).map_err(|err| PyRuntimeError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))
     }
 
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, PyErr&gt; {
-        &lt;T <span class="kw">as </span>Codec&gt;::decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded)
-            .map_err(|err| PyRuntimeError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))
+        &lt;T <span class="kw">as </span>Codec&gt;::decode(<span class="self">self</span>, encoded).map_err(|err| PyRuntimeError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))
     }
 
     <span class="kw">fn </span>decode_into(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyArrayView, decoded: AnyArrayViewMut) -&gt; <span class="prelude-ty">Result</span>&lt;(), PyErr&gt; {
-        &lt;T <span class="kw">as </span>Codec&gt;::decode_into(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded, decoded)
+        &lt;T <span class="kw">as </span>Codec&gt;::decode_into(<span class="self">self</span>, encoded, decoded)
             .map_err(|err| PyRuntimeError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))
     }
 
     <span class="kw">fn </span>get_config&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;, PyErr&gt; {
-        &lt;T <span class="kw">as </span>Codec&gt;::get_config(<span class="kw-2">&amp;</span><span class="self">self</span>, Pythonizer::new(py))<span class="question-mark">?</span>.extract(py)
+        &lt;T <span class="kw">as </span>Codec&gt;::get_config(<span class="self">self</span>, Pythonizer::new(py))<span class="question-mark">?</span>.extract(py)
     }
 }
 
@@ -629,7 +627,7 @@
         config: Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span><span class="lifetime">'static </span>+ Send + Sync + AnyCodec&gt;, PyErr&gt; {
         <span class="kw">match </span>&lt;T <span class="kw">as </span>DynCodecType&gt;::codec_from_config(
-            <span class="kw-2">&amp;</span><span class="self">self</span>,
+            <span class="self">self</span>,
             <span class="kw-2">&amp;mut </span>Depythonizer::from_object_bound(config.into_any()),
         ) {
             <span class="prelude-val">Ok</span>(codec) =&gt; <span class="prelude-val">Ok</span>(Box::new(codec)),
@@ -673,10 +671,10 @@
             .ty
             .codec_from_config(kwargs.unwrap_or_else(|| PyDict::new_bound(py)))<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(RustCodec {
-            codec,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             cls_module,
             cls_name,
+            codec,
         })
     }
 
