@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/pycodec.rs`."><title>pycodec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-970bf1bf55bd1c15.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (28a58f2fa 2024-07-31)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f9142fe437216fc3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/pycodec.rs`."><title>pycodec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (176e54520 2024-08-04)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -459,16 +459,30 @@
 <a href="#459" id="459">459</a>
 <a href="#460" id="460">460</a>
 <a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>numcodecs::{
     AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec,
     DynCodecType,
 };
-<span class="kw">use </span>numpy::{ndarray::ArrayD, PyArray};
+<span class="kw">use </span>numpy::{PyArray, PyArrayDyn, PyArrayMethods, PyUntypedArray, PyUntypedArrayMethods};
 <span class="kw">use </span>pyo3::{
-    buffer::PyBuffer,
-    exceptions::{PyIndexError, PyTypeError},
+    exceptions::PyTypeError,
     intern,
     prelude::<span class="kw-2">*</span>,
     types::{IntoPyDict, PyDict, PyDictMethods},
@@ -562,7 +576,12 @@
                     AnyArrayBase::I64(d) =&gt; PyArray::borrow_from_array_bound(d, this).into_any(),
                     AnyArrayBase::F32(d) =&gt; PyArray::borrow_from_array_bound(d, this).into_any(),
                     AnyArrayBase::F64(d) =&gt; PyArray::borrow_from_array_bound(d, this).into_any(),
-                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="string">"unsupported type of data buffer"</span>)),
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+                            <span class="string">"unsupported type {} of data buffer"</span>,
+                            data.dtype()
+                        )))
+                    }
                 }
             };
             <span class="comment">// create a fully-immutable view of the data that is safe to pass to Python
@@ -573,70 +592,37 @@
             )<span class="question-mark">?</span>;
             <span class="kw">let </span>data = data.call_method0(<span class="macro">intern!</span>(py, <span class="string">"view"</span>))<span class="question-mark">?</span>;
 
-            <span class="comment">// TODO: use numpy instead
-            </span><span class="kw">let </span>encoded = <span class="self">self</span>.codec.bind(py).encode(data.as_borrowed())<span class="question-mark">?</span>;
-            <span class="kw">let </span>encoded = <span class="kw">if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;u8&gt;&gt;() {
-                AnyArrayBase::U8(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;u16&gt;&gt;() {
-                AnyArrayBase::U16(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;u32&gt;&gt;() {
-                AnyArrayBase::U32(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;u64&gt;&gt;() {
-                AnyArrayBase::U64(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;i8&gt;&gt;() {
-                AnyArrayBase::I8(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;i16&gt;&gt;() {
-                AnyArrayBase::I16(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;i32&gt;&gt;() {
-                AnyArrayBase::I32(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;i64&gt;&gt;() {
-                AnyArrayBase::I64(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;f32&gt;&gt;() {
-                AnyArrayBase::F32(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.extract::&lt;PyBuffer&lt;f64&gt;&gt;() {
-                AnyArrayBase::F64(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
+            <span class="kw">let </span>encoded = <span class="self">self</span>.codec.bind(py).encode(data.as_borrowed())<span class="question-mark">?</span>;
+            <span class="kw">let </span>encoded: Bound&lt;PyUntypedArray&gt; = py
+                .import_bound(<span class="macro">intern!</span>(py, <span class="string">"numpy"</span>))<span class="question-mark">?
+                </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"asarray"</span>))<span class="question-mark">?
+                </span>.call1((encoded,))<span class="question-mark">?
+                </span>.extract()<span class="question-mark">?</span>;
+            <span class="kw">let </span>encoded = <span class="kw">if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;u8&gt;&gt;() {
+                AnyArrayBase::U8(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;u16&gt;&gt;() {
+                AnyArrayBase::U16(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;u32&gt;&gt;() {
+                AnyArrayBase::U32(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;u64&gt;&gt;() {
+                AnyArrayBase::U64(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;i8&gt;&gt;() {
+                AnyArrayBase::I8(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;i16&gt;&gt;() {
+                AnyArrayBase::I16(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;i32&gt;&gt;() {
+                AnyArrayBase::I32(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;i64&gt;&gt;() {
+                AnyArrayBase::I64(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;f32&gt;&gt;() {
+                AnyArrayBase::F32(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = encoded.downcast::&lt;PyArrayDyn&lt;f64&gt;&gt;() {
+                AnyArrayBase::F64(e.try_readonly()<span class="question-mark">?</span>.to_owned_array())
             } <span class="kw">else </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="string">"unsupported type of encoded buffer"</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+                    <span class="string">"unsupported dtype {} of encoded buffer"</span>,
+                    encoded.dtype()
+                )));
             };
 
             <span class="prelude-val">Ok</span>(encoded)
@@ -659,7 +645,12 @@
                     AnyArrayBase::I64(e) =&gt; PyArray::borrow_from_array_bound(e, this).into_any(),
                     AnyArrayBase::F32(e) =&gt; PyArray::borrow_from_array_bound(e, this).into_any(),
                     AnyArrayBase::F64(e) =&gt; PyArray::borrow_from_array_bound(e, this).into_any(),
-                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="string">"unsupported type of encoded buffer"</span>)),
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+                            <span class="string">"unsupported type {} of encoded buffer"</span>,
+                            encoded.dtype()
+                        )))
+                    }
                 }
             };
             <span class="comment">// create a fully-immutable view of the data that is safe to pass to Python
@@ -670,70 +661,37 @@
             )<span class="question-mark">?</span>;
             <span class="kw">let </span>encoded = encoded.call_method0(<span class="macro">intern!</span>(py, <span class="string">"view"</span>))<span class="question-mark">?</span>;
 
-            <span class="comment">// TODO: use numpy instead
-            </span><span class="kw">let </span>decoded = <span class="self">self</span>.codec.bind(py).decode(encoded.as_borrowed(), <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
-            <span class="kw">let </span>decoded = <span class="kw">if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;u8&gt;&gt;() {
-                AnyArrayBase::U8(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;u16&gt;&gt;() {
-                AnyArrayBase::U16(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;u32&gt;&gt;() {
-                AnyArrayBase::U32(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;u64&gt;&gt;() {
-                AnyArrayBase::U64(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;i8&gt;&gt;() {
-                AnyArrayBase::I8(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;i16&gt;&gt;() {
-                AnyArrayBase::I16(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;i32&gt;&gt;() {
-                AnyArrayBase::I32(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;i64&gt;&gt;() {
-                AnyArrayBase::I64(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;f32&gt;&gt;() {
-                AnyArrayBase::F32(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
-            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(e) = decoded.extract::&lt;PyBuffer&lt;f64&gt;&gt;() {
-                AnyArrayBase::F64(
-                    ArrayD::from_shape_vec(e.shape(), e.to_vec(py)<span class="question-mark">?</span>)
-                        .map_err(|err| PyIndexError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))<span class="question-mark">?
-                        </span>.into(),
-                )
+            <span class="kw">let </span>decoded = <span class="self">self</span>.codec.bind(py).decode(encoded.as_borrowed(), <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>decoded: Bound&lt;PyUntypedArray&gt; = py
+                .import_bound(<span class="macro">intern!</span>(py, <span class="string">"numpy"</span>))<span class="question-mark">?
+                </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"asarray"</span>))<span class="question-mark">?
+                </span>.call1((decoded,))<span class="question-mark">?
+                </span>.extract()<span class="question-mark">?</span>;
+            <span class="kw">let </span>decoded = <span class="kw">if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;u8&gt;&gt;() {
+                AnyArrayBase::U8(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;u16&gt;&gt;() {
+                AnyArrayBase::U16(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;u32&gt;&gt;() {
+                AnyArrayBase::U32(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;u64&gt;&gt;() {
+                AnyArrayBase::U64(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;i8&gt;&gt;() {
+                AnyArrayBase::I8(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;i16&gt;&gt;() {
+                AnyArrayBase::I16(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;i32&gt;&gt;() {
+                AnyArrayBase::I32(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;i64&gt;&gt;() {
+                AnyArrayBase::I64(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;f32&gt;&gt;() {
+                AnyArrayBase::F32(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded.downcast::&lt;PyArrayDyn&lt;f64&gt;&gt;() {
+                AnyArrayBase::F64(d.try_readonly()<span class="question-mark">?</span>.to_owned_array())
             } <span class="kw">else </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="string">"unsupported type of decoded buffer"</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+                    <span class="string">"unsupported dtype {} of decoded buffer"</span>,
+                    decoded.dtype()
+                )));
             };
 
             <span class="prelude-val">Ok</span>(decoded)
@@ -760,7 +718,12 @@
                     AnyArrayBase::I64(e) =&gt; PyArray::borrow_from_array_bound(e, this).into_any(),
                     AnyArrayBase::F32(e) =&gt; PyArray::borrow_from_array_bound(e, this).into_any(),
                     AnyArrayBase::F64(e) =&gt; PyArray::borrow_from_array_bound(e, this).into_any(),
-                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="string">"unsupported type of encoded buffer"</span>)),
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+                            <span class="string">"unsupported type {} of encoded buffer"</span>,
+                            encoded.dtype()
+                        )))
+                    }
                 }
             };
             <span class="comment">// create a fully-immutable view of the data that is safe to pass to Python
@@ -773,7 +736,7 @@
 
             <span class="kw">let </span>this = <span class="self">self</span>.codec.bind(py).clone().into_any();
             <span class="attr">#[allow(unsafe_code)] </span><span class="comment">// FIXME
-            </span><span class="kw">let </span>decoded = <span class="kw">unsafe </span>{
+            </span><span class="kw">let </span>decoded_in = <span class="kw">unsafe </span>{
                 <span class="kw">match </span><span class="kw-2">&amp;</span>decoded {
                     AnyArrayBase::U8(d) =&gt; PyArray::borrow_from_array_bound(d, this).into_any(),
                     AnyArrayBase::U16(d) =&gt; PyArray::borrow_from_array_bound(d, this).into_any(),
@@ -785,15 +748,82 @@
                     AnyArrayBase::I64(d) =&gt; PyArray::borrow_from_array_bound(d, this).into_any(),
                     AnyArrayBase::F32(d) =&gt; PyArray::borrow_from_array_bound(d, this).into_any(),
                     AnyArrayBase::F64(d) =&gt; PyArray::borrow_from_array_bound(d, this).into_any(),
-                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="string">"unsupported type of decoded buffer"</span>)),
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+                            <span class="string">"unsupported type {} of decoded buffer"</span>,
+                            decoded.dtype()
+                        )))
+                    }
                 }
             };
 
-            <span class="self">self</span>.codec
+            <span class="kw">let </span>decoded_out = <span class="self">self
+                </span>.codec
                 .bind(py)
-                .decode(encoded.as_borrowed(), <span class="prelude-val">Some</span>(decoded.as_borrowed()))<span class="question-mark">?</span>;
+                .decode(encoded.as_borrowed(), <span class="prelude-val">Some</span>(decoded_in.as_borrowed()))<span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(())
+            <span class="comment">// Ideally, all codecs should just use the provided out array
+            </span><span class="kw">if </span>decoded_out.is(<span class="kw-2">&amp;</span>decoded_in) {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+            }
+
+            <span class="kw">let </span>decoded_out: Bound&lt;PyUntypedArray&gt; = py
+                .import_bound(<span class="macro">intern!</span>(py, <span class="string">"numpy"</span>))<span class="question-mark">?
+                </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"asarray"</span>))<span class="question-mark">?
+                </span>.call1((decoded_out,))<span class="question-mark">?
+                </span>.extract()<span class="question-mark">?</span>;
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;u8&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::U8(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;u16&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::U16(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;u32&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::U32(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;u64&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::U64(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;i8&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::I8(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;i16&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::I16(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;i32&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::I32(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;i64&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::I64(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;f32&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::F32(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(d) = decoded_out.downcast::&lt;PyArrayDyn&lt;f64&gt;&gt;() {
+                <span class="kw">if let </span>AnyArrayBase::F64(<span class="kw-2">mut </span>decoded) = decoded {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(decoded.assign(<span class="kw-2">&amp;</span>d.try_readonly()<span class="question-mark">?</span>.as_array()));
+                }
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+                    <span class="string">"unsupported dtype {} of decoded buffer"</span>,
+                    decoded_out.dtype()
+                )));
+            };
+
+            <span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+                <span class="string">"mismatching dtype {} of decoded buffer, expected {}"</span>,
+                decoded_out.dtype(),
+                decoded.dtype(),
+            )))
         })
     }
 

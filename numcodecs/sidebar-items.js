@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AnyArrayBase"],"struct":["StaticCodecType"],"trait":["AnyRawData","Codec","DynCodec","DynCodecType","StaticCodec"],"type":["AnyArcArray","AnyArray","AnyArrayView","AnyArrayViewMut","AnyCowArray","AnyRawArrayView","AnyRawArrayViewMut"]};
+window.SIDEBAR_ITEMS = {"enum":["AnyArrayBase","AnyArrayDType"],"struct":["StaticCodecType"],"trait":["AnyRawData","Codec","DynCodec","DynCodecType","StaticCodec"],"type":["AnyArcArray","AnyArray","AnyArrayView","AnyArrayViewMut","AnyCowArray","AnyRawArrayView","AnyRawArrayViewMut"]};

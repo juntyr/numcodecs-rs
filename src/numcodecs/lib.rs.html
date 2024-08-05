@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-970bf1bf55bd1c15.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (28a58f2fa 2024-07-31)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f9142fe437216fc3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (176e54520 2024-08-04)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -455,12 +455,50 @@
 <a href="#455" id="455">455</a>
 <a href="#456" id="456">456</a>
 <a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.65.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.64.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs
@@ -530,6 +568,39 @@
     </span><span class="kw">fn </span>get_config&lt;S: Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;;
 }
 
+<span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+#[allow(missing_docs)]
+</span><span class="kw">pub enum </span>AnyArrayDType {
+    U8,
+    U16,
+    U32,
+    U64,
+    I8,
+    I16,
+    I32,
+    I64,
+    F32,
+    F64,
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>AnyArrayDType {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        fmt.write_str(<span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::U8 =&gt; <span class="string">"u8"</span>,
+            <span class="self">Self</span>::U16 =&gt; <span class="string">"u16"</span>,
+            <span class="self">Self</span>::U32 =&gt; <span class="string">"u32"</span>,
+            <span class="self">Self</span>::U64 =&gt; <span class="string">"u64"</span>,
+            <span class="self">Self</span>::I8 =&gt; <span class="string">"i8"</span>,
+            <span class="self">Self</span>::I16 =&gt; <span class="string">"i16"</span>,
+            <span class="self">Self</span>::I32 =&gt; <span class="string">"i32"</span>,
+            <span class="self">Self</span>::I64 =&gt; <span class="string">"i64"</span>,
+            <span class="self">Self</span>::F32 =&gt; <span class="string">"f32"</span>,
+            <span class="self">Self</span>::F64 =&gt; <span class="string">"f64"</span>,
+        })
+    }
+}
+
 <span class="doccomment">/// Numeric n-dimensional arrays with dynamic shapes.
 </span><span class="attr">#[non_exhaustive]
 #[allow(missing_docs)]
@@ -577,6 +648,21 @@
         }
     }
 
+    <span class="kw">pub fn </span>dtype(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyArrayDType {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::U8(<span class="kw">_</span>) =&gt; AnyArrayDType::U8,
+            <span class="self">Self</span>::U16(<span class="kw">_</span>) =&gt; AnyArrayDType::U16,
+            <span class="self">Self</span>::U32(<span class="kw">_</span>) =&gt; AnyArrayDType::U32,
+            <span class="self">Self</span>::U64(<span class="kw">_</span>) =&gt; AnyArrayDType::U64,
+            <span class="self">Self</span>::I8(<span class="kw">_</span>) =&gt; AnyArrayDType::I8,
+            <span class="self">Self</span>::I16(<span class="kw">_</span>) =&gt; AnyArrayDType::I16,
+            <span class="self">Self</span>::I32(<span class="kw">_</span>) =&gt; AnyArrayDType::I32,
+            <span class="self">Self</span>::I64(<span class="kw">_</span>) =&gt; AnyArrayDType::I64,
+            <span class="self">Self</span>::F32(<span class="kw">_</span>) =&gt; AnyArrayDType::F32,
+            <span class="self">Self</span>::F64(<span class="kw">_</span>) =&gt; AnyArrayDType::F64,
+        }
+    }
+
     <span class="kw">pub fn </span>shape(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[usize] {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::U8(a) =&gt; a.shape(),
@@ -608,20 +694,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;
-        T: AnyRawData&lt;
-            U8: Data,
-            U16: Data,
-            U32: Data,
-            U64: Data,
-            I8: Data,
-            I16: Data,
-            I32: Data,
-            I64: Data,
-            F32: Data,
-            F64: Data,
-        &gt;,
-    &gt; AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: AnyRawData&gt; AnyArrayBase&lt;T&gt;
+<span class="kw">where
+    </span>T::U8: Data,
+    T::U16: Data,
+    T::U32: Data,
+    T::U64: Data,
+    T::I8: Data,
+    T::I16: Data,
+    T::I32: Data,
+    T::I64: Data,
+    T::F32: Data,
+    T::F64: Data,
 {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>view(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyArrayView {
@@ -656,20 +740,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;
-        T: AnyRawData&lt;
-            U8: DataMut,
-            U16: DataMut,
-            U32: DataMut,
-            U64: DataMut,
-            I8: DataMut,
-            I16: DataMut,
-            I32: DataMut,
-            I64: DataMut,
-            F32: DataMut,
-            F64: DataMut,
-        &gt;,
-    &gt; AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: AnyRawData&gt; AnyArrayBase&lt;T&gt;
+<span class="kw">where
+    </span>T::U8: DataMut,
+    T::U16: DataMut,
+    T::U32: DataMut,
+    T::U64: DataMut,
+    T::I8: DataMut,
+    T::I16: DataMut,
+    T::I32: DataMut,
+    T::I64: DataMut,
+    T::F32: DataMut,
+    T::F64: DataMut,
 {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>view_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; AnyArrayViewMut {
@@ -688,20 +770,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;
-        T: AnyRawData&lt;
-            U8: RawDataClone,
-            U16: RawDataClone,
-            U32: RawDataClone,
-            U64: RawDataClone,
-            I8: RawDataClone,
-            I16: RawDataClone,
-            I32: RawDataClone,
-            I64: RawDataClone,
-            F32: RawDataClone,
-            F64: RawDataClone,
-        &gt;,
-    &gt; Clone <span class="kw">for </span>AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: AnyRawData&gt; Clone <span class="kw">for </span>AnyArrayBase&lt;T&gt;
+<span class="kw">where
+    </span>T::U8: RawDataClone,
+    T::U16: RawDataClone,
+    T::U32: RawDataClone,
+    T::U64: RawDataClone,
+    T::I8: RawDataClone,
+    T::I16: RawDataClone,
+    T::I32: RawDataClone,
+    T::I64: RawDataClone,
+    T::F32: RawDataClone,
+    T::F64: RawDataClone,
 {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span><span class="self">self </span>{
@@ -719,20 +799,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;
-        T: AnyRawData&lt;
-            U8: Data,
-            U16: Data,
-            U32: Data,
-            U64: Data,
-            I8: Data,
-            I16: Data,
-            I32: Data,
-            I64: Data,
-            F32: Data,
-            F64: Data,
-        &gt;,
-    &gt; fmt::Debug <span class="kw">for </span>AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: AnyRawData&gt; fmt::Debug <span class="kw">for </span>AnyArrayBase&lt;T&gt;
+<span class="kw">where
+    </span>T::U8: Data,
+    T::U16: Data,
+    T::U32: Data,
+    T::U64: Data,
+    T::I8: Data,
+    T::I16: Data,
+    T::I32: Data,
+    T::I64: Data,
+    T::F32: Data,
+    T::F64: Data,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
@@ -750,20 +828,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;
-        T: AnyRawData&lt;
-            U8: Data,
-            U16: Data,
-            U32: Data,
-            U64: Data,
-            I8: Data,
-            I16: Data,
-            I32: Data,
-            I64: Data,
-            F32: Data,
-            F64: Data,
-        &gt;,
-    &gt; PartialEq <span class="kw">for </span>AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: AnyRawData&gt; PartialEq <span class="kw">for </span>AnyArrayBase&lt;T&gt;
+<span class="kw">where
+    </span>T::U8: Data,
+    T::U16: Data,
+    T::U32: Data,
+    T::U64: Data,
+    T::I8: Data,
+    T::I16: Data,
+    T::I32: Data,
+    T::I64: Data,
+    T::F32: Data,
+    T::F64: Data,
 {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="kw">match </span>(<span class="self">self</span>, other) {
