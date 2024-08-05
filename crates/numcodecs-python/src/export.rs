@@ -83,21 +83,20 @@ trait AnyCodec {
 
 impl<T: Codec> AnyCodec for T {
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, PyErr> {
-        <T as Codec>::encode(&self, data).map_err(|err| PyRuntimeError::new_err(format!("{err}")))
+        <T as Codec>::encode(self, data).map_err(|err| PyRuntimeError::new_err(format!("{err}")))
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, PyErr> {
-        <T as Codec>::decode(&self, encoded)
-            .map_err(|err| PyRuntimeError::new_err(format!("{err}")))
+        <T as Codec>::decode(self, encoded).map_err(|err| PyRuntimeError::new_err(format!("{err}")))
     }
 
     fn decode_into(&self, encoded: AnyArrayView, decoded: AnyArrayViewMut) -> Result<(), PyErr> {
-        <T as Codec>::decode_into(&self, encoded, decoded)
+        <T as Codec>::decode_into(self, encoded, decoded)
             .map_err(|err| PyRuntimeError::new_err(format!("{err}")))
     }
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {
-        <T as Codec>::get_config(&self, Pythonizer::new(py))?.extract(py)
+        <T as Codec>::get_config(self, Pythonizer::new(py))?.extract(py)
     }
 }
 
@@ -114,7 +113,7 @@ impl<T: DynCodecType> AnyCodecType for T {
         config: Bound<'py, PyDict>,
     ) -> Result<Box<dyn 'static + Send + Sync + AnyCodec>, PyErr> {
         match <T as DynCodecType>::codec_from_config(
-            &self,
+            self,
             &mut Depythonizer::from_object_bound(config.into_any()),
         ) {
             Ok(codec) => Ok(Box::new(codec)),
@@ -158,10 +157,10 @@ impl RustCodec {
             .ty
             .codec_from_config(kwargs.unwrap_or_else(|| PyDict::new_bound(py)))?;
 
-        Ok(RustCodec {
-            codec,
+        Ok(Self {
             cls_module,
             cls_name,
+            codec,
         })
     }
 

@@ -222,6 +222,7 @@ impl Codec for PyCodec {
         })
     }
 
+    #[allow(clippy::too_many_lines)] // FIXME
     fn decode_into(
         &self,
         encoded: AnyArrayView,
@@ -296,6 +297,7 @@ impl Codec for PyCodec {
                 .getattr(intern!(py, "asarray"))?
                 .call1((decoded_out,))?
                 .extract()?;
+            #[allow(clippy::unit_arg)]
             if let Ok(d) = decoded_out.downcast::<PyArrayDyn<u8>>() {
                 if let AnyArrayBase::U8(mut decoded) = decoded {
                     return Ok(decoded.assign(&d.try_readonly()?.as_array()));
