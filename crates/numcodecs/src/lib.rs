@@ -27,6 +27,7 @@ mod array;
 
 pub use array::{
     AnyArcArray, AnyArray, AnyArrayBase, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    AnyRawData,
 };
 
 /// Compression codec that [`encode`][`Codec::encode`]s and

@@ -281,6 +281,8 @@ where
     }
 }
 
+/// Array-representation support for all dtypes included in [`AnyArrayBase`].
+#[allow(missing_docs)]
 pub trait AnyRawData {
     type U8: RawData<Elem = u8>;
     type U16: RawData<Elem = u16>;
@@ -319,6 +321,7 @@ impl<
     type F64 = <T as RawDataSubst<f64>>::Output;
 }
 
+/// Enum of all dtypes included in [`AnyArrayBase`].
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 #[allow(missing_docs)]
