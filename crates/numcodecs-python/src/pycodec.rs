@@ -86,270 +86,52 @@ impl Codec for PyCodec {
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         Python::with_gil(|py| {
-            let this = self.codec.bind(py).clone().into_any();
-            #[allow(unsafe_code)] // FIXME
-            let data = unsafe {
-                match &data {
-                    AnyArrayBase::U8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::U16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::U32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::U64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::I8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::I16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::I32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::I64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::F32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::F64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    _ => {
-                        return Err(PyTypeError::new_err(format!(
-                            "unsupported type {} of data buffer",
-                            data.dtype()
-                        )))
-                    }
-                }
-            };
-            // create a fully-immutable view of the data that is safe to pass to Python
-            data.call_method(
-                intern!(py, "setflags"),
-                (),
-                Some(&[(intern!(py, "write"), false)].into_py_dict_bound(py)),
-            )?;
-            let data = data.call_method0(intern!(py, "view"))?;
+            self.with_any_array_view_as_ndarray(py, &data.view(), |data| {
+                let encoded = self.codec.bind(py).encode(data.as_borrowed())?;
 
-            let encoded = self.codec.bind(py).encode(data.as_borrowed())?;
-            let encoded: Bound<PyUntypedArray> = py
-                .import_bound(intern!(py, "numpy"))?
-                .getattr(intern!(py, "asarray"))?
-                .call1((encoded,))?
-                .extract()?;
-            let encoded = if let Ok(e) = encoded.downcast::<PyArrayDyn<u8>>() {
-                AnyArrayBase::U8(e.try_readonly()?.to_owned_array())
-            } else if let Ok(e) = encoded.downcast::<PyArrayDyn<u16>>() {
-                AnyArrayBase::U16(e.try_readonly()?.to_owned_array())
-            } else if let Ok(e) = encoded.downcast::<PyArrayDyn<u32>>() {
-                AnyArrayBase::U32(e.try_readonly()?.to_owned_array())
-            } else if let Ok(e) = encoded.downcast::<PyArrayDyn<u64>>() {
-                AnyArrayBase::U64(e.try_readonly()?.to_owned_array())
-            } else if let Ok(e) = encoded.downcast::<PyArrayDyn<i8>>() {
-                AnyArrayBase::I8(e.try_readonly()?.to_owned_array())
-            } else if let Ok(e) = encoded.downcast::<PyArrayDyn<i16>>() {
-                AnyArrayBase::I16(e.try_readonly()?.to_owned_array())
-            } else if let Ok(e) = encoded.downcast::<PyArrayDyn<i32>>() {
-                AnyArrayBase::I32(e.try_readonly()?.to_owned_array())
-            } else if let Ok(e) = encoded.downcast::<PyArrayDyn<i64>>() {
-                AnyArrayBase::I64(e.try_readonly()?.to_owned_array())
-            } else if let Ok(e) = encoded.downcast::<PyArrayDyn<f32>>() {
-                AnyArrayBase::F32(e.try_readonly()?.to_owned_array())
-            } else if let Ok(e) = encoded.downcast::<PyArrayDyn<f64>>() {
-                AnyArrayBase::F64(e.try_readonly()?.to_owned_array())
-            } else {
-                return Err(PyTypeError::new_err(format!(
-                    "unsupported dtype {} of encoded buffer",
-                    encoded.dtype()
-                )));
-            };
-
-            Ok(encoded)
+                Self::any_array_from_ndarray_like(py, encoded)
+            })
         })
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         Python::with_gil(|py| {
-            let this = self.codec.bind(py).clone().into_any();
-            #[allow(unsafe_code)] // FIXME
-            let encoded = unsafe {
-                match &encoded {
-                    AnyArrayBase::U8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::U16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::U32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::U64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::I8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::I16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::I32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::I64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::F32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::F64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    _ => {
-                        return Err(PyTypeError::new_err(format!(
-                            "unsupported type {} of encoded buffer",
-                            encoded.dtype()
-                        )))
-                    }
-                }
-            };
-            // create a fully-immutable view of the data that is safe to pass to Python
-            encoded.call_method(
-                intern!(py, "setflags"),
-                (),
-                Some(&[(intern!(py, "write"), false)].into_py_dict_bound(py)),
-            )?;
-            let encoded = encoded.call_method0(intern!(py, "view"))?;
+            self.with_any_array_view_as_ndarray(py, &encoded.view(), |encoded| {
+                let decoded = self.codec.bind(py).decode(encoded.as_borrowed(), None)?;
 
-            let decoded = self.codec.bind(py).decode(encoded.as_borrowed(), None)?;
-            let decoded: Bound<PyUntypedArray> = py
-                .import_bound(intern!(py, "numpy"))?
-                .getattr(intern!(py, "asarray"))?
-                .call1((decoded,))?
-                .extract()?;
-            let decoded = if let Ok(d) = decoded.downcast::<PyArrayDyn<u8>>() {
-                AnyArrayBase::U8(d.try_readonly()?.to_owned_array())
-            } else if let Ok(d) = decoded.downcast::<PyArrayDyn<u16>>() {
-                AnyArrayBase::U16(d.try_readonly()?.to_owned_array())
-            } else if let Ok(d) = decoded.downcast::<PyArrayDyn<u32>>() {
-                AnyArrayBase::U32(d.try_readonly()?.to_owned_array())
-            } else if let Ok(d) = decoded.downcast::<PyArrayDyn<u64>>() {
-                AnyArrayBase::U64(d.try_readonly()?.to_owned_array())
-            } else if let Ok(d) = decoded.downcast::<PyArrayDyn<i8>>() {
-                AnyArrayBase::I8(d.try_readonly()?.to_owned_array())
-            } else if let Ok(d) = decoded.downcast::<PyArrayDyn<i16>>() {
-                AnyArrayBase::I16(d.try_readonly()?.to_owned_array())
-            } else if let Ok(d) = decoded.downcast::<PyArrayDyn<i32>>() {
-                AnyArrayBase::I32(d.try_readonly()?.to_owned_array())
-            } else if let Ok(d) = decoded.downcast::<PyArrayDyn<i64>>() {
-                AnyArrayBase::I64(d.try_readonly()?.to_owned_array())
-            } else if let Ok(d) = decoded.downcast::<PyArrayDyn<f32>>() {
-                AnyArrayBase::F32(d.try_readonly()?.to_owned_array())
-            } else if let Ok(d) = decoded.downcast::<PyArrayDyn<f64>>() {
-                AnyArrayBase::F64(d.try_readonly()?.to_owned_array())
-            } else {
-                return Err(PyTypeError::new_err(format!(
-                    "unsupported dtype {} of decoded buffer",
-                    decoded.dtype()
-                )));
-            };
-
-            Ok(decoded)
+                Self::any_array_from_ndarray_like(py, decoded)
+            })
         })
     }
 
-    #[allow(clippy::too_many_lines)] // FIXME
     fn decode_into(
         &self,
         encoded: AnyArrayView,
-        decoded: AnyArrayViewMut,
+        mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
         Python::with_gil(|py| {
-            let this = self.codec.bind(py).clone().into_any();
-            #[allow(unsafe_code)] // FIXME
-            let encoded = unsafe {
-                match &encoded {
-                    AnyArrayBase::U8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::U16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::U32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::U64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::I8(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::I16(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::I32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::I64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::F32(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    AnyArrayBase::F64(e) => PyArray::borrow_from_array_bound(e, this).into_any(),
-                    _ => {
-                        return Err(PyTypeError::new_err(format!(
-                            "unsupported type {} of encoded buffer",
-                            encoded.dtype()
-                        )))
+            let decoded_out = self.with_any_array_view_as_ndarray(py, &encoded, |encoded| {
+                self.with_any_array_view_mut_as_ndarray(py, &mut decoded, |decoded_in| {
+                    let decoded_out = self
+                        .codec
+                        .bind(py)
+                        .decode(encoded.as_borrowed(), Some(decoded_in.as_borrowed()))?;
+
+                    // Ideally, all codecs should just use the provided out array
+                    if decoded_out.is(decoded_in) {
+                        Ok(Ok(()))
+                    } else {
+                        Ok(Err(decoded_out.unbind()))
                     }
-                }
-            };
-            // create a fully-immutable view of the data that is safe to pass to Python
-            encoded.call_method(
-                intern!(py, "setflags"),
-                (),
-                Some(&[(intern!(py, "write"), false)].into_py_dict_bound(py)),
-            )?;
-            let encoded = encoded.call_method0(intern!(py, "view"))?;
-
-            let this = self.codec.bind(py).clone().into_any();
-            #[allow(unsafe_code)] // FIXME
-            let decoded_in = unsafe {
-                match &decoded {
-                    AnyArrayBase::U8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::U16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::U32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::U64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::I8(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::I16(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::I32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::I64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::F32(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    AnyArrayBase::F64(d) => PyArray::borrow_from_array_bound(d, this).into_any(),
-                    _ => {
-                        return Err(PyTypeError::new_err(format!(
-                            "unsupported type {} of decoded buffer",
-                            decoded.dtype()
-                        )))
-                    }
-                }
+                })
+            })?;
+            let decoded_out = match decoded_out {
+                Ok(()) => return Ok(()),
+                Err(decoded_out) => decoded_out.into_bound(py),
             };
 
-            let decoded_out = self
-                .codec
-                .bind(py)
-                .decode(encoded.as_borrowed(), Some(decoded_in.as_borrowed()))?;
-
-            // Ideally, all codecs should just use the provided out array
-            if decoded_out.is(&decoded_in) {
-                return Ok(());
-            }
-
-            let decoded_out: Bound<PyUntypedArray> = py
-                .import_bound(intern!(py, "numpy"))?
-                .getattr(intern!(py, "asarray"))?
-                .call1((decoded_out,))?
-                .extract()?;
-            #[allow(clippy::unit_arg)]
-            if let Ok(d) = decoded_out.downcast::<PyArrayDyn<u8>>() {
-                if let AnyArrayBase::U8(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else if let Ok(d) = decoded_out.downcast::<PyArrayDyn<u16>>() {
-                if let AnyArrayBase::U16(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else if let Ok(d) = decoded_out.downcast::<PyArrayDyn<u32>>() {
-                if let AnyArrayBase::U32(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else if let Ok(d) = decoded_out.downcast::<PyArrayDyn<u64>>() {
-                if let AnyArrayBase::U64(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else if let Ok(d) = decoded_out.downcast::<PyArrayDyn<i8>>() {
-                if let AnyArrayBase::I8(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else if let Ok(d) = decoded_out.downcast::<PyArrayDyn<i16>>() {
-                if let AnyArrayBase::I16(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else if let Ok(d) = decoded_out.downcast::<PyArrayDyn<i32>>() {
-                if let AnyArrayBase::I32(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else if let Ok(d) = decoded_out.downcast::<PyArrayDyn<i64>>() {
-                if let AnyArrayBase::I64(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else if let Ok(d) = decoded_out.downcast::<PyArrayDyn<f32>>() {
-                if let AnyArrayBase::F32(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else if let Ok(d) = decoded_out.downcast::<PyArrayDyn<f64>>() {
-                if let AnyArrayBase::F64(mut decoded) = decoded {
-                    return Ok(decoded.assign(&d.try_readonly()?.as_array()));
-                }
-            } else {
-                return Err(PyTypeError::new_err(format!(
-                    "unsupported dtype {} of decoded buffer",
-                    decoded_out.dtype()
-                )));
-            };
-
-            Err(PyTypeError::new_err(format!(
-                "mismatching dtype {} of decoded buffer, expected {}",
-                decoded_out.dtype(),
-                decoded.dtype(),
-            )))
+            // Otherwise, we force-copy the output into the decoded array
+            Self::copy_into_any_array_view_mut_from_ndarray_like(py, &mut decoded, decoded_out)
         })
     }
 
@@ -366,6 +148,188 @@ impl Codec for PyCodec {
                 serializer,
             )
         })
+    }
+}
+
+impl PyCodec {
+    fn with_any_array_view_as_ndarray<T>(
+        &self,
+        py: Python,
+        view: &AnyArrayView,
+        with: impl for<'a> FnOnce(&'a Bound<PyAny>) -> Result<T, PyErr>,
+    ) -> Result<T, PyErr> {
+        let this = self.codec.bind(py).clone().into_any();
+
+        #[allow(unsafe_code)] // FIXME: we trust Python code to not store this array
+        let ndarray = unsafe {
+            match &view {
+                AnyArrayBase::U8(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::U16(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::U32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::U64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::I8(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::I16(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::I32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::I64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::F32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::F64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                _ => {
+                    return Err(PyTypeError::new_err(format!(
+                        "unsupported type {} of read-only array view",
+                        view.dtype()
+                    )))
+                }
+            }
+        };
+
+        // create a fully-immutable view of the data that is safe to pass to Python
+        ndarray.call_method(
+            intern!(py, "setflags"),
+            (),
+            Some(&[(intern!(py, "write"), false)].into_py_dict_bound(py)),
+        )?;
+        let view = ndarray.call_method0(intern!(py, "view"))?;
+
+        with(&view)
+    }
+
+    fn with_any_array_view_mut_as_ndarray<T>(
+        &self,
+        py: Python,
+        view_mut: &mut AnyArrayViewMut,
+        with: impl for<'a> FnOnce(&'a Bound<PyAny>) -> Result<T, PyErr>,
+    ) -> Result<T, PyErr> {
+        let this = self.codec.bind(py).clone().into_any();
+
+        #[allow(unsafe_code)] // FIXME: we trust Python code to not store this array
+        let ndarray = unsafe {
+            match &view_mut {
+                AnyArrayBase::U8(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::U16(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::U32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::U64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::I8(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::I16(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::I32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::I64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::F32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::F64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                _ => {
+                    return Err(PyTypeError::new_err(format!(
+                        "unsupported type {} of read-only array view",
+                        view_mut.dtype()
+                    )))
+                }
+            }
+        };
+
+        with(&ndarray)
+    }
+
+    fn any_array_from_ndarray_like(
+        py: Python,
+        array_like: Bound<PyAny>,
+    ) -> Result<AnyArray, PyErr> {
+        let ndarray: Bound<PyUntypedArray> = py
+            .import_bound(intern!(py, "numpy"))?
+            .getattr(intern!(py, "asarray"))?
+            .call1((array_like,))?
+            .extract()?;
+
+        let array = if let Ok(e) = ndarray.downcast::<PyArrayDyn<u8>>() {
+            AnyArrayBase::U8(e.try_readonly()?.to_owned_array())
+        } else if let Ok(e) = ndarray.downcast::<PyArrayDyn<u16>>() {
+            AnyArrayBase::U16(e.try_readonly()?.to_owned_array())
+        } else if let Ok(e) = ndarray.downcast::<PyArrayDyn<u32>>() {
+            AnyArrayBase::U32(e.try_readonly()?.to_owned_array())
+        } else if let Ok(e) = ndarray.downcast::<PyArrayDyn<u64>>() {
+            AnyArrayBase::U64(e.try_readonly()?.to_owned_array())
+        } else if let Ok(e) = ndarray.downcast::<PyArrayDyn<i8>>() {
+            AnyArrayBase::I8(e.try_readonly()?.to_owned_array())
+        } else if let Ok(e) = ndarray.downcast::<PyArrayDyn<i16>>() {
+            AnyArrayBase::I16(e.try_readonly()?.to_owned_array())
+        } else if let Ok(e) = ndarray.downcast::<PyArrayDyn<i32>>() {
+            AnyArrayBase::I32(e.try_readonly()?.to_owned_array())
+        } else if let Ok(e) = ndarray.downcast::<PyArrayDyn<i64>>() {
+            AnyArrayBase::I64(e.try_readonly()?.to_owned_array())
+        } else if let Ok(e) = ndarray.downcast::<PyArrayDyn<f32>>() {
+            AnyArrayBase::F32(e.try_readonly()?.to_owned_array())
+        } else if let Ok(e) = ndarray.downcast::<PyArrayDyn<f64>>() {
+            AnyArrayBase::F64(e.try_readonly()?.to_owned_array())
+        } else {
+            return Err(PyTypeError::new_err(format!(
+                "unsupported dtype {} of array-like",
+                ndarray.dtype()
+            )));
+        };
+
+        Ok(array)
+    }
+
+    fn copy_into_any_array_view_mut_from_ndarray_like(
+        py: Python,
+        view_mut: &mut AnyArrayViewMut,
+        array_like: Bound<PyAny>,
+    ) -> Result<(), PyErr> {
+        let ndarray: Bound<PyUntypedArray> = py
+            .import_bound(intern!(py, "numpy"))?
+            .getattr(intern!(py, "asarray"))?
+            .call1((array_like,))?
+            .extract()?;
+
+        #[allow(clippy::unit_arg)]
+        if let Ok(d) = ndarray.downcast::<PyArrayDyn<u8>>() {
+            if let AnyArrayBase::U8(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<u16>>() {
+            if let AnyArrayBase::U16(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<u32>>() {
+            if let AnyArrayBase::U32(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<u64>>() {
+            if let AnyArrayBase::U64(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i8>>() {
+            if let AnyArrayBase::I8(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i16>>() {
+            if let AnyArrayBase::I16(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i32>>() {
+            if let AnyArrayBase::I32(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i64>>() {
+            if let AnyArrayBase::I64(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<f32>>() {
+            if let AnyArrayBase::F32(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<f64>>() {
+            if let AnyArrayBase::F64(ref mut view_mut) = view_mut {
+                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+            }
+        } else {
+            return Err(PyTypeError::new_err(format!(
+                "unsupported dtype {} of array-like",
+                ndarray.dtype()
+            )));
+        };
+
+        Err(PyTypeError::new_err(format!(
+            "mismatching dtype {} of array-like, expected {}",
+            ndarray.dtype(),
+            view_mut.dtype(),
+        )))
     }
 }
 
