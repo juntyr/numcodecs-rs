@@ -49,7 +49,10 @@ fn python_api() -> Result<(), PyErr> {
         let decoded = codec.decode(encoded.as_borrowed(), None)?;
         // decode into an output
         let decoded_out = numpy::PyArray1::<u8>::zeros_bound(py, (4,), false);
-        codec.decode(encoded.as_borrowed(), Some(decoded.as_any().as_borrowed()))?;
+        codec.decode(
+            encoded.as_borrowed(),
+            Some(decoded_out.as_any().as_borrowed()),
+        )?;
 
         // check the encoded and decoded data
         let encoded: Vec<u8> = encoded.extract()?;
