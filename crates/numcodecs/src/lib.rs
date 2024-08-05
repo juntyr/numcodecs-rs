@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.65.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.64.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs
@@ -73,6 +73,39 @@ pub trait Codec: 'static + Send + Sync + Clone {
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error>;
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+#[allow(missing_docs)]
+pub enum AnyArrayDType {
+    U8,
+    U16,
+    U32,
+    U64,
+    I8,
+    I16,
+    I32,
+    I64,
+    F32,
+    F64,
+}
+
+impl fmt::Display for AnyArrayDType {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(match self {
+            Self::U8 => "u8",
+            Self::U16 => "u16",
+            Self::U32 => "u32",
+            Self::U64 => "u64",
+            Self::I8 => "i8",
+            Self::I16 => "i16",
+            Self::I32 => "i32",
+            Self::I64 => "i64",
+            Self::F32 => "f32",
+            Self::F64 => "f64",
+        })
+    }
+}
+
 /// Numeric n-dimensional arrays with dynamic shapes.
 #[non_exhaustive]
 #[allow(missing_docs)]
@@ -120,6 +153,21 @@ impl<T: AnyRawData> AnyArrayBase<T> {
         }
     }
 
+    pub fn dtype(&self) -> AnyArrayDType {
+        match self {
+            Self::U8(_) => AnyArrayDType::U8,
+            Self::U16(_) => AnyArrayDType::U16,
+            Self::U32(_) => AnyArrayDType::U32,
+            Self::U64(_) => AnyArrayDType::U64,
+            Self::I8(_) => AnyArrayDType::I8,
+            Self::I16(_) => AnyArrayDType::I16,
+            Self::I32(_) => AnyArrayDType::I32,
+            Self::I64(_) => AnyArrayDType::I64,
+            Self::F32(_) => AnyArrayDType::F32,
+            Self::F64(_) => AnyArrayDType::F64,
+        }
+    }
+
     pub fn shape(&self) -> &[usize] {
         match self {
             Self::U8(a) => a.shape(),
@@ -151,20 +199,18 @@ impl<T: AnyRawData> AnyArrayBase<T> {
     }
 }
 
-impl<
-        T: AnyRawData<
-            U8: Data,
-            U16: Data,
-            U32: Data,
-            U64: Data,
-            I8: Data,
-            I16: Data,
-            I32: Data,
-            I64: Data,
-            F32: Data,
-            F64: Data,
-        >,
-    > AnyArrayBase<T>
+impl<T: AnyRawData> AnyArrayBase<T>
+where
+    T::U8: Data,
+    T::U16: Data,
+    T::U32: Data,
+    T::U64: Data,
+    T::I8: Data,
+    T::I16: Data,
+    T::I32: Data,
+    T::I64: Data,
+    T::F32: Data,
+    T::F64: Data,
 {
     #[must_use]
     pub fn view(&self) -> AnyArrayView {
@@ -199,20 +245,18 @@ impl<
     }
 }
 
-impl<
-        T: AnyRawData<
-            U8: DataMut,
-            U16: DataMut,
-            U32: DataMut,
-            U64: DataMut,
-            I8: DataMut,
-            I16: DataMut,
-            I32: DataMut,
-            I64: DataMut,
-            F32: DataMut,
-            F64: DataMut,
-        >,
-    > AnyArrayBase<T>
+impl<T: AnyRawData> AnyArrayBase<T>
+where
+    T::U8: DataMut,
+    T::U16: DataMut,
+    T::U32: DataMut,
+    T::U64: DataMut,
+    T::I8: DataMut,
+    T::I16: DataMut,
+    T::I32: DataMut,
+    T::I64: DataMut,
+    T::F32: DataMut,
+    T::F64: DataMut,
 {
     #[must_use]
     pub fn view_mut(&mut self) -> AnyArrayViewMut {
@@ -231,20 +275,18 @@ impl<
     }
 }
 
-impl<
-        T: AnyRawData<
-            U8: RawDataClone,
-            U16: RawDataClone,
-            U32: RawDataClone,
-            U64: RawDataClone,
-            I8: RawDataClone,
-            I16: RawDataClone,
-            I32: RawDataClone,
-            I64: RawDataClone,
-            F32: RawDataClone,
-            F64: RawDataClone,
-        >,
-    > Clone for AnyArrayBase<T>
+impl<T: AnyRawData> Clone for AnyArrayBase<T>
+where
+    T::U8: RawDataClone,
+    T::U16: RawDataClone,
+    T::U32: RawDataClone,
+    T::U64: RawDataClone,
+    T::I8: RawDataClone,
+    T::I16: RawDataClone,
+    T::I32: RawDataClone,
+    T::I64: RawDataClone,
+    T::F32: RawDataClone,
+    T::F64: RawDataClone,
 {
     fn clone(&self) -> Self {
         match self {
@@ -262,20 +304,18 @@ impl<
     }
 }
 
-impl<
-        T: AnyRawData<
-            U8: Data,
-            U16: Data,
-            U32: Data,
-            U64: Data,
-            I8: Data,
-            I16: Data,
-            I32: Data,
-            I64: Data,
-            F32: Data,
-            F64: Data,
-        >,
-    > fmt::Debug for AnyArrayBase<T>
+impl<T: AnyRawData> fmt::Debug for AnyArrayBase<T>
+where
+    T::U8: Data,
+    T::U16: Data,
+    T::U32: Data,
+    T::U64: Data,
+    T::I8: Data,
+    T::I16: Data,
+    T::I32: Data,
+    T::I64: Data,
+    T::F32: Data,
+    T::F64: Data,
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -293,20 +333,18 @@ impl<
     }
 }
 
-impl<
-        T: AnyRawData<
-            U8: Data,
-            U16: Data,
-            U32: Data,
-            U64: Data,
-            I8: Data,
-            I16: Data,
-            I32: Data,
-            I64: Data,
-            F32: Data,
-            F64: Data,
-        >,
-    > PartialEq for AnyArrayBase<T>
+impl<T: AnyRawData> PartialEq for AnyArrayBase<T>
+where
+    T::U8: Data,
+    T::U16: Data,
+    T::U32: Data,
+    T::U64: Data,
+    T::I8: Data,
+    T::I16: Data,
+    T::I32: Data,
+    T::I64: Data,
+    T::F32: Data,
+    T::F64: Data,
 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {

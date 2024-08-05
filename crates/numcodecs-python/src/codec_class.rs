@@ -83,8 +83,9 @@ unsafe impl PyTypeInfo for CodecClass {
 
     #[inline]
     fn is_type_of_bound(object: &Bound<'_, PyAny>) -> bool {
-        let Ok(ty) = object.downcast::<PyType>() else {
-            return false;
+        let ty = match object.downcast::<PyType>() {
+            Ok(ty) => ty,
+            Err(_) => return false,
         };
 
         ty.is_subclass_of::<Codec>().unwrap_or(false)
