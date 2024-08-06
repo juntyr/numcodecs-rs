@@ -17,7 +17,7 @@ use serde_transcode::transcode;
 
 use crate::{PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 
-/// Wrapper around Python [`PyCodec`]s to use the Rust [`Codec`] API.
+/// Wrapper around [`PyCodec`]s to use the [`Codec`] API.
 pub struct PyCodecAdapter {
     codec: Py<PyCodec>,
     class: Py<PyCodecClass>,
@@ -49,7 +49,7 @@ impl PyCodecAdapter {
         .map_err(serde::de::Error::custom)
     }
 
-    /// Wraps a [`PyCodec`] to use the Rust [`Codec`] API.
+    /// Wraps a [`PyCodec`] to use the [`Codec`] API.
     ///
     /// # Errors
     ///
@@ -65,13 +65,13 @@ impl PyCodecAdapter {
         })
     }
 
-    /// Access the wrapped [`PyCodec`] to use its Python [`PyCodecMethods`] API.
+    /// Access the wrapped [`PyCodec`] to use its [`PyCodecMethods`] API.
     #[must_use]
     pub fn as_codec<'py>(&self, py: Python<'py>) -> &Bound<'py, PyCodec> {
         self.codec.bind(py)
     }
 
-    /// Unwrap the [`PyCodec`] to use its Python [`PyCodecMethods`] API.
+    /// Unwrap the [`PyCodec`] to use its [`PyCodecMethods`] API.
     #[must_use]
     pub fn into_codec(self, py: Python) -> Bound<PyCodec> {
         self.codec.into_bound(py)
@@ -375,15 +375,14 @@ impl DynCodec for PyCodecAdapter {
     }
 }
 
-/// Wrapper around Python [`PyCodecClass`]es to use the Rust [`DynCodecType`]
-/// API.
+/// Wrapper around [`PyCodecClass`]es to use the [`DynCodecType`] API.
 pub struct PyCodecClassAdapter {
     class: Py<PyCodecClass>,
     codec_id: Arc<String>,
 }
 
 impl PyCodecClassAdapter {
-    /// Wraps a [`PyCodecClass`] to use the Rust [`DynCodecType`] API.
+    /// Wraps a [`PyCodecClass`] to use the [`DynCodecType`] API.
     ///
     /// # Errors
     ///
@@ -397,15 +396,14 @@ impl PyCodecClassAdapter {
         })
     }
 
-    /// Access the wrapped [`PyCodecClass`] to use its Python
-    /// [`PyCodecClassMethods`] API.
+    /// Access the wrapped [`PyCodecClass`] to use its [`PyCodecClassMethods`]
+    /// API.
     #[must_use]
     pub fn as_codec_class<'py>(&self, py: Python<'py>) -> &Bound<'py, PyCodecClass> {
         self.class.bind(py)
     }
 
-    /// Unwrap the [`PyCodecClass`] to use its Python [`PyCodecClassMethods`]
-    /// API.
+    /// Unwrap the [`PyCodecClass`] to use its [`PyCodecClassMethods`] API.
     #[must_use]
     pub fn into_codec_class(self, py: Python) -> Bound<PyCodecClass> {
         self.class.into_bound(py)
