@@ -6,6 +6,7 @@ members = [
 
     "codecs/bit-round",
     "codecs/identity",
+    "codecs/uniform-noise",
 ]
 
 [workspace.package]
@@ -23,6 +24,7 @@ numcodecs-python = { version = "0.2", path = "crates/numcodecs-python", default-
 # workspace-internal codecs crates
 numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
 numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
+numcodecs-uniform-noise = { version = "0.1", path = "codecs/uniform-noise", default-features = false }
 
 # crates.io third-party dependencies
 convert_case = { version = "0.6", default-features = false }
@@ -30,10 +32,12 @@ numpy = { version = "0.21", default-features = false }
 ndarray = { version = "0.15", default-features = false } # keep in sync with numpy
 pyo3 = { version = "0.21", default-features = false }
 pythonize = { version = "0.21", default-features = false }
+rand = { version = "0.8", default-features = false }
 serde = { version = "1.0", default-features = false }
 serde-transcode = { version = "1.1", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 thiserror = { version = "1.0", default-features = false }
+wyhash = { version = "0.5", default-features = false }
 
 [workspace.lints.rust]
 unsafe_code = "deny"
