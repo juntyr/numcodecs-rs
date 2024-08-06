@@ -3,6 +3,8 @@ resolver = "2"
 members = [
     "crates/numcodecs",
     "crates/numcodecs-python",
+
+    "codecs/bit-round",
 ]
 
 [workspace.package]
@@ -13,19 +15,23 @@ license = "MPL-2.0"
 rust-version = "1.64"
 
 [workspace.dependencies]
-# workspace-internal crates
+# workspace-internal numcodecs crates
 numcodecs = { path = "crates/numcodecs", default-features = false }
 numcodecs-python = { path = "crates/numcodecs-python", default-features = false }
+
+# workspace-internal codecs crates
+numcodecs-bit-round = { path = "codecs/bit-round", default-features = false }
 
 # crates.io third-party dependencies
 convert_case = { version = "0.6", default-features = false }
 numpy = { version = "0.21", default-features = false }
-ndarray = { version = "0.15", default-features = false }
+ndarray = { version = "0.15", default-features = false } # keep in sync with numpy
 pyo3 = { version = "0.21", default-features = false }
 pythonize = { version = "0.21", default-features = false }
 serde = { version = "1.0", default-features = false }
 serde-transcode = { version = "1.1", default-features = false }
 serde_json = { version = "1.0", default-features = false }
+thiserror = { version = "1.0", default-features = false }
 
 [workspace.lints.rust]
 unsafe_code = "deny"

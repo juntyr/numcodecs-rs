@@ -24,7 +24,7 @@ serde = { workspace = true }
 serde-transcode = { workspace = true }
 
 [dev-dependencies]
-# pyo3 = { workspace = true, features = ["auto-initialize"] }
+pyo3 = { workspace = true, features = ["auto-initialize"] }
 serde_json = { workspace = true, features = ["std"] }
 
 [lints]
