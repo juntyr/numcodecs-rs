@@ -199,6 +199,7 @@
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -355,6 +356,7 @@
     <span class="comment">// the data must be visited in a defined order
     </span><span class="kw">for </span>x <span class="kw">in </span><span class="kw-2">&amp;mut </span>encoded {
         <span class="comment">// x = U(0,1)*scale + (scale*-0.5 + x)
+        // --- is equivalent to ---
         // x += U(-scale/2, +scale/2)
         </span><span class="kw-2">*</span>x = Open01
             .sample(<span class="kw-2">&amp;mut </span>rng)
