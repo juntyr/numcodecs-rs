@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BitRoundError"],"fn":["bit_round"],"struct":["BitRoundCodec"],"trait":["Float"]};
