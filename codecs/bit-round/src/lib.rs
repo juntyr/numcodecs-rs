@@ -49,8 +49,8 @@ impl Codec for BitRoundCodec {
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match encoded {
-            AnyCowArray::F32(encoded) => Ok(AnyArray::F32(encoded.to_owned())),
-            AnyCowArray::F64(encoded) => Ok(AnyArray::F64(encoded.to_owned())),
+            AnyCowArray::F32(encoded) => Ok(AnyArray::F32(encoded.into_owned())),
+            AnyCowArray::F64(encoded) => Ok(AnyArray::F64(encoded.into_owned())),
             encoded => Err(BitRoundError::UnsupportedDtype(encoded.dtype())),
         }
     }

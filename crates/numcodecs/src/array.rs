@@ -160,6 +160,24 @@ where
             Self::F64(a) => AnyCowArray::F64(a.into()),
         }
     }
+
+    #[must_use]
+    /// Turns the array into a uniquely owned array, cloning the array elements
+    /// if necessary.
+    pub fn into_owned(self) -> AnyArray {
+        match self {
+            Self::U8(a) => AnyArray::U8(a.into_owned()),
+            Self::U16(a) => AnyArray::U16(a.into_owned()),
+            Self::U32(a) => AnyArray::U32(a.into_owned()),
+            Self::U64(a) => AnyArray::U64(a.into_owned()),
+            Self::I8(a) => AnyArray::I8(a.into_owned()),
+            Self::I16(a) => AnyArray::I16(a.into_owned()),
+            Self::I32(a) => AnyArray::I32(a.into_owned()),
+            Self::I64(a) => AnyArray::I64(a.into_owned()),
+            Self::F32(a) => AnyArray::F32(a.into_owned()),
+            Self::F64(a) => AnyArray::F64(a.into_owned()),
+        }
+    }
 }
 
 impl<T: AnyRawData> AnyArrayBase<T>

@@ -5,6 +5,7 @@ members = [
     "crates/numcodecs-python",
 
     "codecs/bit-round",
+    "codecs/identity",
 ]
 
 [workspace.package]
@@ -21,6 +22,7 @@ numcodecs-python = { version = "0.1", path = "crates/numcodecs-python", default-
 
 # workspace-internal codecs crates
 numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
+numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
 
 # crates.io third-party dependencies
 convert_case = { version = "0.6", default-features = false }
