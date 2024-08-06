@@ -440,8 +440,6 @@
 <a href="#440" id="440">440</a>
 <a href="#441" id="441">441</a>
 <a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>numcodecs::{
@@ -461,7 +459,7 @@
 
 <span class="kw">use crate</span>::{PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 
-<span class="doccomment">/// Wrapper around Python [`PyCodec`]s to use the Rust [`Codec`] API.
+<span class="doccomment">/// Wrapper around [`PyCodec`]s to use the [`Codec`] API.
 </span><span class="kw">pub struct </span>PyCodecAdapter {
     codec: Py&lt;PyCodec&gt;,
     class: Py&lt;PyCodecClass&gt;,
@@ -493,7 +491,7 @@
         .map_err(serde::de::Error::custom)
     }
 
-    <span class="doccomment">/// Wraps a [`PyCodec`] to use the Rust [`Codec`] API.
+    <span class="doccomment">/// Wraps a [`PyCodec`] to use the [`Codec`] API.
     ///
     /// # Errors
     ///
@@ -509,13 +507,13 @@
         })
     }
 
-    <span class="doccomment">/// Access the wrapped [`PyCodec`] to use its Python [`PyCodecMethods`] API.
+    <span class="doccomment">/// Access the wrapped [`PyCodec`] to use its [`PyCodecMethods`] API.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>as_codec&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, PyCodec&gt; {
         <span class="self">self</span>.codec.bind(py)
     }
 
-    <span class="doccomment">/// Unwrap the [`PyCodec`] to use its Python [`PyCodecMethods`] API.
+    <span class="doccomment">/// Unwrap the [`PyCodec`] to use its [`PyCodecMethods`] API.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>into_codec(<span class="self">self</span>, py: Python) -&gt; Bound&lt;PyCodec&gt; {
         <span class="self">self</span>.codec.into_bound(py)
@@ -819,15 +817,14 @@
     }
 }
 
-<span class="doccomment">/// Wrapper around Python [`PyCodecClass`]es to use the Rust [`DynCodecType`]
-/// API.
+<span class="doccomment">/// Wrapper around [`PyCodecClass`]es to use the [`DynCodecType`] API.
 </span><span class="kw">pub struct </span>PyCodecClassAdapter {
     class: Py&lt;PyCodecClass&gt;,
     codec_id: Arc&lt;String&gt;,
 }
 
 <span class="kw">impl </span>PyCodecClassAdapter {
-    <span class="doccomment">/// Wraps a [`PyCodecClass`] to use the Rust [`DynCodecType`] API.
+    <span class="doccomment">/// Wraps a [`PyCodecClass`] to use the [`DynCodecType`] API.
     ///
     /// # Errors
     ///
@@ -841,15 +838,14 @@
         })
     }
 
-    <span class="doccomment">/// Access the wrapped [`PyCodecClass`] to use its Python
-    /// [`PyCodecClassMethods`] API.
+    <span class="doccomment">/// Access the wrapped [`PyCodecClass`] to use its [`PyCodecClassMethods`]
+    /// API.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>as_codec_class&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, PyCodecClass&gt; {
         <span class="self">self</span>.class.bind(py)
     }
 
-    <span class="doccomment">/// Unwrap the [`PyCodecClass`] to use its Python [`PyCodecClassMethods`]
-    /// API.
+    <span class="doccomment">/// Unwrap the [`PyCodecClass`] to use its [`PyCodecClassMethods`] API.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>into_codec_class(<span class="self">self</span>, py: Python) -&gt; Bound&lt;PyCodecClass&gt; {
         <span class="self">self</span>.class.into_bound(py)
