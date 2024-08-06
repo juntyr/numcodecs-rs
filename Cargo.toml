@@ -18,7 +18,7 @@ rust-version = "1.64"
 [workspace.dependencies]
 # workspace-internal numcodecs crates
 numcodecs = { version = "0.1", path = "crates/numcodecs", default-features = false }
-numcodecs-python = { version = "0.1", path = "crates/numcodecs-python", default-features = false }
+numcodecs-python = { version = "0.2", path = "crates/numcodecs-python", default-features = false }
 
 # workspace-internal codecs crates
 numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
