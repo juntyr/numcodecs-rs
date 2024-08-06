@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/pycodec.rs`."><title>pycodec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (176e54520 2024-08-04)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/adapter.rs`."><title>adapter.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (e57f3090a 2024-08-05)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -440,6 +440,8 @@
 <a href="#440" id="440">440</a>
 <a href="#441" id="441">441</a>
 <a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>numcodecs::{
@@ -457,22 +459,21 @@
 <span class="kw">use </span>serde::{Deserializer, Serializer};
 <span class="kw">use </span>serde_transcode::transcode;
 
-<span class="kw">use crate</span>::{CodecClassMethods, CodecMethods, Registry};
+<span class="kw">use crate</span>::{PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 
-<span class="doccomment">/// Wrapper around Python [`Codec`][`crate::Codec`]s to use the Rust [`Codec`]
-/// API.
-</span><span class="kw">pub struct </span>PyCodec {
-    codec: Py&lt;<span class="kw">crate</span>::Codec&gt;,
-    class: Py&lt;<span class="kw">crate</span>::CodecClass&gt;,
+<span class="doccomment">/// Wrapper around Python [`PyCodec`]s to use the Rust [`Codec`] API.
+</span><span class="kw">pub struct </span>PyCodecAdapter {
+    codec: Py&lt;PyCodec&gt;,
+    class: Py&lt;PyCodecClass&gt;,
     codec_id: Arc&lt;String&gt;,
 }
 
-<span class="kw">impl </span>PyCodec {
-    <span class="doccomment">/// Instantiate a codec from the [`Registry`] with a serialized
+<span class="kw">impl </span>PyCodecAdapter {
+    <span class="doccomment">/// Instantiate a codec from the [`PyCodecRegistry`] with a serialized
     /// `config`uration.
     ///
     /// The config must include the `id` field with the
-    /// [`PyCodecClass::codec_id`].
+    /// [`PyCodecClassMethods::codec_id`].
     ///
     /// # Errors
     ///
@@ -485,19 +486,19 @@
             <span class="kw">let </span>config = transcode(config, Pythonizer::new(py))<span class="question-mark">?</span>;
             <span class="kw">let </span>config: Bound&lt;PyDict&gt; = config.extract(py)<span class="question-mark">?</span>;
 
-            <span class="kw">let </span>codec = Registry::get_codec(config.as_borrowed())<span class="question-mark">?</span>;
+            <span class="kw">let </span>codec = PyCodecRegistry::get_codec(config.as_borrowed())<span class="question-mark">?</span>;
 
             <span class="self">Self</span>::from_codec(codec)
         })
         .map_err(serde::de::Error::custom)
     }
 
-    <span class="doccomment">/// Wraps a [`Codec`][`crate::Codec`] to use the Rust [`Codec`] API.
+    <span class="doccomment">/// Wraps a [`PyCodec`] to use the Rust [`Codec`] API.
     ///
     /// # Errors
     ///
     /// Errors if the `codec`'s class does not provide an identifier.
-    </span><span class="kw">pub fn </span>from_codec(codec: Bound&lt;<span class="kw">crate</span>::Codec&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PyErr&gt; {
+    </span><span class="kw">pub fn </span>from_codec(codec: Bound&lt;PyCodec&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PyErr&gt; {
         <span class="kw">let </span>class = codec.class();
         <span class="kw">let </span>codec_id = class.codec_id()<span class="question-mark">?</span>;
 
@@ -508,22 +509,44 @@
         })
     }
 
-    <span class="doccomment">/// Access the wrapped [`Codec`][`crate::Codec`] to use its Python
-    /// [`CodecMethods`] API.
+    <span class="doccomment">/// Access the wrapped [`PyCodec`] to use its Python [`PyCodecMethods`] API.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>as_codec&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, <span class="kw">crate</span>::Codec&gt; {
+    </span><span class="kw">pub fn </span>as_codec&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, PyCodec&gt; {
         <span class="self">self</span>.codec.bind(py)
     }
 
-    <span class="doccomment">/// Unwrap the [`Codec`][`crate::Codec`] to use its Python [`CodecMethods`]
-    /// API.
+    <span class="doccomment">/// Unwrap the [`PyCodec`] to use its Python [`PyCodecMethods`] API.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>into_codec(<span class="self">self</span>, py: Python) -&gt; Bound&lt;<span class="kw">crate</span>::Codec&gt; {
+    </span><span class="kw">pub fn </span>into_codec(<span class="self">self</span>, py: Python) -&gt; Bound&lt;PyCodec&gt; {
         <span class="self">self</span>.codec.into_bound(py)
+    }
+
+    <span class="doccomment">/// Try to [`clone`][`Clone::clone`] this codec.
+    ///
+    /// # Errors
+    ///
+    /// Errors if extracting this codec's config or creating a new codec from
+    /// the config fails.
+    </span><span class="kw">pub fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PyErr&gt; {
+        <span class="kw">let </span>config = <span class="self">self</span>.codec.bind(py).get_config()<span class="question-mark">?</span>;
+
+        <span class="comment">// removing the `id` field may fail if the config doesn't contain it
+        </span><span class="kw">let _ </span>= config.del_item(<span class="macro">intern!</span>(py, <span class="string">"id"</span>));
+
+        <span class="kw">let </span>codec = <span class="self">self
+            </span>.class
+            .bind(py)
+            .codec_from_config(config.as_borrowed())<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            codec: codec.unbind(),
+            class: <span class="self">self</span>.class.clone_ref(py),
+            codec_id: <span class="self">self</span>.codec_id.clone(),
+        })
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>PyCodec {
+<span class="kw">impl </span>Codec <span class="kw">for </span>PyCodecAdapter {
     <span class="kw">type </span>Error = PyErr;
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
@@ -593,7 +616,7 @@
     }
 }
 
-<span class="kw">impl </span>PyCodec {
+<span class="kw">impl </span>PyCodecAdapter {
     <span class="kw">fn </span>with_any_array_view_as_ndarray&lt;T&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         py: Python,
@@ -775,60 +798,41 @@
     }
 }
 
-<span class="kw">impl </span>Clone <span class="kw">for </span>PyCodec {
-    <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// clone is *not* fallible
-    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        Python::with_gil(|py| {
-            <span class="kw">let </span>config = <span class="self">self
-                </span>.codec
-                .bind(py)
-                .get_config()
-                .expect(<span class="string">"getting codec config should not fail"</span>);
-
-            <span class="comment">// removing the `id` field may fail if the config doesn't contain it
-            </span><span class="kw">let _ </span>= config.del_item(<span class="macro">intern!</span>(py, <span class="string">"id"</span>));
-
-            <span class="kw">let </span>codec = <span class="self">self
-                </span>.class
-                .bind(py)
-                .codec_from_config(config.as_borrowed())
-                .expect(<span class="string">"re-creating codec from config should not fail"</span>);
-
-            <span class="self">Self </span>{
-                codec: codec.unbind(),
-                class: <span class="self">self</span>.class.clone_ref(py),
-                codec_id: <span class="self">self</span>.codec_id.clone(),
-            }
+<span class="kw">impl </span>Clone <span class="kw">for </span>PyCodecAdapter {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// clone is *not* fallible
+        </span>Python::with_gil(|py| {
+            <span class="self">self</span>.try_clone(py)
+                .expect(<span class="string">"cloning a PyCodec should not fail"</span>)
         })
     }
 }
 
-<span class="kw">impl </span>DynCodec <span class="kw">for </span>PyCodec {
-    <span class="kw">type </span>Type = PyCodecClass;
+<span class="kw">impl </span>DynCodec <span class="kw">for </span>PyCodecAdapter {
+    <span class="kw">type </span>Type = PyCodecClassAdapter;
 
     <span class="kw">fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Type {
-        Python::with_gil(|py| PyCodecClass {
+        Python::with_gil(|py| PyCodecClassAdapter {
             class: <span class="self">self</span>.class.clone_ref(py),
             codec_id: <span class="self">self</span>.codec_id.clone(),
         })
     }
 }
 
-<span class="doccomment">/// Wrapper around Python [`CodecClass`][`crate::CodecClass`]es to use the Rust
-/// [`DynCodecType`] API.
-</span><span class="kw">pub struct </span>PyCodecClass {
-    class: Py&lt;<span class="kw">crate</span>::CodecClass&gt;,
+<span class="doccomment">/// Wrapper around Python [`PyCodecClass`]es to use the Rust [`DynCodecType`]
+/// API.
+</span><span class="kw">pub struct </span>PyCodecClassAdapter {
+    class: Py&lt;PyCodecClass&gt;,
     codec_id: Arc&lt;String&gt;,
 }
 
-<span class="kw">impl </span>PyCodecClass {
-    <span class="doccomment">/// Wraps a [`CodecClass`][`crate::CodecClass`] to use the Rust
-    /// [`DynCodecType`] API.
+<span class="kw">impl </span>PyCodecClassAdapter {
+    <span class="doccomment">/// Wraps a [`PyCodecClass`] to use the Rust [`DynCodecType`] API.
     ///
     /// # Errors
     ///
     /// Errors if the codec `class` does not provide an identifier.
-    </span><span class="kw">pub fn </span>from_codec_class(class: Bound&lt;<span class="kw">crate</span>::CodecClass&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PyErr&gt; {
+    </span><span class="kw">pub fn </span>from_codec_class(class: Bound&lt;PyCodecClass&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PyErr&gt; {
         <span class="kw">let </span>codec_id = class.codec_id()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
@@ -837,23 +841,23 @@
         })
     }
 
-    <span class="doccomment">/// Access the wrapped [`CodecClass`][`crate::CodecClass`] to use its Python
-    /// [`CodecClassMethods`] API.
+    <span class="doccomment">/// Access the wrapped [`PyCodecClass`] to use its Python
+    /// [`PyCodecClassMethods`] API.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>as_codec_class&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, <span class="kw">crate</span>::CodecClass&gt; {
+    </span><span class="kw">pub fn </span>as_codec_class&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, PyCodecClass&gt; {
         <span class="self">self</span>.class.bind(py)
     }
 
-    <span class="doccomment">/// Unwrap the [`CodecClass`][`crate::CodecClass`] to use its Python
-    /// [`CodecClassMethods`] API.
+    <span class="doccomment">/// Unwrap the [`PyCodecClass`] to use its Python [`PyCodecClassMethods`]
+    /// API.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>into_codec_class(<span class="self">self</span>, py: Python) -&gt; Bound&lt;<span class="kw">crate</span>::CodecClass&gt; {
+    </span><span class="kw">pub fn </span>into_codec_class(<span class="self">self</span>, py: Python) -&gt; Bound&lt;PyCodecClass&gt; {
         <span class="self">self</span>.class.into_bound(py)
     }
 }
 
-<span class="kw">impl </span>DynCodecType <span class="kw">for </span>PyCodecClass {
-    <span class="kw">type </span>Codec = PyCodec;
+<span class="kw">impl </span>DynCodecType <span class="kw">for </span>PyCodecClassAdapter {
+    <span class="kw">type </span>Codec = PyCodecAdapter;
 
     <span class="kw">fn </span>codec_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw-2">&amp;</span><span class="self">self</span>.codec_id
@@ -874,7 +878,7 @@
                 .codec_from_config(config.as_borrowed())
                 .map_err(serde::de::Error::custom)<span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(PyCodec {
+            <span class="prelude-val">Ok</span>(PyCodecAdapter {
                 codec: codec.unbind(),
                 class: <span class="self">self</span>.class.clone_ref(py),
                 codec_id: <span class="self">self</span>.codec_id.clone(),

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/codec_class.rs`."><title>codec_class.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (176e54520 2024-08-04)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/codec_class.rs`."><title>codec_class.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (e57f3090a 2024-08-05)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -104,20 +104,20 @@
     PyTypeInfo,
 };
 
-<span class="kw">use crate</span>::{sealed::Sealed, Codec};
+<span class="kw">use crate</span>::{sealed::Sealed, PyCodec};
 
 <span class="doccomment">/// Represents a [`numcodecs.abc.Codec`] *class* object.
 ///
-/// The [`Bound&lt;CodecClass&gt;`] type implements the [`CodecClassMethods`] API.
+/// The [`Bound&lt;CodecClass&gt;`] type implements the [`PyCodecClassMethods`] API.
 ///
 /// [`numcodecs.abc.Codec`]: https://numcodecs.readthedocs.io/en/stable/abc.html#module-numcodecs.abc
 </span><span class="attr">#[repr(transparent)]
-</span><span class="kw">pub struct </span>CodecClass {
+</span><span class="kw">pub struct </span>PyCodecClass {
     _class: PyType,
 }
 
-<span class="doccomment">/// Methods implemented for [`CodecClass`]es.
-</span><span class="kw">pub trait </span>CodecClassMethods&lt;<span class="lifetime">'py</span>&gt;: Sealed {
+<span class="doccomment">/// Methods implemented for [`PyCodecClass`]es.
+</span><span class="kw">pub trait </span>PyCodecClassMethods&lt;<span class="lifetime">'py</span>&gt;: Sealed {
     <span class="doccomment">/// Gets the codec identifier.
     ///
     /// # Errors
@@ -133,10 +133,10 @@
     </span><span class="kw">fn </span>codec_from_config(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         config: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyDict&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, Codec&gt;, PyErr&gt;;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyCodec&gt;, PyErr&gt;;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'py</span>&gt; CodecClassMethods&lt;<span class="lifetime">'py</span>&gt; <span class="kw">for </span>Bound&lt;<span class="lifetime">'py</span>, CodecClass&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'py</span>&gt; PyCodecClassMethods&lt;<span class="lifetime">'py</span>&gt; <span class="kw">for </span>Bound&lt;<span class="lifetime">'py</span>, PyCodecClass&gt; {
     <span class="kw">fn </span>codec_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String, PyErr&gt; {
         <span class="kw">let </span>py = <span class="self">self</span>.py();
 
@@ -148,7 +148,7 @@
     <span class="kw">fn </span>codec_from_config(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         config: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyDict&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, Codec&gt;, PyErr&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyCodec&gt;, PyErr&gt; {
         <span class="kw">let </span>py = <span class="self">self</span>.py();
 
         <span class="self">self</span>.as_any()
@@ -157,20 +157,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'py</span>&gt; Sealed <span class="kw">for </span>Bound&lt;<span class="lifetime">'py</span>, CodecClass&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'py</span>&gt; Sealed <span class="kw">for </span>Bound&lt;<span class="lifetime">'py</span>, PyCodecClass&gt; {}
 
 <span class="attr">#[doc(hidden)]
-</span><span class="kw">impl </span>DerefToPyAny <span class="kw">for </span>CodecClass {}
+</span><span class="kw">impl </span>DerefToPyAny <span class="kw">for </span>PyCodecClass {}
 
 <span class="attr">#[doc(hidden)]
 #[allow(unsafe_code)]
-</span><span class="kw">unsafe impl </span>PyNativeType <span class="kw">for </span>CodecClass {
+</span><span class="kw">unsafe impl </span>PyNativeType <span class="kw">for </span>PyCodecClass {
     <span class="kw">type </span>AsRefSource = <span class="self">Self</span>;
 }
 
 <span class="attr">#[doc(hidden)]
 #[allow(unsafe_code)]
-</span><span class="kw">unsafe impl </span>PyTypeInfo <span class="kw">for </span>CodecClass {
+</span><span class="kw">unsafe impl </span>PyTypeInfo <span class="kw">for </span>PyCodecClass {
     <span class="kw">const </span>MODULE: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; = <span class="prelude-val">Some</span>(<span class="string">"numcodecs.abc"</span>);
     <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"Codec"</span>;
 
@@ -186,12 +186,12 @@
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="bool-val">false</span>,
         };
 
-        ty.is_subclass_of::&lt;Codec&gt;().unwrap_or(<span class="bool-val">false</span>)
+        ty.is_subclass_of::&lt;PyCodec&gt;().unwrap_or(<span class="bool-val">false</span>)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>is_exact_type_of_bound(object: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'_</span>, PyAny&gt;) -&gt; bool {
-        object.as_ptr() == Codec::type_object_raw(object.py()).cast()
+        object.as_ptr() == PyCodec::type_object_raw(object.py()).cast()
     }
 }
 </code></pre></div></section></main></body></html>
