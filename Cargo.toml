@@ -16,11 +16,11 @@ rust-version = "1.64"
 
 [workspace.dependencies]
 # workspace-internal numcodecs crates
-numcodecs = { path = "crates/numcodecs", default-features = false }
-numcodecs-python = { path = "crates/numcodecs-python", default-features = false }
+numcodecs = { version = "0.1", path = "crates/numcodecs", default-features = false }
+numcodecs-python = { version = "0.1", path = "crates/numcodecs-python", default-features = false }
 
 # workspace-internal codecs crates
-numcodecs-bit-round = { path = "codecs/bit-round", default-features = false }
+numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
 
 # crates.io third-party dependencies
 convert_case = { version = "0.6", default-features = false }

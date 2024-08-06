@@ -60,6 +60,7 @@ impl Codec for BitRoundCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
+        #[allow(clippy::unit_arg)]
         match (&encoded, &mut decoded) {
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
                 Ok(decoded.assign(encoded))
@@ -95,23 +96,24 @@ impl StaticCodec for BitRoundCodec {
 #[derive(Debug, Error)]
 /// Errors that may occur when applying the [`BitRoundCodec`].
 pub enum BitRoundError {
-    /// BitRound does not support the dtype
+    /// [`BitRoundCodec`] does not support the dtype
     #[error("BitRound does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
-    /// BitRound cannot decode the decoded dtype into provided array
+    /// [`BitRoundCodec`] cannot decode the `decoded` dtype into the `provided`
+    /// array
     #[error("BitRound cannot decode the dtype {decoded} into the provided {provided} array")]
     MismatchedDecodeIntoDtype {
-        /// Dtype of the decoded data
+        /// Dtype of the `decoded` data
         decoded: AnyArrayDType,
-        /// Dtype of the provided array into which the data is to be decoded
+        /// Dtype of the `provided` array into which the data is to be decoded
         provided: AnyArrayDType,
     },
-    /// BitRound encode `keepbits` exceed the mantissa size for `dtype`
+    /// [`BitRoundCodec`] encode `keepbits` exceed the mantissa size for `dtype`
     #[error("BitRound encode {keepbits} bits exceed the mantissa size for {dtype}")]
     ExcessiveKeepBits {
         /// The number of bits of the mantissa to keep
         keepbits: u8,
-        /// The dtype of the data to encode
+        /// The `dtype` of the data to encode
         dtype: AnyArrayDType,
     },
 }
@@ -124,9 +126,9 @@ pub enum BitRoundError {
 /// to be compressed.
 ///
 /// The approach is based on the paper by Klöwer et al. 2021
-/// (https://www.nature.com/articles/s43588-021-00156-2).
+/// (<https://www.nature.com/articles/s43588-021-00156-2>).
 ///
-/// See https://github.com/milankl/BitInformation.jl for the the original
+/// See <https://github.com/milankl/BitInformation.jl> for the the original
 /// implementation in Julia.
 ///
 /// # Errors
