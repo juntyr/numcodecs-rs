@@ -154,6 +154,7 @@ where
     // the data must be visited in a defined order
     for x in &mut encoded {
         // x = U(0,1)*scale + (scale*-0.5 + x)
+        // --- is equivalent to ---
         // x += U(-scale/2, +scale/2)
         *x = Open01
             .sample(&mut rng)
