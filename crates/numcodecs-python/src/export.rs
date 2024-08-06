@@ -13,25 +13,26 @@ use pyo3::{
 };
 use pythonize::{Depythonizer, Pythonizer};
 
-use crate::{CodecClass, Registry};
+use crate::{PyCodec, PyCodecClass, PyCodecRegistry};
 
 /// Export the [`DynCodecType`] `ty` to Python by generating a fresh
-/// [`CodecClass`] inside `module` and registering it with the [`Registry`].
+/// [`PyCodecClass`] inside `module` and registering it with the
+/// [`PyCodecRegistry`].
 ///
 /// # Errors
 ///
-/// Errors if generating or exporting the fresh [`CodecClass`] fails.
+/// Errors if generating or exporting the fresh [`PyCodecClass`] fails.
 pub fn export_codec_class<'py, T: DynCodecType>(
     py: Python<'py>,
     ty: T,
     module: Borrowed<'_, 'py, PyModule>,
-) -> Result<Bound<'py, CodecClass>, PyErr> {
+) -> Result<Bound<'py, PyCodecClass>, PyErr> {
     let codec_id = String::from(ty.codec_id());
     let codec_class_name = convert_case::Casing::to_case(&codec_id, convert_case::Case::Pascal);
 
     let codec_class_bases = (
         RustCodec::type_object_bound(py),
-        crate::Codec::type_object_bound(py),
+        PyCodec::type_object_bound(py),
     );
 
     let codec_class_namespace = [
@@ -55,13 +56,13 @@ pub fn export_codec_class<'py, T: DynCodecType>(
     ]
     .into_py_dict_bound(py);
 
-    let codec_class: Bound<CodecClass> = PyType::type_object_bound(py)
+    let codec_class: Bound<PyCodecClass> = PyType::type_object_bound(py)
         .call1((&codec_class_name, codec_class_bases, codec_class_namespace))?
         .extract()?;
 
     module.add(codec_class_name.as_str(), &codec_class)?;
 
-    Registry::register_codec(codec_class.as_borrowed(), None)?;
+    PyCodecRegistry::register_codec(codec_class.as_borrowed(), None)?;
 
     Ok(codec_class)
 }
@@ -139,7 +140,7 @@ impl RustCodec {
         py: Python<'py>,
         kwargs: Option<Bound<'py, PyDict>>,
     ) -> Result<Self, PyErr> {
-        let cls: &Bound<CodecClass> = cls.downcast()?;
+        let cls: &Bound<PyCodecClass> = cls.downcast()?;
         let cls_module: String = cls.getattr(intern!(py, "__module__"))?.extract()?;
         let cls_name: String = cls.getattr(intern!(py, "__name__"))?.extract()?;
 
@@ -206,8 +207,8 @@ impl RustCodec {
     fn from_config<'py>(
         cls: &Bound<'py, PyType>,
         config: &Bound<'py, PyDict>,
-    ) -> Result<Bound<'py, crate::Codec>, PyErr> {
-        let cls: Bound<CodecClass> = cls.extract()?;
+    ) -> Result<Bound<'py, PyCodec>, PyErr> {
+        let cls: Bound<PyCodecClass> = cls.extract()?;
 
         // Ensures that cls(**config) is called and an instance of cls is returned
         cls.call((), Some(config))?.extract()

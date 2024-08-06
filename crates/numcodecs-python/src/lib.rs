@@ -23,17 +23,17 @@
 #[cfg(test)]
 use ::serde_json as _;
 
+mod adapter;
 mod codec;
 mod codec_class;
 mod export;
-mod pycodec;
 mod registry;
 
-pub use codec::{Codec, CodecMethods};
-pub use codec_class::{CodecClass, CodecClassMethods};
+pub use adapter::{PyCodecAdapter, PyCodecClassAdapter};
+pub use codec::{PyCodec, PyCodecMethods};
+pub use codec_class::{PyCodecClass, PyCodecClassMethods};
 pub use export::export_codec_class;
-pub use pycodec::{PyCodec, PyCodecClass};
-pub use registry::Registry;
+pub use registry::PyCodecRegistry;
 
 mod sealed {
     pub trait Sealed {}

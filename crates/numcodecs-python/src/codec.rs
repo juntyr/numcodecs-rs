@@ -7,20 +7,22 @@ use pyo3::{
     PyTypeInfo,
 };
 
-use crate::{sealed::Sealed, CodecClass};
+#[allow(unused_imports)] // FIXME: use expect, only used in docs
+use crate::PyCodecClassMethods;
+use crate::{sealed::Sealed, PyCodecClass};
 
 /// Represents a [`numcodecs.abc.Codec`] *instance* object.
 ///
-/// The [`Bound<Codec>`] type implements the [`CodecMethods`] API.
+/// The [`Bound<Codec>`] type implements the [`PyCodecMethods`] API.
 ///
 /// [`numcodecs.abc.Codec`]: https://numcodecs.readthedocs.io/en/stable/abc.html#module-numcodecs.abc
 #[repr(transparent)]
-pub struct Codec {
+pub struct PyCodec {
     _codec: PyAny,
 }
 
-/// Methods implemented for [`Codec`]s.
-pub trait CodecMethods<'py>: Sealed {
+/// Methods implemented for [`PyCodec`]s.
+pub trait PyCodecMethods<'py>: Sealed {
     /// Encodes the data in the buffer `buf` and returns the result.
     ///
     /// The input and output buffers be any objects supporting the
@@ -59,7 +61,7 @@ pub trait CodecMethods<'py>: Sealed {
     /// Returns a dictionary holding configuration parameters for this codec.
     ///
     /// The dict must include an `id` field with the
-    /// [`CodecClassMethods::codec_id`]. The dict must be compatible with JSON
+    /// [`PyCodecClassMethods::codec_id`]. The dict must be compatible with JSON
     /// encoding.
     ///
     /// # Errors
@@ -67,11 +69,11 @@ pub trait CodecMethods<'py>: Sealed {
     /// Errors if getting the codec configuration fails.
     fn get_config(&self) -> Result<Bound<'py, PyDict>, PyErr>;
 
-    /// Returns the [`CodecClass`] of this codec.
-    fn class(&self) -> Bound<'py, CodecClass>;
+    /// Returns the [`PyCodecClass`] of this codec.
+    fn class(&self) -> Bound<'py, PyCodecClass>;
 }
 
-impl<'py> CodecMethods<'py> for Bound<'py, Codec> {
+impl<'py> PyCodecMethods<'py> for Bound<'py, PyCodec> {
     fn encode(&self, buf: Borrowed<'_, 'py, PyAny>) -> Result<Bound<'py, PyAny>, PyErr> {
         let py = self.py();
 
@@ -101,7 +103,7 @@ impl<'py> CodecMethods<'py> for Bound<'py, Codec> {
     }
 
     #[allow(clippy::expect_used)]
-    fn class(&self) -> Bound<'py, CodecClass> {
+    fn class(&self) -> Bound<'py, PyCodecClass> {
         // extracting a codec guarantees that its class is a codec class
         self.as_any()
             .get_type()
@@ -110,20 +112,20 @@ impl<'py> CodecMethods<'py> for Bound<'py, Codec> {
     }
 }
 
-impl<'py> Sealed for Bound<'py, Codec> {}
+impl<'py> Sealed for Bound<'py, PyCodec> {}
 
 #[doc(hidden)]
-impl DerefToPyAny for Codec {}
+impl DerefToPyAny for PyCodec {}
 
 #[doc(hidden)]
 #[allow(unsafe_code)]
-unsafe impl PyNativeType for Codec {
+unsafe impl PyNativeType for PyCodec {
     type AsRefSource = Self;
 }
 
 #[doc(hidden)]
 #[allow(unsafe_code)]
-unsafe impl PyTypeInfo for Codec {
+unsafe impl PyTypeInfo for PyCodec {
     const MODULE: Option<&'static str> = Some("numcodecs.abc");
     const NAME: &'static str = "Codec";
 

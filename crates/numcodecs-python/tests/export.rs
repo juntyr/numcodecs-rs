@@ -2,7 +2,7 @@ use numcodecs::{
     AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
     StaticCodecType,
 };
-use numcodecs_python::{export_codec_class, CodecClassMethods, CodecMethods, Registry};
+use numcodecs_python::{export_codec_class, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 use pyo3::{exceptions::PyTypeError, prelude::*, types::PyDict};
 use serde::ser::SerializeMap;
 use ::{convert_case as _, pythonize as _, serde as _, serde_json as _, serde_transcode as _};
@@ -21,7 +21,7 @@ fn export() -> Result<(), PyErr> {
         config.set_item("id", "negate")?;
 
         // create a codec using registry lookup
-        let codec = Registry::get_codec(config.as_borrowed())?;
+        let codec = PyCodecRegistry::get_codec(config.as_borrowed())?;
         assert_eq!(codec.class().codec_id()?, "negate");
 
         // check the codec's config

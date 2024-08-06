@@ -15,22 +15,21 @@ use pythonize::{Depythonizer, Pythonizer};
 use serde::{Deserializer, Serializer};
 use serde_transcode::transcode;
 
-use crate::{CodecClassMethods, CodecMethods, Registry};
+use crate::{PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 
-/// Wrapper around Python [`Codec`][`crate::Codec`]s to use the Rust [`Codec`]
-/// API.
-pub struct PyCodec {
-    codec: Py<crate::Codec>,
-    class: Py<crate::CodecClass>,
+/// Wrapper around Python [`PyCodec`]s to use the Rust [`Codec`] API.
+pub struct PyCodecAdapter {
+    codec: Py<PyCodec>,
+    class: Py<PyCodecClass>,
     codec_id: Arc<String>,
 }
 
-impl PyCodec {
-    /// Instantiate a codec from the [`Registry`] with a serialized
+impl PyCodecAdapter {
+    /// Instantiate a codec from the [`PyCodecRegistry`] with a serialized
     /// `config`uration.
     ///
     /// The config must include the `id` field with the
-    /// [`PyCodecClass::codec_id`].
+    /// [`PyCodecClassMethods::codec_id`].
     ///
     /// # Errors
     ///
@@ -43,19 +42,19 @@ impl PyCodec {
             let config = transcode(config, Pythonizer::new(py))?;
             let config: Bound<PyDict> = config.extract(py)?;
 
-            let codec = Registry::get_codec(config.as_borrowed())?;
+            let codec = PyCodecRegistry::get_codec(config.as_borrowed())?;
 
             Self::from_codec(codec)
         })
         .map_err(serde::de::Error::custom)
     }
 
-    /// Wraps a [`Codec`][`crate::Codec`] to use the Rust [`Codec`] API.
+    /// Wraps a [`PyCodec`] to use the Rust [`Codec`] API.
     ///
     /// # Errors
     ///
     /// Errors if the `codec`'s class does not provide an identifier.
-    pub fn from_codec(codec: Bound<crate::Codec>) -> Result<Self, PyErr> {
+    pub fn from_codec(codec: Bound<PyCodec>) -> Result<Self, PyErr> {
         let class = codec.class();
         let codec_id = class.codec_id()?;
 
@@ -66,22 +65,44 @@ impl PyCodec {
         })
     }
 
-    /// Access the wrapped [`Codec`][`crate::Codec`] to use its Python
-    /// [`CodecMethods`] API.
+    /// Access the wrapped [`PyCodec`] to use its Python [`PyCodecMethods`] API.
     #[must_use]
-    pub fn as_codec<'py>(&self, py: Python<'py>) -> &Bound<'py, crate::Codec> {
+    pub fn as_codec<'py>(&self, py: Python<'py>) -> &Bound<'py, PyCodec> {
         self.codec.bind(py)
     }
 
-    /// Unwrap the [`Codec`][`crate::Codec`] to use its Python [`CodecMethods`]
-    /// API.
+    /// Unwrap the [`PyCodec`] to use its Python [`PyCodecMethods`] API.
     #[must_use]
-    pub fn into_codec(self, py: Python) -> Bound<crate::Codec> {
+    pub fn into_codec(self, py: Python) -> Bound<PyCodec> {
         self.codec.into_bound(py)
+    }
+
+    /// Try to [`clone`][`Clone::clone`] this codec.
+    ///
+    /// # Errors
+    ///
+    /// Errors if extracting this codec's config or creating a new codec from
+    /// the config fails.
+    pub fn try_clone(&self, py: Python) -> Result<Self, PyErr> {
+        let config = self.codec.bind(py).get_config()?;
+
+        // removing the `id` field may fail if the config doesn't contain it
+        let _ = config.del_item(intern!(py, "id"));
+
+        let codec = self
+            .class
+            .bind(py)
+            .codec_from_config(config.as_borrowed())?;
+
+        Ok(Self {
+            codec: codec.unbind(),
+            class: self.class.clone_ref(py),
+            codec_id: self.codec_id.clone(),
+        })
     }
 }
 
-impl Codec for PyCodec {
+impl Codec for PyCodecAdapter {
     type Error = PyErr;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
@@ -151,7 +172,7 @@ impl Codec for PyCodec {
     }
 }
 
-impl PyCodec {
+impl PyCodecAdapter {
     fn with_any_array_view_as_ndarray<T>(
         &self,
         py: Python,
@@ -333,60 +354,41 @@ impl PyCodec {
     }
 }
 
-impl Clone for PyCodec {
-    #[allow(clippy::expect_used)] // clone is *not* fallible
+impl Clone for PyCodecAdapter {
     fn clone(&self) -> Self {
+        #[allow(clippy::expect_used)] // clone is *not* fallible
         Python::with_gil(|py| {
-            let config = self
-                .codec
-                .bind(py)
-                .get_config()
-                .expect("getting codec config should not fail");
-
-            // removing the `id` field may fail if the config doesn't contain it
-            let _ = config.del_item(intern!(py, "id"));
-
-            let codec = self
-                .class
-                .bind(py)
-                .codec_from_config(config.as_borrowed())
-                .expect("re-creating codec from config should not fail");
-
-            Self {
-                codec: codec.unbind(),
-                class: self.class.clone_ref(py),
-                codec_id: self.codec_id.clone(),
-            }
+            self.try_clone(py)
+                .expect("cloning a PyCodec should not fail")
         })
     }
 }
 
-impl DynCodec for PyCodec {
-    type Type = PyCodecClass;
+impl DynCodec for PyCodecAdapter {
+    type Type = PyCodecClassAdapter;
 
     fn ty(&self) -> Self::Type {
-        Python::with_gil(|py| PyCodecClass {
+        Python::with_gil(|py| PyCodecClassAdapter {
             class: self.class.clone_ref(py),
             codec_id: self.codec_id.clone(),
         })
     }
 }
 
-/// Wrapper around Python [`CodecClass`][`crate::CodecClass`]es to use the Rust
-/// [`DynCodecType`] API.
-pub struct PyCodecClass {
-    class: Py<crate::CodecClass>,
+/// Wrapper around Python [`PyCodecClass`]es to use the Rust [`DynCodecType`]
+/// API.
+pub struct PyCodecClassAdapter {
+    class: Py<PyCodecClass>,
     codec_id: Arc<String>,
 }
 
-impl PyCodecClass {
-    /// Wraps a [`CodecClass`][`crate::CodecClass`] to use the Rust
-    /// [`DynCodecType`] API.
+impl PyCodecClassAdapter {
+    /// Wraps a [`PyCodecClass`] to use the Rust [`DynCodecType`] API.
     ///
     /// # Errors
     ///
     /// Errors if the codec `class` does not provide an identifier.
-    pub fn from_codec_class(class: Bound<crate::CodecClass>) -> Result<Self, PyErr> {
+    pub fn from_codec_class(class: Bound<PyCodecClass>) -> Result<Self, PyErr> {
         let codec_id = class.codec_id()?;
 
         Ok(Self {
@@ -395,23 +397,23 @@ impl PyCodecClass {
         })
     }
 
-    /// Access the wrapped [`CodecClass`][`crate::CodecClass`] to use its Python
-    /// [`CodecClassMethods`] API.
+    /// Access the wrapped [`PyCodecClass`] to use its Python
+    /// [`PyCodecClassMethods`] API.
     #[must_use]
-    pub fn as_codec_class<'py>(&self, py: Python<'py>) -> &Bound<'py, crate::CodecClass> {
+    pub fn as_codec_class<'py>(&self, py: Python<'py>) -> &Bound<'py, PyCodecClass> {
         self.class.bind(py)
     }
 
-    /// Unwrap the [`CodecClass`][`crate::CodecClass`] to use its Python
-    /// [`CodecClassMethods`] API.
+    /// Unwrap the [`PyCodecClass`] to use its Python [`PyCodecClassMethods`]
+    /// API.
     #[must_use]
-    pub fn into_codec_class(self, py: Python) -> Bound<crate::CodecClass> {
+    pub fn into_codec_class(self, py: Python) -> Bound<PyCodecClass> {
         self.class.into_bound(py)
     }
 }
 
-impl DynCodecType for PyCodecClass {
-    type Codec = PyCodec;
+impl DynCodecType for PyCodecClassAdapter {
+    type Codec = PyCodecAdapter;
 
     fn codec_id(&self) -> &str {
         &self.codec_id
@@ -432,7 +434,7 @@ impl DynCodecType for PyCodecClass {
                 .codec_from_config(config.as_borrowed())
                 .map_err(serde::de::Error::custom)?;
 
-            Ok(PyCodec {
+            Ok(PyCodecAdapter {
                 codec: codec.unbind(),
                 class: self.class.clone_ref(py),
                 codec_id: self.codec_id.clone(),

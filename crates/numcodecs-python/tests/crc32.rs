@@ -1,5 +1,5 @@
 use numcodecs::{AnyArray, AnyArrayView, AnyCowArray, Codec, DynCodec, DynCodecType};
-use numcodecs_python::{CodecClassMethods, CodecMethods, PyCodec, Registry};
+use numcodecs_python::{PyCodecAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 use numpy::ndarray::{Array1, ArrayView1};
 use pyo3::{exceptions::PyRuntimeError, prelude::*, types::PyDict};
 use serde_json::json;
@@ -12,16 +12,16 @@ fn python_api() -> Result<(), PyErr> {
         config.set_item("id", "crc32")?;
 
         // create a codec using registry lookup
-        let codec = Registry::get_codec(config.as_borrowed())?;
+        let codec = PyCodecRegistry::get_codec(config.as_borrowed())?;
         assert_eq!(codec.class().codec_id()?, "crc32");
 
         // re-register the codec class under a custom name
         let class = codec.class();
-        Registry::register_codec(class.as_borrowed(), Some("my-crc32"))?;
+        PyCodecRegistry::register_codec(class.as_borrowed(), Some("my-crc32"))?;
         config.set_item("id", "my-crc32")?;
 
         // create a codec using registry lookup of the custom name
-        let codec = Registry::get_codec(config.as_borrowed())?;
+        let codec = PyCodecRegistry::get_codec(config.as_borrowed())?;
         assert_eq!(codec.class().codec_id()?, "crc32");
 
         // create a codec using the class
@@ -69,7 +69,7 @@ fn python_api() -> Result<(), PyErr> {
 #[test]
 fn rust_api() -> Result<(), PyErr> {
     // create a codec using registry lookup
-    let codec = PyCodec::from_registry_with_config(json!({
+    let codec = PyCodecAdapter::from_registry_with_config(json!({
         "id": "crc32",
     }))
     .map_err(|err| PyRuntimeError::new_err(format!("{err}")))?;

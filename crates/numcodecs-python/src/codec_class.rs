@@ -6,20 +6,20 @@ use pyo3::{
     PyTypeInfo,
 };
 
-use crate::{sealed::Sealed, Codec};
+use crate::{sealed::Sealed, PyCodec};
 
 /// Represents a [`numcodecs.abc.Codec`] *class* object.
 ///
-/// The [`Bound<CodecClass>`] type implements the [`CodecClassMethods`] API.
+/// The [`Bound<CodecClass>`] type implements the [`PyCodecClassMethods`] API.
 ///
 /// [`numcodecs.abc.Codec`]: https://numcodecs.readthedocs.io/en/stable/abc.html#module-numcodecs.abc
 #[repr(transparent)]
-pub struct CodecClass {
+pub struct PyCodecClass {
     _class: PyType,
 }
 
-/// Methods implemented for [`CodecClass`]es.
-pub trait CodecClassMethods<'py>: Sealed {
+/// Methods implemented for [`PyCodecClass`]es.
+pub trait PyCodecClassMethods<'py>: Sealed {
     /// Gets the codec identifier.
     ///
     /// # Errors
@@ -35,10 +35,10 @@ pub trait CodecClassMethods<'py>: Sealed {
     fn codec_from_config(
         &self,
         config: Borrowed<'_, 'py, PyDict>,
-    ) -> Result<Bound<'py, Codec>, PyErr>;
+    ) -> Result<Bound<'py, PyCodec>, PyErr>;
 }
 
-impl<'py> CodecClassMethods<'py> for Bound<'py, CodecClass> {
+impl<'py> PyCodecClassMethods<'py> for Bound<'py, PyCodecClass> {
     fn codec_id(&self) -> Result<String, PyErr> {
         let py = self.py();
 
@@ -50,7 +50,7 @@ impl<'py> CodecClassMethods<'py> for Bound<'py, CodecClass> {
     fn codec_from_config(
         &self,
         config: Borrowed<'_, 'py, PyDict>,
-    ) -> Result<Bound<'py, Codec>, PyErr> {
+    ) -> Result<Bound<'py, PyCodec>, PyErr> {
         let py = self.py();
 
         self.as_any()
@@ -59,20 +59,20 @@ impl<'py> CodecClassMethods<'py> for Bound<'py, CodecClass> {
     }
 }
 
-impl<'py> Sealed for Bound<'py, CodecClass> {}
+impl<'py> Sealed for Bound<'py, PyCodecClass> {}
 
 #[doc(hidden)]
-impl DerefToPyAny for CodecClass {}
+impl DerefToPyAny for PyCodecClass {}
 
 #[doc(hidden)]
 #[allow(unsafe_code)]
-unsafe impl PyNativeType for CodecClass {
+unsafe impl PyNativeType for PyCodecClass {
     type AsRefSource = Self;
 }
 
 #[doc(hidden)]
 #[allow(unsafe_code)]
-unsafe impl PyTypeInfo for CodecClass {
+unsafe impl PyTypeInfo for PyCodecClass {
     const MODULE: Option<&'static str> = Some("numcodecs.abc");
     const NAME: &'static str = "Codec";
 
@@ -88,11 +88,11 @@ unsafe impl PyTypeInfo for CodecClass {
             Err(_) => return false,
         };
 
-        ty.is_subclass_of::<Codec>().unwrap_or(false)
+        ty.is_subclass_of::<PyCodec>().unwrap_or(false)
     }
 
     #[inline]
     fn is_exact_type_of_bound(object: &Bound<'_, PyAny>) -> bool {
-        object.as_ptr() == Codec::type_object_raw(object.py()).cast()
+        object.as_ptr() == PyCodec::type_object_raw(object.py()).cast()
     }
 }
