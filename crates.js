@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["numcodecs","numcodecs_bit_round","numcodecs_python"];
+window.ALL_CRATES = ["numcodecs","numcodecs_bit_round","numcodecs_identity","numcodecs_python"];

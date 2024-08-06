@@ -423,8 +423,8 @@
 
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>encoded {
-            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F32(encoded.to_owned())),
-            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(encoded.to_owned())),
+            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F32(encoded.into_owned())),
+            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(encoded.into_owned())),
             encoded =&gt; <span class="prelude-val">Err</span>(BitRoundError::UnsupportedDtype(encoded.dtype())),
         }
     }

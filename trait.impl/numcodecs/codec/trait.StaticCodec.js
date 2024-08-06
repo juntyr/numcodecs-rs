@@ -1,3 +1,4 @@
 (function() {var implementors = {
-"numcodecs_bit_round":[["impl <a class=\"trait\" href=\"numcodecs/codec/trait.StaticCodec.html\" title=\"trait numcodecs::codec::StaticCodec\">StaticCodec</a> for <a class=\"struct\" href=\"numcodecs_bit_round/struct.BitRoundCodec.html\" title=\"struct numcodecs_bit_round::BitRoundCodec\">BitRoundCodec</a>"]]
+"numcodecs_bit_round":[["impl <a class=\"trait\" href=\"numcodecs/codec/trait.StaticCodec.html\" title=\"trait numcodecs::codec::StaticCodec\">StaticCodec</a> for <a class=\"struct\" href=\"numcodecs_bit_round/struct.BitRoundCodec.html\" title=\"struct numcodecs_bit_round::BitRoundCodec\">BitRoundCodec</a>"]],
+"numcodecs_identity":[["impl <a class=\"trait\" href=\"numcodecs/codec/trait.StaticCodec.html\" title=\"trait numcodecs::codec::StaticCodec\">StaticCodec</a> for <a class=\"struct\" href=\"numcodecs_identity/struct.IdentityCodec.html\" title=\"struct numcodecs_identity::IdentityCodec\">IdentityCodec</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
