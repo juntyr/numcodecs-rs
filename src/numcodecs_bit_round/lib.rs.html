@@ -370,6 +370,8 @@
 <a href="#370" id="370">370</a>
 <a href="#371" id="371">371</a>
 <a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -432,7 +434,8 @@
         encoded: AnyArrayView,
         <span class="kw-2">mut </span>decoded: AnyArrayViewMut,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>(<span class="kw-2">&amp;</span>encoded, <span class="kw-2">&amp;mut </span>decoded) {
+        <span class="attr">#[allow(clippy::unit_arg)]
+        </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>encoded, <span class="kw-2">&amp;mut </span>decoded) {
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
                 <span class="prelude-val">Ok</span>(decoded.assign(encoded))
             }
@@ -467,23 +470,24 @@
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="doccomment">/// Errors that may occur when applying the [`BitRoundCodec`].
 </span><span class="kw">pub enum </span>BitRoundError {
-    <span class="doccomment">/// BitRound does not support the dtype
+    <span class="doccomment">/// [`BitRoundCodec`] does not support the dtype
     </span><span class="attr">#[error(<span class="string">"BitRound does not support the dtype {0}"</span>)]
     </span>UnsupportedDtype(AnyArrayDType),
-    <span class="doccomment">/// BitRound cannot decode the decoded dtype into provided array
+    <span class="doccomment">/// [`BitRoundCodec`] cannot decode the `decoded` dtype into the `provided`
+    /// array
     </span><span class="attr">#[error(<span class="string">"BitRound cannot decode the dtype {decoded} into the provided {provided} array"</span>)]
     </span>MismatchedDecodeIntoDtype {
-        <span class="doccomment">/// Dtype of the decoded data
+        <span class="doccomment">/// Dtype of the `decoded` data
         </span>decoded: AnyArrayDType,
-        <span class="doccomment">/// Dtype of the provided array into which the data is to be decoded
+        <span class="doccomment">/// Dtype of the `provided` array into which the data is to be decoded
         </span>provided: AnyArrayDType,
     },
-    <span class="doccomment">/// BitRound encode `keepbits` exceed the mantissa size for `dtype`
+    <span class="doccomment">/// [`BitRoundCodec`] encode `keepbits` exceed the mantissa size for `dtype`
     </span><span class="attr">#[error(<span class="string">"BitRound encode {keepbits} bits exceed the mantissa size for {dtype}"</span>)]
     </span>ExcessiveKeepBits {
         <span class="doccomment">/// The number of bits of the mantissa to keep
         </span>keepbits: u8,
-        <span class="doccomment">/// The dtype of the data to encode
+        <span class="doccomment">/// The `dtype` of the data to encode
         </span>dtype: AnyArrayDType,
     },
 }
@@ -496,9 +500,9 @@
 /// to be compressed.
 ///
 /// The approach is based on the paper by Klöwer et al. 2021
-/// (https://www.nature.com/articles/s43588-021-00156-2).
+/// (&lt;https://www.nature.com/articles/s43588-021-00156-2&gt;).
 ///
-/// See https://github.com/milankl/BitInformation.jl for the the original
+/// See &lt;https://github.com/milankl/BitInformation.jl&gt; for the the original
 /// implementation in Julia.
 ///
 /// # Errors
