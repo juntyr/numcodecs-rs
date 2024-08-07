@@ -1,3 +1,4 @@
 (function() {var implementors = {
-"numcodecs":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"numcodecs/enum.AnyArrayDType.html\" title=\"enum numcodecs::AnyArrayDType\">AnyArrayDType</a>"]]
+"numcodecs":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"numcodecs/enum.AnyArrayDType.html\" title=\"enum numcodecs::AnyArrayDType\">AnyArrayDType</a>"]],
+"numcodecs_zlib":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"numcodecs_zlib/enum.ZlibLevel.html\" title=\"enum numcodecs_zlib::ZlibLevel\">ZlibLevel</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

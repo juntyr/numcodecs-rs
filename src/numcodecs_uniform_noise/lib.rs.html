@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/uniform-noise/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_uniform_noise" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (e57f3090a 2024-08-05)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/uniform-noise/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_uniform_noise" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (60d146580 2024-08-06)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -200,6 +200,23 @@
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
 <a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -221,7 +238,7 @@
 
 </span><span class="kw">use </span>std::hash::{Hash, Hasher};
 
-<span class="kw">use </span>ndarray::{Array, CowArray, Dimension};
+<span class="kw">use </span>ndarray::{Array, ArrayViewD, ArrayViewMutD, CowArray, Dimension};
 <span class="kw">use </span>numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
@@ -245,7 +262,7 @@
 }
 
 <span class="kw">impl </span>Codec <span class="kw">for </span>UniformNoiseCodec {
-    <span class="kw">type </span>Error = UniformNoiseError;
+    <span class="kw">type </span>Error = UniformNoiseCodecError;
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>data {
@@ -258,7 +275,7 @@
             AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(add_uniform_noise(
                 data, <span class="self">self</span>.scale, <span class="self">self</span>.seed,
             ))),
-            encoded =&gt; <span class="prelude-val">Err</span>(UniformNoiseError::UnsupportedDtype(encoded.dtype())),
+            encoded =&gt; <span class="prelude-val">Err</span>(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
@@ -266,7 +283,7 @@
         <span class="kw">match </span>encoded {
             AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F32(encoded.into_owned())),
             AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(encoded.into_owned())),
-            encoded =&gt; <span class="prelude-val">Err</span>(UniformNoiseError::UnsupportedDtype(encoded.dtype())),
+            encoded =&gt; <span class="prelude-val">Err</span>(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
@@ -275,23 +292,31 @@
         encoded: AnyArrayView,
         <span class="kw-2">mut </span>decoded: AnyArrayViewMut,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="attr">#[allow(clippy::unit_arg)]
-        </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>encoded, <span class="kw-2">&amp;mut </span>decoded) {
-            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
+        <span class="kw">fn </span>shape_checked_assign&lt;T: Copy&gt;(encoded: <span class="kw-2">&amp;</span>ArrayViewD&lt;T&gt;, decoded: <span class="kw-2">&amp;mut </span>ArrayViewMutD&lt;T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), UniformNoiseCodecError&gt; {
+            <span class="attr">#[allow(clippy::unit_arg)]
+            </span><span class="kw">if </span>encoded.shape() == decoded.shape() {
                 <span class="prelude-val">Ok</span>(decoded.assign(encoded))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Err</span>(UniformNoiseCodecError::MismatchedDecodeIntoShape { decoded: encoded.shape().to_vec(), provided: decoded.shape().to_vec() })
+            }
+        }
+
+        <span class="kw">match </span>(<span class="kw-2">&amp;</span>encoded, <span class="kw-2">&amp;mut </span>decoded) {
+            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) =&gt; {
-                <span class="prelude-val">Ok</span>(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
-            (AnyArrayView::F32(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(UniformNoiseError::MismatchedDecodeIntoDtype {
+            (AnyArrayView::F32(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
                 decoded: AnyArrayDType::F32,
                 provided: decoded.dtype(),
             }),
-            (AnyArrayView::F64(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(UniformNoiseError::MismatchedDecodeIntoDtype {
+            (AnyArrayView::F64(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
                 decoded: AnyArrayDType::F64,
                 provided: decoded.dtype(),
             }),
-            (encoded, _decoded) =&gt; <span class="prelude-val">Err</span>(UniformNoiseError::UnsupportedDtype(encoded.dtype())),
+            (encoded, _decoded) =&gt; <span class="prelude-val">Err</span>(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
@@ -310,7 +335,7 @@
 
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="doccomment">/// Errors that may occur when applying the [`UniformNoiseCodec`].
-</span><span class="kw">pub enum </span>UniformNoiseError {
+</span><span class="kw">pub enum </span>UniformNoiseCodecError {
     <span class="doccomment">/// [`UniformNoiseCodec`] does not support the dtype
     </span><span class="attr">#[error(<span class="string">"UniformNoise does not support the dtype {0}"</span>)]
     </span>UnsupportedDtype(AnyArrayDType),
@@ -322,6 +347,15 @@
         </span>decoded: AnyArrayDType,
         <span class="doccomment">/// Dtype of the `provided` array into which the data is to be decoded
         </span>provided: AnyArrayDType,
+    },
+    <span class="doccomment">/// [`UniformNoiseCodec`] cannot decode the decoded array into the provided
+    /// array of a different shape
+    </span><span class="attr">#[error(<span class="string">"UniformNoise cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}"</span>)]
+    </span>MismatchedDecodeIntoShape {
+        <span class="doccomment">/// Shape of the `decoded` data
+        </span>decoded: Vec&lt;usize&gt;,
+        <span class="doccomment">/// Shape of the `provided` array into which the data is to be decoded
+        </span>provided: Vec&lt;usize&gt;,
     },
 }
 
