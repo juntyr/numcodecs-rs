@@ -19,7 +19,7 @@
 
 use std::hash::{Hash, Hasher};
 
-use ndarray::{Array, CowArray, Dimension};
+use ndarray::{Array, ArrayViewD, ArrayViewMutD, CowArray, Dimension};
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
@@ -43,7 +43,7 @@ pub struct UniformNoiseCodec {
 }
 
 impl Codec for UniformNoiseCodec {
-    type Error = UniformNoiseError;
+    type Error = UniformNoiseCodecError;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
@@ -56,7 +56,7 @@ impl Codec for UniformNoiseCodec {
             AnyCowArray::F64(data) => Ok(AnyArray::F64(add_uniform_noise(
                 data, self.scale, self.seed,
             ))),
-            encoded => Err(UniformNoiseError::UnsupportedDtype(encoded.dtype())),
+            encoded => Err(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
@@ -64,7 +64,7 @@ impl Codec for UniformNoiseCodec {
         match encoded {
             AnyCowArray::F32(encoded) => Ok(AnyArray::F32(encoded.into_owned())),
             AnyCowArray::F64(encoded) => Ok(AnyArray::F64(encoded.into_owned())),
-            encoded => Err(UniformNoiseError::UnsupportedDtype(encoded.dtype())),
+            encoded => Err(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
@@ -73,23 +73,31 @@ impl Codec for UniformNoiseCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        #[allow(clippy::unit_arg)]
+        fn shape_checked_assign<T: Copy>(encoded: &ArrayViewD<T>, decoded: &mut ArrayViewMutD<T>) -> Result<(), UniformNoiseCodecError> {
+            #[allow(clippy::unit_arg)]
+            if encoded.shape() == decoded.shape() {
+                Ok(decoded.assign(encoded))
+            } else {
+                Err(UniformNoiseCodecError::MismatchedDecodeIntoShape { decoded: encoded.shape().to_vec(), provided: decoded.shape().to_vec() })
+            }
+        }
+
         match (&encoded, &mut decoded) {
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
-            (AnyArrayView::F32(_), decoded) => Err(UniformNoiseError::MismatchedDecodeIntoDtype {
+            (AnyArrayView::F32(_), decoded) => Err(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
                 decoded: AnyArrayDType::F32,
                 provided: decoded.dtype(),
             }),
-            (AnyArrayView::F64(_), decoded) => Err(UniformNoiseError::MismatchedDecodeIntoDtype {
+            (AnyArrayView::F64(_), decoded) => Err(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
                 decoded: AnyArrayDType::F64,
                 provided: decoded.dtype(),
             }),
-            (encoded, _decoded) => Err(UniformNoiseError::UnsupportedDtype(encoded.dtype())),
+            (encoded, _decoded) => Err(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
@@ -108,7 +116,7 @@ impl StaticCodec for UniformNoiseCodec {
 
 #[derive(Debug, Error)]
 /// Errors that may occur when applying the [`UniformNoiseCodec`].
-pub enum UniformNoiseError {
+pub enum UniformNoiseCodecError {
     /// [`UniformNoiseCodec`] does not support the dtype
     #[error("UniformNoise does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
@@ -120,6 +128,15 @@ pub enum UniformNoiseError {
         decoded: AnyArrayDType,
         /// Dtype of the `provided` array into which the data is to be decoded
         provided: AnyArrayDType,
+    },
+    /// [`UniformNoiseCodec`] cannot decode the decoded array into the provided
+    /// array of a different shape
+    #[error("UniformNoise cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
+    MismatchedDecodeIntoShape {
+        /// Shape of the `decoded` data
+        decoded: Vec<usize>,
+        /// Shape of the `provided` array into which the data is to be decoded
+        provided: Vec<usize>,
     },
 }
 

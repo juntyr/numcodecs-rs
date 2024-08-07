@@ -17,7 +17,7 @@
 //!
 //! Bit rounding codec implementation for the [`numcodecs`] API.
 
-use ndarray::{Array, CowArray, Dimension};
+use ndarray::{Array, ArrayViewD, ArrayViewMutD, CowArray, Dimension};
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
@@ -37,13 +37,13 @@ pub struct BitRoundCodec {
 }
 
 impl Codec for BitRoundCodec {
-    type Error = BitRoundError;
+    type Error = BitRoundCodecError;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
             AnyCowArray::F32(data) => Ok(AnyArray::F32(bit_round(data, self.keepbits)?)),
             AnyCowArray::F64(data) => Ok(AnyArray::F64(bit_round(data, self.keepbits)?)),
-            encoded => Err(BitRoundError::UnsupportedDtype(encoded.dtype())),
+            encoded => Err(BitRoundCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
@@ -51,7 +51,7 @@ impl Codec for BitRoundCodec {
         match encoded {
             AnyCowArray::F32(encoded) => Ok(AnyArray::F32(encoded.into_owned())),
             AnyCowArray::F64(encoded) => Ok(AnyArray::F64(encoded.into_owned())),
-            encoded => Err(BitRoundError::UnsupportedDtype(encoded.dtype())),
+            encoded => Err(BitRoundCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
@@ -60,23 +60,31 @@ impl Codec for BitRoundCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        #[allow(clippy::unit_arg)]
+        fn shape_checked_assign<T: Copy>(encoded: &ArrayViewD<T>, decoded: &mut ArrayViewMutD<T>) -> Result<(), BitRoundCodecError> {
+            #[allow(clippy::unit_arg)]
+            if encoded.shape() == decoded.shape() {
+                Ok(decoded.assign(encoded))
+            } else {
+                Err(BitRoundCodecError::MismatchedDecodeIntoShape { decoded: encoded.shape().to_vec(), provided: decoded.shape().to_vec() })
+            }
+        }
+
         match (&encoded, &mut decoded) {
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
-            (AnyArrayView::F32(_), decoded) => Err(BitRoundError::MismatchedDecodeIntoDtype {
+            (AnyArrayView::F32(_), decoded) => Err(BitRoundCodecError::MismatchedDecodeIntoDtype {
                 decoded: AnyArrayDType::F32,
                 provided: decoded.dtype(),
             }),
-            (AnyArrayView::F64(_), decoded) => Err(BitRoundError::MismatchedDecodeIntoDtype {
+            (AnyArrayView::F64(_), decoded) => Err(BitRoundCodecError::MismatchedDecodeIntoDtype {
                 decoded: AnyArrayDType::F64,
                 provided: decoded.dtype(),
             }),
-            (encoded, _decoded) => Err(BitRoundError::UnsupportedDtype(encoded.dtype())),
+            (encoded, _decoded) => Err(BitRoundCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
@@ -95,7 +103,7 @@ impl StaticCodec for BitRoundCodec {
 
 #[derive(Debug, Error)]
 /// Errors that may occur when applying the [`BitRoundCodec`].
-pub enum BitRoundError {
+pub enum BitRoundCodecError {
     /// [`BitRoundCodec`] does not support the dtype
     #[error("BitRound does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
@@ -107,6 +115,15 @@ pub enum BitRoundError {
         decoded: AnyArrayDType,
         /// Dtype of the `provided` array into which the data is to be decoded
         provided: AnyArrayDType,
+    },
+    /// [`BitRoundCodec`] cannot decode the decoded array into the provided
+    /// array of a different shape
+    #[error("BitRound cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
+    MismatchedDecodeIntoShape {
+        /// Shape of the `decoded` data
+        decoded: Vec<usize>,
+        /// Shape of the `provided` array into which the data is to be decoded
+        provided: Vec<usize>,
     },
     /// [`BitRoundCodec`] encode `keepbits` exceed the mantissa size for `dtype`
     #[error("BitRound encode {keepbits} bits exceed the mantissa size for {dtype}")]
@@ -138,9 +155,9 @@ pub enum BitRoundError {
 pub fn bit_round<T: Float, D: Dimension>(
     data: CowArray<T, D>,
     keepbits: u8,
-) -> Result<Array<T, D>, BitRoundError> {
+) -> Result<Array<T, D>, BitRoundCodecError> {
     if u32::from(keepbits) > T::MANITSSA_BITS {
-        return Err(BitRoundError::ExcessiveKeepBits {
+        return Err(BitRoundCodecError::ExcessiveKeepBits {
             keepbits,
             dtype: T::TY,
         });

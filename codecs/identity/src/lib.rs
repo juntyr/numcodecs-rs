@@ -17,6 +17,7 @@
 //!
 //! Bit rounding codec implementation for the [`numcodecs`] API.
 
+use ndarray::{ArrayViewD, ArrayViewMutD};
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
@@ -44,37 +45,45 @@ impl Codec for IdentityCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        #[allow(clippy::unit_arg)]
+        fn shape_checked_assign<T: Copy>(encoded: &ArrayViewD<T>, decoded: &mut ArrayViewMutD<T>) -> Result<(), IdentityCodecError> {
+            #[allow(clippy::unit_arg)]
+            if encoded.shape() == decoded.shape() {
+                Ok(decoded.assign(encoded))
+            } else {
+                Err(IdentityCodecError::MismatchedDecodeIntoShape { decoded: encoded.shape().to_vec(), provided: decoded.shape().to_vec() })
+            }
+        }
+
         match (&encoded, &mut decoded) {
             (AnyArrayView::U8(encoded), AnyArrayViewMut::U8(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::U16(encoded), AnyArrayViewMut::U16(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::U32(encoded), AnyArrayViewMut::U32(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::U64(encoded), AnyArrayViewMut::U64(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::I8(encoded), AnyArrayViewMut::I8(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::I16(encoded), AnyArrayViewMut::I16(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::I32(encoded), AnyArrayViewMut::I32(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::I64(encoded), AnyArrayViewMut::I64(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
-                Ok(decoded.assign(encoded))
+                shape_checked_assign(encoded, decoded)
             }
             (encoded, decoded) => Err(IdentityCodecError::MismatchedDecodeIntoDtype {
                 decoded: encoded.dtype(),
@@ -107,5 +116,14 @@ pub enum IdentityCodecError {
         decoded: AnyArrayDType,
         /// Dtype of the `provided` array into which the data is to be decoded
         provided: AnyArrayDType,
+    },
+    /// [`IdentityCodec`] cannot decode the decoded array into the provided
+    /// array of a different shape
+    #[error("Identity cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
+    MismatchedDecodeIntoShape {
+        /// Shape of the `decoded` data
+        decoded: Vec<usize>,
+        /// Shape of the `provided` array into which the data is to be decoded
+        provided: Vec<usize>,
     },
 }
