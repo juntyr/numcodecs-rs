@@ -8,6 +8,7 @@ members = [
     "codecs/identity",
     "codecs/uniform-noise",
     "codecs/zlib",
+    "codecs/zstd",
 ]
 
 [workspace.package]
@@ -27,6 +28,7 @@ numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-feat
 numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
 numcodecs-uniform-noise = { version = "0.1", path = "codecs/uniform-noise", default-features = false }
 numcodecs-zlib = { version = "0.1", path = "codecs/zlib", default-features = false }
+numcodecs-zstd = { version = "0.1", path = "codecs/zstd", default-features = false }
 
 # crates.io third-party dependencies
 convert_case = { version = "0.6", default-features = false }
@@ -43,6 +45,8 @@ serde_json = { version = "1.0", default-features = false }
 serde_repr = { version = "0.1", default-features = false }
 thiserror = { version = "1.0", default-features = false }
 wyhash = { version = "0.5", default-features = false }
+zstd = { version = "0.13", default-features = false }
+zstd-sys = { version = "2.0.12", default-features = false }
 
 [workspace.lints.rust]
 unsafe_code = "deny"

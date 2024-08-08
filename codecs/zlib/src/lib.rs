@@ -143,10 +143,10 @@ pub enum ZlibCodecError {
     /// [`ZlibCodec`] decode consumed less encoded data, which contains trailing
     /// junk
     #[error("Zlib decode consumed less encoded data, which contains trailing junk")]
-    ZlibDecodeExcessiveEncodedData,
+    DecodeExcessiveEncodedData,
     /// [`ZlibCodec`] produced less decoded data than expected
     #[error("Zlib produced less decoded data than expected")]
-    ZlibDecodeProducedLess,
+    DecodeProducedLess,
     /// [`ZlibCodec`] failed to decode the encoded data
     #[error("Zlib failed to decode the encoded data")]
     ZlibDecodeFailed {
@@ -267,10 +267,10 @@ pub fn compress(array: AnyArrayView, level: ZlibLevel) -> Result<Vec<u8>, ZlibCo
 ///
 /// Errors with
 /// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
-/// - [`ZlibCodecError::ZlibDecodeExcessiveEncodedData`] if the encoded data
+/// - [`ZlibCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
-/// - [`ZlibCodecError::ZlibDecodeProducedLess`] if decoding produced less data
-///   than expected
+/// - [`ZlibCodecError::DecodeProducedLess`] if decoding produced less data than
+///   expected
 /// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
 pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZlibCodecError> {
     let (header, encoded) =
@@ -298,10 +298,10 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZlibCodecError> {
 /// - [`ZlibCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
 ///   the wrong shape.
 /// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
-/// - [`ZlibCodecError::ZlibDecodeExcessiveEncodedData`] if the encoded data
+/// - [`ZlibCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
-/// - [`ZlibCodecError::ZlibDecodeProducedLess`] if decoding produced less data
-///   than expected
+/// - [`ZlibCodecError::DecodeProducedLess`] if decoding produced less data than
+///   expected
 /// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
 pub fn decompress_into(encoded: &[u8], mut decoded: AnyArrayViewMut) -> Result<(), ZlibCodecError> {
     let (header, encoded) =
@@ -340,11 +340,11 @@ fn decompress_into_bytes(encoded: &[u8], decoded: &mut [u8]) -> Result<(), ZlibC
     match status {
         miniz_oxide::inflate::TINFLStatus::Done => {
             if in_consumed != encoded.len() {
-                Err(ZlibCodecError::ZlibDecodeExcessiveEncodedData)
+                Err(ZlibCodecError::DecodeExcessiveEncodedData)
             } else if out_consumed == decoded.len() {
                 Ok(())
             } else {
-                Err(ZlibCodecError::ZlibDecodeProducedLess)
+                Err(ZlibCodecError::DecodeProducedLess)
             }
         }
         status => Err(ZlibCodecError::ZlibDecodeFailed {
