@@ -1,9 +1,10 @@
 use std::{borrow::Cow, fmt, mem::ManuallyDrop};
 
 use ndarray::{
-    ArrayBase, ArrayD, CowRepr, Data, DataMut, IxDyn, OwnedArcRepr, OwnedRepr, RawData, RawDataClone, RawDataSubst, ViewRepr
+    ArrayBase, ArrayD, CowRepr, Data, DataMut, IxDyn, OwnedArcRepr, OwnedRepr, RawData,
+    RawDataClone, RawDataSubst, ViewRepr,
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// An array where the data has shared ownership and is copy-on-write.
 pub type AnyArcArray = AnyArrayBase<OwnedArcRepr<()>>;
@@ -180,15 +181,16 @@ where
     }
 
     #[must_use]
-    /// Returns the array’s data as a byte slice.
-    /// 
+    /// Returns the array's data as a byte slice.
+    ///
     /// If the array is contiguous and in standard order, i.e. if the element
     /// order in memory corresponds to the logical order of the array's
     /// elements, a view of the data is returned without cloning.
-    /// 
+    ///
     /// Otherwise, the data is cloned and put into standard order first.
     pub fn as_bytes(&self) -> Cow<[u8]> {
         fn array_into_bytes<T: Copy, S: Data<Elem = T>>(x: &ArrayBase<S, IxDyn>) -> Cow<[u8]> {
+            #[allow(clippy::option_if_let_else)]
             if let Some(x) = x.as_slice() {
                 #[allow(unsafe_code)]
                 // Safety: casting to a byte slice is only safe since this
@@ -207,7 +209,11 @@ where
                 //         old-data types and the vec's length and capacity
                 //         are adjusted
                 let x = unsafe {
-                    Vec::from_raw_parts(ptr.cast::<u8>(), len * std::mem::size_of::<T>(), capacity * std::mem::size_of::<T>())
+                    Vec::from_raw_parts(
+                        ptr.cast::<u8>(),
+                        len * std::mem::size_of::<T>(),
+                        capacity * std::mem::size_of::<T>(),
+                    )
                 };
                 Cow::Owned(x)
             }
@@ -259,35 +265,60 @@ where
     }
 
     #[must_use]
-    /// Returns the array’s data as a mutable byte slice, if it is contiguous
-    /// and in standard order, i.e. if the element order in memory corresponds
-    /// to the logical order of the array's elements. Returns `None` otherwise.
-    pub fn as_bytes_mut(&mut self) -> Option<&mut [u8]> {
-        fn array_as_bytes_mut<T: Copy, S: DataMut<Elem = T>>(x: &mut ArrayBase<S, IxDyn>) -> Option<&mut [u8]> {
+    /// Provides access to the array's data as a mutable byte slice.
+    ///
+    /// If the array is contiguous and in standard order, i.e. if the element
+    /// order in memory corresponds to the logical order of the array's
+    /// elements, a mutable view of the data is returned without cloning.
+    ///
+    /// Otherwise, the data is cloned and put into standard order first, and
+    /// later copied back into the array.
+    pub fn with_bytes_mut<O>(&mut self, with: impl FnOnce(&mut [u8]) -> O) -> O {
+        fn array_with_bytes_mut<T: Copy, S: DataMut<Elem = T>, O>(
+            x: &mut ArrayBase<S, IxDyn>,
+            with: impl FnOnce(&mut [u8]) -> O,
+        ) -> O {
             if let Some(x) = x.as_slice_mut() {
                 #[allow(unsafe_code)]
                 // Safety: casting to a byte slice is only safe since this
                 //         private helper function is only called for plain-
                 //         old-data types and the slice's length is adjusted
-                Some(unsafe {
-                    std::slice::from_raw_parts_mut(x.as_mut_ptr().cast::<u8>(), std::mem::size_of_val(x))
+                with(unsafe {
+                    std::slice::from_raw_parts_mut(
+                        x.as_mut_ptr().cast::<u8>(),
+                        std::mem::size_of_val(x),
+                    )
                 })
             } else {
-                None
+                let mut x_vec: Vec<T> = x.into_iter().map(|x| *x).collect::<Vec<T>>();
+
+                #[allow(unsafe_code)]
+                // Safety: casting to a byte slice is only safe since this
+                //         private helper function is only called for plain-
+                //         old-data types and the slice's length is adjusted
+                let result = with(unsafe {
+                    std::slice::from_raw_parts_mut(
+                        x_vec.as_mut_ptr().cast::<u8>(),
+                        std::mem::size_of_val(x_vec.as_slice()),
+                    )
+                });
+
+                x.iter_mut().zip(x_vec).for_each(|(x, x_new)| *x = x_new);
+                result
             }
         }
 
         match self {
-            Self::U8(a) => array_as_bytes_mut(a),
-            Self::U16(a) => array_as_bytes_mut(a),
-            Self::U32(a) => array_as_bytes_mut(a),
-            Self::U64(a) => array_as_bytes_mut(a),
-            Self::I8(a) => array_as_bytes_mut(a),
-            Self::I16(a) => array_as_bytes_mut(a),
-            Self::I32(a) => array_as_bytes_mut(a),
-            Self::I64(a) => array_as_bytes_mut(a),
-            Self::F32(a) => array_as_bytes_mut(a),
-            Self::F64(a) => array_as_bytes_mut(a),
+            Self::U8(a) => array_with_bytes_mut(a, with),
+            Self::U16(a) => array_with_bytes_mut(a, with),
+            Self::U32(a) => array_with_bytes_mut(a, with),
+            Self::U64(a) => array_with_bytes_mut(a, with),
+            Self::I8(a) => array_with_bytes_mut(a, with),
+            Self::I16(a) => array_with_bytes_mut(a, with),
+            Self::I32(a) => array_with_bytes_mut(a, with),
+            Self::I64(a) => array_with_bytes_mut(a, with),
+            Self::F32(a) => array_with_bytes_mut(a, with),
+            Self::F64(a) => array_with_bytes_mut(a, with),
         }
     }
 }
@@ -312,11 +343,15 @@ impl AnyArray {
 
     /// Create an array with zeros of `dtype` and shape `shape`, and provide
     /// mutable access to the bytes of the array.
-    /// 
+    ///
     /// The array is created to be contiguous and in standard order, i.e. its
     /// element order in memory corresponds to the logical order of the array's
     /// elements.
-    pub fn with_zeros_bytes<T>(dtype: AnyArrayDType, shape: &[usize], with: impl FnOnce(&mut [u8]) -> T) -> (Self, T) {
+    pub fn with_zeros_bytes<T>(
+        dtype: AnyArrayDType,
+        shape: &[usize],
+        with: impl FnOnce(&mut [u8]) -> T,
+    ) -> (Self, T) {
         fn standard_array_as_bytes_mut<T: Copy>(x: &mut ArrayD<T>) -> &mut [u8] {
             #[allow(unsafe_code)]
             // Safety: casting to a byte slice is only safe since this
@@ -325,7 +360,10 @@ impl AnyArray {
             //         and the array is already in contiguous standard-
             //         order layout
             unsafe {
-                std::slice::from_raw_parts_mut(x.as_mut_ptr().cast::<u8>(), x.len() * std::mem::size_of::<T>())
+                std::slice::from_raw_parts_mut(
+                    x.as_mut_ptr().cast::<u8>(),
+                    x.len() * std::mem::size_of::<T>(),
+                )
             }
         }
 

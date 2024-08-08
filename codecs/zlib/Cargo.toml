@@ -17,7 +17,7 @@ keywords = ["zlib", "numcodecs", "compression", "encoding"]
 [dependencies]
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
-miniz_oxide = { workspace = true, features = ["with-alloc"] }
+miniz_oxide = { workspace = true, features = ["std", "with-alloc"] }
 postcard = { workspace = true }
 serde = { workspace = true, features = ["std", "derive"] }
 serde_repr = { workspace = true }

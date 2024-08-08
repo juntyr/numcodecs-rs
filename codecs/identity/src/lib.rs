@@ -45,12 +45,18 @@ impl Codec for IdentityCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        fn shape_checked_assign<T: Copy>(encoded: &ArrayViewD<T>, decoded: &mut ArrayViewMutD<T>) -> Result<(), IdentityCodecError> {
+        fn shape_checked_assign<T: Copy>(
+            encoded: &ArrayViewD<T>,
+            decoded: &mut ArrayViewMutD<T>,
+        ) -> Result<(), IdentityCodecError> {
             #[allow(clippy::unit_arg)]
             if encoded.shape() == decoded.shape() {
                 Ok(decoded.assign(encoded))
             } else {
-                Err(IdentityCodecError::MismatchedDecodeIntoShape { decoded: encoded.shape().to_vec(), provided: decoded.shape().to_vec() })
+                Err(IdentityCodecError::MismatchedDecodeIntoShape {
+                    decoded: encoded.shape().to_vec(),
+                    provided: decoded.shape().to_vec(),
+                })
             }
         }
 

@@ -36,7 +36,7 @@ pub struct ZlibCodec {
 #[derive(Copy, Clone, serde_repr::Serialize_repr, serde_repr::Deserialize_repr)]
 #[repr(u8)]
 /// Zlib compression level.
-/// 
+///
 /// The level ranges from 0, no compression, to 9, best compression.
 #[allow(missing_docs)]
 pub enum ZlibLevel {
@@ -56,16 +56,21 @@ impl Codec for ZlibCodec {
     type Error = ZlibCodecError;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
-        compress(data, self.level).map(|bytes| AnyArray::U8(Array1::from_vec(bytes).into_dyn()))
+        compress(data.view(), self.level)
+            .map(|bytes| AnyArray::U8(Array1::from_vec(bytes).into_dyn()))
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         let AnyCowArray::U8(encoded) = encoded else {
-            return Err(ZlibCodecError::EncodedDataNotBytes { dtype: encoded.dtype() });
+            return Err(ZlibCodecError::EncodedDataNotBytes {
+                dtype: encoded.dtype(),
+            });
         };
 
         if !matches!(encoded.shape(), [_]) {
-            return Err(ZlibCodecError::EncodedDataNotOneDimensional { shape: encoded.shape().to_vec() });
+            return Err(ZlibCodecError::EncodedDataNotOneDimensional {
+                shape: encoded.shape().to_vec(),
+            });
         }
 
         decompress(&AnyCowArray::U8(encoded).as_bytes())
@@ -77,11 +82,15 @@ impl Codec for ZlibCodec {
         decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
         let AnyArrayView::U8(encoded) = encoded else {
-            return Err(ZlibCodecError::EncodedDataNotBytes { dtype: encoded.dtype() });
+            return Err(ZlibCodecError::EncodedDataNotBytes {
+                dtype: encoded.dtype(),
+            });
         };
 
         if !matches!(encoded.shape(), [_]) {
-            return Err(ZlibCodecError::EncodedDataNotOneDimensional { shape: encoded.shape().to_vec() });
+            return Err(ZlibCodecError::EncodedDataNotOneDimensional {
+                shape: encoded.shape().to_vec(),
+            });
         }
 
         decompress_into(&AnyArrayView::U8(encoded).as_bytes(), decoded)
@@ -106,12 +115,14 @@ pub enum ZlibCodecError {
     /// [`ZlibCodec`] failed to encode the header
     #[error("Zlib failed to encode the header")]
     HeaderEncodeFailed {
-        /// Opaque source error 
+        /// Opaque source error
         source: ZlibHeaderError,
     },
     /// [`ZlibCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
-    #[error("Zlib can only decode one-dimensional byte arrays but received an array of dtype {dtype}")]
+    #[error(
+        "Zlib can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
+    )]
     EncodedDataNotBytes {
         /// The unexpected dtype of the encoded array
         dtype: AnyArrayDType,
@@ -126,8 +137,21 @@ pub enum ZlibCodecError {
     /// [`ZlibCodec`] failed to encode the header
     #[error("Zlib failed to decode the header")]
     HeaderDecodeFailed {
-        /// Opaque source error 
+        /// Opaque source error
         source: ZlibHeaderError,
+    },
+    /// [`ZlibCodec`] decode consumed less encoded data, which contains trailing
+    /// junk
+    #[error("Zlib decode consumed less encoded data, which contains trailing junk")]
+    ZlibDecodeExcessiveEncodedData,
+    /// [`ZlibCodec`] produced less decoded data than expected
+    #[error("Zlib produced less decoded data than expected")]
+    ZlibDecodeProducedLess,
+    /// [`ZlibCodec`] failed to decode the encoded data
+    #[error("Zlib failed to decode the encoded data")]
+    ZlibDecodeFailed {
+        /// Opaque source error
+        source: ZlibDecodeError,
     },
     /// [`ZlibCodec`] cannot decode the `decoded` dtype into the `provided`
     /// array
@@ -154,16 +178,23 @@ pub enum ZlibCodecError {
 /// Opaque error for when encoding or decoding the header fails
 pub struct ZlibHeaderError(postcard::Error);
 
+#[derive(Debug, Error)]
+#[error(transparent)]
+/// Opaque error for when decoding with Zlib fails
+pub struct ZlibDecodeError(miniz_oxide::inflate::DecompressError);
+
+#[allow(clippy::needless_pass_by_value)]
 /// Compress the `array` using Zlib with the provided `level`.
-/// 
+///
 /// # Errors
-/// 
+///
 /// Errors with [`ZlibCodecError::HeaderEncodeFailed`] if encoding the header
 /// to the output bytevec failed.
-pub fn compress(
-    array: AnyCowArray,
-    level: ZlibLevel,
-) -> Result<Vec<u8>, ZlibCodecError> {
+///
+/// # Panics
+///
+/// Panics if the infallible encoding with Zlib fails.
+pub fn compress(array: AnyArrayView, level: ZlibLevel) -> Result<Vec<u8>, ZlibCodecError> {
     let data = array.as_bytes();
 
     let mut encoded = postcard::to_extend(
@@ -173,7 +204,9 @@ pub fn compress(
         },
         Vec::new(),
     )
-    .map_err(|err| ZlibCodecError::HeaderEncodeFailed { source: ZlibHeaderError(err) })?;
+    .map_err(|err| ZlibCodecError::HeaderEncodeFailed {
+        source: ZlibHeaderError(err),
+    })?;
 
     let mut in_pos = 0;
     let mut out_pos = encoded.len();
@@ -189,7 +222,10 @@ pub fn compress(
         let (Some(data_left), Some(encoded_left)) =
             (data.get(in_pos..), encoded.get_mut(out_pos..))
         else {
-            panic!("Zlib encode bug: input or output is out of bounds");
+            #[allow(clippy::panic)] // this would be a bug and cannot be user-caused
+            {
+                panic!("Zlib encode bug: input or output is out of bounds");
+            }
         };
 
         let (status, bytes_in, bytes_out) = miniz_oxide::deflate::core::compress(
@@ -208,113 +244,116 @@ pub fn compress(
                 if encoded.len().saturating_sub(out_pos) < 30 {
                     encoded.resize(encoded.len() * 2, 0);
                 }
-            },
+            }
             miniz_oxide::deflate::core::TDEFLStatus::Done => {
                 encoded.truncate(out_pos);
 
-                if in_pos != data.len() {
-                    panic!("Zlib encode bug: consumed less input than expected");
-                }
+                assert!(
+                    in_pos == data.len(),
+                    "Zlib encode bug: consumed less input than expected"
+                );
 
                 return Ok(encoded);
-            },
+            }
+            #[allow(clippy::panic)] // this would be a bug and cannot be user-caused
             err => panic!("Zlib encode bug: {err:?}"),
         }
     }
 }
 
-pub fn decompress(data: &[u8]) -> Result<AnyArray, ZlibCodecError> {
-    let (header, data) = postcard::take_from_bytes::<CompressionHeader>(data)
-        .map_err(|err| ZlibCodecError::HeaderDecodeFailed { source: ZlibHeaderError(err) })?;
+/// Decompress the `encoded` data into an array using Zlib.
+///
+/// # Errors
+///
+/// Errors with
+/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZlibCodecError::ZlibDecodeExcessiveEncodedData`] if the encoded data
+///   contains excessive trailing data junk
+/// - [`ZlibCodecError::ZlibDecodeProducedLess`] if decoding produced less data
+///   than expected
+/// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
+pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZlibCodecError> {
+    let (header, encoded) =
+        postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
+            ZlibCodecError::HeaderDecodeFailed {
+                source: ZlibHeaderError(err),
+            }
+        })?;
 
-    let (decoded, result) = AnyArray::with_zeros_bytes(header.dtype, &header.shape, |decoded_bytes| {
-        let flags = miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_PARSE_ZLIB_HEADER
-            | miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF;
-
-        let mut decomp = Box::<miniz_oxide::inflate::core::DecompressorOxide>::default();
-
-        let (status, in_consumed, out_consumed) =
-            miniz_oxide::inflate::core::decompress(&mut decomp, data, decoded_bytes, 0, flags);
-
-        match status {
-            miniz_oxide::inflate::TINFLStatus::Done => {
-                if in_consumed != data.len() {
-                    Err(String::from(
-                        "Zlib::decode consumed less data than expected",
-                    ))
-                } else if out_consumed == decoded_bytes.len() {
-                    Ok(())
-                } else {
-                    Err(String::from(
-                        "Zlib::decode produced more data than expected",
-                    ))
-                }
-            },
-            miniz_oxide::inflate::TINFLStatus::HasMoreOutput => Err(String::from(
-                "Zlib::decode produced less data than expected",
-            )),
-            _ => Err(format!(
-                "{}",
-                miniz_oxide::inflate::DecompressError {
-                    status,
-                    output: Vec::new()
-                }
-            )),
-        }
+    let (decoded, result) = AnyArray::with_zeros_bytes(header.dtype, &header.shape, |decoded| {
+        decompress_into_bytes(encoded, decoded)
     });
 
     result.map(|()| decoded)
 }
 
-pub fn decompress_into(data: &[u8], decoded: AnyArrayViewMut) -> Result<(), ZlibCodecError> {
-    let (header, data) = postcard::take_from_bytes::<CompressionHeader>(data)
-        .map_err(|err| ZlibCodecError::HeaderDecodeFailed { source: ZlibHeaderError(err) })?;
+/// Decompress the `encoded` data into a `decoded` array using Zlib.
+///
+/// # Errors
+///
+/// Errors with
+/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZlibCodecError::MismatchedDecodeIntoDtype`] if the `decoded` array is of
+///   the wrong dtype.
+/// - [`ZlibCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
+///   the wrong shape.
+/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZlibCodecError::ZlibDecodeExcessiveEncodedData`] if the encoded data
+///   contains excessive trailing data junk
+/// - [`ZlibCodecError::ZlibDecodeProducedLess`] if decoding produced less data
+///   than expected
+/// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
+pub fn decompress_into(encoded: &[u8], mut decoded: AnyArrayViewMut) -> Result<(), ZlibCodecError> {
+    let (header, encoded) =
+        postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
+            ZlibCodecError::HeaderDecodeFailed {
+                source: ZlibHeaderError(err),
+            }
+        })?;
 
     if header.dtype != decoded.dtype() {
-        return Err(ZlibCodecError::MismatchedDecodeIntoDtype { decoded: header.dtype, provided: decoded.dtype() });
+        return Err(ZlibCodecError::MismatchedDecodeIntoDtype {
+            decoded: header.dtype,
+            provided: decoded.dtype(),
+        });
     }
 
     if header.shape != decoded.shape() {
-        return Err(ZlibCodecError::MismatchedDecodeIntoShape { decoded: header.shape.into_owned(), provided: decoded.shape().to_vec() });
+        return Err(ZlibCodecError::MismatchedDecodeIntoShape {
+            decoded: header.shape.into_owned(),
+            provided: decoded.shape().to_vec(),
+        });
     }
 
-    if let Some(decoded_bytes) = decoded.as_bytes_mut() {
-        let flags = miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_PARSE_ZLIB_HEADER
-            | miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF;
+    decoded.with_bytes_mut(|decoded| decompress_into_bytes(encoded, decoded))
+}
 
-        let mut decomp = Box::<miniz_oxide::inflate::core::DecompressorOxide>::default();
+fn decompress_into_bytes(encoded: &[u8], decoded: &mut [u8]) -> Result<(), ZlibCodecError> {
+    let flags = miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_PARSE_ZLIB_HEADER
+        | miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF;
 
-        let (status, in_consumed, out_consumed) =
-            miniz_oxide::inflate::core::decompress(&mut decomp, data, decoded_bytes, 0, flags);
+    let mut decomp = Box::<miniz_oxide::inflate::core::DecompressorOxide>::default();
 
-        match status {
-            miniz_oxide::inflate::TINFLStatus::Done => {
-                if in_consumed != data.len() {
-                    Err(String::from(
-                        "Zlib::decode consumed less data than expected",
-                    ))
-                } else if out_consumed == decoded_bytes.len() {
-                    Ok(())
-                } else {
-                    Err(String::from(
-                        "Zlib::decode produced more data than expected",
-                    ))
-                }
-            },
-            miniz_oxide::inflate::TINFLStatus::HasMoreOutput => Err(String::from(
-                "Zlib::decode produced less data than expected",
-            )),
-            _ => Err(format!(
-                "{}",
-                miniz_oxide::inflate::DecompressError {
-                    status,
-                    output: Vec::new()
-                }
-            )),
+    let (status, in_consumed, out_consumed) =
+        miniz_oxide::inflate::core::decompress(&mut decomp, encoded, decoded, 0, flags);
+
+    match status {
+        miniz_oxide::inflate::TINFLStatus::Done => {
+            if in_consumed != encoded.len() {
+                Err(ZlibCodecError::ZlibDecodeExcessiveEncodedData)
+            } else if out_consumed == decoded.len() {
+                Ok(())
+            } else {
+                Err(ZlibCodecError::ZlibDecodeProducedLess)
+            }
         }
+        status => Err(ZlibCodecError::ZlibDecodeFailed {
+            source: ZlibDecodeError(miniz_oxide::inflate::DecompressError {
+                status,
+                output: Vec::new(),
+            }),
+        }),
     }
-
-    todo!()
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]

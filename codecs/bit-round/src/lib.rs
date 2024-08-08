@@ -60,12 +60,18 @@ impl Codec for BitRoundCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        fn shape_checked_assign<T: Copy>(encoded: &ArrayViewD<T>, decoded: &mut ArrayViewMutD<T>) -> Result<(), BitRoundCodecError> {
+        fn shape_checked_assign<T: Copy>(
+            encoded: &ArrayViewD<T>,
+            decoded: &mut ArrayViewMutD<T>,
+        ) -> Result<(), BitRoundCodecError> {
             #[allow(clippy::unit_arg)]
             if encoded.shape() == decoded.shape() {
                 Ok(decoded.assign(encoded))
             } else {
-                Err(BitRoundCodecError::MismatchedDecodeIntoShape { decoded: encoded.shape().to_vec(), provided: decoded.shape().to_vec() })
+                Err(BitRoundCodecError::MismatchedDecodeIntoShape {
+                    decoded: encoded.shape().to_vec(),
+                    provided: decoded.shape().to_vec(),
+                })
             }
         }
 

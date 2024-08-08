@@ -73,12 +73,18 @@ impl Codec for UniformNoiseCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        fn shape_checked_assign<T: Copy>(encoded: &ArrayViewD<T>, decoded: &mut ArrayViewMutD<T>) -> Result<(), UniformNoiseCodecError> {
+        fn shape_checked_assign<T: Copy>(
+            encoded: &ArrayViewD<T>,
+            decoded: &mut ArrayViewMutD<T>,
+        ) -> Result<(), UniformNoiseCodecError> {
             #[allow(clippy::unit_arg)]
             if encoded.shape() == decoded.shape() {
                 Ok(decoded.assign(encoded))
             } else {
-                Err(UniformNoiseCodecError::MismatchedDecodeIntoShape { decoded: encoded.shape().to_vec(), provided: decoded.shape().to_vec() })
+                Err(UniformNoiseCodecError::MismatchedDecodeIntoShape {
+                    decoded: encoded.shape().to_vec(),
+                    provided: decoded.shape().to_vec(),
+                })
             }
         }
 
@@ -89,14 +95,18 @@ impl Codec for UniformNoiseCodec {
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
                 shape_checked_assign(encoded, decoded)
             }
-            (AnyArrayView::F32(_), decoded) => Err(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F32,
-                provided: decoded.dtype(),
-            }),
-            (AnyArrayView::F64(_), decoded) => Err(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F64,
-                provided: decoded.dtype(),
-            }),
+            (AnyArrayView::F32(_), decoded) => {
+                Err(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
+                    decoded: AnyArrayDType::F32,
+                    provided: decoded.dtype(),
+                })
+            }
+            (AnyArrayView::F64(_), decoded) => {
+                Err(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
+                    decoded: AnyArrayDType::F64,
+                    provided: decoded.dtype(),
+                })
+            }
             (encoded, _decoded) => Err(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
