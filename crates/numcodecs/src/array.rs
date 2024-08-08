@@ -536,6 +536,7 @@ impl AnyArrayDType {
     /// Convert the dtype to its (unsigned) binary equivalent.
     ///
     /// ```rust
+    /// # use numcodecs::AnyArrayDType;
     /// assert_eq!(AnyArrayDType::I32.to_binary(), AnyArrayDType::U32);
     /// assert_eq!(AnyArrayDType::F32.to_binary(), AnyArrayDType::U32);
     /// ```
