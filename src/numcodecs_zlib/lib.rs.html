@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zlib/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zlib" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (60d146580 2024-08-06)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zlib/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zlib" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (8b3870784 2024-08-07)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-04a29ac50d05d0b1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -323,6 +323,45 @@
 <a href="#323" id="323">323</a>
 <a href="#324" id="324">324</a>
 <a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -361,7 +400,7 @@
 <span class="attr">#[derive(Copy, Clone, serde_repr::Serialize_repr, serde_repr::Deserialize_repr)]
 #[repr(u8)]
 </span><span class="doccomment">/// Zlib compression level.
-/// 
+///
 /// The level ranges from 0, no compression, to 9, best compression.
 </span><span class="attr">#[allow(missing_docs)]
 </span><span class="kw">pub enum </span>ZlibLevel {
@@ -381,16 +420,21 @@
     <span class="kw">type </span>Error = ZlibCodecError;
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        compress(data, <span class="self">self</span>.level).map(|bytes| AnyArray::U8(Array1::from_vec(bytes).into_dyn()))
+        compress(data.view(), <span class="self">self</span>.level)
+            .map(|bytes| AnyArray::U8(Array1::from_vec(bytes).into_dyn()))
     }
 
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>AnyCowArray::U8(encoded) = encoded <span class="kw">else </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes { dtype: encoded.dtype() });
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes {
+                dtype: encoded.dtype(),
+            });
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotOneDimensional { shape: encoded.shape().to_vec() });
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotOneDimensional {
+                shape: encoded.shape().to_vec(),
+            });
         }
 
         decompress(<span class="kw-2">&amp;</span>AnyCowArray::U8(encoded).as_bytes())
@@ -402,11 +446,15 @@
         decoded: AnyArrayViewMut,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>AnyArrayView::U8(encoded) = encoded <span class="kw">else </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes { dtype: encoded.dtype() });
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes {
+                dtype: encoded.dtype(),
+            });
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotOneDimensional { shape: encoded.shape().to_vec() });
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotOneDimensional {
+                shape: encoded.shape().to_vec(),
+            });
         }
 
         decompress_into(<span class="kw-2">&amp;</span>AnyArrayView::U8(encoded).as_bytes(), decoded)
@@ -431,12 +479,14 @@
     <span class="doccomment">/// [`ZlibCodec`] failed to encode the header
     </span><span class="attr">#[error(<span class="string">"Zlib failed to encode the header"</span>)]
     </span>HeaderEncodeFailed {
-        <span class="doccomment">/// Opaque source error 
+        <span class="doccomment">/// Opaque source error
         </span>source: ZlibHeaderError,
     },
     <span class="doccomment">/// [`ZlibCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
-    </span><span class="attr">#[error(<span class="string">"Zlib can only decode one-dimensional byte arrays but received an array of dtype {dtype}"</span>)]
+    </span><span class="attr">#[error(
+        <span class="string">"Zlib can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
+    </span>)]
     </span>EncodedDataNotBytes {
         <span class="doccomment">/// The unexpected dtype of the encoded array
         </span>dtype: AnyArrayDType,
@@ -451,8 +501,21 @@
     <span class="doccomment">/// [`ZlibCodec`] failed to encode the header
     </span><span class="attr">#[error(<span class="string">"Zlib failed to decode the header"</span>)]
     </span>HeaderDecodeFailed {
-        <span class="doccomment">/// Opaque source error 
+        <span class="doccomment">/// Opaque source error
         </span>source: ZlibHeaderError,
+    },
+    <span class="doccomment">/// [`ZlibCodec`] decode consumed less encoded data, which contains trailing
+    /// junk
+    </span><span class="attr">#[error(<span class="string">"Zlib decode consumed less encoded data, which contains trailing junk"</span>)]
+    </span>ZlibDecodeExcessiveEncodedData,
+    <span class="doccomment">/// [`ZlibCodec`] produced less decoded data than expected
+    </span><span class="attr">#[error(<span class="string">"Zlib produced less decoded data than expected"</span>)]
+    </span>ZlibDecodeProducedLess,
+    <span class="doccomment">/// [`ZlibCodec`] failed to decode the encoded data
+    </span><span class="attr">#[error(<span class="string">"Zlib failed to decode the encoded data"</span>)]
+    </span>ZlibDecodeFailed {
+        <span class="doccomment">/// Opaque source error
+        </span>source: ZlibDecodeError,
     },
     <span class="doccomment">/// [`ZlibCodec`] cannot decode the `decoded` dtype into the `provided`
     /// array
@@ -479,16 +542,23 @@
 </span><span class="doccomment">/// Opaque error for when encoding or decoding the header fails
 </span><span class="kw">pub struct </span>ZlibHeaderError(postcard::Error);
 
-<span class="doccomment">/// Compress the `array` using Zlib with the provided `level`.
-/// 
+<span class="attr">#[derive(Debug, Error)]
+#[error(transparent)]
+</span><span class="doccomment">/// Opaque error for when decoding with Zlib fails
+</span><span class="kw">pub struct </span>ZlibDecodeError(miniz_oxide::inflate::DecompressError);
+
+<span class="attr">#[allow(clippy::needless_pass_by_value)]
+</span><span class="doccomment">/// Compress the `array` using Zlib with the provided `level`.
+///
 /// # Errors
-/// 
+///
 /// Errors with [`ZlibCodecError::HeaderEncodeFailed`] if encoding the header
 /// to the output bytevec failed.
-</span><span class="kw">pub fn </span>compress(
-    array: AnyCowArray,
-    level: ZlibLevel,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, ZlibCodecError&gt; {
+///
+/// # Panics
+///
+/// Panics if the infallible encoding with Zlib fails.
+</span><span class="kw">pub fn </span>compress(array: AnyArrayView, level: ZlibLevel) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, ZlibCodecError&gt; {
     <span class="kw">let </span>data = array.as_bytes();
 
     <span class="kw">let </span><span class="kw-2">mut </span>encoded = postcard::to_extend(
@@ -498,7 +568,9 @@
         },
         Vec::new(),
     )
-    .map_err(|err| ZlibCodecError::HeaderEncodeFailed { source: ZlibHeaderError(err) })<span class="question-mark">?</span>;
+    .map_err(|err| ZlibCodecError::HeaderEncodeFailed {
+        source: ZlibHeaderError(err),
+    })<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>in_pos = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>out_pos = encoded.len();
@@ -514,7 +586,10 @@
         <span class="kw">let </span>(<span class="prelude-val">Some</span>(data_left), <span class="prelude-val">Some</span>(encoded_left)) =
             (data.get(in_pos..), encoded.get_mut(out_pos..))
         <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">"Zlib encode bug: input or output is out of bounds"</span>);
+            <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// this would be a bug and cannot be user-caused
+            </span>{
+                <span class="macro">panic!</span>(<span class="string">"Zlib encode bug: input or output is out of bounds"</span>);
+            }
         };
 
         <span class="kw">let </span>(status, bytes_in, bytes_out) = miniz_oxide::deflate::core::compress(
@@ -533,113 +608,116 @@
                 </span><span class="kw">if </span>encoded.len().saturating_sub(out_pos) &lt; <span class="number">30 </span>{
                     encoded.resize(encoded.len() * <span class="number">2</span>, <span class="number">0</span>);
                 }
-            },
+            }
             miniz_oxide::deflate::core::TDEFLStatus::Done =&gt; {
                 encoded.truncate(out_pos);
 
-                <span class="kw">if </span>in_pos != data.len() {
-                    <span class="macro">panic!</span>(<span class="string">"Zlib encode bug: consumed less input than expected"</span>);
-                }
+                <span class="macro">assert!</span>(
+                    in_pos == data.len(),
+                    <span class="string">"Zlib encode bug: consumed less input than expected"
+                </span>);
 
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(encoded);
-            },
-            err =&gt; <span class="macro">panic!</span>(<span class="string">"Zlib encode bug: {err:?}"</span>),
+            }
+            <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// this would be a bug and cannot be user-caused
+            </span>err =&gt; <span class="macro">panic!</span>(<span class="string">"Zlib encode bug: {err:?}"</span>),
         }
     }
 }
 
-<span class="kw">pub fn </span>decompress(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, ZlibCodecError&gt; {
-    <span class="kw">let </span>(header, data) = postcard::take_from_bytes::&lt;CompressionHeader&gt;(data)
-        .map_err(|err| ZlibCodecError::HeaderDecodeFailed { source: ZlibHeaderError(err) })<span class="question-mark">?</span>;
+<span class="doccomment">/// Decompress the `encoded` data into an array using Zlib.
+///
+/// # Errors
+///
+/// Errors with
+/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZlibCodecError::ZlibDecodeExcessiveEncodedData`] if the encoded data
+///   contains excessive trailing data junk
+/// - [`ZlibCodecError::ZlibDecodeProducedLess`] if decoding produced less data
+///   than expected
+/// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
+</span><span class="kw">pub fn </span>decompress(encoded: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, ZlibCodecError&gt; {
+    <span class="kw">let </span>(header, encoded) =
+        postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
+            ZlibCodecError::HeaderDecodeFailed {
+                source: ZlibHeaderError(err),
+            }
+        })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(decoded, result) = AnyArray::with_zeros_bytes(header.dtype, <span class="kw-2">&amp;</span>header.shape, |decoded_bytes| {
-        <span class="kw">let </span>flags = miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_PARSE_ZLIB_HEADER
-            | miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>decomp = Box::&lt;miniz_oxide::inflate::core::DecompressorOxide&gt;::default();
-
-        <span class="kw">let </span>(status, in_consumed, out_consumed) =
-            miniz_oxide::inflate::core::decompress(<span class="kw-2">&amp;mut </span>decomp, data, decoded_bytes, <span class="number">0</span>, flags);
-
-        <span class="kw">match </span>status {
-            miniz_oxide::inflate::TINFLStatus::Done =&gt; {
-                <span class="kw">if </span>in_consumed != data.len() {
-                    <span class="prelude-val">Err</span>(String::from(
-                        <span class="string">"Zlib::decode consumed less data than expected"</span>,
-                    ))
-                } <span class="kw">else if </span>out_consumed == decoded_bytes.len() {
-                    <span class="prelude-val">Ok</span>(())
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">Err</span>(String::from(
-                        <span class="string">"Zlib::decode produced more data than expected"</span>,
-                    ))
-                }
-            },
-            miniz_oxide::inflate::TINFLStatus::HasMoreOutput =&gt; <span class="prelude-val">Err</span>(String::from(
-                <span class="string">"Zlib::decode produced less data than expected"</span>,
-            )),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-                <span class="string">"{}"</span>,
-                miniz_oxide::inflate::DecompressError {
-                    status,
-                    output: Vec::new()
-                }
-            )),
-        }
+    <span class="kw">let </span>(decoded, result) = AnyArray::with_zeros_bytes(header.dtype, <span class="kw-2">&amp;</span>header.shape, |decoded| {
+        decompress_into_bytes(encoded, decoded)
     });
 
     result.map(|()| decoded)
 }
 
-<span class="kw">pub fn </span>decompress_into(data: <span class="kw-2">&amp;</span>[u8], decoded: AnyArrayViewMut) -&gt; <span class="prelude-ty">Result</span>&lt;(), ZlibCodecError&gt; {
-    <span class="kw">let </span>(header, data) = postcard::take_from_bytes::&lt;CompressionHeader&gt;(data)
-        .map_err(|err| ZlibCodecError::HeaderDecodeFailed { source: ZlibHeaderError(err) })<span class="question-mark">?</span>;
+<span class="doccomment">/// Decompress the `encoded` data into a `decoded` array using Zlib.
+///
+/// # Errors
+///
+/// Errors with
+/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZlibCodecError::MismatchedDecodeIntoDtype`] if the `decoded` array is of
+///   the wrong dtype.
+/// - [`ZlibCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
+///   the wrong shape.
+/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZlibCodecError::ZlibDecodeExcessiveEncodedData`] if the encoded data
+///   contains excessive trailing data junk
+/// - [`ZlibCodecError::ZlibDecodeProducedLess`] if decoding produced less data
+///   than expected
+/// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
+</span><span class="kw">pub fn </span>decompress_into(encoded: <span class="kw-2">&amp;</span>[u8], <span class="kw-2">mut </span>decoded: AnyArrayViewMut) -&gt; <span class="prelude-ty">Result</span>&lt;(), ZlibCodecError&gt; {
+    <span class="kw">let </span>(header, encoded) =
+        postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
+            ZlibCodecError::HeaderDecodeFailed {
+                source: ZlibHeaderError(err),
+            }
+        })<span class="question-mark">?</span>;
 
     <span class="kw">if </span>header.dtype != decoded.dtype() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::MismatchedDecodeIntoDtype { decoded: header.dtype, provided: decoded.dtype() });
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::MismatchedDecodeIntoDtype {
+            decoded: header.dtype,
+            provided: decoded.dtype(),
+        });
     }
 
     <span class="kw">if </span>header.shape != decoded.shape() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::MismatchedDecodeIntoShape { decoded: header.shape.into_owned(), provided: decoded.shape().to_vec() });
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::MismatchedDecodeIntoShape {
+            decoded: header.shape.into_owned(),
+            provided: decoded.shape().to_vec(),
+        });
     }
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(decoded_bytes) = decoded.as_bytes_mut() {
-        <span class="kw">let </span>flags = miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_PARSE_ZLIB_HEADER
-            | miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF;
+    decoded.with_bytes_mut(|decoded| decompress_into_bytes(encoded, decoded))
+}
 
-        <span class="kw">let </span><span class="kw-2">mut </span>decomp = Box::&lt;miniz_oxide::inflate::core::DecompressorOxide&gt;::default();
+<span class="kw">fn </span>decompress_into_bytes(encoded: <span class="kw-2">&amp;</span>[u8], decoded: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), ZlibCodecError&gt; {
+    <span class="kw">let </span>flags = miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_PARSE_ZLIB_HEADER
+        | miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF;
 
-        <span class="kw">let </span>(status, in_consumed, out_consumed) =
-            miniz_oxide::inflate::core::decompress(<span class="kw-2">&amp;mut </span>decomp, data, decoded_bytes, <span class="number">0</span>, flags);
+    <span class="kw">let </span><span class="kw-2">mut </span>decomp = Box::&lt;miniz_oxide::inflate::core::DecompressorOxide&gt;::default();
 
-        <span class="kw">match </span>status {
-            miniz_oxide::inflate::TINFLStatus::Done =&gt; {
-                <span class="kw">if </span>in_consumed != data.len() {
-                    <span class="prelude-val">Err</span>(String::from(
-                        <span class="string">"Zlib::decode consumed less data than expected"</span>,
-                    ))
-                } <span class="kw">else if </span>out_consumed == decoded_bytes.len() {
-                    <span class="prelude-val">Ok</span>(())
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">Err</span>(String::from(
-                        <span class="string">"Zlib::decode produced more data than expected"</span>,
-                    ))
-                }
-            },
-            miniz_oxide::inflate::TINFLStatus::HasMoreOutput =&gt; <span class="prelude-val">Err</span>(String::from(
-                <span class="string">"Zlib::decode produced less data than expected"</span>,
-            )),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-                <span class="string">"{}"</span>,
-                miniz_oxide::inflate::DecompressError {
-                    status,
-                    output: Vec::new()
-                }
-            )),
+    <span class="kw">let </span>(status, in_consumed, out_consumed) =
+        miniz_oxide::inflate::core::decompress(<span class="kw-2">&amp;mut </span>decomp, encoded, decoded, <span class="number">0</span>, flags);
+
+    <span class="kw">match </span>status {
+        miniz_oxide::inflate::TINFLStatus::Done =&gt; {
+            <span class="kw">if </span>in_consumed != encoded.len() {
+                <span class="prelude-val">Err</span>(ZlibCodecError::ZlibDecodeExcessiveEncodedData)
+            } <span class="kw">else if </span>out_consumed == decoded.len() {
+                <span class="prelude-val">Ok</span>(())
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Err</span>(ZlibCodecError::ZlibDecodeProducedLess)
+            }
         }
+        status =&gt; <span class="prelude-val">Err</span>(ZlibCodecError::ZlibDecodeFailed {
+            source: ZlibDecodeError(miniz_oxide::inflate::DecompressError {
+                status,
+                output: Vec::new(),
+            }),
+        }),
     }
-
-    <span class="macro">todo!</span>()
 }
 
 <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]

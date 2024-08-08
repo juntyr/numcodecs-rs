@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ZlibCodecError","ZlibLevel"],"fn":["compress","decompress","decompress_into"],"struct":["ZlibCodec","ZlibHeaderError"]};
+window.SIDEBAR_ITEMS = {"enum":["ZlibCodecError","ZlibLevel"],"fn":["compress","decompress","decompress_into"],"struct":["ZlibCodec","ZlibDecodeError","ZlibHeaderError"]};

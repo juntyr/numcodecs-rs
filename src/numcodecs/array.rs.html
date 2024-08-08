@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/array.rs`."><title>array.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (60d146580 2024-08-06)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9345f17bf569ecba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/array.rs`."><title>array.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (8b3870784 2024-08-07)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-04a29ac50d05d0b1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -509,12 +509,51 @@
 <a href="#509" id="509">509</a>
 <a href="#510" id="510">510</a>
 <a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, fmt, mem::ManuallyDrop};
 
 <span class="kw">use </span>ndarray::{
-    ArrayBase, ArrayD, CowRepr, Data, DataMut, IxDyn, OwnedArcRepr, OwnedRepr, RawData, RawDataClone, RawDataSubst, ViewRepr
+    ArrayBase, ArrayD, CowRepr, Data, DataMut, IxDyn, OwnedArcRepr, OwnedRepr, RawData,
+    RawDataClone, RawDataSubst, ViewRepr,
 };
-<span class="kw">use </span>serde::{Serialize, Deserialize};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="doccomment">/// An array where the data has shared ownership and is copy-on-write.
 </span><span class="kw">pub type </span>AnyArcArray = AnyArrayBase&lt;OwnedArcRepr&lt;()&gt;&gt;;
@@ -691,16 +730,17 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="doccomment">/// Returns the array’s data as a byte slice.
-    /// 
+    </span><span class="doccomment">/// Returns the array's data as a byte slice.
+    ///
     /// If the array is contiguous and in standard order, i.e. if the element
     /// order in memory corresponds to the logical order of the array's
     /// elements, a view of the data is returned without cloning.
-    /// 
+    ///
     /// Otherwise, the data is cloned and put into standard order first.
     </span><span class="kw">pub fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;[u8]&gt; {
         <span class="kw">fn </span>array_into_bytes&lt;T: Copy, S: Data&lt;Elem = T&gt;&gt;(x: <span class="kw-2">&amp;</span>ArrayBase&lt;S, IxDyn&gt;) -&gt; Cow&lt;[u8]&gt; {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = x.as_slice() {
+            <span class="attr">#[allow(clippy::option_if_let_else)]
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(x) = x.as_slice() {
                 <span class="attr">#[allow(unsafe_code)]
                 </span><span class="comment">// Safety: casting to a byte slice is only safe since this
                 //         private helper function is only called for plain-
@@ -718,7 +758,11 @@
                 //         old-data types and the vec's length and capacity
                 //         are adjusted
                 </span><span class="kw">let </span>x = <span class="kw">unsafe </span>{
-                    Vec::from_raw_parts(ptr.cast::&lt;u8&gt;(), len * std::mem::size_of::&lt;T&gt;(), capacity * std::mem::size_of::&lt;T&gt;())
+                    Vec::from_raw_parts(
+                        ptr.cast::&lt;u8&gt;(),
+                        len * std::mem::size_of::&lt;T&gt;(),
+                        capacity * std::mem::size_of::&lt;T&gt;(),
+                    )
                 };
                 Cow::Owned(x)
             }
@@ -770,35 +814,60 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="doccomment">/// Returns the array’s data as a mutable byte slice, if it is contiguous
-    /// and in standard order, i.e. if the element order in memory corresponds
-    /// to the logical order of the array's elements. Returns `None` otherwise.
-    </span><span class="kw">pub fn </span>as_bytes_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>[u8]&gt; {
-        <span class="kw">fn </span>array_as_bytes_mut&lt;T: Copy, S: DataMut&lt;Elem = T&gt;&gt;(x: <span class="kw-2">&amp;mut </span>ArrayBase&lt;S, IxDyn&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>[u8]&gt; {
+    </span><span class="doccomment">/// Provides access to the array's data as a mutable byte slice.
+    ///
+    /// If the array is contiguous and in standard order, i.e. if the element
+    /// order in memory corresponds to the logical order of the array's
+    /// elements, a mutable view of the data is returned without cloning.
+    ///
+    /// Otherwise, the data is cloned and put into standard order first, and
+    /// later copied back into the array.
+    </span><span class="kw">pub fn </span>with_bytes_mut&lt;O&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>[u8]) -&gt; O) -&gt; O {
+        <span class="kw">fn </span>array_with_bytes_mut&lt;T: Copy, S: DataMut&lt;Elem = T&gt;, O&gt;(
+            x: <span class="kw-2">&amp;mut </span>ArrayBase&lt;S, IxDyn&gt;,
+            with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>[u8]) -&gt; O,
+        ) -&gt; O {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = x.as_slice_mut() {
                 <span class="attr">#[allow(unsafe_code)]
                 </span><span class="comment">// Safety: casting to a byte slice is only safe since this
                 //         private helper function is only called for plain-
                 //         old-data types and the slice's length is adjusted
-                </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{
-                    std::slice::from_raw_parts_mut(x.as_mut_ptr().cast::&lt;u8&gt;(), std::mem::size_of_val(x))
+                </span>with(<span class="kw">unsafe </span>{
+                    std::slice::from_raw_parts_mut(
+                        x.as_mut_ptr().cast::&lt;u8&gt;(),
+                        std::mem::size_of_val(x),
+                    )
                 })
             } <span class="kw">else </span>{
-                <span class="prelude-val">None
-            </span>}
+                <span class="kw">let </span><span class="kw-2">mut </span>x_vec: Vec&lt;T&gt; = x.into_iter().map(|x| <span class="kw-2">*</span>x).collect::&lt;Vec&lt;T&gt;&gt;();
+
+                <span class="attr">#[allow(unsafe_code)]
+                </span><span class="comment">// Safety: casting to a byte slice is only safe since this
+                //         private helper function is only called for plain-
+                //         old-data types and the slice's length is adjusted
+                </span><span class="kw">let </span>result = with(<span class="kw">unsafe </span>{
+                    std::slice::from_raw_parts_mut(
+                        x_vec.as_mut_ptr().cast::&lt;u8&gt;(),
+                        std::mem::size_of_val(x_vec.as_slice()),
+                    )
+                });
+
+                x.iter_mut().zip(x_vec).for_each(|(x, x_new)| <span class="kw-2">*</span>x = x_new);
+                result
+            }
         }
 
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::U8(a) =&gt; array_as_bytes_mut(a),
-            <span class="self">Self</span>::U16(a) =&gt; array_as_bytes_mut(a),
-            <span class="self">Self</span>::U32(a) =&gt; array_as_bytes_mut(a),
-            <span class="self">Self</span>::U64(a) =&gt; array_as_bytes_mut(a),
-            <span class="self">Self</span>::I8(a) =&gt; array_as_bytes_mut(a),
-            <span class="self">Self</span>::I16(a) =&gt; array_as_bytes_mut(a),
-            <span class="self">Self</span>::I32(a) =&gt; array_as_bytes_mut(a),
-            <span class="self">Self</span>::I64(a) =&gt; array_as_bytes_mut(a),
-            <span class="self">Self</span>::F32(a) =&gt; array_as_bytes_mut(a),
-            <span class="self">Self</span>::F64(a) =&gt; array_as_bytes_mut(a),
+            <span class="self">Self</span>::U8(a) =&gt; array_with_bytes_mut(a, with),
+            <span class="self">Self</span>::U16(a) =&gt; array_with_bytes_mut(a, with),
+            <span class="self">Self</span>::U32(a) =&gt; array_with_bytes_mut(a, with),
+            <span class="self">Self</span>::U64(a) =&gt; array_with_bytes_mut(a, with),
+            <span class="self">Self</span>::I8(a) =&gt; array_with_bytes_mut(a, with),
+            <span class="self">Self</span>::I16(a) =&gt; array_with_bytes_mut(a, with),
+            <span class="self">Self</span>::I32(a) =&gt; array_with_bytes_mut(a, with),
+            <span class="self">Self</span>::I64(a) =&gt; array_with_bytes_mut(a, with),
+            <span class="self">Self</span>::F32(a) =&gt; array_with_bytes_mut(a, with),
+            <span class="self">Self</span>::F64(a) =&gt; array_with_bytes_mut(a, with),
         }
     }
 }
@@ -823,11 +892,15 @@
 
     <span class="doccomment">/// Create an array with zeros of `dtype` and shape `shape`, and provide
     /// mutable access to the bytes of the array.
-    /// 
+    ///
     /// The array is created to be contiguous and in standard order, i.e. its
     /// element order in memory corresponds to the logical order of the array's
     /// elements.
-    </span><span class="kw">pub fn </span>with_zeros_bytes&lt;T&gt;(dtype: AnyArrayDType, shape: <span class="kw-2">&amp;</span>[usize], with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>[u8]) -&gt; T) -&gt; (<span class="self">Self</span>, T) {
+    </span><span class="kw">pub fn </span>with_zeros_bytes&lt;T&gt;(
+        dtype: AnyArrayDType,
+        shape: <span class="kw-2">&amp;</span>[usize],
+        with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>[u8]) -&gt; T,
+    ) -&gt; (<span class="self">Self</span>, T) {
         <span class="kw">fn </span>standard_array_as_bytes_mut&lt;T: Copy&gt;(x: <span class="kw-2">&amp;mut </span>ArrayD&lt;T&gt;) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
             <span class="attr">#[allow(unsafe_code)]
             </span><span class="comment">// Safety: casting to a byte slice is only safe since this
@@ -836,7 +909,10 @@
             //         and the array is already in contiguous standard-
             //         order layout
             </span><span class="kw">unsafe </span>{
-                std::slice::from_raw_parts_mut(x.as_mut_ptr().cast::&lt;u8&gt;(), x.len() * std::mem::size_of::&lt;T&gt;())
+                std::slice::from_raw_parts_mut(
+                    x.as_mut_ptr().cast::&lt;u8&gt;(),
+                    x.len() * std::mem::size_of::&lt;T&gt;(),
+                )
             }
         }
 
