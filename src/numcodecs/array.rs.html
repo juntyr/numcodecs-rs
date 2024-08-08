@@ -565,6 +565,7 @@
 <a href="#565" id="565">565</a>
 <a href="#566" id="566">566</a>
 <a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, fmt, mem::ManuallyDrop};
 
 <span class="kw">use </span>ndarray::{
@@ -1103,6 +1104,7 @@
     </span><span class="doccomment">/// Convert the dtype to its (unsigned) binary equivalent.
     ///
     /// ```rust
+    /// # use numcodecs::AnyArrayDType;
     /// assert_eq!(AnyArrayDType::I32.to_binary(), AnyArrayDType::U32);
     /// assert_eq!(AnyArrayDType::F32.to_binary(), AnyArrayDType::U32);
     /// ```
