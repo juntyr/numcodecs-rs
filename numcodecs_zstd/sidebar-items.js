@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ZstdCodecError"],"fn":["compress","decompress","decompress_into"],"struct":["ZstdCodec","ZstdCodingError","ZstdHeaderError","ZstdLevel"]};

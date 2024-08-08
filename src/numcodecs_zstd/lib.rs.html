@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zlib/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zlib" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (8b3870784 2024-08-07)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-04a29ac50d05d0b1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zstd/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zstd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (8b3870784 2024-08-07)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-04a29ac50d05d0b1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -332,36 +332,6 @@
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
 <a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
-<a href="#359" id="359">359</a>
-<a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
-<a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -370,18 +340,21 @@
 //! [MSRV]: https://img.shields.io/badge/MSRV-1.64.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
-//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-zlib
-//! [crates.io]: https://crates.io/crates/numcodecs-zlib
+//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-zstd
+//! [crates.io]: https://crates.io/crates/numcodecs-zstd
 //!
-//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-zlib
-//! [docs.rs]: https://docs.rs/numcodecs-zlib/
+//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-zstd
+//! [docs.rs]: https://docs.rs/numcodecs-zstd/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-zlib
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-zstd
 //!
-//! Zlib codec implementation for the [`numcodecs`] API.
+//! Zstandard codec implementation for the [`numcodecs`] API.
 
-</span><span class="kw">use </span>std::borrow::Cow;
+</span><span class="comment">// Only used to explicitly enable the `no_wasm_shim` feature in zstd/zstd-sys
+</span><span class="kw">use </span>zstd_sys <span class="kw">as _</span>;
+
+<span class="kw">use </span>std::{borrow::Cow, io};
 
 <span class="kw">use </span>ndarray::Array1;
 <span class="kw">use </span>numcodecs::{
@@ -391,33 +364,14 @@
 <span class="kw">use </span>thiserror::Error;
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize)]
-</span><span class="doccomment">/// Codec providing compression using Zlib
-</span><span class="kw">pub struct </span>ZlibCodec {
+</span><span class="doccomment">/// Codec providing compression using Zstandard
+</span><span class="kw">pub struct </span>ZstdCodec {
     <span class="doccomment">/// Compression level
-    </span><span class="kw">pub </span>level: ZlibLevel,
+    </span><span class="kw">pub </span>level: ZstdLevel,
 }
 
-<span class="attr">#[derive(Copy, Clone, serde_repr::Serialize_repr, serde_repr::Deserialize_repr)]
-#[repr(u8)]
-</span><span class="doccomment">/// Zlib compression level.
-///
-/// The level ranges from 0, no compression, to 9, best compression.
-</span><span class="attr">#[allow(missing_docs)]
-</span><span class="kw">pub enum </span>ZlibLevel {
-    ZNoCompression = <span class="number">0</span>,
-    ZBestSpeed = <span class="number">1</span>,
-    ZLevel2 = <span class="number">2</span>,
-    ZLevel3 = <span class="number">3</span>,
-    ZLevel4 = <span class="number">4</span>,
-    ZLevel5 = <span class="number">5</span>,
-    ZLevel6 = <span class="number">6</span>,
-    ZLevel7 = <span class="number">7</span>,
-    ZLevel8 = <span class="number">8</span>,
-    ZBestCompression = <span class="number">9</span>,
-}
-
-<span class="kw">impl </span>Codec <span class="kw">for </span>ZlibCodec {
-    <span class="kw">type </span>Error = ZlibCodecError;
+<span class="kw">impl </span>Codec <span class="kw">for </span>ZstdCodec {
+    <span class="kw">type </span>Error = ZstdCodecError;
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
         compress(data.view(), <span class="self">self</span>.level)
@@ -426,13 +380,13 @@
 
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>AnyCowArray::U8(encoded) = encoded <span class="kw">else </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::EncodedDataNotBytes {
                 dtype: encoded.dtype(),
             });
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotOneDimensional {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::EncodedDataNotOneDimensional {
                 shape: encoded.shape().to_vec(),
             });
         }
@@ -446,13 +400,13 @@
         decoded: AnyArrayViewMut,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>AnyArrayView::U8(encoded) = encoded <span class="kw">else </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::EncodedDataNotBytes {
                 dtype: encoded.dtype(),
             });
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotOneDimensional {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::EncodedDataNotOneDimensional {
                 shape: encoded.shape().to_vec(),
             });
         }
@@ -465,70 +419,108 @@
     }
 }
 
-<span class="kw">impl </span>StaticCodec <span class="kw">for </span>ZlibCodec {
-    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"zlib"</span>;
+<span class="kw">impl </span>StaticCodec <span class="kw">for </span>ZstdCodec {
+    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"zstd"</span>;
 
     <span class="kw">fn </span>from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(config: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
         <span class="self">Self</span>::deserialize(config)
     }
 }
 
+<span class="attr">#[derive(Clone, Copy)]
+</span><span class="doccomment">/// Zstandard compression level.
+///
+/// The level ranges from small (fastest) to large (best compression).
+</span><span class="kw">pub struct </span>ZstdLevel {
+    level: zstd::zstd_safe::CompressionLevel,
+}
+
+<span class="kw">impl </span>serde::Serialize <span class="kw">for </span>ZstdLevel {
+    <span class="kw">fn </span>serialize&lt;S: serde::Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+        <span class="self">self</span>.level.serialize(serializer)
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ZstdLevel {
+    <span class="kw">fn </span>deserialize&lt;D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
+        <span class="kw">let </span>level = serde::Deserialize::deserialize(deserializer)<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>level_range = zstd::compression_level_range();
+
+        <span class="kw">if </span>!level_range.contains(<span class="kw-2">&amp;</span>level) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(serde::de::Error::custom(<span class="macro">format!</span>(
+                <span class="string">"level {level} is not in {}..={}"</span>,
+                level_range.start(),
+                level_range.end()
+            )));
+        }
+
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ level })
+    }
+}
+
 <span class="attr">#[derive(Debug, Error)]
-</span><span class="doccomment">/// Errors that may occur when applying the [`ZlibCodec`].
-</span><span class="kw">pub enum </span>ZlibCodecError {
-    <span class="doccomment">/// [`ZlibCodec`] failed to encode the header
-    </span><span class="attr">#[error(<span class="string">"Zlib failed to encode the header"</span>)]
+</span><span class="doccomment">/// Errors that may occur when applying the [`ZstdCodec`].
+</span><span class="kw">pub enum </span>ZstdCodecError {
+    <span class="doccomment">/// [`ZstdCodec`] failed to encode the header
+    </span><span class="attr">#[error(<span class="string">"Zstd failed to encode the header"</span>)]
     </span>HeaderEncodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: ZlibHeaderError,
+        </span>source: ZstdHeaderError,
     },
-    <span class="doccomment">/// [`ZlibCodec`] can only decode one-dimensional byte arrays but received
+    <span class="doccomment">/// [`ZstdCodec`] failed to encode the encoded data
+    </span><span class="attr">#[error(<span class="string">"Zstd failed to decode the encoded data"</span>)]
+    </span>ZstdEncodeFailed {
+        <span class="doccomment">/// Opaque source error
+        </span>source: ZstdCodingError,
+    },
+    <span class="doccomment">/// [`ZstdCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
     </span><span class="attr">#[error(
-        <span class="string">"Zlib can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
+        <span class="string">"Zstd can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
     </span>)]
     </span>EncodedDataNotBytes {
         <span class="doccomment">/// The unexpected dtype of the encoded array
         </span>dtype: AnyArrayDType,
     },
-    <span class="doccomment">/// [`ZlibCodec`] can only decode one-dimensional byte arrays but received
+    <span class="doccomment">/// [`ZstdCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    </span><span class="attr">#[error(<span class="string">"Zlib can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"</span>)]
+    </span><span class="attr">#[error(<span class="string">"Zstd can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"</span>)]
     </span>EncodedDataNotOneDimensional {
         <span class="doccomment">/// The unexpected shape of the encoded array
         </span>shape: Vec&lt;usize&gt;,
     },
-    <span class="doccomment">/// [`ZlibCodec`] failed to encode the header
-    </span><span class="attr">#[error(<span class="string">"Zlib failed to decode the header"</span>)]
+    <span class="doccomment">/// [`ZstdCodec`] failed to encode the header
+    </span><span class="attr">#[error(<span class="string">"Zstd failed to decode the header"</span>)]
     </span>HeaderDecodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: ZlibHeaderError,
+        </span>source: ZstdHeaderError,
     },
-    <span class="doccomment">/// [`ZlibCodec`] decode consumed less encoded data, which contains trailing
+    <span class="doccomment">/// [`ZstdCodec`] decode consumed less encoded data, which contains trailing
     /// junk
-    </span><span class="attr">#[error(<span class="string">"Zlib decode consumed less encoded data, which contains trailing junk"</span>)]
+    </span><span class="attr">#[error(<span class="string">"Zstd decode consumed less encoded data, which contains trailing junk"</span>)]
     </span>DecodeExcessiveEncodedData,
-    <span class="doccomment">/// [`ZlibCodec`] produced less decoded data than expected
-    </span><span class="attr">#[error(<span class="string">"Zlib produced less decoded data than expected"</span>)]
+    <span class="doccomment">/// [`ZstdCodec`] produced less decoded data than expected
+    </span><span class="attr">#[error(<span class="string">"Zstd produced less decoded data than expected"</span>)]
     </span>DecodeProducedLess,
-    <span class="doccomment">/// [`ZlibCodec`] failed to decode the encoded data
-    </span><span class="attr">#[error(<span class="string">"Zlib failed to decode the encoded data"</span>)]
-    </span>ZlibDecodeFailed {
+    <span class="doccomment">/// [`ZstdCodec`] failed to decode the encoded data
+    </span><span class="attr">#[error(<span class="string">"Zstd failed to decode the encoded data"</span>)]
+    </span>ZstdDecodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: ZlibDecodeError,
+        </span>source: ZstdCodingError,
     },
-    <span class="doccomment">/// [`ZlibCodec`] cannot decode the `decoded` dtype into the `provided`
+    <span class="doccomment">/// [`ZstdCodec`] cannot decode the `decoded` dtype into the `provided`
     /// array
-    </span><span class="attr">#[error(<span class="string">"Zlib cannot decode the dtype {decoded} into the provided {provided} array"</span>)]
+    </span><span class="attr">#[error(<span class="string">"Zstd cannot decode the dtype {decoded} into the provided {provided} array"</span>)]
     </span>MismatchedDecodeIntoDtype {
         <span class="doccomment">/// Dtype of the `decoded` data
         </span>decoded: AnyArrayDType,
         <span class="doccomment">/// Dtype of the `provided` array into which the data is to be decoded
         </span>provided: AnyArrayDType,
     },
-    <span class="doccomment">/// [`ZlibCodec`] cannot decode the decoded array into the provided
+    <span class="doccomment">/// [`ZstdCodec`] cannot decode the decoded array into the provided
     /// array of a different shape
-    </span><span class="attr">#[error(<span class="string">"Zlib cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}"</span>)]
+    </span><span class="attr">#[error(<span class="string">"Zstd cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}"</span>)]
     </span>MismatchedDecodeIntoShape {
         <span class="doccomment">/// Shape of the `decoded` data
         </span>decoded: Vec&lt;usize&gt;,
@@ -540,27 +532,27 @@
 <span class="attr">#[derive(Debug, Error)]
 #[error(transparent)]
 </span><span class="doccomment">/// Opaque error for when encoding or decoding the header fails
-</span><span class="kw">pub struct </span>ZlibHeaderError(postcard::Error);
+</span><span class="kw">pub struct </span>ZstdHeaderError(postcard::Error);
 
 <span class="attr">#[derive(Debug, Error)]
 #[error(transparent)]
-</span><span class="doccomment">/// Opaque error for when decoding with Zlib fails
-</span><span class="kw">pub struct </span>ZlibDecodeError(miniz_oxide::inflate::DecompressError);
+</span><span class="doccomment">/// Opaque error for when encoding or decoding with Zstandard fails
+</span><span class="kw">pub struct </span>ZstdCodingError(io::Error);
 
 <span class="attr">#[allow(clippy::needless_pass_by_value)]
-</span><span class="doccomment">/// Compress the `array` using Zlib with the provided `level`.
+</span><span class="doccomment">/// Compress the `array` using Zstandard with the provided `level`.
 ///
 /// # Errors
 ///
-/// Errors with [`ZlibCodecError::HeaderEncodeFailed`] if encoding the header
-/// to the output bytevec failed.
+/// Errors with
+/// - [`ZstdCodecError::HeaderEncodeFailed`] if encoding the header to the
+///   output bytevec failed.
+/// - [`ZstdCodecError::ZstdEncodeFailed`] if an opaque encoding error occurred
 ///
 /// # Panics
 ///
-/// Panics if the infallible encoding with Zlib fails.
-</span><span class="kw">pub fn </span>compress(array: AnyArrayView, level: ZlibLevel) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, ZlibCodecError&gt; {
-    <span class="kw">let </span>data = array.as_bytes();
-
+/// Panics if the infallible encoding with Zstd fails.
+</span><span class="kw">pub fn </span>compress(array: AnyArrayView, level: ZstdLevel) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, ZstdCodecError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>encoded = postcard::to_extend(
         <span class="kw-2">&amp;</span>CompressionHeader {
             dtype: array.dtype(),
@@ -568,79 +560,35 @@
         },
         Vec::new(),
     )
-    .map_err(|err| ZlibCodecError::HeaderEncodeFailed {
-        source: ZlibHeaderError(err),
+    .map_err(|err| ZstdCodecError::HeaderEncodeFailed {
+        source: ZstdHeaderError(err),
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>in_pos = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>out_pos = encoded.len();
-
-    <span class="comment">// The comp flags function sets the zlib flag if the window_bits parameter
-    //  is &gt; 0.
-    </span><span class="kw">let </span>flags =
-        miniz_oxide::deflate::core::create_comp_flags_from_zip_params((level <span class="kw">as </span>u8).into(), <span class="number">1</span>, <span class="number">0</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>compressor = miniz_oxide::deflate::core::CompressorOxide::new(flags);
-    encoded.resize(encoded.len() + (data.len() / <span class="number">2</span>).max(<span class="number">2</span>), <span class="number">0</span>);
-
-    <span class="kw">loop </span>{
-        <span class="kw">let </span>(<span class="prelude-val">Some</span>(data_left), <span class="prelude-val">Some</span>(encoded_left)) =
-            (data.get(in_pos..), encoded.get_mut(out_pos..))
-        <span class="kw">else </span>{
-            <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// this would be a bug and cannot be user-caused
-            </span>{
-                <span class="macro">panic!</span>(<span class="string">"Zlib encode bug: input or output is out of bounds"</span>);
-            }
-        };
-
-        <span class="kw">let </span>(status, bytes_in, bytes_out) = miniz_oxide::deflate::core::compress(
-            <span class="kw-2">&amp;mut </span>compressor,
-            data_left,
-            encoded_left,
-            miniz_oxide::deflate::core::TDEFLFlush::Finish,
-        );
-
-        out_pos += bytes_out;
-        in_pos += bytes_in;
-
-        <span class="kw">match </span>status {
-            miniz_oxide::deflate::core::TDEFLStatus::Okay =&gt; {
-                <span class="comment">// We need more space, so resize the vector.
-                </span><span class="kw">if </span>encoded.len().saturating_sub(out_pos) &lt; <span class="number">30 </span>{
-                    encoded.resize(encoded.len() * <span class="number">2</span>, <span class="number">0</span>);
-                }
-            }
-            miniz_oxide::deflate::core::TDEFLStatus::Done =&gt; {
-                encoded.truncate(out_pos);
-
-                <span class="macro">assert!</span>(
-                    in_pos == data.len(),
-                    <span class="string">"Zlib encode bug: consumed less input than expected"
-                </span>);
-
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(encoded);
-            }
-            <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// this would be a bug and cannot be user-caused
-            </span>err =&gt; <span class="macro">panic!</span>(<span class="string">"Zlib encode bug: {err:?}"</span>),
+    zstd::stream::copy_encode(<span class="kw-2">&amp;*</span>array.as_bytes(), <span class="kw-2">&amp;mut </span>encoded, level.level).map_err(|err| {
+        ZstdCodecError::ZstdEncodeFailed {
+            source: ZstdCodingError(err),
         }
-    }
+    })<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(encoded)
 }
 
-<span class="doccomment">/// Decompress the `encoded` data into an array using Zlib.
+<span class="doccomment">/// Decompress the `encoded` data into an array using Zstandard.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
-/// - [`ZlibCodecError::DecodeExcessiveEncodedData`] if the encoded data
+/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZstdCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
-/// - [`ZlibCodecError::DecodeProducedLess`] if decoding produced less data than
+/// - [`ZstdCodecError::DecodeProducedLess`] if decoding produced less data than
 ///   expected
-/// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
-</span><span class="kw">pub fn </span>decompress(encoded: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, ZlibCodecError&gt; {
+/// - [`ZstdCodecError::ZstdDecodeFailed`] if an opaque decoding error occurred
+</span><span class="kw">pub fn </span>decompress(encoded: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, ZstdCodecError&gt; {
     <span class="kw">let </span>(header, encoded) =
         postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
-            ZlibCodecError::HeaderDecodeFailed {
-                source: ZlibHeaderError(err),
+            ZstdCodecError::HeaderDecodeFailed {
+                source: ZstdHeaderError(err),
             }
         })<span class="question-mark">?</span>;
 
@@ -651,39 +599,39 @@
     result.map(|()| decoded)
 }
 
-<span class="doccomment">/// Decompress the `encoded` data into a `decoded` array using Zlib.
+<span class="doccomment">/// Decompress the `encoded` data into a `decoded` array using Zstandard.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
-/// - [`ZlibCodecError::MismatchedDecodeIntoDtype`] if the `decoded` array is of
+/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZstdCodecError::MismatchedDecodeIntoDtype`] if the `decoded` array is of
 ///   the wrong dtype.
-/// - [`ZlibCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
+/// - [`ZstdCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
 ///   the wrong shape.
-/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
-/// - [`ZlibCodecError::DecodeExcessiveEncodedData`] if the encoded data
+/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZstdCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
-/// - [`ZlibCodecError::DecodeProducedLess`] if decoding produced less data than
+/// - [`ZstdCodecError::DecodeProducedLess`] if decoding produced less data than
 ///   expected
-/// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
-</span><span class="kw">pub fn </span>decompress_into(encoded: <span class="kw-2">&amp;</span>[u8], <span class="kw-2">mut </span>decoded: AnyArrayViewMut) -&gt; <span class="prelude-ty">Result</span>&lt;(), ZlibCodecError&gt; {
+/// - [`ZstdCodecError::ZstdDecodeFailed`] if an opaque decoding error occurred
+</span><span class="kw">pub fn </span>decompress_into(encoded: <span class="kw-2">&amp;</span>[u8], <span class="kw-2">mut </span>decoded: AnyArrayViewMut) -&gt; <span class="prelude-ty">Result</span>&lt;(), ZstdCodecError&gt; {
     <span class="kw">let </span>(header, encoded) =
         postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
-            ZlibCodecError::HeaderDecodeFailed {
-                source: ZlibHeaderError(err),
+            ZstdCodecError::HeaderDecodeFailed {
+                source: ZstdHeaderError(err),
             }
         })<span class="question-mark">?</span>;
 
     <span class="kw">if </span>header.dtype != decoded.dtype() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::MismatchedDecodeIntoDtype {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::MismatchedDecodeIntoDtype {
             decoded: header.dtype,
             provided: decoded.dtype(),
         });
     }
 
     <span class="kw">if </span>header.shape != decoded.shape() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::MismatchedDecodeIntoShape {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::MismatchedDecodeIntoShape {
             decoded: header.shape.into_owned(),
             provided: decoded.shape().to_vec(),
         });
@@ -692,32 +640,24 @@
     decoded.with_bytes_mut(|decoded| decompress_into_bytes(encoded, decoded))
 }
 
-<span class="kw">fn </span>decompress_into_bytes(encoded: <span class="kw-2">&amp;</span>[u8], decoded: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), ZlibCodecError&gt; {
-    <span class="kw">let </span>flags = miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_PARSE_ZLIB_HEADER
-        | miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF;
-
-    <span class="kw">let </span><span class="kw-2">mut </span>decomp = Box::&lt;miniz_oxide::inflate::core::DecompressorOxide&gt;::default();
-
-    <span class="kw">let </span>(status, in_consumed, out_consumed) =
-        miniz_oxide::inflate::core::decompress(<span class="kw-2">&amp;mut </span>decomp, encoded, decoded, <span class="number">0</span>, flags);
-
-    <span class="kw">match </span>status {
-        miniz_oxide::inflate::TINFLStatus::Done =&gt; {
-            <span class="kw">if </span>in_consumed != encoded.len() {
-                <span class="prelude-val">Err</span>(ZlibCodecError::DecodeExcessiveEncodedData)
-            } <span class="kw">else if </span>out_consumed == decoded.len() {
-                <span class="prelude-val">Ok</span>(())
-            } <span class="kw">else </span>{
-                <span class="prelude-val">Err</span>(ZlibCodecError::DecodeProducedLess)
-            }
+<span class="kw">fn </span>decompress_into_bytes(<span class="kw-2">mut </span>encoded: <span class="kw-2">&amp;</span>[u8], <span class="kw-2">mut </span>decoded: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), ZstdCodecError&gt; {
+    <span class="attr">#[allow(clippy::needless_borrows_for_generic_args)]
+    </span><span class="comment">// we want to check encoded and decoded for full consumption after the decoding
+    </span>zstd::stream::copy_decode(<span class="kw-2">&amp;mut </span>encoded, <span class="kw-2">&amp;mut </span>decoded).map_err(|err| {
+        ZstdCodecError::ZstdDecodeFailed {
+            source: ZstdCodingError(err),
         }
-        status =&gt; <span class="prelude-val">Err</span>(ZlibCodecError::ZlibDecodeFailed {
-            source: ZlibDecodeError(miniz_oxide::inflate::DecompressError {
-                status,
-                output: Vec::new(),
-            }),
-        }),
+    })<span class="question-mark">?</span>;
+
+    <span class="kw">if </span>!encoded.is_empty() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::DecodeExcessiveEncodedData);
     }
+
+    <span class="kw">if </span>!decoded.is_empty() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::DecodeProducedLess);
+    }
+
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
