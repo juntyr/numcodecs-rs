@@ -15,7 +15,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-uniform-noise
 //!
-//! Bit rounding codec implementation for the [`numcodecs`] API.
+//! Uniform noise codec implementation for the [`numcodecs`] API.
 
 use std::hash::{Hash, Hasher};
 
@@ -33,7 +33,8 @@ use wyhash::{WyHash, WyRng};
 
 #[derive(Clone, Serialize, Deserialize)]
 /// Codec that adds `seed`ed uniform noise of the given `scale` and with
-/// [`add_uniform_noise`].
+/// [`add_uniform_noise`] during encoding and passes through the input unchanged
+/// during decoding.
 pub struct UniformNoiseCodec {
     /// Scale of the uniform noise, which is sampled from
     /// `U(-scale/2, +scale/2)`
@@ -150,14 +151,12 @@ pub enum UniformNoiseCodecError {
     },
 }
 
-/// Uniform noise codec which adds `U(-scale/2, scale/2)` uniform random noise
-/// to the input on encoding and passes through the input unchanged during
-/// decoding.
+/// Adds `U(-scale/2, scale/2)` uniform random noise to the input `data`.
 ///
-/// This codec first hashes the input and its shape to then seed a pseudo-random
-/// number generator that generates the uniform noise. Therefore, encoding the
-/// same data with the same seed will produce the same noise and thus the same
-/// encoded data.
+/// This function first hashes the input and its shape to then seed a pseudo-
+/// random number generator that generates the uniform noise. Therefore,
+/// passing in the same input with the same `seed` will produce the same noise
+/// and thus the same output.
 #[must_use]
 pub fn add_uniform_noise<T: Float, D: Dimension>(
     data: CowArray<T, D>,
