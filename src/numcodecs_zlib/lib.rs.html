@@ -364,6 +364,7 @@
 <a href="#364" id="364">364</a>
 <a href="#365" id="365">365</a>
 <a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -429,9 +430,11 @@
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>encoded = <span class="kw">match </span>encoded {
             AnyCowArray::U8(encoded) =&gt; encoded,
-            encoded =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes {
-                dtype: encoded.dtype(),
-            }),
+            encoded =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes {
+                    dtype: encoded.dtype(),
+                })
+            }
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
@@ -450,9 +453,11 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>encoded = <span class="kw">match </span>encoded {
             AnyArrayView::U8(encoded) =&gt; encoded,
-            encoded =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes {
-                dtype: encoded.dtype(),
-            }),
+            encoded =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ZlibCodecError::EncodedDataNotBytes {
+                    dtype: encoded.dtype(),
+                })
+            }
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
@@ -587,13 +592,10 @@
     encoded.resize(encoded.len() + (data.len() / <span class="number">2</span>).max(<span class="number">2</span>), <span class="number">0</span>);
 
     <span class="kw">loop </span>{
-        <span class="kw">let </span>(<span class="prelude-val">Some</span>(data_left), <span class="prelude-val">Some</span>(encoded_left)) =
-            (data.get(in_pos..), encoded.get_mut(out_pos..))
-        <span class="kw">else </span>{
+        <span class="kw">let </span>(data_left, encoded_left) = <span class="kw">match </span>(data.get(in_pos..), encoded.get_mut(out_pos..)) {
+            (<span class="prelude-val">Some</span>(data_left), <span class="prelude-val">Some</span>(encoded_left)) =&gt; (data_left, encoded_left),
             <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// this would be a bug and cannot be user-caused
-            </span>{
-                <span class="macro">panic!</span>(<span class="string">"Zlib encode bug: input or output is out of bounds"</span>);
-            }
+            </span><span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Zlib encode bug: input or output is out of bounds"</span>),
         };
 
         <span class="kw">let </span>(status, bytes_in, bytes_out) = miniz_oxide::deflate::core::compress(

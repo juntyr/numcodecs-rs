@@ -334,6 +334,10 @@
 <a href="#334" id="334">334</a>
 <a href="#335" id="335">335</a>
 <a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -383,9 +387,11 @@
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>encoded = <span class="kw">match </span>encoded {
             AnyCowArray::U8(encoded) =&gt; encoded,
-            encoded =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::EncodedDataNotBytes {
-                dtype: encoded.dtype(),
-            }),
+            encoded =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::EncodedDataNotBytes {
+                    dtype: encoded.dtype(),
+                })
+            }
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
@@ -404,9 +410,11 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>encoded = <span class="kw">match </span>encoded {
             AnyArrayView::U8(encoded) =&gt; encoded,
-            encoded =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::EncodedDataNotBytes {
-                dtype: encoded.dtype(),
-            }),
+            encoded =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ZstdCodecError::EncodedDataNotBytes {
+                    dtype: encoded.dtype(),
+                })
+            }
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {

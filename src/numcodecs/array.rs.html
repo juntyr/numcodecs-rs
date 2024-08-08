@@ -547,6 +547,24 @@
 <a href="#547" id="547">547</a>
 <a href="#548" id="548">548</a>
 <a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, fmt, mem::ManuallyDrop};
 
 <span class="kw">use </span>ndarray::{
@@ -1078,6 +1096,24 @@
     I64,
     F32,
     F64,
+}
+
+<span class="kw">impl </span>AnyArrayDType {
+    <span class="attr">#[must_use]
+    </span><span class="doccomment">/// Convert the dtype to its (unsigned) binary equivalent.
+    ///
+    /// ```rust
+    /// assert_eq!(AnyArrayDType::I32.to_binary(), AnyArrayDType::U32);
+    /// assert_eq!(AnyArrayDType::F32.to_binary(), AnyArrayDType::U32);
+    /// ```
+    </span><span class="kw">pub const fn </span>to_binary(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::U8 | <span class="self">Self</span>::I8 =&gt; <span class="self">Self</span>::U8,
+            <span class="self">Self</span>::U16 | <span class="self">Self</span>::I16 =&gt; <span class="self">Self</span>::U16,
+            <span class="self">Self</span>::U32 | <span class="self">Self</span>::I32 | <span class="self">Self</span>::F32 =&gt; <span class="self">Self</span>::U32,
+            <span class="self">Self</span>::U64 | <span class="self">Self</span>::I64 | <span class="self">Self</span>::F64 =&gt; <span class="self">Self</span>::U64,
+        }
+    }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>AnyArrayDType {
