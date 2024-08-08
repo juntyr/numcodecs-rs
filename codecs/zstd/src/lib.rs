@@ -47,9 +47,11 @@ impl Codec for ZstdCodec {
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         let encoded = match encoded {
             AnyCowArray::U8(encoded) => encoded,
-            encoded => return Err(ZstdCodecError::EncodedDataNotBytes {
-                dtype: encoded.dtype(),
-            }),
+            encoded => {
+                return Err(ZstdCodecError::EncodedDataNotBytes {
+                    dtype: encoded.dtype(),
+                })
+            }
         };
 
         if !matches!(encoded.shape(), [_]) {
@@ -68,9 +70,11 @@ impl Codec for ZstdCodec {
     ) -> Result<(), Self::Error> {
         let encoded = match encoded {
             AnyArrayView::U8(encoded) => encoded,
-            encoded => return Err(ZstdCodecError::EncodedDataNotBytes {
-                dtype: encoded.dtype(),
-            }),
+            encoded => {
+                return Err(ZstdCodecError::EncodedDataNotBytes {
+                    dtype: encoded.dtype(),
+                })
+            }
         };
 
         if !matches!(encoded.shape(), [_]) {

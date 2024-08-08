@@ -63,9 +63,11 @@ impl Codec for ZlibCodec {
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         let encoded = match encoded {
             AnyCowArray::U8(encoded) => encoded,
-            encoded => return Err(ZlibCodecError::EncodedDataNotBytes {
-                dtype: encoded.dtype(),
-            }),
+            encoded => {
+                return Err(ZlibCodecError::EncodedDataNotBytes {
+                    dtype: encoded.dtype(),
+                })
+            }
         };
 
         if !matches!(encoded.shape(), [_]) {
@@ -84,9 +86,11 @@ impl Codec for ZlibCodec {
     ) -> Result<(), Self::Error> {
         let encoded = match encoded {
             AnyArrayView::U8(encoded) => encoded,
-            encoded => return Err(ZlibCodecError::EncodedDataNotBytes {
-                dtype: encoded.dtype(),
-            }),
+            encoded => {
+                return Err(ZlibCodecError::EncodedDataNotBytes {
+                    dtype: encoded.dtype(),
+                })
+            }
         };
 
         if !matches!(encoded.shape(), [_]) {
@@ -221,13 +225,10 @@ pub fn compress(array: AnyArrayView, level: ZlibLevel) -> Result<Vec<u8>, ZlibCo
     encoded.resize(encoded.len() + (data.len() / 2).max(2), 0);
 
     loop {
-        let (Some(data_left), Some(encoded_left)) =
-            (data.get(in_pos..), encoded.get_mut(out_pos..))
-        else {
+        let (data_left, encoded_left) = match (data.get(in_pos..), encoded.get_mut(out_pos..)) {
+            (Some(data_left), Some(encoded_left)) => (data_left, encoded_left),
             #[allow(clippy::panic)] // this would be a bug and cannot be user-caused
-            {
-                panic!("Zlib encode bug: input or output is out of bounds");
-            }
+            _ => panic!("Zlib encode bug: input or output is out of bounds"),
         };
 
         let (status, bytes_in, bytes_out) = miniz_oxide::deflate::core::compress(

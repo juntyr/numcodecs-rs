@@ -531,6 +531,24 @@ pub enum AnyArrayDType {
     F64,
 }
 
+impl AnyArrayDType {
+    #[must_use]
+    /// Convert the dtype to its (unsigned) binary equivalent.
+    ///
+    /// ```rust
+    /// assert_eq!(AnyArrayDType::I32.to_binary(), AnyArrayDType::U32);
+    /// assert_eq!(AnyArrayDType::F32.to_binary(), AnyArrayDType::U32);
+    /// ```
+    pub const fn to_binary(self) -> Self {
+        match self {
+            Self::U8 | Self::I8 => Self::U8,
+            Self::U16 | Self::I16 => Self::U16,
+            Self::U32 | Self::I32 | Self::F32 => Self::U32,
+            Self::U64 | Self::I64 | Self::F64 => Self::U64,
+        }
+    }
+}
+
 impl fmt::Display for AnyArrayDType {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.write_str(match self {

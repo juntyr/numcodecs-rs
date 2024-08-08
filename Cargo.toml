@@ -6,6 +6,7 @@ members = [
 
     "codecs/bit-round",
     "codecs/identity",
+    "codecs/reinterpret",
     "codecs/round",
     "codecs/uniform-noise",
     "codecs/zlib",
@@ -27,6 +28,7 @@ numcodecs-python = { version = "0.2", path = "crates/numcodecs-python", default-
 # workspace-internal codecs crates
 numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
 numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
+numcodecs-reinterpret = { version = "0.1", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.1", path = "codecs/round", default-features = false }
 numcodecs-uniform-noise = { version = "0.1", path = "codecs/uniform-noise", default-features = false }
 numcodecs-zlib = { version = "0.1", path = "codecs/zlib", default-features = false }

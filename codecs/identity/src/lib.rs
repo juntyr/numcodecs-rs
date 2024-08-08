@@ -15,7 +15,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-identity
 //!
-//! Bit rounding codec implementation for the [`numcodecs`] API.
+//! Identity codec implementation for the [`numcodecs`] API.
 
 use ndarray::{ArrayViewD, ArrayViewMutD};
 use numcodecs::{
