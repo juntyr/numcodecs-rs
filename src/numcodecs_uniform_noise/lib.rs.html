@@ -226,7 +226,6 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -244,7 +243,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-uniform-noise
 //!
-//! Bit rounding codec implementation for the [`numcodecs`] API.
+//! Uniform noise codec implementation for the [`numcodecs`] API.
 
 </span><span class="kw">use </span>std::hash::{Hash, Hasher};
 
@@ -262,7 +261,8 @@
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize)]
 </span><span class="doccomment">/// Codec that adds `seed`ed uniform noise of the given `scale` and with
-/// [`add_uniform_noise`].
+/// [`add_uniform_noise`] during encoding and passes through the input unchanged
+/// during decoding.
 </span><span class="kw">pub struct </span>UniformNoiseCodec {
     <span class="doccomment">/// Scale of the uniform noise, which is sampled from
     /// `U(-scale/2, +scale/2)`
@@ -379,14 +379,12 @@
     },
 }
 
-<span class="doccomment">/// Uniform noise codec which adds `U(-scale/2, scale/2)` uniform random noise
-/// to the input on encoding and passes through the input unchanged during
-/// decoding.
+<span class="doccomment">/// Adds `U(-scale/2, scale/2)` uniform random noise to the input `data`.
 ///
-/// This codec first hashes the input and its shape to then seed a pseudo-random
-/// number generator that generates the uniform noise. Therefore, encoding the
-/// same data with the same seed will produce the same noise and thus the same
-/// encoded data.
+/// This function first hashes the input and its shape to then seed a pseudo-
+/// random number generator that generates the uniform noise. Therefore,
+/// passing in the same input with the same `seed` will produce the same noise
+/// and thus the same output.
 </span><span class="attr">#[must_use]
 </span><span class="kw">pub fn </span>add_uniform_noise&lt;T: Float, D: Dimension&gt;(
     data: CowArray&lt;T, D&gt;,
