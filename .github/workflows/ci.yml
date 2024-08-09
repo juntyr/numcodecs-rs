@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.64", stable, nightly]
+        rust: ["1.64", "1.76", stable, nightly]
 
     steps:
       - name: Checkout the Repository
@@ -38,9 +38,24 @@ jobs:
         uses: taiki-e/install-action@cargo-hack
 
       - name: Check the powerset
+        if: ${{ matrix.rust == '1.64' }}
+        run: |
+          cargo hack check --all \
+            --exclude numcodecs-wasm-guest \
+            --feature-powerset --keep-going
+      
+      - name: Check the powerset
+        if: ${{ matrix.rust != '1.64' }}
         run: |
           cargo hack check --all \
             --feature-powerset --keep-going
+
+      - name: Check the powerset on wasm32-wasi
+        if: ${{ matrix.rust != '1.64' }}
+        run: |
+          cargo hack check --all \
+            --feature-powerset --keep-going \
+            --target wasm32-wasi 
 
   test:
     name: Test Suite
@@ -48,7 +63,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.64", stable, nightly]
+        rust: ["1.64", "1.76", stable, nightly]
         python: ["3.10", "3.11", "3.12"]
 
     steps:
@@ -74,6 +89,14 @@ jobs:
         run: pip install numcodecs
       
       - name: Run the test-suite powerset
+        if: ${{ matrix.rust == '1.64' }}
+        run: |
+          cargo hack test --workspace \
+            --exclude numcodecs-wasm-guest \
+            --no-fail-fast --feature-powerset --keep-going
+      
+      - name: Run the test-suite powerset
+        if: ${{ matrix.rust != '1.64' }}
         run: |
           cargo hack test --workspace \
             --no-fail-fast --feature-powerset --keep-going
@@ -103,7 +126,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.64", stable]
+        rust: ["1.64", "1.76", stable]
 
     steps:
       - name: Checkout the Repository
@@ -128,8 +151,32 @@ jobs:
             -- -D warnings
       
       - name: Check the code style powerset
-        if: ${{ matrix.rust != 'stable' }}
+        if: ${{ matrix.rust == '1.64' }}
         run: |
           cargo hack clippy --all \
             --feature-powerset --keep-going \
+            --exclude numcodecs-wasm-guest \
+            -- -D warnings -A unknown-lints
+      
+      - name: Check the code style powerset
+        if: ${{ matrix.rust != 'stable' && matrix.rust != '1.64' }}
+        run: |
+          cargo hack clippy --all \
+            --feature-powerset --keep-going \
+            -- -D warnings -A unknown-lints
+      
+      - name: Check the code style powerset on wasm32-wasi
+        if: ${{ matrix.rust == 'stable' }}
+        run: |
+          cargo hack clippy --all \
+            --feature-powerset --keep-going \
+            --target wasm32-wasi \
+            -- -D warnings
+      
+      - name: Check the code style powerset on wasm32-wasi
+        if: ${{ matrix.rust != 'stable' && matrix.rust != '1.64' }}
+        run: |
+          cargo hack clippy --all \
+            --feature-powerset --keep-going \
+            --target wasm32-wasi \
             -- -D warnings -A unknown-lints

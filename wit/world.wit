@@ -1,0 +1,9 @@
+package numcodecs:abc@0.1.0;
+
+world imports {
+    import codec;
+}
+
+world exports {
+    export codec;
+}

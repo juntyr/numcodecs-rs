@@ -1,0 +1,27 @@
+[package]
+name = "numcodecs-wasm-guest"
+version = "0.1.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = "1.76"
+
+description = "Export numcodecs API compressors from wasm components"
+readme = "README.md"
+categories = ["wasm", "api-bindings", "compression", "encoding"]
+keywords = ["numcodecs", "compression", "encoding", "wasm-component", "wasm-bindgen"]
+
+[dependencies]
+numcodecs = { workspace = true }
+wit-bindgen = { workspace = true, features = ["macros", "realloc"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+format_serde_error = { workspace = true, features = ["serde_json"] }
+ndarray = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true, features = ["std"] }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

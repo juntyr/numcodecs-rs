@@ -384,6 +384,23 @@ impl AnyArray {
 
         (array, result)
     }
+
+    #[must_use]
+    /// Returns an owned copy-on-write array.
+    pub fn into_cow(self) -> AnyCowArray<'static> {
+        match self {
+            Self::U8(array) => AnyCowArray::U8(array.into()),
+            Self::U16(array) => AnyCowArray::U16(array.into()),
+            Self::U32(array) => AnyCowArray::U32(array.into()),
+            Self::U64(array) => AnyCowArray::U64(array.into()),
+            Self::I8(array) => AnyCowArray::I8(array.into()),
+            Self::I16(array) => AnyCowArray::I16(array.into()),
+            Self::I32(array) => AnyCowArray::I32(array.into()),
+            Self::I64(array) => AnyCowArray::I64(array.into()),
+            Self::F32(array) => AnyCowArray::F32(array.into()),
+            Self::F64(array) => AnyCowArray::F64(array.into()),
+        }
+    }
 }
 
 impl<T: AnyRawData> Clone for AnyArrayBase<T>
