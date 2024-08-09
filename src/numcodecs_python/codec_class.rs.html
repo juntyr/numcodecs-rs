@@ -95,7 +95,6 @@
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>pyo3::{
     ffi::PyTypeObject,
     intern,
@@ -181,9 +180,8 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>is_type_of_bound(object: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'_</span>, PyAny&gt;) -&gt; bool {
-        <span class="kw">let </span>ty = <span class="kw">match </span>object.downcast::&lt;PyType&gt;() {
-            <span class="prelude-val">Ok</span>(ty) =&gt; ty,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="bool-val">false</span>,
+        <span class="kw">let </span><span class="prelude-val">Ok</span>(ty) = object.downcast::&lt;PyType&gt;() <span class="kw">else </span>{
+            <span class="kw">return </span><span class="bool-val">false</span>;
         };
 
         ty.is_subclass_of::&lt;PyCodec&gt;().unwrap_or(<span class="bool-val">false</span>)

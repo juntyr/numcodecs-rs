@@ -176,12 +176,15 @@
 <a href="#176" id="176">176</a>
 <a href="#177" id="177">177</a>
 <a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.64.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.76.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-reinterpret
@@ -271,15 +274,18 @@
 <span class="kw">impl </span>Codec <span class="kw">for </span>ReinterpretCodec {
     <span class="kw">type </span>Error = ReinterpretCodecError;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, _data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
+    <span class="attr">#[allow(clippy::todo)] </span><span class="comment">// FIXME: implement
+    </span><span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, _data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
         <span class="macro">todo!</span>()
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, _encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
+    <span class="attr">#[allow(clippy::todo)] </span><span class="comment">// FIXME: implement
+    </span><span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, _encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
         <span class="macro">todo!</span>()
     }
 
-    <span class="kw">fn </span>decode_into(
+    <span class="attr">#[allow(clippy::todo)] </span><span class="comment">// FIXME: implement
+    </span><span class="kw">fn </span>decode_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         _encoded: AnyArrayView,
         _decoded: AnyArrayViewMut,
