@@ -13,7 +13,7 @@
 [docs.rs]: https://docs.rs/numcodecs-bit-round/
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-bit-round
+[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_bit_round
 
 # numcodecs-bit-round
 
