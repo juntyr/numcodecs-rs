@@ -93,14 +93,17 @@ impl ReinterpretCodec {
 impl Codec for ReinterpretCodec {
     type Error = ReinterpretCodecError;
 
+    #[allow(clippy::todo)] // FIXME: implement
     fn encode(&self, _data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         todo!()
     }
 
+    #[allow(clippy::todo)] // FIXME: implement
     fn decode(&self, _encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         todo!()
     }
 
+    #[allow(clippy::todo)] // FIXME: implement
     fn decode_into(
         &self,
         _encoded: AnyArrayView,
