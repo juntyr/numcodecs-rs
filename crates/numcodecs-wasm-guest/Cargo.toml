@@ -18,7 +18,7 @@ wit-bindgen = { workspace = true, features = ["macros", "realloc"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 format_serde_error = { workspace = true, features = ["serde_json"] }
-ndarray = { workspace = true }
+ndarray = { workspace = true, features = ["std"] }
 serde = { workspace = true }
 serde_json = { workspace = true, features = ["std"] }
 thiserror = { workspace = true }

@@ -55,6 +55,8 @@ jobs:
         if: ${{ matrix.rust != '1.64' }}
         run: |
           cargo hack check --all \
+            --exclude numcodecs-python \
+            --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
             --target wasm32-wasi 
 
