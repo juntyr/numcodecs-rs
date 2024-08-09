@@ -1,0 +1,1 @@
+searchState.loadedDescShard("numcodecs_wasm_guest", 0, "CI Status MSRV Latest Version Rust Doc Crate Rust Doc Main\nExport a <code>StaticCodec</code> type using the WASM component model.")

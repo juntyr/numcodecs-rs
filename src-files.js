@@ -6,6 +6,7 @@ var srcIndex = new Map(JSON.parse('[\
 ["numcodecs_reinterpret",["",[],["lib.rs"]]],\
 ["numcodecs_round",["",[],["lib.rs"]]],\
 ["numcodecs_uniform_noise",["",[],["lib.rs"]]],\
+["numcodecs_wasm_guest",["",[],["lib.rs"]]],\
 ["numcodecs_zlib",["",[],["lib.rs"]]],\
 ["numcodecs_zstd",["",[],["lib.rs"]]]\
 ]'));
