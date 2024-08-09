@@ -5,7 +5,7 @@ edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
-rust-version = "1.76"
+rust-version = { workspace = true }
 
 description = "Export numcodecs API compressors from wasm components"
 readme = "README.md"
