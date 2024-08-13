@@ -7,6 +7,7 @@ members = [
 
     "codecs/bit-round",
     "codecs/identity",
+    "codecs/log",
     "codecs/reinterpret",
     "codecs/round",
     "codecs/uniform-noise",
@@ -31,6 +32,7 @@ numcodecs-wasm-guest = { version = "0.1", path = "crates/numcodecs-wasm-guest", 
 # workspace-internal codecs crates
 numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
 numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
+numcodecs-log = { version = "0.1", path = "codecs/log", default-features = false }
 numcodecs-reinterpret = { version = "0.1", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.1", path = "codecs/round", default-features = false }
 numcodecs-uniform-noise = { version = "0.1", path = "codecs/uniform-noise", default-features = false }

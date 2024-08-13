@@ -17,7 +17,7 @@
 //!
 //! Bit rounding codec implementation for the [`numcodecs`] API.
 
-use ndarray::{Array, ArrayViewD, ArrayViewMutD, CowArray, Dimension};
+use ndarray::{Array, ArrayBase, ArrayViewD, ArrayViewMutD, Data, Dimension};
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
@@ -158,8 +158,8 @@ pub enum BitRoundCodecError {
 ///
 /// Errors with [`BitRoundError::ExcessiveKeepBits`] if `keepbits` exceeds
 /// [`T::MANITSSA_BITS`][`Float::MANITSSA_BITS`].
-pub fn bit_round<T: Float, D: Dimension>(
-    data: CowArray<T, D>,
+pub fn bit_round<T: Float, S: Data<Elem = T>, D: Dimension>(
+    data: ArrayBase<S, D>,
     keepbits: u8,
 ) -> Result<Array<T, D>, BitRoundCodecError> {
     if u32::from(keepbits) > T::MANITSSA_BITS {
@@ -262,113 +262,113 @@ impl Float for f64 {
 
 #[cfg(test)]
 mod tests {
-    use ndarray::Array1;
+    use ndarray::{Array1, ArrayView1};
 
     use super::*;
 
     #[test]
     fn no_mantissa() {
         assert_eq!(
-            bit_round(CowArray::from(&[0.0_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[0.0_f32]), 0).unwrap(),
             Array1::from_vec(vec![0.0_f32])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[1.0_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[1.0_f32]), 0).unwrap(),
             Array1::from_vec(vec![1.0_f32])
         );
         // tie to even rounds up as the offset exponent is odd
         assert_eq!(
-            bit_round(CowArray::from(&[1.5_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[1.5_f32]), 0).unwrap(),
             Array1::from_vec(vec![2.0_f32])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[2.0_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[2.0_f32]), 0).unwrap(),
             Array1::from_vec(vec![2.0_f32])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[2.5_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[2.5_f32]), 0).unwrap(),
             Array1::from_vec(vec![2.0_f32])
         );
         // tie to even rounds down as the offset exponent is even
         assert_eq!(
-            bit_round(CowArray::from(&[3.0_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[3.0_f32]), 0).unwrap(),
             Array1::from_vec(vec![2.0_f32])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[3.5_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[3.5_f32]), 0).unwrap(),
             Array1::from_vec(vec![4.0_f32])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[4.0_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[4.0_f32]), 0).unwrap(),
             Array1::from_vec(vec![4.0_f32])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[5.0_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[5.0_f32]), 0).unwrap(),
             Array1::from_vec(vec![4.0_f32])
         );
         // tie to even rounds up as the offset exponent is odd
         assert_eq!(
-            bit_round(CowArray::from(&[6.0_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[6.0_f32]), 0).unwrap(),
             Array1::from_vec(vec![8.0_f32])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[7.0_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[7.0_f32]), 0).unwrap(),
             Array1::from_vec(vec![8.0_f32])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[8.0_f32]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[8.0_f32]), 0).unwrap(),
             Array1::from_vec(vec![8.0_f32])
         );
 
         assert_eq!(
-            bit_round(CowArray::from(&[0.0_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[0.0_f64]), 0).unwrap(),
             Array1::from_vec(vec![0.0_f64])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[1.0_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[1.0_f64]), 0).unwrap(),
             Array1::from_vec(vec![1.0_f64])
         );
         // tie to even rounds up as the offset exponent is odd
         assert_eq!(
-            bit_round(CowArray::from(&[1.5_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[1.5_f64]), 0).unwrap(),
             Array1::from_vec(vec![2.0_f64])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[2.0_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[2.0_f64]), 0).unwrap(),
             Array1::from_vec(vec![2.0_f64])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[2.5_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[2.5_f64]), 0).unwrap(),
             Array1::from_vec(vec![2.0_f64])
         );
         // tie to even rounds down as the offset exponent is even
         assert_eq!(
-            bit_round(CowArray::from(&[3.0_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[3.0_f64]), 0).unwrap(),
             Array1::from_vec(vec![2.0_f64])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[3.5_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[3.5_f64]), 0).unwrap(),
             Array1::from_vec(vec![4.0_f64])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[4.0_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[4.0_f64]), 0).unwrap(),
             Array1::from_vec(vec![4.0_f64])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[5.0_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[5.0_f64]), 0).unwrap(),
             Array1::from_vec(vec![4.0_f64])
         );
         // tie to even rounds up as the offset exponent is odd
         assert_eq!(
-            bit_round(CowArray::from(&[6.0_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[6.0_f64]), 0).unwrap(),
             Array1::from_vec(vec![8.0_f64])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[7.0_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[7.0_f64]), 0).unwrap(),
             Array1::from_vec(vec![8.0_f64])
         );
         assert_eq!(
-            bit_round(CowArray::from(&[8.0_f64]), 0).unwrap(),
+            bit_round(ArrayView1::from(&[8.0_f64]), 0).unwrap(),
             Array1::from_vec(vec![8.0_f64])
         );
     }
@@ -382,14 +382,14 @@ mod tests {
 
         for v in [0.0_f32, 1.0_f32, 2.0_f32, 3.0_f32, 4.0_f32] {
             assert_eq!(
-                bit_round(CowArray::from(&[full(v)]), f32::MANITSSA_BITS as u8).unwrap(),
+                bit_round(ArrayView1::from(&[full(v)]), f32::MANITSSA_BITS as u8).unwrap(),
                 Array1::from_vec(vec![full(v)])
             );
         }
 
         for v in [0.0_f64, 1.0_f64, 2.0_f64, 3.0_f64, 4.0_f64] {
             assert_eq!(
-                bit_round(CowArray::from(&[full(v)]), f64::MANITSSA_BITS as u8).unwrap(),
+                bit_round(ArrayView1::from(&[full(v)]), f64::MANITSSA_BITS as u8).unwrap(),
                 Array1::from_vec(vec![full(v)])
             );
         }

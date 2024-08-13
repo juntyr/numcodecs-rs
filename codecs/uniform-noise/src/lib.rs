@@ -19,7 +19,7 @@
 
 use std::hash::{Hash, Hasher};
 
-use ndarray::{Array, ArrayViewD, ArrayViewMutD, CowArray, Dimension};
+use ndarray::{Array, ArrayBase, ArrayViewD, ArrayViewMutD, Data, Dimension};
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
@@ -158,8 +158,8 @@ pub enum UniformNoiseCodecError {
 /// passing in the same input with the same `seed` will produce the same noise
 /// and thus the same output.
 #[must_use]
-pub fn add_uniform_noise<T: Float, D: Dimension>(
-    data: CowArray<T, D>,
+pub fn add_uniform_noise<T: Float, S: Data<Elem = T>, D: Dimension>(
+    data: ArrayBase<S, D>,
     scale: T,
     seed: u64,
 ) -> Array<T, D>

@@ -18,7 +18,7 @@
 //! Binary reinterpret codec implementation for the [`numcodecs`] API.
 
 use ndarray::{
-    Array, ArrayView, ArrayViewD, ArrayViewMutD, CowArray, DataMut, Dimension, ViewRepr,
+    Array, ArrayBase, ArrayView, ArrayViewD, ArrayViewMutD, Data, DataMut, Dimension, ViewRepr,
 };
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, ArrayDType, Codec,
@@ -439,8 +439,8 @@ pub enum ReinterpretCodecError {
 /// Reinterpret the data elements of the `array` using the provided `reinterpret`
 /// closure. The shape of the data is preserved.
 #[inline]
-pub fn reinterpret_array<T: Copy, U, D: Dimension>(
-    array: CowArray<T, D>,
+pub fn reinterpret_array<T: Copy, U, S: Data<Elem = T>, D: Dimension>(
+    array: ArrayBase<S, D>,
     reinterpret: impl Fn(T) -> U,
 ) -> Array<U, D> {
     let array = array.into_owned();

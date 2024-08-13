@@ -19,7 +19,7 @@
 
 use std::ops::{Div, Mul};
 
-use ndarray::{Array, ArrayViewD, ArrayViewMutD, CowArray, Dimension};
+use ndarray::{Array, ArrayBase, ArrayViewD, ArrayViewMutD, Data, Dimension};
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
@@ -165,7 +165,10 @@ pub enum RoundCodecError {
 
 #[must_use]
 /// Rounds the input `data` using `c = round(x / precision) * precision`
-pub fn round<T: Float, D: Dimension>(data: CowArray<T, D>, precision: Positive<T>) -> Array<T, D> {
+pub fn round<T: Float, S: Data<Elem = T>, D: Dimension>(
+    data: ArrayBase<S, D>,
+    precision: Positive<T>,
+) -> Array<T, D> {
     let mut encoded = data.into_owned();
     encoded.mapv_inplace(|x| (x / precision.0).round() * precision.0);
     encoded
