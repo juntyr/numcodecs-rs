@@ -465,13 +465,13 @@ pub fn reinterpret_array<T: Copy, U, D: Dimension>(
 /// - [`ReinterpretCodecError::MismatchedDecodeIntoShape`] if `decoded`'s shape
 ///   does not match `encoded`'s shape
 #[inline]
-pub fn reinterpret_array_into<T: Copy, U: ArrayDType, D: Dimension>(
+pub fn reinterpret_array_into<'a, T: Copy, U: ArrayDType, D: Dimension>(
     encoded: ArrayView<T, D>,
     reinterpret: impl Fn(T) -> U,
-    mut decoded: AnyArrayViewMut,
+    mut decoded: AnyArrayViewMut<'a>,
 ) -> Result<(), ReinterpretCodecError>
 where
-    for<'a> U::RawData<ViewRepr<&'a mut ()>>: DataMut,
+    U::RawData<ViewRepr<&'a mut ()>>: DataMut,
 {
     let Some(decoded) = decoded.as_typed_mut::<U>() else {
         return Err(ReinterpretCodecError::MismatchedDecodeIntoDtype {
