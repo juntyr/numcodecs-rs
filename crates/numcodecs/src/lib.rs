@@ -24,6 +24,10 @@ mod codec;
 
 pub use array::{
     AnyArcArray, AnyArray, AnyArrayBase, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    AnyRawData,
+    AnyRawData, ArrayDType,
 };
 pub use codec::{Codec, DynCodec, DynCodecType, StaticCodec, StaticCodecType};
+
+mod sealed {
+    pub trait Sealed {}
+}

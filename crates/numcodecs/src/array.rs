@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt, mem::ManuallyDrop};
+use std::{borrow::Cow, fmt, mem::ManuallyDrop, ptr};
 
 use ndarray::{
     ArrayBase, ArrayD, CowRepr, Data, DataMut, IxDyn, OwnedArcRepr, OwnedRepr, RawData,
@@ -111,6 +111,50 @@ impl<T: AnyRawData> AnyArrayBase<T> {
             Self::I64(a) => a.strides(),
             Self::F32(a) => a.strides(),
             Self::F64(a) => a.strides(),
+        }
+    }
+
+    #[must_use]
+    /// Returns the `U`-typed array in `Some(_)` iff the dtype of `U` matches
+    /// the dtype of this array. Returns `None` otherwise.
+    pub const fn as_typed<U: ArrayDType>(&self) -> Option<&ArrayBase<U::RawData<T>, IxDyn>> {
+        #[allow(unsafe_code)]
+        // Safety: the match ensures that a is of the required type,
+        //         but cannot express that in the type system directly
+        match (self, U::DTYPE) {
+            (Self::U8(a), AnyArrayDType::U8) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (Self::U16(a), AnyArrayDType::U16) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (Self::U32(a), AnyArrayDType::U32) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (Self::U64(a), AnyArrayDType::U64) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (Self::I8(a), AnyArrayDType::I8) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (Self::I16(a), AnyArrayDType::I16) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (Self::I32(a), AnyArrayDType::I32) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (Self::I64(a), AnyArrayDType::I64) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (Self::F32(a), AnyArrayDType::F32) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (Self::F64(a), AnyArrayDType::F64) => Some(unsafe { &*ptr::from_ref(a).cast() }),
+            (_self, _dtype) => None,
+        }
+    }
+
+    #[must_use]
+    /// Returns the `U`-typed array in `Some(_)` iff the dtype of `U` matches
+    /// the dtype of this array. Returns `None` otherwise.
+    pub fn as_typed_mut<U: ArrayDType>(&mut self) -> Option<&mut ArrayBase<U::RawData<T>, IxDyn>> {
+        #[allow(unsafe_code)]
+        // Safety: the match ensures that a is of the required type,
+        //         but cannot express that in the type system directly
+        match (self, U::DTYPE) {
+            (Self::U8(a), AnyArrayDType::U8) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (Self::U16(a), AnyArrayDType::U16) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (Self::U32(a), AnyArrayDType::U32) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (Self::U64(a), AnyArrayDType::U64) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (Self::I8(a), AnyArrayDType::I8) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (Self::I16(a), AnyArrayDType::I16) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (Self::I32(a), AnyArrayDType::I32) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (Self::I64(a), AnyArrayDType::I64) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (Self::F32(a), AnyArrayDType::F32) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (Self::F64(a), AnyArrayDType::F64) => Some(unsafe { &mut *ptr::from_mut(a).cast() }),
+            (_self, _dtype) => None,
         }
     }
 }
@@ -550,7 +594,13 @@ pub enum AnyArrayDType {
 
 impl AnyArrayDType {
     #[must_use]
-    /// Convert the dtype to its (unsigned) binary equivalent.
+    /// Returns the dtype of the type `T`
+    pub const fn of<T: ArrayDType>() -> Self {
+        T::DTYPE
+    }
+
+    #[must_use]
+    /// Converts the dtype to its (unsigned) binary equivalent.
     ///
     /// ```rust
     /// # use numcodecs::AnyArrayDType;
@@ -563,6 +613,23 @@ impl AnyArrayDType {
             Self::U16 | Self::I16 => Self::U16,
             Self::U32 | Self::I32 | Self::F32 => Self::U32,
             Self::U64 | Self::I64 | Self::F64 => Self::U64,
+        }
+    }
+
+    #[must_use]
+    /// Returns the size of the dtype in bytes.
+    pub const fn size(self) -> usize {
+        match self {
+            Self::U8 => std::mem::size_of::<u8>(),
+            Self::U16 => std::mem::size_of::<u16>(),
+            Self::U32 => std::mem::size_of::<u32>(),
+            Self::U64 => std::mem::size_of::<u64>(),
+            Self::I8 => std::mem::size_of::<i8>(),
+            Self::I16 => std::mem::size_of::<i16>(),
+            Self::I32 => std::mem::size_of::<i32>(),
+            Self::I64 => std::mem::size_of::<i64>(),
+            Self::F32 => std::mem::size_of::<f32>(),
+            Self::F64 => std::mem::size_of::<f64>(),
         }
     }
 }
@@ -582,4 +649,33 @@ impl fmt::Display for AnyArrayDType {
             Self::F64 => "f64",
         })
     }
+}
+
+/// Types which are included in [`AnyArrayDType`]
+pub trait ArrayDType: crate::sealed::Sealed {
+    /// [`AnyArrayDType`] representation of this type
+    const DTYPE: AnyArrayDType;
+
+    /// Representation for an [`ArrayBase`] containing this type
+    type RawData<T: AnyRawData>: RawData<Elem = Self>;
+}
+
+macro_rules! array_dtype {
+    ($($dtype:ident($ty:ty)),*) => {
+        $(
+            impl crate::sealed::Sealed for $ty {}
+
+            impl ArrayDType for $ty {
+                const DTYPE: AnyArrayDType = AnyArrayDType::$dtype;
+
+                type RawData<T: AnyRawData> = T::$dtype;
+            }
+        )*
+    };
+}
+
+array_dtype! {
+    U8(u8), U16(u16), U32(u32), U64(u64),
+    I8(i8), I16(i16), I32(i32), I64(i64),
+    F32(f32), F64(f64)
 }
