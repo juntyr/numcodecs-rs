@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ReinterpretCodecError"],"struct":["ReinterpretCodec"]};
+window.SIDEBAR_ITEMS = {"enum":["ReinterpretCodecError"],"fn":["reinterpret_array","reinterpret_array_into"],"struct":["ReinterpretCodec"]};

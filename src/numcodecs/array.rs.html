@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/array.rs`."><title>array.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d10b2a06af903387.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (3e9bd8b56 2024-08-08)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-04a29ac50d05d0b1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/array.rs`."><title>array.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b25d77b18a16a9a4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (91376f416 2024-08-12)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-cb0df477c2d67d00.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -583,7 +583,103 @@
 <a href="#583" id="583">583</a>
 <a href="#584" id="584">584</a>
 <a href="#585" id="585">585</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, fmt, mem::ManuallyDrop};
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, fmt, mem::ManuallyDrop, ptr};
 
 <span class="kw">use </span>ndarray::{
     ArrayBase, ArrayD, CowRepr, Data, DataMut, IxDyn, OwnedArcRepr, OwnedRepr, RawData,
@@ -696,6 +792,50 @@
             <span class="self">Self</span>::I64(a) =&gt; a.strides(),
             <span class="self">Self</span>::F32(a) =&gt; a.strides(),
             <span class="self">Self</span>::F64(a) =&gt; a.strides(),
+        }
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="doccomment">/// Returns the `U`-typed array in `Some(_)` iff the dtype of `U` matches
+    /// the dtype of this array. Returns `None` otherwise.
+    </span><span class="kw">pub const fn </span>as_typed&lt;U: ArrayDType&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ArrayBase&lt;U::RawData&lt;T&gt;, IxDyn&gt;&gt; {
+        <span class="attr">#[allow(unsafe_code)]
+        </span><span class="comment">// Safety: the match ensures that a is of the required type,
+        //         but cannot express that in the type system directly
+        </span><span class="kw">match </span>(<span class="self">self</span>, U::DTYPE) {
+            (<span class="self">Self</span>::U8(a), AnyArrayDType::U8) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (<span class="self">Self</span>::U16(a), AnyArrayDType::U16) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (<span class="self">Self</span>::U32(a), AnyArrayDType::U32) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (<span class="self">Self</span>::U64(a), AnyArrayDType::U64) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (<span class="self">Self</span>::I8(a), AnyArrayDType::I8) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (<span class="self">Self</span>::I16(a), AnyArrayDType::I16) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (<span class="self">Self</span>::I32(a), AnyArrayDType::I32) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (<span class="self">Self</span>::I64(a), AnyArrayDType::I64) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (<span class="self">Self</span>::F32(a), AnyArrayDType::F32) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (<span class="self">Self</span>::F64(a), AnyArrayDType::F64) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr::from_ref(a).cast() }),
+            (_self, _dtype) =&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="doccomment">/// Returns the `U`-typed array in `Some(_)` iff the dtype of `U` matches
+    /// the dtype of this array. Returns `None` otherwise.
+    </span><span class="kw">pub fn </span>as_typed_mut&lt;U: ArrayDType&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ArrayBase&lt;U::RawData&lt;T&gt;, IxDyn&gt;&gt; {
+        <span class="attr">#[allow(unsafe_code)]
+        </span><span class="comment">// Safety: the match ensures that a is of the required type,
+        //         but cannot express that in the type system directly
+        </span><span class="kw">match </span>(<span class="self">self</span>, U::DTYPE) {
+            (<span class="self">Self</span>::U8(a), AnyArrayDType::U8) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (<span class="self">Self</span>::U16(a), AnyArrayDType::U16) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (<span class="self">Self</span>::U32(a), AnyArrayDType::U32) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (<span class="self">Self</span>::U64(a), AnyArrayDType::U64) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (<span class="self">Self</span>::I8(a), AnyArrayDType::I8) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (<span class="self">Self</span>::I16(a), AnyArrayDType::I16) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (<span class="self">Self</span>::I32(a), AnyArrayDType::I32) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (<span class="self">Self</span>::I64(a), AnyArrayDType::I64) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (<span class="self">Self</span>::F32(a), AnyArrayDType::F32) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (<span class="self">Self</span>::F64(a), AnyArrayDType::F64) =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr::from_mut(a).cast() }),
+            (_self, _dtype) =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
@@ -1135,7 +1275,13 @@
 
 <span class="kw">impl </span>AnyArrayDType {
     <span class="attr">#[must_use]
-    </span><span class="doccomment">/// Convert the dtype to its (unsigned) binary equivalent.
+    </span><span class="doccomment">/// Returns the dtype of the type `T`
+    </span><span class="kw">pub const fn </span>of&lt;T: ArrayDType&gt;() -&gt; <span class="self">Self </span>{
+        T::DTYPE
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="doccomment">/// Converts the dtype to its (unsigned) binary equivalent.
     ///
     /// ```rust
     /// # use numcodecs::AnyArrayDType;
@@ -1148,6 +1294,23 @@
             <span class="self">Self</span>::U16 | <span class="self">Self</span>::I16 =&gt; <span class="self">Self</span>::U16,
             <span class="self">Self</span>::U32 | <span class="self">Self</span>::I32 | <span class="self">Self</span>::F32 =&gt; <span class="self">Self</span>::U32,
             <span class="self">Self</span>::U64 | <span class="self">Self</span>::I64 | <span class="self">Self</span>::F64 =&gt; <span class="self">Self</span>::U64,
+        }
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="doccomment">/// Returns the size of the dtype in bytes.
+    </span><span class="kw">pub const fn </span>size(<span class="self">self</span>) -&gt; usize {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::U8 =&gt; std::mem::size_of::&lt;u8&gt;(),
+            <span class="self">Self</span>::U16 =&gt; std::mem::size_of::&lt;u16&gt;(),
+            <span class="self">Self</span>::U32 =&gt; std::mem::size_of::&lt;u32&gt;(),
+            <span class="self">Self</span>::U64 =&gt; std::mem::size_of::&lt;u64&gt;(),
+            <span class="self">Self</span>::I8 =&gt; std::mem::size_of::&lt;i8&gt;(),
+            <span class="self">Self</span>::I16 =&gt; std::mem::size_of::&lt;i16&gt;(),
+            <span class="self">Self</span>::I32 =&gt; std::mem::size_of::&lt;i32&gt;(),
+            <span class="self">Self</span>::I64 =&gt; std::mem::size_of::&lt;i64&gt;(),
+            <span class="self">Self</span>::F32 =&gt; std::mem::size_of::&lt;f32&gt;(),
+            <span class="self">Self</span>::F64 =&gt; std::mem::size_of::&lt;f64&gt;(),
         }
     }
 }
@@ -1167,5 +1330,34 @@
             <span class="self">Self</span>::F64 =&gt; <span class="string">"f64"</span>,
         })
     }
+}
+
+<span class="doccomment">/// Types which are included in [`AnyArrayDType`]
+</span><span class="kw">pub trait </span>ArrayDType: <span class="kw">crate</span>::sealed::Sealed {
+    <span class="doccomment">/// [`AnyArrayDType`] representation of this type
+    </span><span class="kw">const </span>DTYPE: AnyArrayDType;
+
+    <span class="doccomment">/// Representation for an [`ArrayBase`] containing this type
+    </span><span class="kw">type </span>RawData&lt;T: AnyRawData&gt;: RawData&lt;Elem = <span class="self">Self</span>&gt;;
+}
+
+<span class="macro">macro_rules!</span> array_dtype {
+    ($(<span class="macro-nonterminal">$dtype</span>:ident(<span class="macro-nonterminal">$ty</span>:ty)),<span class="kw-2">*</span>) =&gt; {
+        $(
+            <span class="kw">impl </span><span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{}
+
+            <span class="kw">impl </span>ArrayDType <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
+                <span class="kw">const </span>DTYPE: AnyArrayDType = AnyArrayDType::<span class="macro-nonterminal">$dtype</span>;
+
+                <span class="kw">type </span>RawData&lt;T: AnyRawData&gt; = T::<span class="macro-nonterminal">$dtype</span>;
+            }
+        )*
+    };
+}
+
+<span class="macro">array_dtype!</span> {
+    U8(u8), U16(u16), U32(u32), U64(u64),
+    I8(i8), I16(i16), I32(i32), I64(i64),
+    F32(f32), F64(f64)
 }
 </code></pre></div></section></main></body></html>
