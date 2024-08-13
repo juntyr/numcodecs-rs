@@ -192,6 +192,9 @@
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -213,7 +216,7 @@
 
 </span><span class="kw">use </span>std::ops::{Div, Mul};
 
-<span class="kw">use </span>ndarray::{Array, ArrayViewD, ArrayViewMutD, CowArray, Dimension};
+<span class="kw">use </span>ndarray::{Array, ArrayBase, ArrayViewD, ArrayViewMutD, Data, Dimension};
 <span class="kw">use </span>numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
@@ -359,7 +362,10 @@
 
 <span class="attr">#[must_use]
 </span><span class="doccomment">/// Rounds the input `data` using `c = round(x / precision) * precision`
-</span><span class="kw">pub fn </span>round&lt;T: Float, D: Dimension&gt;(data: CowArray&lt;T, D&gt;, precision: Positive&lt;T&gt;) -&gt; Array&lt;T, D&gt; {
+</span><span class="kw">pub fn </span>round&lt;T: Float, S: Data&lt;Elem = T&gt;, D: Dimension&gt;(
+    data: ArrayBase&lt;S, D&gt;,
+    precision: Positive&lt;T&gt;,
+) -&gt; Array&lt;T, D&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>encoded = data.into_owned();
     encoded.mapv_inplace(|x| (x / precision.<span class="number">0</span>).round() * precision.<span class="number">0</span>);
     encoded

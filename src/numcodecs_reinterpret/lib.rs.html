@@ -516,7 +516,7 @@
 //! Binary reinterpret codec implementation for the [`numcodecs`] API.
 
 </span><span class="kw">use </span>ndarray::{
-    Array, ArrayView, ArrayViewD, ArrayViewMutD, CowArray, DataMut, Dimension, ViewRepr,
+    Array, ArrayBase, ArrayView, ArrayViewD, ArrayViewMutD, Data, DataMut, Dimension, ViewRepr,
 };
 <span class="kw">use </span>numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, ArrayDType, Codec,
@@ -937,8 +937,8 @@
 <span class="doccomment">/// Reinterpret the data elements of the `array` using the provided `reinterpret`
 /// closure. The shape of the data is preserved.
 </span><span class="attr">#[inline]
-</span><span class="kw">pub fn </span>reinterpret_array&lt;T: Copy, U, D: Dimension&gt;(
-    array: CowArray&lt;T, D&gt;,
+</span><span class="kw">pub fn </span>reinterpret_array&lt;T: Copy, U, S: Data&lt;Elem = T&gt;, D: Dimension&gt;(
+    array: ArrayBase&lt;S, D&gt;,
     reinterpret: <span class="kw">impl </span>Fn(T) -&gt; U,
 ) -&gt; Array&lt;U, D&gt; {
     <span class="kw">let </span>array = array.into_owned();
