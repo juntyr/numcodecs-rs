@@ -494,6 +494,8 @@
 <a href="#494" id="494">494</a>
 <a href="#495" id="495">495</a>
 <a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -509,7 +511,7 @@
 //! [docs.rs]: https://docs.rs/numcodecs-reinterpret/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-reinterpret
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_reinterpret
 //!
 //! Binary reinterpret codec implementation for the [`numcodecs`] API.
 
@@ -533,14 +535,18 @@
 }
 
 <span class="kw">impl </span>ReinterpretCodec {
-    <span class="attr">#[must_use]
-    </span><span class="doccomment">/// Try to create a [`ReinterpretCodec`] that reinterprets the input data
+    <span class="doccomment">/// Try to create a [`ReinterpretCodec`] that reinterprets the input data
     /// from `decode_dtype` to `encode_dtype` on encoding, and from
     /// `encode_dtype` back to `decode_dtype` on decoding.
     ///
-    /// Returns `Some(_)` if `encode_dtype` and `decode_dtype` are compatible,
-    /// `None` otherwise.
-    </span><span class="kw">pub fn </span>try_new(encode_dtype: AnyArrayDType, decode_dtype: AnyArrayDType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    /// # Errors
+    ///
+    /// Errors with [`ReinterpretCodecError::InvalidReinterpret`] if
+    /// `encode_dtype` and `decode_dtype` are incompatible.
+    </span><span class="kw">pub fn </span>try_new(
+        encode_dtype: AnyArrayDType,
+        decode_dtype: AnyArrayDType,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ReinterpretCodecError&gt; {
         <span class="attr">#[allow(clippy::match_same_arms)]
         </span><span class="kw">match </span>(decode_dtype, encode_dtype) {
             <span class="comment">// performing no conversion always works
@@ -551,10 +557,15 @@
             </span>(AnyArrayDType::I16, AnyArrayDType::U16)
             | (AnyArrayDType::I32 | AnyArrayDType::F32, AnyArrayDType::U32)
             | (AnyArrayDType::I64 | AnyArrayDType::F64, AnyArrayDType::U64) =&gt; (),
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+            (decode_dtype, encode_dtype) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ReinterpretCodecError::InvalidReinterpret {
+                    decode_dtype,
+                    encode_dtype,
+                })
+            }
         };
 
-        <span class="prelude-val">Some</span>(<span class="self">Self </span>{
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             encode_dtype,
             decode_dtype,
         })
@@ -852,14 +863,7 @@
     <span class="kw">fn </span>deserialize&lt;D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
         <span class="kw">let </span>config = ReinterpretCodecConfig::deserialize(deserializer)<span class="question-mark">?</span>;
 
-        <span class="attr">#[allow(clippy::option_if_let_else)]
-        </span><span class="kw">match </span><span class="self">Self</span>::try_new(config.encode_dtype, config.decode_dtype) {
-            <span class="prelude-val">Some</span>(codec) =&gt; <span class="prelude-val">Ok</span>(codec),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(serde::de::Error::custom(<span class="macro">format!</span>(
-                <span class="string">"reinterpreting {} as {} is not allowed"</span>,
-                config.decode_dtype, config.encode_dtype,
-            ))),
-        }
+        <span class="self">Self</span>::try_new(config.encode_dtype, config.decode_dtype).map_err(serde::de::Error::custom)
     }
 }
 

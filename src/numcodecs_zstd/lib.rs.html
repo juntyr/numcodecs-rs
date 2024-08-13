@@ -347,7 +347,7 @@
 //! [docs.rs]: https://docs.rs/numcodecs-zstd/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-zstd
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_zstd
 //!
 //! Zstandard codec implementation for the [`numcodecs`] API.
 
@@ -546,7 +546,7 @@
 ///
 /// Errors with
 /// - [`ZstdCodecError::HeaderEncodeFailed`] if encoding the header to the
-///   output bytevec failed.
+///   output bytevec failed
 /// - [`ZstdCodecError::ZstdEncodeFailed`] if an opaque encoding error occurred
 ///
 /// # Panics
@@ -578,7 +578,7 @@
 /// # Errors
 ///
 /// Errors with
-/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZstdCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
 /// - [`ZstdCodecError::DecodeProducedLess`] if decoding produced less data than
@@ -604,12 +604,12 @@
 /// # Errors
 ///
 /// Errors with
-/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZstdCodecError::MismatchedDecodeIntoDtype`] if the `decoded` array is of
-///   the wrong dtype.
+///   the wrong dtype
 /// - [`ZstdCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
-///   the wrong shape.
-/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed.
+///   the wrong shape
+/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZstdCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
 /// - [`ZstdCodecError::DecodeProducedLess`] if decoding produced less data than

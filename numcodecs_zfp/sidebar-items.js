@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ZfpCodecError","ZfpCompressionMode"],"fn":["compress","decompress","decompress_into"],"struct":["ZfpCodec"]};
