@@ -330,5 +330,5 @@ fn decompress_into_bytes(mut encoded: &[u8], mut decoded: &mut [u8]) -> Result<(
 struct CompressionHeader<'a> {
     dtype: AnyArrayDType,
     #[serde(borrow)]
-    shape: std::borrow::Cow<'a, [usize]>,
+    shape: Cow<'a, [usize]>,
 }

@@ -10,6 +10,7 @@ members = [
     "codecs/log",
     "codecs/reinterpret",
     "codecs/round",
+    "codecs/sz3",
     "codecs/uniform-noise",
     "codecs/zfp",
     "codecs/zlib",
@@ -35,6 +36,7 @@ numcodecs-identity = { version = "0.1", path = "codecs/identity", default-featur
 numcodecs-log = { version = "0.1", path = "codecs/log", default-features = false }
 numcodecs-reinterpret = { version = "0.1", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.1", path = "codecs/round", default-features = false }
+numcodecs-sz3 = { version = "0.1", path = "codecs/sz3", default-features = false }
 numcodecs-uniform-noise = { version = "0.1", path = "codecs/uniform-noise", default-features = false }
 numcodecs-zfp = { version = "0.1", path = "codecs/zfp", default-features = false }
 numcodecs-zlib = { version = "0.1", path = "codecs/zlib", default-features = false }
@@ -54,6 +56,7 @@ serde = { version = "1.0", default-features = false }
 serde-transcode = { version = "1.1", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 serde_repr = { version = "0.1", default-features = false }
+sz3 = { version = "0.1.1", default-features = false }
 thiserror = { version = "1.0", default-features = false }
 wit-bindgen = { version = "0.30", default-features = false }
 wyhash = { version = "0.5", default-features = false }

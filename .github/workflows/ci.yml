@@ -47,6 +47,7 @@ jobs:
         run: |
           cargo hack check --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-sz3 \
             --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
@@ -151,6 +152,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-sz3 \
             --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
@@ -162,6 +164,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-sz3 \
             --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
