@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"numcodecs_sz3":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/convert/trait.From.html\" title=\"trait core::convert::From\">From</a>&lt;<a class=\"struct\" href=\"https://docs.rs/ndarray/0.15/ndarray/error/struct.ShapeError.html\" title=\"struct ndarray::error::ShapeError\">ShapeError</a>&gt; for <a class=\"enum\" href=\"numcodecs_sz3/enum.Sz3CodecError.html\" title=\"enum numcodecs_sz3::Sz3CodecError\">Sz3CodecError</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
