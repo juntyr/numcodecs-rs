@@ -13,7 +13,7 @@
 //! [docs.rs]: https://docs.rs/numcodecs-reinterpret/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-reinterpret
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_reinterpret
 //!
 //! Binary reinterpret codec implementation for the [`numcodecs`] API.
 
@@ -37,14 +37,18 @@ pub struct ReinterpretCodec {
 }
 
 impl ReinterpretCodec {
-    #[must_use]
     /// Try to create a [`ReinterpretCodec`] that reinterprets the input data
     /// from `decode_dtype` to `encode_dtype` on encoding, and from
     /// `encode_dtype` back to `decode_dtype` on decoding.
     ///
-    /// Returns `Some(_)` if `encode_dtype` and `decode_dtype` are compatible,
-    /// `None` otherwise.
-    pub fn try_new(encode_dtype: AnyArrayDType, decode_dtype: AnyArrayDType) -> Option<Self> {
+    /// # Errors
+    ///
+    /// Errors with [`ReinterpretCodecError::InvalidReinterpret`] if
+    /// `encode_dtype` and `decode_dtype` are incompatible.
+    pub fn try_new(
+        encode_dtype: AnyArrayDType,
+        decode_dtype: AnyArrayDType,
+    ) -> Result<Self, ReinterpretCodecError> {
         #[allow(clippy::match_same_arms)]
         match (decode_dtype, encode_dtype) {
             // performing no conversion always works
@@ -55,10 +59,15 @@ impl ReinterpretCodec {
             (AnyArrayDType::I16, AnyArrayDType::U16)
             | (AnyArrayDType::I32 | AnyArrayDType::F32, AnyArrayDType::U32)
             | (AnyArrayDType::I64 | AnyArrayDType::F64, AnyArrayDType::U64) => (),
-            _ => return None,
+            (decode_dtype, encode_dtype) => {
+                return Err(ReinterpretCodecError::InvalidReinterpret {
+                    decode_dtype,
+                    encode_dtype,
+                })
+            }
         };
 
-        Some(Self {
+        Ok(Self {
             encode_dtype,
             decode_dtype,
         })
@@ -356,14 +365,7 @@ impl<'de> Deserialize<'de> for ReinterpretCodec {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let config = ReinterpretCodecConfig::deserialize(deserializer)?;
 
-        #[allow(clippy::option_if_let_else)]
-        match Self::try_new(config.encode_dtype, config.decode_dtype) {
-            Some(codec) => Ok(codec),
-            None => Err(serde::de::Error::custom(format!(
-                "reinterpreting {} as {} is not allowed",
-                config.decode_dtype, config.encode_dtype,
-            ))),
-        }
+        Self::try_new(config.encode_dtype, config.decode_dtype).map_err(serde::de::Error::custom)
     }
 }
 

@@ -13,7 +13,7 @@
 //! [docs.rs]: https://docs.rs/numcodecs-round/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-round
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_round
 //!
 //! Rounding codec implementation for the [`numcodecs`] API.
 

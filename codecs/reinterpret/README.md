@@ -13,7 +13,7 @@
 [docs.rs]: https://docs.rs/numcodecs-reinterpret/
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-reinterpret
+[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_reinterpret
 
 # numcodecs-reinterpret
 

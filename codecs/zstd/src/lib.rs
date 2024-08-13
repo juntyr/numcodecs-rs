@@ -13,7 +13,7 @@
 //! [docs.rs]: https://docs.rs/numcodecs-zstd/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-zstd
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_zstd
 //!
 //! Zstandard codec implementation for the [`numcodecs`] API.
 
@@ -212,7 +212,7 @@ pub struct ZstdCodingError(io::Error);
 ///
 /// Errors with
 /// - [`ZstdCodecError::HeaderEncodeFailed`] if encoding the header to the
-///   output bytevec failed.
+///   output bytevec failed
 /// - [`ZstdCodecError::ZstdEncodeFailed`] if an opaque encoding error occurred
 ///
 /// # Panics
@@ -244,7 +244,7 @@ pub fn compress(array: AnyArrayView, level: ZstdLevel) -> Result<Vec<u8>, ZstdCo
 /// # Errors
 ///
 /// Errors with
-/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZstdCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
 /// - [`ZstdCodecError::DecodeProducedLess`] if decoding produced less data than
@@ -270,12 +270,12 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZstdCodecError> {
 /// # Errors
 ///
 /// Errors with
-/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZstdCodecError::MismatchedDecodeIntoDtype`] if the `decoded` array is of
-///   the wrong dtype.
+///   the wrong dtype
 /// - [`ZstdCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
-///   the wrong shape.
-/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed.
+///   the wrong shape
+/// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZstdCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
 /// - [`ZstdCodecError::DecodeProducedLess`] if decoding produced less data than

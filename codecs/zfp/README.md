@@ -6,18 +6,18 @@
 [MSRV]: https://img.shields.io/badge/MSRV-1.76.0-blue
 [repo]: https://github.com/juntyr/numcodecs-rs
 
-[Latest Version]: https://img.shields.io/crates/v/numcodecs-round
-[crates.io]: https://crates.io/crates/numcodecs-round
+[Latest Version]: https://img.shields.io/crates/v/numcodecs-zfp
+[crates.io]: https://crates.io/crates/numcodecs-zfp
 
-[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-round
-[docs.rs]: https://docs.rs/numcodecs-round/
+[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-zfp
+[docs.rs]: https://docs.rs/numcodecs-zfp/
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_round
+[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_zfp
 
-# numcodecs-round
+# numcodecs-zfp
 
-Rounding codec implementation for the [`numcodecs`] API.
+ZFP codec implementation for the [`numcodecs`] API.
 
 [`numcodecs`]: https://docs.rs/numcodecs/0.1/numcodecs/
 
@@ -27,6 +27,6 @@ Licensed under the Mozilla Public License, Version 2.0 ([LICENSE](LICENSE) or ht
 
 ## Funding
 
-The `numcodecs-round` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
+The `numcodecs-zfp` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
 
 Funded by the European Union. This work has received funding from the European High Performance Computing Joint Undertaking (JU) under grant agreement No 101093054.

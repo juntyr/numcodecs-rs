@@ -13,7 +13,7 @@
 [docs.rs]: https://docs.rs/numcodecs-zlib/
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs-zlib
+[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_zlib
 
 # numcodecs-zlib
 

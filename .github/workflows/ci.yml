@@ -47,6 +47,7 @@ jobs:
         run: |
           cargo hack check --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
             --target wasm32-wasi 
@@ -150,6 +151,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
             --target wasm32-wasi \
@@ -160,6 +162,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
             --target wasm32-wasi \
