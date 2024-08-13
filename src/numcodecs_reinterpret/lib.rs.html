@@ -961,13 +961,13 @@
 /// - [`ReinterpretCodecError::MismatchedDecodeIntoShape`] if `decoded`'s shape
 ///   does not match `encoded`'s shape
 </span><span class="attr">#[inline]
-</span><span class="kw">pub fn </span>reinterpret_array_into&lt;T: Copy, U: ArrayDType, D: Dimension&gt;(
+</span><span class="kw">pub fn </span>reinterpret_array_into&lt;<span class="lifetime">'a</span>, T: Copy, U: ArrayDType, D: Dimension&gt;(
     encoded: ArrayView&lt;T, D&gt;,
     reinterpret: <span class="kw">impl </span>Fn(T) -&gt; U,
-    <span class="kw-2">mut </span>decoded: AnyArrayViewMut,
+    <span class="kw-2">mut </span>decoded: AnyArrayViewMut&lt;<span class="lifetime">'a</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), ReinterpretCodecError&gt;
 <span class="kw">where
-    for</span>&lt;<span class="lifetime">'a</span>&gt; U::RawData&lt;ViewRepr&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>()&gt;&gt;: DataMut,
+    </span>U::RawData&lt;ViewRepr&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>()&gt;&gt;: DataMut,
 {
     <span class="kw">let </span><span class="prelude-val">Some</span>(decoded) = decoded.as_typed_mut::&lt;U&gt;() <span class="kw">else </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(ReinterpretCodecError::MismatchedDecodeIntoDtype {
