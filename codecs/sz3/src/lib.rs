@@ -403,10 +403,18 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Sz3CodecError> {
 
     let decoded = if header.shape.iter().copied().product::<usize>() == 0 {
         match header.dtype {
-            AnyArrayDType::I32 => AnyArray::I32(Array::zeros([]).into_dyn()),
-            AnyArrayDType::I64 => AnyArray::I64(Array::zeros([]).into_dyn()),
-            AnyArrayDType::F32 => AnyArray::F32(Array::zeros([]).into_dyn()),
-            AnyArrayDType::F64 => AnyArray::F64(Array::zeros([]).into_dyn()),
+            AnyArrayDType::I32 => {
+                AnyArray::I32(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
+            }
+            AnyArrayDType::I64 => {
+                AnyArray::I64(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
+            }
+            AnyArrayDType::F32 => {
+                AnyArray::F32(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
+            }
+            AnyArrayDType::F64 => {
+                AnyArray::F64(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
+            }
             dtype => return Err(Sz3CodecError::UnsupportedDtype(dtype)),
         }
     } else {
@@ -473,7 +481,7 @@ mod tests {
     #[test]
     fn zero_length() -> Result<(), Sz3CodecError> {
         let encoded = compress(
-            Array::<f32, _>::zeros([1, 27, 0]),
+            Array::<f32, _>::from_shape_vec([1, 27, 0].as_slice(), vec![])?,
             &Sz3ErrorBound::L2Norm { l2: 27.0 },
         )?;
         let decoded = decompress(&encoded)?;
@@ -486,7 +494,7 @@ mod tests {
     }
 
     #[test]
-    fn one_dimensions() -> Result<(), Sz3CodecError> {
+    fn one_dimension() -> Result<(), Sz3CodecError> {
         let data = Array::from_shape_vec([2_usize, 1, 2, 1].as_slice(), vec![1, 2, 3, 4])?;
 
         let encoded = compress(data.view(), &Sz3ErrorBound::Absolute { abs: 0.0 })?;
