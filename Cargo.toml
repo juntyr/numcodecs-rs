@@ -7,6 +7,7 @@ members = [
 
     "codecs/bit-round",
     "codecs/identity",
+    "codecs/linear-quantize",
     "codecs/log",
     "codecs/reinterpret",
     "codecs/round",
@@ -33,6 +34,7 @@ numcodecs-wasm-guest = { version = "0.1", path = "crates/numcodecs-wasm-guest", 
 # workspace-internal codecs crates
 numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
 numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
+numcodecs-linear-quantize = { version = "0.1", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.1", path = "codecs/log", default-features = false }
 numcodecs-reinterpret = { version = "0.1", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.1", path = "codecs/round", default-features = false }
@@ -58,6 +60,7 @@ serde_json = { version = "1.0", default-features = false }
 serde_repr = { version = "0.1", default-features = false }
 sz3 = { version = "0.1.1", default-features = false }
 thiserror = { version = "1.0", default-features = false }
+twofloat = { version = "0.7", default-features = false }
 wit-bindgen = { version = "0.30", default-features = false }
 wyhash = { version = "0.5", default-features = false }
 zfp-sys = { version = "0.1.15", default-features = false }

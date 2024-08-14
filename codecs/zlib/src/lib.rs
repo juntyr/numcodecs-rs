@@ -24,6 +24,7 @@ use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -33,7 +34,7 @@ pub struct ZlibCodec {
     pub level: ZlibLevel,
 }
 
-#[derive(Copy, Clone, serde_repr::Serialize_repr, serde_repr::Deserialize_repr)]
+#[derive(Copy, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 /// Zlib compression level.
 ///

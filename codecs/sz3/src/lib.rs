@@ -391,8 +391,6 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
 ///
 /// Errors with
 /// - [`Sz3CodecError::HeaderDecodeFailed`] if decoding the header failed
-/// - [`Sz3CodecError::UnsupportedDtype`] if the header suggests an unsupported
-///   dtype is encoded
 pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Sz3CodecError> {
     let (header, data) =
         postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
@@ -403,40 +401,38 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Sz3CodecError> {
 
     let decoded = if header.shape.iter().copied().product::<usize>() == 0 {
         match header.dtype {
-            AnyArrayDType::I32 => {
+            Sz3DType::I32 => {
                 AnyArray::I32(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
             }
-            AnyArrayDType::I64 => {
+            Sz3DType::I64 => {
                 AnyArray::I64(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
             }
-            AnyArrayDType::F32 => {
+            Sz3DType::F32 => {
                 AnyArray::F32(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
             }
-            AnyArrayDType::F64 => {
+            Sz3DType::F64 => {
                 AnyArray::F64(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
             }
-            dtype => return Err(Sz3CodecError::UnsupportedDtype(dtype)),
         }
     } else {
         // TODO: avoid extra allocation here
         match header.dtype {
-            AnyArrayDType::I32 => AnyArray::I32(Array::from_shape_vec(
+            Sz3DType::I32 => AnyArray::I32(Array::from_shape_vec(
                 &*header.shape,
                 Vec::from(sz3::decompress(data).1.data()),
             )?),
-            AnyArrayDType::I64 => AnyArray::I64(Array::from_shape_vec(
+            Sz3DType::I64 => AnyArray::I64(Array::from_shape_vec(
                 &*header.shape,
                 Vec::from(sz3::decompress(data).1.data()),
             )?),
-            AnyArrayDType::F32 => AnyArray::F32(Array::from_shape_vec(
+            Sz3DType::F32 => AnyArray::F32(Array::from_shape_vec(
                 &*header.shape,
                 Vec::from(sz3::decompress(data).1.data()),
             )?),
-            AnyArrayDType::F64 => AnyArray::F64(Array::from_shape_vec(
+            Sz3DType::F64 => AnyArray::F64(Array::from_shape_vec(
                 &*header.shape,
                 Vec::from(sz3::decompress(data).1.data()),
             )?),
-            dtype => return Err(Sz3CodecError::UnsupportedDtype(dtype)),
         }
     };
 
@@ -445,31 +441,41 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Sz3CodecError> {
 
 /// Array element types which can be compressed with SZ3.
 pub trait Sz3Element: Copy + sz3::SZ3Compressible {
-    /// Dtype representation of this type
-    const DTYPE: AnyArrayDType;
+    #[doc(hidden)]
+    const DTYPE: Sz3DType;
 }
 
 impl Sz3Element for i32 {
-    const DTYPE: AnyArrayDType = AnyArrayDType::I32;
+    const DTYPE: Sz3DType = Sz3DType::I32;
 }
 
 impl Sz3Element for i64 {
-    const DTYPE: AnyArrayDType = AnyArrayDType::I64;
+    const DTYPE: Sz3DType = Sz3DType::I64;
 }
 
 impl Sz3Element for f32 {
-    const DTYPE: AnyArrayDType = AnyArrayDType::F32;
+    const DTYPE: Sz3DType = Sz3DType::F32;
 }
 
 impl Sz3Element for f64 {
-    const DTYPE: AnyArrayDType = AnyArrayDType::F64;
+    const DTYPE: Sz3DType = Sz3DType::F64;
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct CompressionHeader<'a> {
-    dtype: AnyArrayDType,
+    dtype: Sz3DType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
+}
+
+/// Dtypes that SZ3 can compress and decompress
+#[derive(Copy, Clone, serde::Serialize, serde::Deserialize)]
+#[allow(missing_docs)]
+pub enum Sz3DType {
+    I32,
+    I64,
+    F32,
+    F64,
 }
 
 #[cfg(test)]

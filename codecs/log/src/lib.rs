@@ -6,14 +6,14 @@
 //! [MSRV]: https://img.shields.io/badge/MSRV-1.76.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
-//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-bit-round
-//! [crates.io]: https://crates.io/crates/numcodecs-bit-round
+//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-log
+//! [crates.io]: https://crates.io/crates/numcodecs-log
 //!
-//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-bit-round
-//! [docs.rs]: https://docs.rs/numcodecs-bit-round/
+//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-log
+//! [docs.rs]: https://docs.rs/numcodecs-log/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_bit_round
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_log
 //!
 //! `ln(x+1)` codec implementation for the [`numcodecs`] API.
 
