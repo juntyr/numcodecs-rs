@@ -21,7 +21,8 @@
 //! [`StaticCodec`]: [`numcodecs::StaticCodec`]
 
 // Required in docs and the [`export_codec`] macro
-use numcodecs as _;
+#[doc(hidden)]
+pub use numcodecs;
 
 #[cfg(target_arch = "wasm32")]
 use ::{
