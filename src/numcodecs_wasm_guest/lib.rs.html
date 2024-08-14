@@ -224,7 +224,7 @@
 </span><span class="macro">macro_rules!</span> export_codec {
     (<span class="macro-nonterminal">$codec</span>:ident) =&gt; {
         <span class="kw">const _</span>: () = {
-            <span class="kw">const fn </span>can_only_export_static_codec::&lt;T: <span class="macro-nonterminal">$crate::numcodecs::StaticCodec</span>&gt;() {}
+            <span class="kw">const fn </span>can_only_export_static_codec&lt;T: <span class="macro-nonterminal">$crate::numcodecs::StaticCodec</span>&gt;() {}
 
             can_only_export_static_codec::&lt;<span class="macro-nonterminal">$codec</span>&gt;()
         };
