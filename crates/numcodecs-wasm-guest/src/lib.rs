@@ -73,7 +73,7 @@ pub mod bindings {
 macro_rules! export_codec {
     ($codec:ident) => {
         const _: () = {
-            const fn can_only_export_static_codec::<T: $crate::numcodecs::StaticCodec>() {}
+            const fn can_only_export_static_codec<T: $crate::numcodecs::StaticCodec>() {}
 
             can_only_export_static_codec::<$codec>()
         };
