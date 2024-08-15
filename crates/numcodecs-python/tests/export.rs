@@ -5,7 +5,10 @@ use numcodecs::{
 use numcodecs_python::{export_codec_class, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 use pyo3::{exceptions::PyTypeError, prelude::*, types::PyDict};
 use serde::ser::SerializeMap;
-use ::{convert_case as _, pythonize as _, serde as _, serde_json as _, serde_transcode as _};
+use ::{
+    convert_case as _, ndarray as _, pythonize as _, serde as _, serde_json as _,
+    serde_transcode as _,
+};
 
 #[test]
 fn export() -> Result<(), PyErr> {
