@@ -17,7 +17,7 @@
 //!
 //! SZ3 codec implementation for the [`numcodecs`] API.
 
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt};
 
 use ndarray::{Array, Array1, ArrayBase, ArrayViewMut, Data, Dimension, ShapeError};
 use numcodecs::{
@@ -168,19 +168,19 @@ impl Codec for Sz3Codec {
                 shape_checked_assign(decoded_in, decoded)
             }
             (AnyArray::I32(_), decoded) => Err(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::I32,
+                decoded: Sz3DType::I32,
                 provided: decoded.dtype(),
             }),
             (AnyArray::I64(_), decoded) => Err(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::I64,
+                decoded: Sz3DType::I64,
                 provided: decoded.dtype(),
             }),
             (AnyArray::F32(_), decoded) => Err(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F32,
+                decoded: Sz3DType::F32,
                 provided: decoded.dtype(),
             }),
             (AnyArray::F64(_), decoded) => Err(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F64,
+                decoded: Sz3DType::F64,
                 provided: decoded.dtype(),
             }),
             (encoded, _decoded) => Err(Sz3CodecError::UnsupportedDtype(encoded.dtype())),
@@ -261,7 +261,7 @@ pub enum Sz3CodecError {
     #[error("Sz3 cannot decode the dtype {decoded} into the provided {provided} array")]
     MismatchedDecodeIntoDtype {
         /// Dtype of the `decoded` data
-        decoded: AnyArrayDType,
+        decoded: Sz3DType,
         /// Dtype of the `provided` array into which the data is to be decoded
         provided: AnyArrayDType,
     },
@@ -441,7 +441,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Sz3CodecError> {
 
 /// Array element types which can be compressed with SZ3.
 pub trait Sz3Element: Copy + sz3::SZ3Compressible {
-    #[doc(hidden)]
+    /// The dtype representation of the type
     const DTYPE: Sz3DType;
 }
 
@@ -469,13 +469,28 @@ struct CompressionHeader<'a> {
 }
 
 /// Dtypes that SZ3 can compress and decompress
-#[derive(Copy, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[allow(missing_docs)]
 pub enum Sz3DType {
+    #[serde(rename = "i32", alias = "int32")]
     I32,
+    #[serde(rename = "i64", alias = "int64")]
     I64,
+    #[serde(rename = "f32", alias = "float32")]
     F32,
+    #[serde(rename = "f64", alias = "float64")]
     F64,
+}
+
+impl fmt::Display for Sz3DType {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(match self {
+            Self::I32 => "i32",
+            Self::I64 => "i64",
+            Self::F32 => "f32",
+            Self::F64 => "f64",
+        })
+    }
 }
 
 #[cfg(test)]

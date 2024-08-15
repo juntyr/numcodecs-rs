@@ -21,7 +21,10 @@ interface codec {
         %f64(list<f64>),
     }
 
-    type error = list<string>;
+    record error {
+        message: string,
+        chain: list<string>,
+    }
 
     resource codec {
         from-config: static func(config: string) -> result<codec, error>;

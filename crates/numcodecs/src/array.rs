@@ -580,15 +580,25 @@ impl<
 #[non_exhaustive]
 #[allow(missing_docs)]
 pub enum AnyArrayDType {
+    #[serde(rename = "u8", alias = "uint8")]
     U8,
+    #[serde(rename = "u16", alias = "uint16")]
     U16,
+    #[serde(rename = "u32", alias = "uint32")]
     U32,
+    #[serde(rename = "u64", alias = "uint64")]
     U64,
+    #[serde(rename = "i8", alias = "int8")]
     I8,
+    #[serde(rename = "i16", alias = "int16")]
     I16,
+    #[serde(rename = "i32", alias = "int32")]
     I32,
+    #[serde(rename = "i64", alias = "int64")]
     I64,
+    #[serde(rename = "f32", alias = "float32")]
     F32,
+    #[serde(rename = "f64", alias = "float64")]
     F64,
 }
 

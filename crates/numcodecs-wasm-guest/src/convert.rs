@@ -70,16 +70,23 @@ pub enum AnyArrayConversionError {
 
 #[must_use]
 pub fn into_wit_error<T: Error>(err: T) -> wit::Error {
-    let mut err: Option<&dyn Error> = Some(&err);
+    let mut source: Option<&dyn Error> = err.source();
 
-    let mut chain = Vec::with_capacity(1);
+    let mut error = wit::Error {
+        message: format!("{err}"),
+        chain: if source.is_some() {
+            Vec::with_capacity(4)
+        } else {
+            Vec::new()
+        },
+    };
 
-    while let Some(e) = err.take() {
-        chain.push(format!("{e}"));
-        err = e.source();
+    while let Some(err) = source.take() {
+        chain.push(format!("{err}"));
+        source = err.source();
     }
 
-    chain
+    error
 }
 
 #[allow(clippy::cast_possible_truncation)]

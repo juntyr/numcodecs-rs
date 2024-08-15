@@ -46,7 +46,9 @@ pub struct LinearQuantizeCodec {
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[allow(missing_docs)]
 pub enum LinearQuantizeDType {
+    #[serde(rename = "f32", alias = "float32")]
     F32,
+    #[serde(rename = "f64", alias = "float64")]
     F64,
 }
 
