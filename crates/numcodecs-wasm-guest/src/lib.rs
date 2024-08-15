@@ -17,12 +17,13 @@
 //!
 //! wasm32-wasi guest-side bindings for the [`numcodecs`] API, which allows you
 //! to export one [`StaticCodec`] from a WASM component.
-//!
-//! [`StaticCodec`]: [`numcodecs::StaticCodec`]
 
 // Required in docs and the [`export_codec`] macro
 #[doc(hidden)]
 pub use numcodecs;
+
+#[cfg(doc)]
+use numcodecs::StaticCodec;
 
 #[cfg(target_arch = "wasm32")]
 use ::{
@@ -53,8 +54,6 @@ pub mod bindings {
 
 #[macro_export]
 /// Export a [`StaticCodec`] type using the WASM component model.
-///
-/// [`StaticCodec`]: [`numcodecs::StaticCodec`]
 ///
 /// ```rust,ignore
 /// # use numcodecs_wasm_guest::export_codec;
