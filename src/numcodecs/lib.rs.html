@@ -31,6 +31,9 @@
 <a href="#31" id="31">31</a>
 <a href="#32" id="32">32</a>
 <a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -53,13 +56,16 @@
 //! [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 
 </span><span class="kw">mod </span><a href="array.rs.html#1-777">array</a>;
-<span class="kw">mod </span><a href="codec.rs.html#1-136">codec</a>;
+<span class="kw">mod </span><a href="codec.rs.html#1-205">codec</a>;
 
 <span class="kw">pub use </span>array::{
     <a href="array.rs.html#11">AnyArcArray</a>, <a href="array.rs.html#13">AnyArray</a>, <a href="array.rs.html#760-777">AnyArrayAssignError</a>, <a href="array.rs.html#24-35">AnyArrayBase</a>, <a href="array.rs.html#647-668">AnyArrayDType</a>, <a href="array.rs.html#15">AnyArrayView</a>,
     <a href="array.rs.html#17">AnyArrayViewMut</a>, <a href="array.rs.html#19">AnyCowArray</a>, <a href="array.rs.html#605-616">AnyRawData</a>, <a href="array.rs.html#730-736">ArrayDType</a>,
 };
-<span class="kw">pub use </span>codec::{<a href="codec.rs.html#9-51">Codec</a>, <a href="codec.rs.html#71-77">DynCodec</a>, <a href="codec.rs.html#80-98">DynCodecType</a>, <a href="codec.rs.html#54-66">StaticCodec</a>, <a href="codec.rs.html#109-111">StaticCodecType</a>};
+<span class="kw">pub use </span>codec::{
+    <a href="codec.rs.html#185-205">codec_from_config_with_id</a>, <a href="codec.rs.html#157-174">serialize_codec_config_with_id</a>, <a href="codec.rs.html#10-55">Codec</a>, <a href="codec.rs.html#78-84">DynCodec</a>, <a href="codec.rs.html#87-108">DynCodecType</a>,
+    <a href="codec.rs.html#58-73">StaticCodec</a>, <a href="codec.rs.html#119-121">StaticCodecType</a>,
+};
 
 <span class="kw">mod </span>sealed {
     <span class="kw">pub trait </span>Sealed {}

@@ -475,7 +475,7 @@
 <span class="kw">use </span>serde::{<a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>};
 <span class="kw">use </span><a href="https://docs.rs/serde-transcode/1.0.1/serde_transcode/fn.transcode.html">serde_transcode::transcode</a>;
 
-<span class="kw">use crate</span>::{<a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>, <a href="codec_class.rs.html#22-39">PyCodecClassMethods</a>, <a href="codec.rs.html#25-74">PyCodecMethods</a>, <a href="registry.rs.html#8-10">PyCodecRegistry</a>};
+<span class="kw">use crate</span>::{<a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>, <a href="codec_class.rs.html#22-41">PyCodecClassMethods</a>, <a href="codec.rs.html#25-75">PyCodecMethods</a>, <a href="registry.rs.html#8-10">PyCodecRegistry</a>};
 
 <span class="doccomment">/// Wrapper around [`PyCodec`]s to use the [`Codec`] API.
 </span><span class="kw">pub struct </span><a href="../../numcodecs_python/struct.PyCodecAdapter.html">PyCodecAdapter</a> {
@@ -488,7 +488,7 @@
     <span class="doccomment">/// Instantiate a codec from the [`PyCodecRegistry`] with a serialized
     /// `config`uration.
     ///
-    /// The config must include the `id` field with the
+    /// The config *must* include the `id` field with the
     /// [`PyCodecClassMethods::codec_id`].
     ///
     /// # Errors
@@ -515,7 +515,7 @@
     ///
     /// Errors if the `codec`'s class does not provide an identifier.
     </span><span class="kw">pub fn </span>from_codec(codec: Bound&lt;<a href="codec.rs.html#20-22">PyCodec</a>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
-        <span class="kw">let </span>class = <a href="#58">codec</a>.<a href="codec.rs.html#73">class</a>();
+        <span class="kw">let </span>class = <a href="#58">codec</a>.<a href="codec.rs.html#74">class</a>();
         <span class="kw">let </span>codec_id = <a href="#59">class</a>.<a href="codec_class.rs.html#28">codec_id</a>()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
@@ -544,7 +544,7 @@
     /// Errors if extracting this codec's config or creating a new codec from
     /// the config fails.
     </span><span class="kw">pub fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>, py: <a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html">Python</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
-        <span class="kw">let </span>config = <a class="self" href="#87">self</a>.codec.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.bind">bind</a>(<a href="#87">py</a>).<a href="codec.rs.html#70">get_config</a>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>config = <a class="self" href="#87">self</a>.codec.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.bind">bind</a>(<a href="#87">py</a>).<a href="codec.rs.html#71">get_config</a>()<span class="question-mark">?</span>;
 
         <span class="comment">// removing the `id` field may fail if the config doesn't contain it
         </span><span class="kw">let _ </span>= <a href="#88">config</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/trait.PyDictMethods.html#tymethod.del_item">del_item</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"id"</span>));
@@ -552,7 +552,7 @@
         <span class="kw">let </span>codec = <span class="self"><a href="#87">self</a>
             </span>.class
             .<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.bind">bind</a>(<a href="#87">py</a>)
-            .<a href="codec_class.rs.html#35-38">codec_from_config</a>(<a href="#88">config</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>())<span class="question-mark">?</span>;
+            .<a href="codec_class.rs.html#37-40">codec_from_config</a>(<a href="#88">config</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>())<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             codec: <a href="#93">codec</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.unbind">unbind</a>(),
@@ -621,7 +621,7 @@
             <span class="kw">let </span>config = <span class="self"><a href="#160">self</a>
                 </span>.codec
                 .<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.bind">bind</a>(<a href="#161">py</a>)
-                .<a href="codec.rs.html#70">get_config</a>()
+                .<a href="codec.rs.html#71">get_config</a>()
                 .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>)<span class="question-mark">?</span>;
 
             <a href="https://docs.rs/serde-transcode/1.0.1/serde_transcode/fn.transcode.html">transcode</a>(
@@ -905,7 +905,7 @@
             <span class="kw">let </span>codec = <span class="self"><a href="#438">self</a>
                 </span>.class
                 .<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.bind">bind</a>(<a href="#441">py</a>)
-                .<a href="codec_class.rs.html#35-38">codec_from_config</a>(<a href="#444">config</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>())
+                .<a href="codec_class.rs.html#37-40">codec_from_config</a>(<a href="#444">config</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>())
                 .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.207/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(<a href="#22-26">PyCodecAdapter</a> {

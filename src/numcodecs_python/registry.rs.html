@@ -69,7 +69,7 @@
 </pre></div><pre class="rust"><code><span class="kw">use </span>pyo3::{<a href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/prelude/index.html">prelude</a>::<span class="kw-2">*</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html">sync::GILOnceCell</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">types::PyDict</a>};
 
 <span class="attr">#[allow(unused_imports)] </span><span class="comment">// FIXME: use expect, only used in docs
-</span><span class="kw">use </span><a href="codec_class.rs.html#22-39"><span class="kw">crate</span>::PyCodecClassMethods</a>;
+</span><span class="kw">use </span><a href="codec_class.rs.html#22-41"><span class="kw">crate</span>::PyCodecClassMethods</a>;
 <span class="kw">use crate</span>::{<a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>};
 
 <span class="doccomment">/// Dynamic registry of codec classes.
@@ -80,7 +80,7 @@
 <span class="kw">impl </span><a href="#8-10">PyCodecRegistry</a> {
     <span class="doccomment">/// Instantiate a codec from a configuration dictionary.
     ///
-    /// The config must include the `id` field with the
+    /// The config *must* include the `id` field with the
     /// [`PyCodecClassMethods::codec_id`].
     ///
     /// # Errors

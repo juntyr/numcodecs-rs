@@ -3,7 +3,7 @@
     config: D,
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self, D::<a class="associatedtype" href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserializer.html#associatedtype.Error" title="type serde::de::Deserializer::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Instantiate a codec from the <a href="struct.PyCodecRegistry.html" title="struct numcodecs_python::PyCodecRegistry"><code>PyCodecRegistry</code></a> with a serialized
 <code>config</code>uration.</p>
-<p>The config must include the <code>id</code> field with the
+<p>The config <em>must</em> include the <code>id</code> field with the
 <a href="trait.PyCodecClassMethods.html#tymethod.codec_id" title="method numcodecs_python::PyCodecClassMethods::codec_id"><code>PyCodecClassMethods::codec_id</code></a>.</p>
 <h5 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors</h5>
 <p>Errors if no codec with a matching <code>id</code> has been registered, or if
