@@ -512,23 +512,22 @@
 <a href="#512" id="512">512</a>
 <a href="#513" id="513">513</a>
 <a href="#514" id="514">514</a>
-<a href="#515" id="515">515</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>numcodecs::{AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType};
+</pre></div><pre class="rust"><code><span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.ArrayViewD.html">ArrayViewD</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.ArrayViewMutD.html">ArrayViewMutD</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/type.CowArray.html">CowArray</a>};
+<span class="kw">use </span>numcodecs::{<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodecType.html">DynCodecType</a>};
 <span class="kw">use </span>numpy::{
-    ndarray::{ArrayViewD, ArrayViewMutD, CowArray},
-    IxDyn, PyArray, PyArrayDescrMethods, PyArrayDyn, PyArrayMethods, PyUntypedArray,
+    <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/fn.IxDyn.html">IxDyn</a>, PyArray, PyArrayDescrMethods, PyArrayDyn, PyArrayMethods, PyUntypedArray,
     PyUntypedArrayMethods,
 };
 <span class="kw">use </span>pyo3::{
-    exceptions::{PyRuntimeError, PyTypeError, PyValueError},
-    intern,
-    prelude::<span class="kw-2">*</span>,
-    types::{IntoPyDict, PyDict, PyString, PyType},
-    PyTypeInfo,
+    exceptions::{<a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyRuntimeError.html">PyRuntimeError</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyTypeError.html">PyTypeError</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyValueError.html">PyValueError</a>},
+    <a href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern</a>,
+    <a href="https://docs.rs/pyo3/0.21/pyo3/prelude/index.html">prelude</a>::<span class="kw-2">*</span>,
+    types::{<a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/trait.IntoPyDict.html">IntoPyDict</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/string/struct.PyString.html">PyString</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/typeobject/struct.PyType.html">PyType</a>},
+    <a href="https://docs.rs/pyo3/0.21/pyo3/type_object/trait.PyTypeInfo.html">PyTypeInfo</a>,
 };
 <span class="kw">use </span>pythonize::{Depythonizer, Pythonizer};
 
-<span class="kw">use crate</span>::{PyCodec, PyCodecClass, PyCodecRegistry};
+<span class="kw">use crate</span>::{<a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>, <a href="registry.rs.html#8-10">PyCodecRegistry</a>};
 
 <span class="doccomment">/// Export the [`DynCodecType`] `ty` to Python by generating a fresh
 /// [`PyCodecClass`] inside `module` and registering it with the
@@ -537,204 +536,204 @@
 /// # Errors
 ///
 /// Errors if generating or exporting the fresh [`PyCodecClass`] fails.
-</span><span class="kw">pub fn </span>export_codec_class&lt;<span class="lifetime">'py</span>, T: DynCodecType&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_python/fn.export_codec_class.html">export_codec_class</a>&lt;<span class="lifetime">'py</span>, T: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodecType.html">DynCodecType</a>&gt;(
     py: Python&lt;<span class="lifetime">'py</span>&gt;,
     ty: T,
-    module: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyModule&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyCodecClass&gt;, PyErr&gt; {
-    <span class="kw">let </span>codec_id = String::from(ty.codec_id());
-    <span class="kw">let </span>codec_class_name = convert_case::Casing::to_case(<span class="kw-2">&amp;</span>codec_id, convert_case::Case::Pascal);
+    module: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/module/struct.PyModule.html">PyModule</a>&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+    <span class="kw">let </span>codec_id = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">String::from</a>(<a href="#27">ty</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodecType.html#tymethod.codec_id">codec_id</a>());
+    <span class="kw">let </span>codec_class_name = convert_case::Casing::to_case(<span class="kw-2">&amp;</span><a href="#30">codec_id</a>, convert_case::Case::Pascal);
 
     <span class="kw">let </span>codec_class_bases = (
-        RustCodec::type_object_bound(py),
-        PyCodec::type_object_bound(py),
+        <a href="https://docs.rs/pyo3/0.21/pyo3/type_object/trait.PyTypeInfo.html#tymethod.type_object_bound">RustCodec::type_object_bound</a>(<a href="#26">py</a>),
+        <a href="https://docs.rs/pyo3/0.21/pyo3/type_object/trait.PyTypeInfo.html#tymethod.type_object_bound">PyCodec::type_object_bound</a>(<a href="#26">py</a>),
     );
 
     <span class="kw">let </span>codec_class_namespace = [
-        (<span class="macro">intern!</span>(py, <span class="string">"__module__"</span>), module.name()<span class="question-mark">?</span>.into_any()),
+        (<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"__module__"</span>), <a href="#28">module</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/module/trait.PyModuleMethods.html#tymethod.name">name</a>()<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
         <span class="comment">// (
         //     intern!(py, "__doc__"),
         //     PyString::new_bound(py, &amp;documentation).into_any(),
         // ),
         </span>(
-            <span class="macro">intern!</span>(py, <span class="string">"_ty"</span>),
-            Bound::new(py, RustCodecType { ty: Box::new(ty) })<span class="question-mark">?</span>.into_any(),
+            <a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"_ty"</span>),
+            <a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.new">Bound::new</a>(<a href="#26">py</a>, <a href="#71-73">RustCodecType</a> { ty: <a href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html#method.new">Box::new</a>(<a href="#27">ty</a>) })<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>(),
         ),
         (
-            <span class="macro">intern!</span>(py, <span class="string">"codec_id"</span>),
-            PyString::new_bound(py, <span class="kw-2">&amp;</span>codec_id).into_any(),
+            <a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"codec_id"</span>),
+            <a href="https://docs.rs/pyo3/0.21/pyo3/types/string/struct.PyString.html#method.new_bound">PyString::new_bound</a>(<a href="#26">py</a>, <span class="kw-2">&amp;</span><a href="#30">codec_id</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>(),
         ),
         <span class="comment">// (
         //     intern!(py, "__init__"),
         //     py.eval_bound(&amp;format!("lambda self, {signature}: None"), None, None)?,
         // ),
     </span>]
-    .into_py_dict_bound(py);
+    .<a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/trait.IntoPyDict.html#tymethod.into_py_dict_bound">into_py_dict_bound</a>(<a href="#26">py</a>);
 
-    <span class="kw">let </span>codec_class: Bound&lt;PyCodecClass&gt; = PyType::type_object_bound(py)
-        .call1((<span class="kw-2">&amp;</span>codec_class_name, codec_class_bases, codec_class_namespace))<span class="question-mark">?
-        </span>.extract()<span class="question-mark">?</span>;
+    <span class="kw">let </span>codec_class: Bound&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt; = <a href="https://docs.rs/pyo3/0.21/pyo3/type_object/trait.PyTypeInfo.html#tymethod.type_object_bound">PyType::type_object_bound</a>(<a href="#26">py</a>)
+        .<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call1">call1</a>((<span class="kw-2">&amp;</span><a href="#31">codec_class_name</a>, <a href="#33">codec_class_bases</a>, <a href="#38">codec_class_namespace</a>))<span class="question-mark">?
+        </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()<span class="question-mark">?</span>;
 
-    module.add(codec_class_name.as_str(), <span class="kw-2">&amp;</span>codec_class)<span class="question-mark">?</span>;
+    <a href="#28">module</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/module/trait.PyModuleMethods.html#tymethod.add">add</a>(<a href="#31">codec_class_name</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.as_str">as_str</a>(), <span class="kw-2">&amp;</span><a href="#59">codec_class</a>)<span class="question-mark">?</span>;
 
-    PyCodecRegistry::register_codec(codec_class.as_borrowed(), <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+    <a href="registry.rs.html#49-67">PyCodecRegistry::register_codec</a>(<a href="#59">codec_class</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>(), <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(codec_class)
+    <span class="prelude-val">Ok</span>(<a href="#59">codec_class</a>)
 }
 
 <span class="attr">#[pyclass(frozen)]
-</span><span class="kw">struct </span>RustCodecType {
-    ty: Box&lt;<span class="kw">dyn </span><span class="lifetime">'static </span>+ Send + Sync + AnyCodecType&gt;,
+</span><span class="kw">struct </span><a href="#71-73">RustCodecType</a> {
+    ty: Box&lt;<span class="kw">dyn </span><span class="lifetime">'static </span>+ <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html">Send</a> + <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html">Sync</a> + <a href="#104-109">AnyCodecType</a>&gt;,
 }
 
 <span class="kw">trait </span>AnyCodec {
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, PyErr&gt;;
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;;
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, PyErr&gt;;
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;;
 
-    <span class="kw">fn </span>decode_into(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyArrayView, decoded: AnyArrayViewMut) -&gt; <span class="prelude-ty">Result</span>&lt;(), PyErr&gt;;
+    <span class="kw">fn </span>decode_into(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;;
 
-    <span class="kw">fn </span>get_config&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;, PyErr&gt;;
+    <span class="kw">fn </span>get_config&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;;
 }
 
-<span class="kw">impl</span>&lt;T: Codec&gt; AnyCodec <span class="kw">for </span>T {
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, PyErr&gt; {
-        &lt;T <span class="kw">as </span>Codec&gt;::encode(<span class="self">self</span>, data).map_err(|err| PyRuntimeError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))
+<span class="kw">impl</span>&lt;T: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>&gt; <a href="#75-83">AnyCodec</a> <span class="kw">for </span>T {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        &lt;T <span class="kw">as </span>Codec&gt;::encode(<a class="self" href="#86">self</a>, <a href="#86">data</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyRuntimeError.html#method.new_err">PyRuntimeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{err}"</span>)))
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, PyErr&gt; {
-        &lt;T <span class="kw">as </span>Codec&gt;::decode(<span class="self">self</span>, encoded).map_err(|err| PyRuntimeError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        &lt;T <span class="kw">as </span>Codec&gt;::decode(<a class="self" href="#90">self</a>, <a href="#90">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyRuntimeError.html#method.new_err">PyRuntimeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{err}"</span>)))
     }
 
-    <span class="kw">fn </span>decode_into(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyArrayView, decoded: AnyArrayViewMut) -&gt; <span class="prelude-ty">Result</span>&lt;(), PyErr&gt; {
-        &lt;T <span class="kw">as </span>Codec&gt;::decode_into(<span class="self">self</span>, encoded, decoded)
-            .map_err(|err| PyRuntimeError::new_err(<span class="macro">format!</span>(<span class="string">"{err}"</span>)))
+    <span class="kw">fn </span>decode_into(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        &lt;T <span class="kw">as </span>Codec&gt;::decode_into(<a class="self" href="#94">self</a>, <a href="#94">encoded</a>, <a href="#94">decoded</a>)
+            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyRuntimeError.html#method.new_err">PyRuntimeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{err}"</span>)))
     }
 
-    <span class="kw">fn </span>get_config&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;, PyErr&gt; {
-        &lt;T <span class="kw">as </span>Codec&gt;::get_config(<span class="self">self</span>, Pythonizer::new(py))<span class="question-mark">?</span>.extract(py)
+    <span class="kw">fn </span>get_config&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        &lt;T <span class="kw">as </span>Codec&gt;::get_config(<a class="self" href="#99">self</a>, Pythonizer::new(<a href="#99">py</a>))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.extract">extract</a>(<a href="#99">py</a>)
     }
 }
 
 <span class="kw">trait </span>AnyCodecType {
     <span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'py</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        config: Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span><span class="lifetime">'static </span>+ Send + Sync + AnyCodec&gt;, PyErr&gt;;
+        config: Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span><span class="lifetime">'static </span>+ <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html">Send</a> + <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html">Sync</a> + <a href="#75-83">AnyCodec</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;;
 }
 
-<span class="kw">impl</span>&lt;T: DynCodecType&gt; AnyCodecType <span class="kw">for </span>T {
+<span class="kw">impl</span>&lt;T: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodecType.html">DynCodecType</a>&gt; <a href="#104-109">AnyCodecType</a> <span class="kw">for </span>T {
     <span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'py</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        config: Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span><span class="lifetime">'static </span>+ Send + Sync + AnyCodec&gt;, PyErr&gt; {
+        config: Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span><span class="lifetime">'static </span>+ <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html">Send</a> + <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html">Sync</a> + <a href="#75-83">AnyCodec</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
         <span class="kw">match </span>&lt;T <span class="kw">as </span>DynCodecType&gt;::codec_from_config(
-            <span class="self">self</span>,
-            <span class="kw-2">&amp;mut </span>Depythonizer::from_object_bound(config.into_any()),
+            <a class="self" href="#113">self</a>,
+            <span class="kw-2">&amp;mut </span>Depythonizer::from_object_bound(<a href="#114">config</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
         ) {
-            <span class="prelude-val">Ok</span>(codec) =&gt; <span class="prelude-val">Ok</span>(Box::new(codec)),
-            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err.into()),
+            <span class="prelude-val">Ok</span>(codec) =&gt; <span class="prelude-val">Ok</span>(<a href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html#method.new">Box::new</a>(<a href="#120">codec</a>)),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(<a href="#121">err</a>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>()),
         }
     }
 }
 
 <span class="attr">#[pyclass(subclass, frozen)]
-</span><span class="kw">struct </span>RustCodec {
-    cls_module: String,
-    cls_name: String,
-    codec: Box&lt;<span class="kw">dyn </span><span class="lifetime">'static </span>+ Send + Sync + AnyCodec&gt;,
+</span><span class="kw">struct </span><a href="#127-131">RustCodec</a> {
+    cls_module: <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a>,
+    cls_name: <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a>,
+    codec: Box&lt;<span class="kw">dyn </span><span class="lifetime">'static </span>+ <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html">Send</a> + <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html">Sync</a> + <a href="#75-83">AnyCodec</a>&gt;,
 }
 
 <span class="attr">#[pymethods]
-</span><span class="kw">impl </span>RustCodec {
+</span><span class="kw">impl </span><a href="#127-131">RustCodec</a> {
     <span class="attr">#[new]
     #[classmethod]
     #[pyo3(signature = (<span class="kw-2">**</span>kwargs))]
     </span><span class="kw">fn </span>new&lt;<span class="lifetime">'py</span>&gt;(
-        cls: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, PyType&gt;,
+        cls: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/typeobject/struct.PyType.html">PyType</a>&gt;,
         py: Python&lt;<span class="lifetime">'py</span>&gt;,
-        kwargs: <span class="prelude-ty">Option</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PyErr&gt; {
-        <span class="kw">let </span>cls: <span class="kw-2">&amp;</span>Bound&lt;PyCodecClass&gt; = cls.downcast()<span class="question-mark">?</span>;
-        <span class="kw">let </span>cls_module: String = cls.getattr(<span class="macro">intern!</span>(py, <span class="string">"__module__"</span>))<span class="question-mark">?</span>.extract()<span class="question-mark">?</span>;
-        <span class="kw">let </span>cls_name: String = cls.getattr(<span class="macro">intern!</span>(py, <span class="string">"__name__"</span>))<span class="question-mark">?</span>.extract()<span class="question-mark">?</span>;
+        kwargs: <span class="prelude-ty">Option</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">let </span>cls: <span class="kw-2">&amp;</span>Bound&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt; = <a href="#139">cls</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>cls_module: <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a> = <a href="#143">cls</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"__module__"</span>))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>cls_name: <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a> = <a href="#143">cls</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"__name__"</span>))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>ty: Bound&lt;RustCodecType&gt; = cls
-            .getattr(<span class="macro">intern!</span>(py, <span class="string">"_ty"</span>))
-            .map_err(|<span class="kw">_</span>| {
-                PyValueError::new_err(<span class="macro">format!</span>(
+        <span class="kw">let </span>ty: Bound&lt;<a href="#71-73">RustCodecType</a>&gt; = <a href="#143">cls</a>
+            .<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"_ty"</span>))
+            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|<span class="kw">_</span>| {
+                <a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyValueError.html#method.new_err">PyValueError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                     <span class="string">"{cls_module}.{cls_name} is not linked to a Rust codec type"
                 </span>))
             })<span class="question-mark">?
-            </span>.extract()<span class="question-mark">?</span>;
-        <span class="kw">let </span>ty: PyRef&lt;RustCodecType&gt; = ty.try_borrow()<span class="question-mark">?</span>;
+            </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>ty: PyRef&lt;<a href="#71-73">RustCodecType</a>&gt; = <a href="#147">ty</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.try_borrow">try_borrow</a>()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>codec = ty
+        <span class="kw">let </span>codec = <a href="#155">ty</a>
             .ty
-            .codec_from_config(kwargs.unwrap_or_else(|| PyDict::new_bound(py)))<span class="question-mark">?</span>;
+            .<a href="#105-108">codec_from_config</a>(<a href="#141">kwargs</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.unwrap_or_else">unwrap_or_else</a>(|| <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html#method.new_bound">PyDict::new_bound</a>(<a href="#140">py</a>)))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            cls_module,
-            cls_name,
-            codec,
+            <a href="#144">cls_module</a>,
+            <a href="#145">cls_name</a>,
+            <a href="#157">codec</a>,
         })
     }
 
     <span class="kw">fn </span>encode&lt;<span class="lifetime">'py</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         py: Python&lt;<span class="lifetime">'py</span>&gt;,
-        buf: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;, PyErr&gt; {
-        <span class="self">self</span>.process(
-            py,
-            buf.as_borrowed(),
-            AnyCodec::encode,
-            <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}.{}::encode"</span>, <span class="self">self</span>.cls_module, <span class="self">self</span>.cls_name),
+        buf: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <a class="self" href="#169">self</a>.<a href="#253-267">process</a>(
+            <a href="#170">py</a>,
+            <a href="#171">buf</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>(),
+            <a href="#76">AnyCodec::encode</a>,
+            <span class="kw-2">&amp;</span><a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{}.{}::encode"</span>, <span class="self">self</span>.cls_module, <span class="self">self</span>.cls_name),
         )
     }
 
     <span class="kw">fn </span>decode&lt;<span class="lifetime">'py</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         py: Python&lt;<span class="lifetime">'py</span>&gt;,
-        buf: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;,
-        out: <span class="prelude-ty">Option</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;, PyErr&gt; {
-        <span class="kw">let </span>class_method = <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}.{}::decode"</span>, <span class="self">self</span>.cls_module, <span class="self">self</span>.cls_name);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(out) = out {
-            <span class="self">self</span>.process_into(
-                py,
-                buf.as_borrowed(),
-                out.as_borrowed(),
-                AnyCodec::decode_into,
-                class_method,
+        buf: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
+        out: <span class="prelude-ty">Option</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">let </span>class_method = <span class="kw-2">&amp;</span><a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{}.{}::decode"</span>, <span class="self">self</span>.cls_module, <span class="self">self</span>.cls_name);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(out) = <a href="#185">out</a> {
+            <a class="self" href="#182">self</a>.<a href="#269-286">process_into</a>(
+                <a href="#183">py</a>,
+                <a href="#184">buf</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>(),
+                <a href="#188">out</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>(),
+                <a href="#80">AnyCodec::decode_into</a>,
+                <a href="#187">class_method</a>,
             )<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(out)
+            <span class="prelude-val">Ok</span>(<a href="#188">out</a>)
         } <span class="kw">else </span>{
-            <span class="self">self</span>.process(py, buf.as_borrowed(), AnyCodec::decode, class_method)
+            <a class="self" href="#182">self</a>.<a href="#253-267">process</a>(<a href="#183">py</a>, <a href="#184">buf</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>(), <a href="#78">AnyCodec::decode</a>, <a href="#187">class_method</a>)
         }
     }
 
-    <span class="kw">fn </span>get_config&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;, PyErr&gt; {
-        <span class="self">self</span>.codec.get_config(py)
+    <span class="kw">fn </span>get_config&lt;<span class="lifetime">'py</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, py: Python&lt;<span class="lifetime">'py</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <a class="self" href="#202">self</a>.codec.<a href="#82">get_config</a>(<a href="#202">py</a>)
     }
 
     <span class="attr">#[classmethod]
     </span><span class="kw">fn </span>from_config&lt;<span class="lifetime">'py</span>&gt;(
-        cls: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, PyType&gt;,
-        config: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyCodec&gt;, PyErr&gt; {
-        <span class="kw">let </span>cls: Bound&lt;PyCodecClass&gt; = cls.extract()<span class="question-mark">?</span>;
+        cls: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/typeobject/struct.PyType.html">PyType</a>&gt;,
+        config: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="codec.rs.html#20-22">PyCodec</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">let </span>cls: Bound&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt; = <a href="#208">cls</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()<span class="question-mark">?</span>;
 
         <span class="comment">// Ensures that cls(**config) is called and an instance of cls is returned
-        </span>cls.call((), <span class="prelude-val">Some</span>(config))<span class="question-mark">?</span>.extract()
+        </span><a href="#211">cls</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call">call</a>((), <span class="prelude-val">Some</span>(<a href="#209">config</a>))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()
     }
 
-    <span class="kw">fn </span>__repr__(this: PyRef&lt;<span class="self">Self</span>&gt;, py: Python) -&gt; <span class="prelude-ty">Result</span>&lt;String, PyErr&gt; {
-        <span class="kw">let </span>config = this.get_config(py)<span class="question-mark">?</span>;
-        <span class="kw">let </span>py_this: Py&lt;PyAny&gt; = this.into_py(py);
+    <span class="kw">fn </span>__repr__(this: PyRef&lt;<span class="self">Self</span>&gt;, py: <a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html">Python</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">let </span>config = <a href="#217">this</a>.<a href="#202-204">get_config</a>(<a href="#217">py</a>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>py_this: Py&lt;<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt; = <a href="#217">this</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/conversion/trait.IntoPy.html#tymethod.into_py">into_py</a>(<a href="#217">py</a>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>repr = py_this.bind(py).get_type().name()<span class="question-mark">?</span>.into_owned();
-        repr.push(<span class="string">'('</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>repr = <a href="#219">py_this</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.bind">bind</a>(<a href="#217">py</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.get_type">get_type</a>().<a href="https://docs.rs/pyo3/0.21/pyo3/types/typeobject/trait.PyTypeMethods.html#tymethod.name">name</a>()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#method.into_owned">into_owned</a>();
+        <a href="#221">repr</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.push">push</a>(<span class="string">'('</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
 
@@ -758,111 +757,111 @@
             repr.push_str(<span class="kw-2">&amp;</span>value_repr);
         }
 
-        repr.push(<span class="string">')'</span>);
+        <a href="#221">repr</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.push">push</a>(<span class="string">')'</span>);
 
-        <span class="prelude-val">Ok</span>(repr)
+        <span class="prelude-val">Ok</span>(<a href="#221">repr</a>)
     }
 }
 
-<span class="kw">impl </span>RustCodec {
+<span class="kw">impl </span><a href="#127-131">RustCodec</a> {
     <span class="kw">fn </span>process&lt;<span class="lifetime">'py</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         py: Python&lt;<span class="lifetime">'py</span>&gt;,
-        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;,
+        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
         process: <span class="kw">impl </span>FnOnce(
-            <span class="kw-2">&amp;</span>(<span class="kw">dyn </span><span class="lifetime">'static </span>+ Send + Sync + AnyCodec),
-            AnyCowArray,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, PyErr&gt;,
-        class_method: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;, PyErr&gt; {
-        <span class="self">Self</span>::with_pyarraylike_as_cow(py, buf, class_method, |data| {
-            <span class="kw">let </span>processed = process(<span class="kw-2">&amp;*</span><span class="self">self</span>.codec, data)<span class="question-mark">?</span>;
-            <span class="self">Self</span>::any_array_into_pyarray(py, processed, class_method)
+            <span class="kw-2">&amp;</span>(<span class="kw">dyn </span><span class="lifetime">'static </span>+ <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html">Send</a> + <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html">Sync</a> + <a href="#75-83">AnyCodec</a>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;,
+        class_method: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <a href="#288-354"><span class="self">Self</span>::with_pyarraylike_as_cow</a>(<a href="#255">py</a>, <a href="#256">buf</a>, <a href="#261">class_method</a>, |data| {
+            <span class="kw">let </span>processed = <a href="#257">process</a>(<span class="kw-2">&amp;*</span><a class="self" href="#254">self</a>.codec, <a href="#263">data</a>)<span class="question-mark">?</span>;
+            <a href="#492-513"><span class="self">Self</span>::any_array_into_pyarray</a>(<a href="#255">py</a>, <a href="#264">processed</a>, <a href="#261">class_method</a>)
         })
     }
 
     <span class="kw">fn </span>process_into&lt;<span class="lifetime">'py</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         py: Python&lt;<span class="lifetime">'py</span>&gt;,
-        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;,
-        out: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;,
+        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
+        out: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
         process: <span class="kw">impl </span>FnOnce(
-            <span class="kw-2">&amp;</span>(<span class="kw">dyn </span><span class="lifetime">'static </span>+ Send + Sync + AnyCodec),
-            AnyArrayView,
-            AnyArrayViewMut,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), PyErr&gt;,
-        class_method: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), PyErr&gt; {
-        <span class="self">Self</span>::with_pyarraylike_as_view(py, buf, class_method, |data| {
-            <span class="self">Self</span>::with_pyarraylike_as_view_mut(py, out, class_method, |data_out| {
-                process(<span class="kw-2">&amp;*</span><span class="self">self</span>.codec, data, data_out)
+            <span class="kw-2">&amp;</span>(<span class="kw">dyn </span><span class="lifetime">'static </span>+ <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html">Send</a> + <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html">Sync</a> + <a href="#75-83">AnyCodec</a>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;,
+        class_method: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <a href="#356-422"><span class="self">Self</span>::with_pyarraylike_as_view</a>(<a href="#271">py</a>, <a href="#272">buf</a>, <a href="#279">class_method</a>, |data| {
+            <a href="#424-490"><span class="self">Self</span>::with_pyarraylike_as_view_mut</a>(<a href="#271">py</a>, <a href="#273">out</a>, <a href="#279">class_method</a>, |data_out| {
+                <a href="#274">process</a>(<span class="kw-2">&amp;*</span><a class="self" href="#270">self</a>.codec, <a href="#281">data</a>, <a href="#282">data_out</a>)
             })
         })
     }
 
     <span class="kw">fn </span>with_pyarraylike_as_cow&lt;<span class="lifetime">'py</span>, O&gt;(
         py: Python&lt;<span class="lifetime">'py</span>&gt;,
-        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;,
-        class_method: <span class="kw-2">&amp;</span>str,
-        with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(AnyCowArray&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt; {
+        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
+        class_method: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+        with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(AnyCowArray&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
         <span class="kw">fn </span>with_pyarraylike_as_cow_inner&lt;T: numpy::Element, O&gt;(
             data: Borrowed&lt;PyArrayDyn&lt;T&gt;&gt;,
-            with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(CowArray&lt;<span class="lifetime">'a</span>, T, IxDyn&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt; {
-            <span class="kw">let </span>readonly_data = data.try_readonly()<span class="question-mark">?</span>;
-            with(readonly_data.as_array().into())
+            with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(CowArray&lt;<span class="lifetime">'a</span>, T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+            <span class="kw">let </span>readonly_data = <a href="#295">data</a>.try_readonly()<span class="question-mark">?</span>;
+            <a href="#296">with</a>(<a href="#298">readonly_data</a>.as_array().<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>())
         }
 
-        <span class="kw">let </span>as_array = py
-            .import_bound(<span class="macro">intern!</span>(py, <span class="string">"numpy"</span>))<span class="question-mark">?
-            </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"asarray"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>as_array = <a href="#289">py</a>
+            .<a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html#method.import_bound">import_bound</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"numpy"</span>))<span class="question-mark">?
+            </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"asarray"</span>))<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>data: Bound&lt;PyUntypedArray&gt; = as_array.call1((buf,))<span class="question-mark">?</span>.extract()<span class="question-mark">?</span>;
-        <span class="kw">let </span>dtype = data.dtype();
+        <span class="kw">let </span>data: Bound&lt;PyUntypedArray&gt; = <a href="#302">as_array</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call1">call1</a>((<a href="#290">buf</a>,))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>dtype = <a href="#306">data</a>.dtype();
 
         <span class="kw">if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u8&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;u8&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::U8(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(<a href="#310">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u16&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;u16&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::U16(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyCowArray::U16</a>(<a href="#314">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u32&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;u32&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::U32(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyCowArray::U32</a>(<a href="#318">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u64&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;u64&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::U64(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyCowArray::U64</a>(<a href="#322">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i8&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;i8&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::I8(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyCowArray::I8</a>(<a href="#326">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i16&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;i16&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::I16(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyCowArray::I16</a>(<a href="#330">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i32&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;i32&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::I32(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyCowArray::I32</a>(<a href="#334">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i64&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;i64&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::I64(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyCowArray::I64</a>(<a href="#338">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;f32&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;f32&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::F32(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(<a href="#342">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;f64&gt;(py)) {
-            with_pyarraylike_as_cow_inner(data.downcast::&lt;PyArrayDyn&lt;f64&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyCowArray::F64(a))
+            <a href="#294-300">with_pyarraylike_as_cow_inner</a>(<a href="#306">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#292">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyCowArray::F64</a>(<a href="#346">a</a>))
             })
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+            <span class="prelude-val">Err</span>(<a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"{class_method} received buffer of unsupported dtype `{dtype}`"</span>,
             )))
         }
@@ -870,67 +869,67 @@
 
     <span class="kw">fn </span>with_pyarraylike_as_view&lt;<span class="lifetime">'py</span>, O&gt;(
         py: Python&lt;<span class="lifetime">'py</span>&gt;,
-        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;,
-        class_method: <span class="kw-2">&amp;</span>str,
-        with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(AnyArrayView&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt; {
+        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
+        class_method: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+        with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(AnyArrayView&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
         <span class="kw">fn </span>with_pyarraylike_as_view_inner&lt;T: numpy::Element, O&gt;(
             data: Borrowed&lt;PyArrayDyn&lt;T&gt;&gt;,
-            with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(ArrayViewD&lt;<span class="lifetime">'a</span>, T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt; {
-            <span class="kw">let </span>readonly_data = data.try_readonly()<span class="question-mark">?</span>;
-            with(readonly_data.as_array())
+            with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(ArrayViewD&lt;<span class="lifetime">'a</span>, T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+            <span class="kw">let </span>readonly_data = <a href="#363">data</a>.try_readonly()<span class="question-mark">?</span>;
+            <a href="#364">with</a>(<a href="#366">readonly_data</a>.as_array())
         }
 
-        <span class="kw">let </span>as_array = py
-            .import_bound(<span class="macro">intern!</span>(py, <span class="string">"numpy"</span>))<span class="question-mark">?
-            </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"asarray"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>as_array = <a href="#357">py</a>
+            .<a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html#method.import_bound">import_bound</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"numpy"</span>))<span class="question-mark">?
+            </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"asarray"</span>))<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>data: Bound&lt;PyUntypedArray&gt; = as_array.call1((buf,))<span class="question-mark">?</span>.extract()<span class="question-mark">?</span>;
-        <span class="kw">let </span>dtype = data.dtype();
+        <span class="kw">let </span>data: Bound&lt;PyUntypedArray&gt; = <a href="#370">as_array</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call1">call1</a>((<a href="#358">buf</a>,))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>dtype = <a href="#374">data</a>.dtype();
 
         <span class="kw">if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u8&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;u8&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::U8(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(<a href="#378">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u16&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;u16&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::U16(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArrayView::U16</a>(<a href="#382">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u32&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;u32&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::U32(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArrayView::U32</a>(<a href="#386">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u64&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;u64&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::U64(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArrayView::U64</a>(<a href="#390">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i8&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;i8&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::I8(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyArrayView::I8</a>(<a href="#394">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i16&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;i16&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::I16(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArrayView::I16</a>(<a href="#398">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i32&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;i32&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::I32(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArrayView::I32</a>(<a href="#402">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i64&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;i64&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::I64(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArrayView::I64</a>(<a href="#406">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;f32&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;f32&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::F32(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArrayView::F32</a>(<a href="#410">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;f64&gt;(py)) {
-            with_pyarraylike_as_view_inner(data.downcast::&lt;PyArrayDyn&lt;f64&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayView::F64(a))
+            <a href="#362-368">with_pyarraylike_as_view_inner</a>(<a href="#374">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#360">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArrayView::F64</a>(<a href="#414">a</a>))
             })
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+            <span class="prelude-val">Err</span>(<a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"{class_method} received buffer of unsupported dtype `{dtype}`"</span>,
             )))
         }
@@ -938,67 +937,67 @@
 
     <span class="kw">fn </span>with_pyarraylike_as_view_mut&lt;<span class="lifetime">'py</span>, O&gt;(
         py: Python&lt;<span class="lifetime">'py</span>&gt;,
-        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;,
-        class_method: <span class="kw-2">&amp;</span>str,
-        with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(AnyArrayViewMut&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt; {
+        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
+        class_method: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+        with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(AnyArrayViewMut&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
         <span class="kw">fn </span>with_pyarraylike_as_view_mut_inner&lt;T: numpy::Element, O&gt;(
             data: Borrowed&lt;PyArrayDyn&lt;T&gt;&gt;,
-            with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(ArrayViewMutD&lt;<span class="lifetime">'a</span>, T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;O, PyErr&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>readwrite_data = data.try_readwrite()<span class="question-mark">?</span>;
-            with(readwrite_data.as_array_mut())
+            with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(ArrayViewMutD&lt;<span class="lifetime">'a</span>, T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;O, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>readwrite_data = <a href="#431">data</a>.try_readwrite()<span class="question-mark">?</span>;
+            <a href="#432">with</a>(<a href="#434">readwrite_data</a>.as_array_mut())
         }
 
-        <span class="kw">let </span>as_array = py
-            .import_bound(<span class="macro">intern!</span>(py, <span class="string">"numpy"</span>))<span class="question-mark">?
-            </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"asarray"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>as_array = <a href="#425">py</a>
+            .<a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html#method.import_bound">import_bound</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"numpy"</span>))<span class="question-mark">?
+            </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"asarray"</span>))<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>data: Bound&lt;PyUntypedArray&gt; = as_array.call1((buf,))<span class="question-mark">?</span>.extract()<span class="question-mark">?</span>;
-        <span class="kw">let </span>dtype = data.dtype();
+        <span class="kw">let </span>data: Bound&lt;PyUntypedArray&gt; = <a href="#438">as_array</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call1">call1</a>((<a href="#426">buf</a>,))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>dtype = <a href="#442">data</a>.dtype();
 
         <span class="kw">if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u8&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;u8&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::U8(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayViewMut::U8</a>(<a href="#446">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u16&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;u16&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::U16(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArrayViewMut::U16</a>(<a href="#450">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u32&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;u32&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::U32(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArrayViewMut::U32</a>(<a href="#454">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;u64&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;u64&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::U64(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArrayViewMut::U64</a>(<a href="#458">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i8&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;i8&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::I8(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyArrayViewMut::I8</a>(<a href="#462">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i16&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;i16&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::I16(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArrayViewMut::I16</a>(<a href="#466">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i32&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;i32&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::I32(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArrayViewMut::I32</a>(<a href="#470">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;i64&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;i64&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::I64(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArrayViewMut::I64</a>(<a href="#474">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;f32&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;f32&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::F32(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArrayViewMut::F32</a>(<a href="#478">a</a>))
             })
         } <span class="kw">else if </span>dtype.is_equiv_to(<span class="kw-2">&amp;</span>numpy::dtype_bound::&lt;f64&gt;(py)) {
-            with_pyarraylike_as_view_mut_inner(data.downcast::&lt;PyArrayDyn&lt;f64&gt;&gt;()<span class="question-mark">?</span>.into(), |a| {
-                with(AnyArrayViewMut::F64(a))
+            <a href="#430-436">with_pyarraylike_as_view_mut_inner</a>(<a href="#442">data</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;PyArrayDyn&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;&gt;()<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(), |a| {
+                <a href="#428">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArrayViewMut::F64</a>(<a href="#482">a</a>))
             })
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
+            <span class="prelude-val">Err</span>(<a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"{class_method} received buffer of unsupported dtype `{dtype}`"</span>,
             )))
         }
@@ -1006,25 +1005,24 @@
 
     <span class="kw">fn </span>any_array_into_pyarray&lt;<span class="lifetime">'py</span>&gt;(
         py: Python&lt;<span class="lifetime">'py</span>&gt;,
-        array: AnyArray,
-        class_method: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;, PyErr&gt; {
-        <span class="kw">match </span>array {
-            AnyArray::U8(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::U16(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::U32(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::U64(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::I8(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::I16(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::I32(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::I64(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::F32(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::F64(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(py, a).into_any()),
-            <span class="kw">_ </span><span class="comment">/*buf*/ </span>=&gt; <span class="prelude-val">Err</span>(PyTypeError::new_err(<span class="macro">format!</span>(
-                <span class="string">"{class_method} returned unsupported dtype"</span>,
-                <span class="comment">// "{class_method} returned unsupported dtype `{}`",
-                // buf.as_slice().ty()
-            </span>))),
+        array: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>,
+        class_method: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">match </span><a href="#494">array</a> {
+            AnyArray::U8(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#498">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            AnyArray::U16(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#499">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            AnyArray::U32(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#500">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            AnyArray::U64(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#501">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            AnyArray::I8(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#502">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            AnyArray::I16(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#503">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            AnyArray::I32(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#504">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            AnyArray::I64(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#505">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            AnyArray::F32(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#506">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            AnyArray::F64(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array_bound(<a href="#493">py</a>, <a href="#507">a</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            array =&gt; <span class="prelude-val">Err</span>(<a href="https://docs.rs/pyo3/0.21/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+                <span class="string">"{class_method} returned unsupported dtype `{}`"</span>,
+                array.dtype(),
+            ))),
         }
     }
 }

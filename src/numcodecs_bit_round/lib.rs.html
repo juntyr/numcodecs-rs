@@ -358,43 +358,6 @@
 <a href="#358" id="358">358</a>
 <a href="#359" id="359">359</a>
 <a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
-<a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a>
-<a href="#367" id="367">367</a>
-<a href="#368" id="368">368</a>
-<a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
-<a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a>
-<a href="#393" id="393">393</a>
-<a href="#394" id="394">394</a>
-<a href="#395" id="395">395</a>
-<a href="#396" id="396">396</a>
-<a href="#397" id="397">397</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -414,127 +377,90 @@
 //!
 //! Bit rounding codec implementation for the [`numcodecs`] API.
 
-</span><span class="kw">use </span>ndarray::{Array, ArrayBase, ArrayViewD, ArrayViewMutD, Data, Dimension};
+</span><span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>};
 <span class="kw">use </span>numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>,
+    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>,
 };
-<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
+<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>};
 <span class="kw">use </span>thiserror::Error;
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize)]
 </span><span class="doccomment">/// Codec providing floating-point [`bit_round`]ing.
-</span><span class="kw">pub struct </span>BitRoundCodec {
+</span><span class="kw">pub struct </span><a href="../../numcodecs_bit_round/struct.BitRoundCodec.html">BitRoundCodec</a> {
     <span class="doccomment">/// The number of bits of the mantissa to keep.
     ///
     /// The valid range depends on the dtype of the input data.
     ///
     /// If keepbits is equal to the bitlength of the dtype's mantissa, no
     /// transformation is performed.
-    </span><span class="kw">pub </span>keepbits: u8,
+    </span><span class="kw">pub </span>keepbits: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>BitRoundCodec {
-    <span class="kw">type </span>Error = BitRoundCodecError;
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#30-38">BitRoundCodec</a> {
+    <span class="kw">type </span>Error = <a href="#86-105">BitRoundCodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>data {
-            AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F32(bit_round(data, <span class="self">self</span>.keepbits)<span class="question-mark">?</span>)),
-            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(bit_round(data, <span class="self">self</span>.keepbits)<span class="question-mark">?</span>)),
-            encoded =&gt; <span class="prelude-val">Err</span>(BitRoundCodecError::UnsupportedDtype(encoded.dtype())),
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span><a href="#43">data</a> {
+            AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#124-163">bit_round</a>(<a href="#45">data</a>, <a class="self" href="#43">self</a>.keepbits)<span class="question-mark">?</span>)),
+            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#124-163">bit_round</a>(<a href="#46">data</a>, <a class="self" href="#43">self</a>.keepbits)<span class="question-mark">?</span>)),
+            encoded =&gt; <span class="prelude-val">Err</span>(<a href="#89">BitRoundCodecError::UnsupportedDtype</a>(<a href="#47">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>encoded {
-            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F32(encoded.into_owned())),
-            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(encoded.into_owned())),
-            encoded =&gt; <span class="prelude-val">Err</span>(BitRoundCodecError::UnsupportedDtype(encoded.dtype())),
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span><a href="#51">encoded</a> {
+            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#53">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
+            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#54">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
+            encoded =&gt; <span class="prelude-val">Err</span>(<a href="#89">BitRoundCodecError::UnsupportedDtype</a>(<a href="#55">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
     <span class="kw">fn </span>decode_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        encoded: AnyArrayView,
-        <span class="kw-2">mut </span>decoded: AnyArrayViewMut,
+        encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
+        <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="kw">fn </span>shape_checked_assign&lt;T: Copy&gt;(
-            encoded: <span class="kw-2">&amp;</span>ArrayViewD&lt;T&gt;,
-            decoded: <span class="kw-2">&amp;mut </span>ArrayViewMutD&lt;T&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), BitRoundCodecError&gt; {
-            <span class="attr">#[allow(clippy::unit_arg)]
-            </span><span class="kw">if </span>encoded.shape() == decoded.shape() {
-                <span class="prelude-val">Ok</span>(decoded.assign(encoded))
-            } <span class="kw">else </span>{
-                <span class="prelude-val">Err</span>(BitRoundCodecError::MismatchedDecodeIntoShape {
-                    decoded: encoded.shape().to_vec(),
-                    provided: decoded.shape().to_vec(),
-                })
-            }
+        <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.dtype(), AnyArrayDType::F32 | AnyArrayDType::F64) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#89">BitRoundCodecError::UnsupportedDtype</a>(<a href="#61">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>()));
         }
 
-        <span class="kw">match </span>(<span class="kw-2">&amp;</span>encoded, <span class="kw-2">&amp;mut </span>decoded) {
-            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F32(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(BitRoundCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F32,
-                provided: decoded.dtype(),
-            }),
-            (AnyArrayView::F64(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(BitRoundCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F64,
-                provided: decoded.dtype(),
-            }),
-            (encoded, _decoded) =&gt; <span class="prelude-val">Err</span>(BitRoundCodecError::UnsupportedDtype(encoded.dtype())),
-        }
+        <span class="prelude-val">Ok</span>(<a href="#62">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#61">encoded</a>)<span class="question-mark">?</span>)
     }
 
-    <span class="kw">fn </span>get_config&lt;S: Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        <span class="self">self</span>.serialize(serializer)
+    <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+        <a class="self" href="#71">self</a>.<a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#71">serializer</a>)
     }
 }
 
-<span class="kw">impl </span>StaticCodec <span class="kw">for </span>BitRoundCodec {
-    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"bit-round"</span>;
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#30-38">BitRoundCodec</a> {
+    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"bit-round"</span>;
 
     <span class="kw">fn </span>from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(config: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        <span class="self">Self</span>::deserialize(config)
+        <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserialize.html#tymethod.deserialize"><span class="self">Self</span>::deserialize</a>(<a href="#79">config</a>)
     }
 }
 
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="doccomment">/// Errors that may occur when applying the [`BitRoundCodec`].
-</span><span class="kw">pub enum </span>BitRoundCodecError {
+</span><span class="kw">pub enum </span><a href="#86-105">BitRoundCodecError</a> {
     <span class="doccomment">/// [`BitRoundCodec`] does not support the dtype
     </span><span class="attr">#[error(<span class="string">"BitRound does not support the dtype {0}"</span>)]
-    </span>UnsupportedDtype(AnyArrayDType),
-    <span class="doccomment">/// [`BitRoundCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    </span><span class="attr">#[error(<span class="string">"BitRound cannot decode the dtype {decoded} into the provided {provided} array"</span>)]
-    </span>MismatchedDecodeIntoDtype {
-        <span class="doccomment">/// Dtype of the `decoded` data
-        </span>decoded: AnyArrayDType,
-        <span class="doccomment">/// Dtype of the `provided` array into which the data is to be decoded
-        </span>provided: AnyArrayDType,
-    },
-    <span class="doccomment">/// [`BitRoundCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    </span><span class="attr">#[error(<span class="string">"BitRound cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}"</span>)]
-    </span>MismatchedDecodeIntoShape {
-        <span class="doccomment">/// Shape of the `decoded` data
-        </span>decoded: Vec&lt;usize&gt;,
-        <span class="doccomment">/// Shape of the `provided` array into which the data is to be decoded
-        </span>provided: Vec&lt;usize&gt;,
-    },
+    </span>UnsupportedDtype(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>),
     <span class="doccomment">/// [`BitRoundCodec`] encode `keepbits` exceed the mantissa size for `dtype`
     </span><span class="attr">#[error(<span class="string">"BitRound encode {keepbits} bits exceed the mantissa size for {dtype}"</span>)]
     </span>ExcessiveKeepBits {
         <span class="doccomment">/// The number of bits of the mantissa to keep
-        </span>keepbits: u8,
+        </span>keepbits: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
         <span class="doccomment">/// The `dtype` of the data to encode
-        </span>dtype: AnyArrayDType,
+        </span>dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+    },
+    <span class="doccomment">/// [`BitRoundCodec`] cannot decode into the provided array
+    </span><span class="attr">#[error(<span class="string">"BitRound cannot decode into the provided array"</span>)]
+    </span>MismatchedDecodeIntoArray {
+        <span class="doccomment">/// The source of the error
+        </span><span class="attr">#[from]
+        </span>source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
     },
 }
 
@@ -555,63 +481,63 @@
 ///
 /// Errors with [`BitRoundCodecError::ExcessiveKeepBits`] if `keepbits` exceeds
 /// [`T::MANITSSA_BITS`][`Float::MANITSSA_BITS`].
-</span><span class="kw">pub fn </span>bit_round&lt;T: Float, S: Data&lt;Elem = T&gt;, D: Dimension&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_bit_round/fn.bit_round.html">bit_round</a>&lt;T: <a href="#166-190">Float</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: ArrayBase&lt;S, D&gt;,
-    keepbits: u8,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, D&gt;, BitRoundCodecError&gt; {
+    keepbits: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, D&gt;, <a href="#86-105">BitRoundCodecError</a>&gt; {
     <span class="kw">if </span>u32::from(keepbits) &gt; T::MANITSSA_BITS {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(BitRoundCodecError::ExcessiveKeepBits {
-            keepbits,
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#92-97">BitRoundCodecError::ExcessiveKeepBits</a> {
+            <a href="#126">keepbits</a>,
             dtype: T::TY,
         });
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>encoded = data.into_owned();
+    <span class="kw">let </span><span class="kw-2">mut </span>encoded = <a href="#125">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
 
     <span class="comment">// Early return if no bit rounding needs to happen
     // - required since the ties to even impl does not work in this case
     </span><span class="kw">if </span>u32::from(keepbits) == T::MANITSSA_BITS {
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(encoded);
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<a href="#135">encoded</a>);
     }
 
     <span class="comment">// half of unit in last place (ulp)
-    </span><span class="kw">let </span>ulp_half = T::MANTISSA_MASK &gt;&gt; (u32::from(keepbits) + <span class="number">1</span>);
+    </span><span class="kw">let </span>ulp_half = T::MANTISSA_MASK &gt;&gt; (<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u32::from</a>(<a href="#126">keepbits</a>) + <span class="number">1</span>);
     <span class="comment">// mask to zero out trailing mantissa bits
-    </span><span class="kw">let </span>keep_mask = !(T::MANTISSA_MASK &gt;&gt; u32::from(keepbits));
+    </span><span class="kw">let </span>keep_mask = !(T::MANTISSA_MASK &gt;&gt; <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u32::from</a>(<a href="#126">keepbits</a>));
     <span class="comment">// shift to extract the least significant bit of the exponent
-    </span><span class="kw">let </span>shift = T::MANITSSA_BITS - u32::from(keepbits);
+    </span><span class="kw">let </span>shift = T::MANITSSA_BITS - <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u32::from</a>(<a href="#126">keepbits</a>);
 
-    encoded.mapv_inplace(|x| {
-        <span class="kw">let </span><span class="kw-2">mut </span>bits = T::to_binary(x);
+    <a href="#135">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(|x| {
+        <span class="kw">let </span><span class="kw-2">mut </span>bits = <a href="#187">T::to_binary</a>(<a href="#150">x</a>);
 
         <span class="comment">// add ulp/2 with ties to even
-        </span>bits += ulp_half + ((bits &gt;&gt; shift) &amp; T::BINARY_ONE);
+        </span><a href="#151">bits</a> += <a href="#144">ulp_half</a> + ((<a href="#151">bits</a> &gt;&gt; <a href="#148">shift</a>) &amp; T::BINARY_ONE);
 
         <span class="comment">// set the trailing bits to zero
-        </span>bits &amp;= keep_mask;
+        </span><a href="#151">bits</a> &amp;= <a href="#146">keep_mask</a>;
 
-        T::from_binary(bits)
+        <a href="#189">T::from_binary</a>(<a href="#151">bits</a>)
     });
 
-    <span class="prelude-val">Ok</span>(encoded)
+    <span class="prelude-val">Ok</span>(<a href="#135">encoded</a>)
 }
 
 <span class="doccomment">/// Floating point types.
-</span><span class="kw">pub trait </span>Float: Sized + Copy {
+</span><span class="kw">pub trait </span><a href="../../numcodecs_bit_round/trait.Float.html">Float</a>: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html">Sized</a> + <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a> {
     <span class="doccomment">/// Number of significant digits in base 2
-    </span><span class="kw">const </span>MANITSSA_BITS: u32;
+    </span><span class="kw">const </span>MANITSSA_BITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
     <span class="doccomment">/// Binary mask to extract only the mantissa bits
     </span><span class="kw">const </span>MANTISSA_MASK: <span class="self">Self</span>::Binary;
     <span class="doccomment">/// Binary `0x1`
     </span><span class="kw">const </span>BINARY_ONE: <span class="self">Self</span>::Binary;
 
     <span class="doccomment">/// Dtype of this type
-    </span><span class="kw">const </span>TY: AnyArrayDType;
+    </span><span class="kw">const </span>TY: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>;
 
     <span class="doccomment">/// Binary representation of this type
-    </span><span class="kw">type </span>Binary: Copy
+    </span><span class="kw">type </span>Binary: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>
         + std::ops::Not&lt;Output = <span class="self">Self</span>::Binary&gt;
-        + std::ops::Shr&lt;u32, Output = <span class="self">Self</span>::Binary&gt;
+        + std::ops::Shr&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, Output = <span class="self">Self</span>::Binary&gt;
         + std::ops::Add&lt;<span class="self">Self</span>::Binary, Output = <span class="self">Self</span>::Binary&gt;
         + std::ops::AddAssign&lt;<span class="self">Self</span>::Binary&gt;
         + std::ops::BitAnd&lt;<span class="self">Self</span>::Binary, Output = <span class="self">Self</span>::Binary&gt;
@@ -623,37 +549,37 @@
     </span><span class="kw">fn </span>from_binary(u: <span class="self">Self</span>::Binary) -&gt; <span class="self">Self</span>;
 }
 
-<span class="kw">impl </span>Float <span class="kw">for </span>f32 {
-    <span class="kw">type </span>Binary = u32;
+<span class="kw">impl </span><a href="#166-190">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
+    <span class="kw">type </span>Binary = <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
 
     <span class="kw">const </span>BINARY_ONE: <span class="self">Self</span>::Binary = <span class="number">1</span>;
-    <span class="kw">const </span>MANITSSA_BITS: u32 = <span class="self">Self</span>::MANTISSA_DIGITS - <span class="number">1</span>;
+    <span class="kw">const </span>MANITSSA_BITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> = <span class="self">Self</span>::MANTISSA_DIGITS - <span class="number">1</span>;
     <span class="kw">const </span>MANTISSA_MASK: <span class="self">Self</span>::Binary = (<span class="number">1 </span>&lt;&lt; <span class="self">Self</span>::MANITSSA_BITS) - <span class="number">1</span>;
-    <span class="kw">const </span>TY: AnyArrayDType = AnyArrayDType::F32;
+    <span class="kw">const </span>TY: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a> = <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F32">AnyArrayDType::F32</a>;
 
     <span class="kw">fn </span>to_binary(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Binary {
-        <span class="self">self</span>.to_bits()
+        <a class="self" href="#200">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.to_bits">to_bits</a>()
     }
 
     <span class="kw">fn </span>from_binary(u: <span class="self">Self</span>::Binary) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::from_bits(u)
+        <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<a href="#204">u</a>)
     }
 }
 
-<span class="kw">impl </span>Float <span class="kw">for </span>f64 {
-    <span class="kw">type </span>Binary = u64;
+<span class="kw">impl </span><a href="#166-190">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
+    <span class="kw">type </span>Binary = <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>;
 
     <span class="kw">const </span>BINARY_ONE: <span class="self">Self</span>::Binary = <span class="number">1</span>;
-    <span class="kw">const </span>MANITSSA_BITS: u32 = <span class="self">Self</span>::MANTISSA_DIGITS - <span class="number">1</span>;
+    <span class="kw">const </span>MANITSSA_BITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> = <span class="self">Self</span>::MANTISSA_DIGITS - <span class="number">1</span>;
     <span class="kw">const </span>MANTISSA_MASK: <span class="self">Self</span>::Binary = (<span class="number">1 </span>&lt;&lt; <span class="self">Self</span>::MANITSSA_BITS) - <span class="number">1</span>;
-    <span class="kw">const </span>TY: AnyArrayDType = AnyArrayDType::F64;
+    <span class="kw">const </span>TY: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a> = <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F64">AnyArrayDType::F64</a>;
 
     <span class="kw">fn </span>to_binary(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Binary {
-        <span class="self">self</span>.to_bits()
+        <a class="self" href="#217">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_bits">to_bits</a>()
     }
 
     <span class="kw">fn </span>from_binary(u: <span class="self">Self</span>::Binary) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::from_bits(u)
+        <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<a href="#221">u</a>)
     }
 }
 

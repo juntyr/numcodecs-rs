@@ -71,68 +71,6 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -152,120 +90,58 @@
 //!
 //! Identity codec implementation for the [`numcodecs`] API.
 
-</span><span class="kw">use </span>ndarray::{ArrayViewD, ArrayViewMutD};
-<span class="kw">use </span>numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+</span><span class="kw">use </span>numcodecs::{
+    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>,
 };
-<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
+<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>};
 <span class="kw">use </span>thiserror::Error;
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize)]
 </span><span class="doccomment">/// Identity codec which applies the identity function, i.e. passes through the
 /// input unchanged during encoding and decoding.
-</span><span class="kw">pub struct </span>IdentityCodec;
+</span><span class="kw">pub struct </span><a href="../../numcodecs_identity/struct.IdentityCodec.html">IdentityCodec</a>;
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>IdentityCodec {
-    <span class="kw">type </span>Error = IdentityCodecError;
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#29">IdentityCodec</a> {
+    <span class="kw">type </span>Error = <a href="#65-73">IdentityCodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(data.into_owned())
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="prelude-val">Ok</span>(<a href="#34">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.into_owned">into_owned</a>())
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(encoded.into_owned())
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="prelude-val">Ok</span>(<a href="#38">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.into_owned">into_owned</a>())
     }
 
     <span class="kw">fn </span>decode_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        encoded: AnyArrayView,
-        <span class="kw-2">mut </span>decoded: AnyArrayViewMut,
+        encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
+        <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="kw">fn </span>shape_checked_assign&lt;T: Copy&gt;(
-            encoded: <span class="kw-2">&amp;</span>ArrayViewD&lt;T&gt;,
-            decoded: <span class="kw-2">&amp;mut </span>ArrayViewMutD&lt;T&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), IdentityCodecError&gt; {
-            <span class="attr">#[allow(clippy::unit_arg)]
-            </span><span class="kw">if </span>encoded.shape() == decoded.shape() {
-                <span class="prelude-val">Ok</span>(decoded.assign(encoded))
-            } <span class="kw">else </span>{
-                <span class="prelude-val">Err</span>(IdentityCodecError::MismatchedDecodeIntoShape {
-                    decoded: encoded.shape().to_vec(),
-                    provided: decoded.shape().to_vec(),
-                })
-            }
-        }
-
-        <span class="kw">match </span>(<span class="kw-2">&amp;</span>encoded, <span class="kw-2">&amp;mut </span>decoded) {
-            (AnyArrayView::U8(encoded), AnyArrayViewMut::U8(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::U16(encoded), AnyArrayViewMut::U16(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::U32(encoded), AnyArrayViewMut::U32(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::U64(encoded), AnyArrayViewMut::U64(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::I8(encoded), AnyArrayViewMut::I8(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::I16(encoded), AnyArrayViewMut::I16(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::I32(encoded), AnyArrayViewMut::I32(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::I64(encoded), AnyArrayViewMut::I64(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (encoded, decoded) =&gt; <span class="prelude-val">Err</span>(IdentityCodecError::MismatchedDecodeIntoDtype {
-                decoded: encoded.dtype(),
-                provided: decoded.dtype(),
-            }),
-        }
+        <span class="prelude-val">Ok</span>(<a href="#45">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#44">encoded</a>)<span class="question-mark">?</span>)
     }
 
-    <span class="kw">fn </span>get_config&lt;S: Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        <span class="self">self</span>.serialize(serializer)
+    <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+        <a class="self" href="#50">self</a>.<a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#50">serializer</a>)
     }
 }
 
-<span class="kw">impl </span>StaticCodec <span class="kw">for </span>IdentityCodec {
-    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"identity"</span>;
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#29">IdentityCodec</a> {
+    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"identity"</span>;
 
     <span class="kw">fn </span>from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(config: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        <span class="self">Self</span>::deserialize(config)
+        <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserialize.html#tymethod.deserialize"><span class="self">Self</span>::deserialize</a>(<a href="#58">config</a>)
     }
 }
 
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="doccomment">/// Errors that may occur when applying the [`IdentityCodec`].
-</span><span class="kw">pub enum </span>IdentityCodecError {
-    <span class="doccomment">/// [`IdentityCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    </span><span class="attr">#[error(<span class="string">"Identity cannot decode the dtype {decoded} into the provided {provided} array"</span>)]
-    </span>MismatchedDecodeIntoDtype {
-        <span class="doccomment">/// Dtype of the `decoded` data
-        </span>decoded: AnyArrayDType,
-        <span class="doccomment">/// Dtype of the `provided` array into which the data is to be decoded
-        </span>provided: AnyArrayDType,
-    },
-    <span class="doccomment">/// [`IdentityCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    </span><span class="attr">#[error(<span class="string">"Identity cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}"</span>)]
-    </span>MismatchedDecodeIntoShape {
-        <span class="doccomment">/// Shape of the `decoded` data
-        </span>decoded: Vec&lt;usize&gt;,
-        <span class="doccomment">/// Shape of the `provided` array into which the data is to be decoded
-        </span>provided: Vec&lt;usize&gt;,
+</span><span class="kw">pub enum </span><a href="#65-73">IdentityCodecError</a> {
+    <span class="doccomment">/// [`IdentityCodec`] cannot decode into the provided array
+    </span><span class="attr">#[error(<span class="string">"Identity cannot decode into the provided array"</span>)]
+    </span>MismatchedDecodeIntoArray {
+        <span class="doccomment">/// The source of the error
+        </span><span class="attr">#[from]
+        </span>source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
     },
 }
 </code></pre></div></section></main></body></html>

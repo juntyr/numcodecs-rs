@@ -66,18 +66,18 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>pyo3::{intern, prelude::<span class="kw-2">*</span>, sync::GILOnceCell, types::PyDict};
+</pre></div><pre class="rust"><code><span class="kw">use </span>pyo3::{<a href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/prelude/index.html">prelude</a>::<span class="kw-2">*</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html">sync::GILOnceCell</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">types::PyDict</a>};
 
 <span class="attr">#[allow(unused_imports)] </span><span class="comment">// FIXME: use expect, only used in docs
-</span><span class="kw">use </span><span class="kw">crate</span>::PyCodecClassMethods;
-<span class="kw">use crate</span>::{PyCodec, PyCodecClass};
+</span><span class="kw">use </span><a href="codec_class.rs.html#22-39"><span class="kw">crate</span>::PyCodecClassMethods</a>;
+<span class="kw">use crate</span>::{<a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>};
 
 <span class="doccomment">/// Dynamic registry of codec classes.
-</span><span class="kw">pub struct </span>PyCodecRegistry {
+</span><span class="kw">pub struct </span><a href="../../numcodecs_python/struct.PyCodecRegistry.html">PyCodecRegistry</a> {
     _private: (),
 }
 
-<span class="kw">impl </span>PyCodecRegistry {
+<span class="kw">impl </span><a href="#8-10">PyCodecRegistry</a> {
     <span class="doccomment">/// Instantiate a codec from a configuration dictionary.
     ///
     /// The config must include the `id` field with the
@@ -87,19 +87,19 @@
     ///
     /// Errors if no codec with a matching `id` has been registered, or if
     /// constructing the codec fails.
-    </span><span class="kw">pub fn </span>get_codec&lt;<span class="lifetime">'py</span>&gt;(config: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyDict&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyCodec&gt;, PyErr&gt; {
-        <span class="kw">static </span>GET_CODEC: GILOnceCell&lt;Py&lt;PyAny&gt;&gt; = GILOnceCell::new();
+    </span><span class="kw">pub fn </span>get_codec&lt;<span class="lifetime">'py</span>&gt;(config: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="codec.rs.html#20-22">PyCodec</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">static </span>GET_CODEC: GILOnceCell&lt;Py&lt;<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;&gt; = <a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html#method.new">GILOnceCell::new</a>();
 
-        <span class="kw">let </span>py = config.py();
+        <span class="kw">let </span>py = <a href="#22">config</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.py">py</a>();
 
-        <span class="kw">let </span>get_codec = GET_CODEC.get_or_try_init(py, || -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, PyErr&gt; {
-            <span class="prelude-val">Ok</span>(py
-                .import_bound(<span class="macro">intern!</span>(py, <span class="string">"numcodecs.registry"</span>))<span class="question-mark">?
-                </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"get_codec"</span>))<span class="question-mark">?
-                </span>.unbind())
+        <span class="kw">let </span>get_codec = <a href="#23">GET_CODEC</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html#method.get_or_try_init">get_or_try_init</a>(<a href="#25">py</a>, || -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+            <span class="prelude-val">Ok</span>(<a href="#25">py</a>
+                .<a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html#method.import_bound">import_bound</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"numcodecs.registry"</span>))<span class="question-mark">?
+                </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"get_codec"</span>))<span class="question-mark">?
+                </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.unbind">unbind</a>())
         })<span class="question-mark">?</span>;
 
-        get_codec.call1(py, (config,))<span class="question-mark">?</span>.extract(py)
+        <a href="#27">get_codec</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.call1">call1</a>(<a href="#25">py</a>, (<a href="#22">config</a>,))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.extract">extract</a>(<a href="#25">py</a>)
     }
 
     <span class="doccomment">/// Register a codec class.
@@ -115,21 +115,21 @@
     ///
     /// Errors if registering the codec class fails.
     </span><span class="kw">pub fn </span>register_codec(
-        class: Borrowed&lt;PyCodecClass&gt;,
-        codec_id: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), PyErr&gt; {
-        <span class="kw">static </span>REGISTER_CODEC: GILOnceCell&lt;Py&lt;PyAny&gt;&gt; = GILOnceCell::new();
+        class: Borrowed&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt;,
+        codec_id: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">static </span>REGISTER_CODEC: GILOnceCell&lt;Py&lt;<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;&gt; = <a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html#method.new">GILOnceCell::new</a>();
 
-        <span class="kw">let </span>py = class.py();
+        <span class="kw">let </span>py = <a href="#50">class</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.py">py</a>();
 
-        <span class="kw">let </span>register_codec = REGISTER_CODEC.get_or_try_init(py, || -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, PyErr&gt; {
-            <span class="prelude-val">Ok</span>(py
-                .import_bound(<span class="macro">intern!</span>(py, <span class="string">"numcodecs.registry"</span>))<span class="question-mark">?
-                </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"register_codec"</span>))<span class="question-mark">?
-                </span>.unbind())
+        <span class="kw">let </span>register_codec = <a href="#53">REGISTER_CODEC</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html#method.get_or_try_init">get_or_try_init</a>(<a href="#55">py</a>, || -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+            <span class="prelude-val">Ok</span>(<a href="#55">py</a>
+                .<a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html#method.import_bound">import_bound</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"numcodecs.registry"</span>))<span class="question-mark">?
+                </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"register_codec"</span>))<span class="question-mark">?
+                </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.unbind">unbind</a>())
         })<span class="question-mark">?</span>;
 
-        register_codec.call1(py, (class, codec_id))<span class="question-mark">?</span>;
+        <a href="#57">register_codec</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.call1">call1</a>(<a href="#55">py</a>, (<a href="#50">class</a>, <a href="#51">codec_id</a>))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }

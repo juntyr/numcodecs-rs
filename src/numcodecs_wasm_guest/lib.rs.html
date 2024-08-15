@@ -171,10 +171,10 @@
 
 </span><span class="comment">// Required in docs and the [`export_codec`] macro
 </span><span class="attr">#[doc(hidden)]
-</span><span class="kw">pub use </span>numcodecs;
+</span><span class="kw">pub use </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/index.html">numcodecs</a>;
 
 <span class="attr">#[cfg(doc)]
-</span><span class="kw">use </span>numcodecs::StaticCodec;
+</span><span class="kw">use </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">numcodecs::StaticCodec</a>;
 
 <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
 </span><span class="kw">use </span>::{
@@ -221,7 +221,7 @@
 ///
 /// export_codec!(MyCodec);
 /// ```
-</span><span class="macro">macro_rules!</span> export_codec {
+</span><span class="macro">macro_rules!</span> <a href="../../numcodecs_wasm_guest/macro.export_codec.html">export_codec</a> {
     (<span class="macro-nonterminal">$codec</span>:ident) =&gt; {
         <span class="kw">const _</span>: () = {
             <span class="kw">const fn </span>can_only_export_static_codec&lt;T: <span class="macro-nonterminal">$crate::numcodecs::StaticCodec</span>&gt;() {}

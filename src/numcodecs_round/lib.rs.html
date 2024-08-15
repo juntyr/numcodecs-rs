@@ -158,43 +158,6 @@
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -214,13 +177,14 @@
 //!
 //! Rounding codec implementation for the [`numcodecs`] API.
 
-</span><span class="kw">use </span>std::ops::{Div, Mul};
+</span><span class="kw">use </span>std::ops::{<a href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Div.html">Div</a>, <a href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Mul.html">Mul</a>};
 
-<span class="kw">use </span>ndarray::{Array, ArrayBase, ArrayViewD, ArrayViewMutD, Data, Dimension};
+<span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>};
 <span class="kw">use </span>numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>,
+    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>,
 };
-<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
+<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>};
 <span class="kw">use </span>thiserror::Error;
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize)]
@@ -228,106 +192,79 @@
 /// unchanged during decoding.
 ///
 /// The codec only supports floating point data.
-</span><span class="kw">pub struct </span>RoundCodec {
+</span><span class="kw">pub struct </span><a href="../../numcodecs_round/struct.RoundCodec.html">RoundCodec</a> {
     <span class="doccomment">/// Precision of the rounding operation
-    </span><span class="kw">pub </span>precision: Positive&lt;f64&gt;,
+    </span><span class="kw">pub </span>precision: Positive&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>RoundCodec {
-    <span class="kw">type </span>Error = RoundCodecError;
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#35-38">RoundCodec</a> {
+    <span class="kw">type </span>Error = <a href="#116-127">RoundCodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>data {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span><a href="#43">data</a> {
             <span class="attr">#[allow(clippy::cast_possible_truncation)]
-            </span>AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F32(round(
-                data,
-                Positive(<span class="self">self</span>.precision.<span class="number">0 </span><span class="kw">as </span>f32),
+            </span>AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#131-138">round</a>(
+                <a href="#46">data</a>,
+                <a href="#91">Positive</a>(<a class="self" href="#43">self</a>.precision.<span class="number">0 </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>),
             ))),
-            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(round(data, <span class="self">self</span>.precision))),
-            encoded =&gt; <span class="prelude-val">Err</span>(RoundCodecError::UnsupportedDtype(encoded.dtype())),
+            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#131-138">round</a>(<a href="#50">data</a>, <a class="self" href="#43">self</a>.precision))),
+            encoded =&gt; <span class="prelude-val">Err</span>(<a href="#119">RoundCodecError::UnsupportedDtype</a>(<a href="#51">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>encoded {
-            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F32(encoded.into_owned())),
-            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(encoded.into_owned())),
-            encoded =&gt; <span class="prelude-val">Err</span>(RoundCodecError::UnsupportedDtype(encoded.dtype())),
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span><a href="#55">encoded</a> {
+            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#57">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
+            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#58">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
+            encoded =&gt; <span class="prelude-val">Err</span>(<a href="#119">RoundCodecError::UnsupportedDtype</a>(<a href="#59">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
     <span class="kw">fn </span>decode_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        encoded: AnyArrayView,
-        <span class="kw-2">mut </span>decoded: AnyArrayViewMut,
+        encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
+        <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="kw">fn </span>shape_checked_assign&lt;T: Copy&gt;(
-            encoded: <span class="kw-2">&amp;</span>ArrayViewD&lt;T&gt;,
-            decoded: <span class="kw-2">&amp;mut </span>ArrayViewMutD&lt;T&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), RoundCodecError&gt; {
-            <span class="attr">#[allow(clippy::unit_arg)]
-            </span><span class="kw">if </span>encoded.shape() == decoded.shape() {
-                <span class="prelude-val">Ok</span>(decoded.assign(encoded))
-            } <span class="kw">else </span>{
-                <span class="prelude-val">Err</span>(RoundCodecError::MismatchedDecodeIntoShape {
-                    decoded: encoded.shape().to_vec(),
-                    provided: decoded.shape().to_vec(),
-                })
-            }
+        <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.dtype(), AnyArrayDType::F32 | AnyArrayDType::F64) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#119">RoundCodecError::UnsupportedDtype</a>(<a href="#65">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>()));
         }
 
-        <span class="kw">match </span>(<span class="kw-2">&amp;</span>encoded, <span class="kw-2">&amp;mut </span>decoded) {
-            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F32(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(RoundCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F32,
-                provided: decoded.dtype(),
-            }),
-            (AnyArrayView::F64(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(RoundCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F64,
-                provided: decoded.dtype(),
-            }),
-            (encoded, _decoded) =&gt; <span class="prelude-val">Err</span>(RoundCodecError::UnsupportedDtype(encoded.dtype())),
-        }
+        <span class="prelude-val">Ok</span>(<a href="#66">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#65">encoded</a>)<span class="question-mark">?</span>)
     }
 
-    <span class="kw">fn </span>get_config&lt;S: Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        <span class="self">self</span>.serialize(serializer)
+    <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+        <a class="self" href="#75">self</a>.<a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#75">serializer</a>)
     }
 }
 
-<span class="kw">impl </span>StaticCodec <span class="kw">for </span>RoundCodec {
-    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"round"</span>;
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#35-38">RoundCodec</a> {
+    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"round"</span>;
 
     <span class="kw">fn </span>from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(config: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        <span class="self">Self</span>::deserialize(config)
+        <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserialize.html#tymethod.deserialize"><span class="self">Self</span>::deserialize</a>(<a href="#83">config</a>)
     }
 }
 
 <span class="attr">#[allow(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 </span><span class="doccomment">/// Positive floating point number
-</span><span class="kw">pub struct </span>Positive&lt;T: Float&gt;(T);
+</span><span class="kw">pub struct </span><a href="../../numcodecs_round/struct.Positive.html">Positive</a>&lt;T: <a href="#141-148">Float</a>&gt;(T);
 
-<span class="kw">impl </span>serde::Serialize <span class="kw">for </span>Positive&lt;f64&gt; {
-    <span class="kw">fn </span>serialize&lt;S: serde::Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        serializer.serialize_f64(<span class="self">self</span>.<span class="number">0</span>)
+<span class="kw">impl </span><a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serialize.html">serde::Serialize</a> <span class="kw">for </span>Positive&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
+    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">serde::Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+        <a href="#94">serializer</a>.<a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html#tymethod.serialize_f64">serialize_f64</a>(<a class="self" href="#94">self</a>.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Positive&lt;f64&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Positive&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
     <span class="kw">fn </span>deserialize&lt;D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        <span class="kw">let </span>x = f64::deserialize(deserializer)<span class="question-mark">?</span>;
+        <span class="kw">let </span>x = <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserialize.html#tymethod.deserialize">f64::deserialize</a>(<a href="#100">deserializer</a>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>x &gt; <span class="number">0.0 </span>{
-            <span class="prelude-val">Ok</span>(<span class="self">Self</span>(x))
+            <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<a href="#101">x</a>))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(serde::de::Error::invalid_value(
-                serde::de::Unexpected::Float(x),
+            <span class="prelude-val">Err</span>(<a href="https://docs.rs/serde/1.0.207/serde/de/trait.Error.html#tymethod.invalid_value">serde::de::Error::invalid_value</a>(
+                <a href="https://docs.rs/serde/1.0.207/serde/de/enum.Unexpected.html#variant.Float">serde::de::Unexpected::Float</a>(<a href="#101">x</a>),
                 <span class="kw-2">&amp;</span><span class="string">"a positive value"</span>,
             ))
         }
@@ -336,43 +273,32 @@
 
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="doccomment">/// Errors that may occur when applying the [`RoundCodec`].
-</span><span class="kw">pub enum </span>RoundCodecError {
+</span><span class="kw">pub enum </span><a href="#116-127">RoundCodecError</a> {
     <span class="doccomment">/// [`RoundCodec`] does not support the dtype
     </span><span class="attr">#[error(<span class="string">"Round does not support the dtype {0}"</span>)]
-    </span>UnsupportedDtype(AnyArrayDType),
-    <span class="doccomment">/// [`RoundCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    </span><span class="attr">#[error(<span class="string">"Round cannot decode the dtype {decoded} into the provided {provided} array"</span>)]
-    </span>MismatchedDecodeIntoDtype {
-        <span class="doccomment">/// Dtype of the `decoded` data
-        </span>decoded: AnyArrayDType,
-        <span class="doccomment">/// Dtype of the `provided` array into which the data is to be decoded
-        </span>provided: AnyArrayDType,
-    },
-    <span class="doccomment">/// [`RoundCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    </span><span class="attr">#[error(<span class="string">"Round cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}"</span>)]
-    </span>MismatchedDecodeIntoShape {
-        <span class="doccomment">/// Shape of the `decoded` data
-        </span>decoded: Vec&lt;usize&gt;,
-        <span class="doccomment">/// Shape of the `provided` array into which the data is to be decoded
-        </span>provided: Vec&lt;usize&gt;,
+    </span>UnsupportedDtype(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>),
+    <span class="doccomment">/// [`RoundCodec`] cannot decode into the provided array
+    </span><span class="attr">#[error(<span class="string">"Round cannot decode into the provided array"</span>)]
+    </span>MismatchedDecodeIntoArray {
+        <span class="doccomment">/// The source of the error
+        </span><span class="attr">#[from]
+        </span>source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
     },
 }
 
 <span class="attr">#[must_use]
 </span><span class="doccomment">/// Rounds the input `data` using `c = round(x / precision) * precision`
-</span><span class="kw">pub fn </span>round&lt;T: Float, S: Data&lt;Elem = T&gt;, D: Dimension&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_round/fn.round.html">round</a>&lt;T: <a href="#141-148">Float</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: ArrayBase&lt;S, D&gt;,
     precision: Positive&lt;T&gt;,
 ) -&gt; Array&lt;T, D&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>encoded = data.into_owned();
-    encoded.mapv_inplace(|x| (x / precision.<span class="number">0</span>).round() * precision.<span class="number">0</span>);
-    encoded
+    <span class="kw">let </span><span class="kw-2">mut </span>encoded = <a href="#132">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
+    <a href="#135">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(|x| (<a href="#136">x</a> / <a href="#133">precision</a>.<span class="number">0</span>).<a href="#147">round</a>() * <a href="#133">precision</a>.<span class="number">0</span>);
+    <a href="#135">encoded</a>
 }
 
 <span class="doccomment">/// Floating point types
-</span><span class="kw">pub trait </span>Float: Copy + Mul&lt;<span class="self">Self</span>, Output = <span class="self">Self</span>&gt; + Div&lt;<span class="self">Self</span>, Output = <span class="self">Self</span>&gt; {
+</span><span class="kw">pub trait </span><a href="../../numcodecs_round/trait.Float.html">Float</a>: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a> + Mul&lt;<span class="self">Self</span>, Output = <span class="self">Self</span>&gt; + Div&lt;<span class="self">Self</span>, Output = <span class="self">Self</span>&gt; {
     <span class="attr">#[must_use]
     </span><span class="doccomment">/// Returns the nearest integer to `self`. If a value is half-way between
     /// two integers, round away from 0.0.
@@ -381,15 +307,15 @@
     </span><span class="kw">fn </span>round(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
 }
 
-<span class="kw">impl </span>Float <span class="kw">for </span>f32 {
+<span class="kw">impl </span><a href="#141-148">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
     <span class="kw">fn </span>round(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::round(<span class="self">self</span>)
+        <a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.round"><span class="self">Self</span>::round</a>(<a class="self" href="#151">self</a>)
     }
 }
 
-<span class="kw">impl </span>Float <span class="kw">for </span>f64 {
+<span class="kw">impl </span><a href="#141-148">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
     <span class="kw">fn </span>round(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::round(<span class="self">self</span>)
+        <a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.round"><span class="self">Self</span>::round</a>(<a class="self" href="#157">self</a>)
     }
 }
 </code></pre></div></section></main></body></html>

@@ -185,47 +185,6 @@
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -245,137 +204,96 @@
 //!
 //! Uniform noise codec implementation for the [`numcodecs`] API.
 
-</span><span class="kw">use </span>std::hash::{Hash, Hasher};
+</span><span class="kw">use </span>std::hash::{<a href="https://doc.rust-lang.org/nightly/core/hash/macros/derive.Hash.html">Hash</a>, <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>};
 
-<span class="kw">use </span>ndarray::{Array, ArrayBase, ArrayViewD, ArrayViewMutD, Data, Dimension};
+<span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>};
 <span class="kw">use </span>numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>,
+    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>,
 };
 <span class="kw">use </span>rand::{
-    distributions::{Distribution, Open01},
-    SeedableRng,
+    distributions::{<a href="https://rust-random.github.io/rand/rand/distributions/distribution/trait.Distribution.html">Distribution</a>, <a href="https://rust-random.github.io/rand/rand/distributions/float/struct.Open01.html">Open01</a>},
+    <a href="https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html">SeedableRng</a>,
 };
-<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
+<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>};
 <span class="kw">use </span>thiserror::Error;
-<span class="kw">use </span>wyhash::{WyHash, WyRng};
+<span class="kw">use </span>wyhash::{<a href="https://docs.rs/wyhash/0.5.0/wyhash/traits/struct.WyHash.html">WyHash</a>, <a href="https://docs.rs/wyhash/0.5.0/wyhash/traits/struct.WyRng.html">WyRng</a>};
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize)]
 </span><span class="doccomment">/// Codec that adds `seed`ed uniform noise of the given `scale` and with
 /// [`add_uniform_noise`] during encoding and passes through the input unchanged
 /// during decoding.
-</span><span class="kw">pub struct </span>UniformNoiseCodec {
+</span><span class="kw">pub struct </span><a href="../../numcodecs_uniform_noise/struct.UniformNoiseCodec.html">UniformNoiseCodec</a> {
     <span class="doccomment">/// Scale of the uniform noise, which is sampled from
     /// `U(-scale/2, +scale/2)`
-    </span><span class="kw">pub </span>scale: f64,
+    </span><span class="kw">pub </span>scale: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
     <span class="doccomment">/// Seed for the random noise generator
-    </span><span class="kw">pub </span>seed: u64,
+    </span><span class="kw">pub </span>seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>UniformNoiseCodec {
-    <span class="kw">type </span>Error = UniformNoiseCodecError;
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#39-45">UniformNoiseCodec</a> {
+    <span class="kw">type </span>Error = <a href="#100-111">UniformNoiseCodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>data {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span><a href="#50">data</a> {
             <span class="attr">#[allow(clippy::cast_possible_truncation)]
-            </span>AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F32(add_uniform_noise(
-                data,
-                <span class="self">self</span>.scale <span class="kw">as </span>f32,
-                <span class="self">self</span>.seed,
+            </span>AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#120-150">add_uniform_noise</a>(
+                <a href="#53">data</a>,
+                <a class="self" href="#50">self</a>.scale <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>,
+                <a class="self" href="#50">self</a>.seed,
             ))),
-            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(add_uniform_noise(
-                data, <span class="self">self</span>.scale, <span class="self">self</span>.seed,
+            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#120-150">add_uniform_noise</a>(
+                <a href="#58">data</a>, <a class="self" href="#50">self</a>.scale, <a class="self" href="#50">self</a>.seed,
             ))),
-            encoded =&gt; <span class="prelude-val">Err</span>(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
+            encoded =&gt; <span class="prelude-val">Err</span>(<a href="#103">UniformNoiseCodecError::UnsupportedDtype</a>(<a href="#61">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>encoded {
-            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F32(encoded.into_owned())),
-            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(AnyArray::F64(encoded.into_owned())),
-            encoded =&gt; <span class="prelude-val">Err</span>(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span><a href="#65">encoded</a> {
+            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#67">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
+            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#68">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
+            encoded =&gt; <span class="prelude-val">Err</span>(<a href="#103">UniformNoiseCodecError::UnsupportedDtype</a>(<a href="#69">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
     <span class="kw">fn </span>decode_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        encoded: AnyArrayView,
-        <span class="kw-2">mut </span>decoded: AnyArrayViewMut,
+        encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
+        <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="kw">fn </span>shape_checked_assign&lt;T: Copy&gt;(
-            encoded: <span class="kw-2">&amp;</span>ArrayViewD&lt;T&gt;,
-            decoded: <span class="kw-2">&amp;mut </span>ArrayViewMutD&lt;T&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), UniformNoiseCodecError&gt; {
-            <span class="attr">#[allow(clippy::unit_arg)]
-            </span><span class="kw">if </span>encoded.shape() == decoded.shape() {
-                <span class="prelude-val">Ok</span>(decoded.assign(encoded))
-            } <span class="kw">else </span>{
-                <span class="prelude-val">Err</span>(UniformNoiseCodecError::MismatchedDecodeIntoShape {
-                    decoded: encoded.shape().to_vec(),
-                    provided: decoded.shape().to_vec(),
-                })
-            }
+        <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.dtype(), AnyArrayDType::F32 | AnyArrayDType::F64) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#103">UniformNoiseCodecError::UnsupportedDtype</a>(<a href="#75">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>()));
         }
 
-        <span class="kw">match </span>(<span class="kw-2">&amp;</span>encoded, <span class="kw-2">&amp;mut </span>decoded) {
-            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) =&gt; {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F32(<span class="kw">_</span>), decoded) =&gt; {
-                <span class="prelude-val">Err</span>(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
-                    decoded: AnyArrayDType::F32,
-                    provided: decoded.dtype(),
-                })
-            }
-            (AnyArrayView::F64(<span class="kw">_</span>), decoded) =&gt; {
-                <span class="prelude-val">Err</span>(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
-                    decoded: AnyArrayDType::F64,
-                    provided: decoded.dtype(),
-                })
-            }
-            (encoded, _decoded) =&gt; <span class="prelude-val">Err</span>(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
-        }
+        <span class="prelude-val">Ok</span>(<a href="#76">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#75">encoded</a>)<span class="question-mark">?</span>)
     }
 
-    <span class="kw">fn </span>get_config&lt;S: Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        <span class="self">self</span>.serialize(serializer)
+    <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+        <a class="self" href="#85">self</a>.<a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#85">serializer</a>)
     }
 }
 
-<span class="kw">impl </span>StaticCodec <span class="kw">for </span>UniformNoiseCodec {
-    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"uniform-noise"</span>;
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#39-45">UniformNoiseCodec</a> {
+    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"uniform-noise"</span>;
 
     <span class="kw">fn </span>from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(config: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        <span class="self">Self</span>::deserialize(config)
+        <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserialize.html#tymethod.deserialize"><span class="self">Self</span>::deserialize</a>(<a href="#93">config</a>)
     }
 }
 
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="doccomment">/// Errors that may occur when applying the [`UniformNoiseCodec`].
-</span><span class="kw">pub enum </span>UniformNoiseCodecError {
+</span><span class="kw">pub enum </span><a href="#100-111">UniformNoiseCodecError</a> {
     <span class="doccomment">/// [`UniformNoiseCodec`] does not support the dtype
     </span><span class="attr">#[error(<span class="string">"UniformNoise does not support the dtype {0}"</span>)]
-    </span>UnsupportedDtype(AnyArrayDType),
-    <span class="doccomment">/// [`UniformNoiseCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    </span><span class="attr">#[error(<span class="string">"UniformNoise cannot decode the dtype {decoded} into the provided {provided} array"</span>)]
-    </span>MismatchedDecodeIntoDtype {
-        <span class="doccomment">/// Dtype of the `decoded` data
-        </span>decoded: AnyArrayDType,
-        <span class="doccomment">/// Dtype of the `provided` array into which the data is to be decoded
-        </span>provided: AnyArrayDType,
-    },
-    <span class="doccomment">/// [`UniformNoiseCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    </span><span class="attr">#[error(<span class="string">"UniformNoise cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}"</span>)]
-    </span>MismatchedDecodeIntoShape {
-        <span class="doccomment">/// Shape of the `decoded` data
-        </span>decoded: Vec&lt;usize&gt;,
-        <span class="doccomment">/// Shape of the `provided` array into which the data is to be decoded
-        </span>provided: Vec&lt;usize&gt;,
+    </span>UnsupportedDtype(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>),
+    <span class="doccomment">/// [`UniformNoiseCodec`] cannot decode into the provided array
+    </span><span class="attr">#[error(<span class="string">"UniformNoise cannot decode into the provided array"</span>)]
+    </span>MismatchedDecodeIntoArray {
+        <span class="doccomment">/// The source of the error
+        </span><span class="attr">#[from]
+        </span>source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
     },
 }
 
@@ -386,24 +304,24 @@
 /// passing in the same input with the same `seed` will produce the same noise
 /// and thus the same output.
 </span><span class="attr">#[must_use]
-</span><span class="kw">pub fn </span>add_uniform_noise&lt;T: Float, S: Data&lt;Elem = T&gt;, D: Dimension&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_uniform_noise/fn.add_uniform_noise.html">add_uniform_noise</a>&lt;T: <a href="#153-163">Float</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: ArrayBase&lt;S, D&gt;,
     scale: T,
-    seed: u64,
+    seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
 ) -&gt; Array&lt;T, D&gt;
 <span class="kw">where
-    </span>Open01: Distribution&lt;T&gt;,
+    </span><a href="https://rust-random.github.io/rand/rand/distributions/float/struct.Open01.html">Open01</a>: Distribution&lt;T&gt;,
 {
-    <span class="kw">let </span><span class="kw-2">mut </span>hasher = WyHash::with_seed(seed);
+    <span class="kw">let </span><span class="kw-2">mut </span>hasher = <a href="https://docs.rs/wyhash/0.5.0/wyhash/traits/struct.WyHash.html#method.with_seed">WyHash::with_seed</a>(<a href="#123">seed</a>);
     <span class="comment">// hashing the shape provides a prefix for the flattened data
-    </span>data.shape().hash(<span class="kw-2">&amp;mut </span>hasher);
+    </span><a href="#121">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash">hash</a>(<span class="kw-2">&amp;mut </span><a href="#128">hasher</a>);
     <span class="comment">// the data must be visited in a defined order
-    </span>data.iter().copied().for_each(|x| x.hash_bits(<span class="kw-2">&amp;mut </span>hasher));
-    <span class="kw">let </span>seed = hasher.finish();
+    </span><a href="#121">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.for_each">for_each</a>(|x| <a href="#132">x</a>.<a href="#162">hash_bits</a>(<span class="kw-2">&amp;mut </span><a href="#128">hasher</a>));
+    <span class="kw">let </span>seed = <a href="#128">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#tymethod.finish">finish</a>();
 
-    <span class="kw">let </span><span class="kw-2">mut </span>rng: WyRng = WyRng::seed_from_u64(seed);
+    <span class="kw">let </span><span class="kw-2">mut </span>rng: <a href="https://docs.rs/wyhash/0.5.0/wyhash/traits/struct.WyRng.html">WyRng</a> = <a href="https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html#tymethod.seed_from_u64">WyRng::seed_from_u64</a>(<a href="#133">seed</a>);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>encoded = data.into_owned();
+    <span class="kw">let </span><span class="kw-2">mut </span>encoded = <a href="#121">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
 
     <span class="comment">// the data must be visited in a defined order
     </span><span class="kw">for </span>x <span class="kw">in </span><span class="kw-2">&amp;mut </span>encoded {
@@ -415,11 +333,11 @@
             .mul_add(scale, scale.mul_add(T::NEG_HALF, <span class="kw-2">*</span>x));
     }
 
-    encoded
+    <a href="#137">encoded</a>
 }
 
 <span class="doccomment">/// Floating point types
-</span><span class="kw">pub trait </span>Float: Copy {
+</span><span class="kw">pub trait </span><a href="../../numcodecs_uniform_noise/trait.Float.html">Float</a>: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a> {
     <span class="doccomment">/// -0.5
     </span><span class="kw">const </span>NEG_HALF: <span class="self">Self</span>;
 
@@ -428,30 +346,30 @@
     </span><span class="kw">fn </span>mul_add(<span class="self">self</span>, a: <span class="self">Self</span>, b: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
 
     <span class="doccomment">/// Hash the binary representation of the floating point value
-    </span><span class="kw">fn </span>hash_bits&lt;H: Hasher&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H);
+    </span><span class="kw">fn </span>hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H);
 }
 
-<span class="kw">impl </span>Float <span class="kw">for </span>f32 {
+<span class="kw">impl </span><a href="#153-163">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
     <span class="kw">const </span>NEG_HALF: <span class="self">Self </span>= -<span class="number">0.5</span>;
 
     <span class="kw">fn </span>mul_add(<span class="self">self</span>, a: <span class="self">Self</span>, b: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::mul_add(<span class="self">self</span>, a, b)
+        <a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.mul_add"><span class="self">Self</span>::mul_add</a>(<a class="self" href="#168">self</a>, <a href="#168">a</a>, <a href="#168">b</a>)
     }
 
-    <span class="kw">fn </span>hash_bits&lt;H: Hasher&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H) {
-        hasher.write_u32(<span class="self">self</span>.to_bits());
+    <span class="kw">fn </span>hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H) {
+        <a href="#172">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#tymethod.write_u32">write_u32</a>(<a class="self" href="#172">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.to_bits">to_bits</a>());
     }
 }
 
-<span class="kw">impl </span>Float <span class="kw">for </span>f64 {
+<span class="kw">impl </span><a href="#153-163">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
     <span class="kw">const </span>NEG_HALF: <span class="self">Self </span>= -<span class="number">0.5</span>;
 
     <span class="kw">fn </span>mul_add(<span class="self">self</span>, a: <span class="self">Self</span>, b: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::mul_add(<span class="self">self</span>, a, b)
+        <a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.mul_add"><span class="self">Self</span>::mul_add</a>(<a class="self" href="#180">self</a>, <a href="#180">a</a>, <a href="#180">b</a>)
     }
 
-    <span class="kw">fn </span>hash_bits&lt;H: Hasher&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H) {
-        hasher.write_u64(<span class="self">self</span>.to_bits());
+    <span class="kw">fn </span>hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H) {
+        <a href="#184">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#tymethod.write_u64">write_u64</a>(<a class="self" href="#184">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_bits">to_bits</a>());
     }
 }
 </code></pre></div></section></main></body></html>

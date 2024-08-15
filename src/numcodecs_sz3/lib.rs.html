@@ -502,54 +502,6 @@
 <a href="#502" id="502">502</a>
 <a href="#503" id="503">503</a>
 <a href="#504" id="504">504</a>
-<a href="#505" id="505">505</a>
-<a href="#506" id="506">506</a>
-<a href="#507" id="507">507</a>
-<a href="#508" id="508">508</a>
-<a href="#509" id="509">509</a>
-<a href="#510" id="510">510</a>
-<a href="#511" id="511">511</a>
-<a href="#512" id="512">512</a>
-<a href="#513" id="513">513</a>
-<a href="#514" id="514">514</a>
-<a href="#515" id="515">515</a>
-<a href="#516" id="516">516</a>
-<a href="#517" id="517">517</a>
-<a href="#518" id="518">518</a>
-<a href="#519" id="519">519</a>
-<a href="#520" id="520">520</a>
-<a href="#521" id="521">521</a>
-<a href="#522" id="522">522</a>
-<a href="#523" id="523">523</a>
-<a href="#524" id="524">524</a>
-<a href="#525" id="525">525</a>
-<a href="#526" id="526">526</a>
-<a href="#527" id="527">527</a>
-<a href="#528" id="528">528</a>
-<a href="#529" id="529">529</a>
-<a href="#530" id="530">530</a>
-<a href="#531" id="531">531</a>
-<a href="#532" id="532">532</a>
-<a href="#533" id="533">533</a>
-<a href="#534" id="534">534</a>
-<a href="#535" id="535">535</a>
-<a href="#536" id="536">536</a>
-<a href="#537" id="537">537</a>
-<a href="#538" id="538">538</a>
-<a href="#539" id="539">539</a>
-<a href="#540" id="540">540</a>
-<a href="#541" id="541">541</a>
-<a href="#542" id="542">542</a>
-<a href="#543" id="543">543</a>
-<a href="#544" id="544">544</a>
-<a href="#545" id="545">545</a>
-<a href="#546" id="546">546</a>
-<a href="#547" id="547">547</a>
-<a href="#548" id="548">548</a>
-<a href="#549" id="549">549</a>
-<a href="#550" id="550">550</a>
-<a href="#551" id="551">551</a>
-<a href="#552" id="552">552</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -569,13 +521,14 @@
 //!
 //! SZ3 codec implementation for the [`numcodecs`] API.
 
-</span><span class="kw">use </span>std::{borrow::Cow, fmt};
+</span><span class="kw">use </span>std::{<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">borrow::Cow</a>, <a href="https://doc.rust-lang.org/nightly/alloc/fmt/index.html">fmt</a>};
 
-<span class="kw">use </span>ndarray::{Array, Array1, ArrayBase, ArrayViewMut, Data, Dimension, ShapeError};
+<span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Array1.html">Array1</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/error/struct.ShapeError.html">ShapeError</a>};
 <span class="kw">use </span>numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    <a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="../../numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="../../numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="../../numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, <a href="../../numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>,
+    <a href="../../numcodecs/codec/trait.Codec.html">Codec</a>, <a href="../../numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>,
 };
-<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
+<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.207/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>};
 <span class="kw">use </span>thiserror::Error;
 
 <span class="comment">// Only included to explicitly enable the `no_wasm_shim` feature for
@@ -584,27 +537,27 @@
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize)]
 </span><span class="doccomment">/// Codec providing compression using SZ3
-</span><span class="kw">pub struct </span>Sz3Codec {
+</span><span class="kw">pub struct </span><a href="../../numcodecs_sz3/struct.Sz3Codec.html">Sz3Codec</a> {
     <span class="doccomment">/// SZ3 error bound
     </span><span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>error: Sz3ErrorBound,
+    </span><span class="kw">pub </span>error: <a href="#46-97">Sz3ErrorBound</a>,
 }
 
 <span class="doccomment">/// SZ3 error bound
 </span><span class="attr">#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(tag = <span class="string">"eb_mode"</span>)]
 #[serde(deny_unknown_fields)]
-</span><span class="kw">pub enum </span>Sz3ErrorBound {
+</span><span class="kw">pub enum </span><a href="../../numcodecs_sz3/enum.Sz3ErrorBound.html">Sz3ErrorBound</a> {
     <span class="doccomment">/// Errors are bounded by *both* the absolute and relative error, i.e. by
     /// whichever bound is stricter
     </span><span class="attr">#[serde(rename = <span class="string">"abs-and-rel"</span>)]
     </span>AbsoluteAndRelative {
         <span class="doccomment">/// Absolute error bound
         </span><span class="attr">#[serde(rename = <span class="string">"eb_abs"</span>)]
-        </span>abs: f64,
+        </span>abs: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
         <span class="doccomment">/// Relative error bound
         </span><span class="attr">#[serde(rename = <span class="string">"eb_rel"</span>)]
-        </span>rel: f64,
+        </span>rel: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
     },
     <span class="doccomment">/// Errors are bounded by *either* the absolute or relative error, i.e. by
     /// whichever bound is weaker
@@ -612,171 +565,133 @@
     </span>AbsoluteOrRelative {
         <span class="doccomment">/// Absolute error bound
         </span><span class="attr">#[serde(rename = <span class="string">"eb_abs"</span>)]
-        </span>abs: f64,
+        </span>abs: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
         <span class="doccomment">/// Relative error bound
         </span><span class="attr">#[serde(rename = <span class="string">"eb_rel"</span>)]
-        </span>rel: f64,
+        </span>rel: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
     },
     <span class="doccomment">/// Absolute error bound
     </span><span class="attr">#[serde(rename = <span class="string">"abs"</span>)]
     </span>Absolute {
         <span class="doccomment">/// Absolute error bound
         </span><span class="attr">#[serde(rename = <span class="string">"eb_abs"</span>)]
-        </span>abs: f64,
+        </span>abs: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
     },
     <span class="doccomment">/// Relative error bound
     </span><span class="attr">#[serde(rename = <span class="string">"rel"</span>)]
     </span>Relative {
         <span class="doccomment">/// Relative error bound
         </span><span class="attr">#[serde(rename = <span class="string">"eb_rel"</span>)]
-        </span>rel: f64,
+        </span>rel: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
     },
     <span class="doccomment">/// Peak signal to noise ratio error bound
     </span><span class="attr">#[serde(rename = <span class="string">"psnr"</span>)]
     </span>PS2NR {
         <span class="doccomment">/// Peak signal to noise ratio error bound
         </span><span class="attr">#[serde(rename = <span class="string">"eb_psnr"</span>)]
-        </span>psnr: f64,
+        </span>psnr: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
     },
     <span class="doccomment">/// Peak L2 norm error bound
     </span><span class="attr">#[serde(rename = <span class="string">"l2"</span>)]
     </span>L2Norm {
         <span class="doccomment">/// Peak L2 norm error bound
         </span><span class="attr">#[serde(rename = <span class="string">"eb_l2"</span>)]
-        </span>l2: f64,
+        </span>l2: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
     },
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>Sz3Codec {
-    <span class="kw">type </span>Error = Sz3CodecError;
+<span class="kw">impl </span><a href="../../numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#36-40">Sz3Codec</a> {
+    <span class="kw">type </span>Error = <a href="#168-229">Sz3CodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>data {
-            AnyCowArray::I32(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::U8(
-                Array1::from(compress(data, <span class="kw-2">&amp;</span><span class="self">self</span>.error)<span class="question-mark">?</span>).into_dyn(),
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span><a href="#102">data</a> {
+            AnyCowArray::I32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#251-338">compress</a>(<a href="#104">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#102">self</a>.error)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            AnyCowArray::I64(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::U8(
-                Array1::from(compress(data, <span class="kw-2">&amp;</span><span class="self">self</span>.error)<span class="question-mark">?</span>).into_dyn(),
+            AnyCowArray::I64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#251-338">compress</a>(<a href="#107">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#102">self</a>.error)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::U8(
-                Array1::from(compress(data, <span class="kw-2">&amp;</span><span class="self">self</span>.error)<span class="question-mark">?</span>).into_dyn(),
+            AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#251-338">compress</a>(<a href="#110">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#102">self</a>.error)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(AnyArray::U8(
-                Array1::from(compress(data, <span class="kw-2">&amp;</span><span class="self">self</span>.error)<span class="question-mark">?</span>).into_dyn(),
+            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#251-338">compress</a>(<a href="#113">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#102">self</a>.error)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            encoded =&gt; <span class="prelude-val">Err</span>(Sz3CodecError::UnsupportedDtype(encoded.dtype())),
+            encoded =&gt; <span class="prelude-val">Err</span>(<a href="#171">Sz3CodecError::UnsupportedDtype</a>(<a href="#116">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: AnyCowArray) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span>AnyCowArray::U8(encoded) = encoded <span class="kw">else </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Sz3CodecError::EncodedDataNotBytes {
-                dtype: encoded.dtype(),
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>AnyCowArray::U8(encoded) = <a href="#120">encoded</a> <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#197-200">Sz3CodecError::EncodedDataNotBytes</a> {
+                dtype: <a href="#120">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             });
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Sz3CodecError::EncodedDataNotOneDimensional {
-                shape: encoded.shape().to_vec(),
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#204-207">Sz3CodecError::EncodedDataNotOneDimensional</a> {
+                shape: <a href="#121">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             });
         }
 
-        decompress(<span class="kw-2">&amp;</span>AnyCowArray::U8(encoded).as_bytes())
+        <a href="#346-392">decompress</a>(<span class="kw-2">&amp;</span><a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(<a href="#121">encoded</a>).<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>())
     }
 
     <span class="kw">fn </span>decode_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        encoded: AnyArrayView,
-        <span class="kw-2">mut </span>decoded: AnyArrayViewMut,
+        encoded: <a href="../../numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
+        <span class="kw-2">mut </span>decoded: <a href="../../numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="kw">fn </span>shape_checked_assign&lt;T: Copy, S: Data&lt;Elem = T&gt;, D: Dimension&gt;(
-            decoded_in: <span class="kw-2">&amp;</span>ArrayBase&lt;S, D&gt;,
-            decoded_out: <span class="kw-2">&amp;mut </span>ArrayViewMut&lt;T, D&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Sz3CodecError&gt; {
-            <span class="attr">#[allow(clippy::unit_arg)]
-            </span><span class="kw">if </span>decoded_in.shape() == decoded_out.shape() {
-                <span class="prelude-val">Ok</span>(decoded_out.assign(decoded_in))
-            } <span class="kw">else </span>{
-                <span class="prelude-val">Err</span>(Sz3CodecError::MismatchedDecodeIntoShape {
-                    decoded: decoded_in.shape().to_vec(),
-                    provided: decoded_out.shape().to_vec(),
-                })
-            }
+        <span class="kw">if </span>!<span class="macro">matches!</span>(
+            encoded.dtype(),
+            AnyArrayDType::I32 | AnyArrayDType::I64 | AnyArrayDType::F32 | AnyArrayDType::F64
+        ) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#171">Sz3CodecError::UnsupportedDtype</a>(<a href="#138">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>()));
         }
 
-        <span class="kw">let </span>decoded_in = <span class="self">self</span>.decode(encoded.cow())<span class="question-mark">?</span>;
+        <span class="kw">let </span>decoded_in = <a class="self" href="#137">self</a>.<a href="../../numcodecs/codec/trait.Codec.html#tymethod.decode">decode</a>(<a href="#138">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.cow">cow</a>())<span class="question-mark">?</span>;
 
-        <span class="kw">match </span>(<span class="kw-2">&amp;</span>decoded_in, <span class="kw-2">&amp;mut </span>decoded) {
-            (AnyArray::I32(decoded_in), AnyArrayViewMut::I32(decoded)) =&gt; {
-                shape_checked_assign(decoded_in, decoded)
-            }
-            (AnyArray::I64(decoded_in), AnyArrayViewMut::I64(decoded)) =&gt; {
-                shape_checked_assign(decoded_in, decoded)
-            }
-            (AnyArray::F32(decoded_in), AnyArrayViewMut::F32(decoded)) =&gt; {
-                shape_checked_assign(decoded_in, decoded)
-            }
-            (AnyArray::F64(decoded_in), AnyArrayViewMut::F64(decoded)) =&gt; {
-                shape_checked_assign(decoded_in, decoded)
-            }
-            (AnyArray::I32(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: Sz3DType::I32,
-                provided: decoded.dtype(),
-            }),
-            (AnyArray::I64(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: Sz3DType::I64,
-                provided: decoded.dtype(),
-            }),
-            (AnyArray::F32(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: Sz3DType::F32,
-                provided: decoded.dtype(),
-            }),
-            (AnyArray::F64(<span class="kw">_</span>), decoded) =&gt; <span class="prelude-val">Err</span>(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: Sz3DType::F64,
-                provided: decoded.dtype(),
-            }),
-            (encoded, _decoded) =&gt; <span class="prelude-val">Err</span>(Sz3CodecError::UnsupportedDtype(encoded.dtype())),
-        }
+        <span class="prelude-val">Ok</span>(<a href="#139">decoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#148">decoded_in</a>)<span class="question-mark">?</span>)
     }
 
-    <span class="kw">fn </span>get_config&lt;S: Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        <span class="self">self</span>.serialize(serializer)
+    <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+        <a class="self" href="#153">self</a>.<a href="https://docs.rs/serde/1.0.207/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#153">serializer</a>)
     }
 }
 
-<span class="kw">impl </span>StaticCodec <span class="kw">for </span>Sz3Codec {
-    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"sz3"</span>;
+<span class="kw">impl </span><a href="../../numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#36-40">Sz3Codec</a> {
+    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"sz3"</span>;
 
     <span class="kw">fn </span>from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(config: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        <span class="self">Self</span>::deserialize(config)
+        <a href="https://docs.rs/serde/1.0.207/serde/de/trait.Deserialize.html#tymethod.deserialize"><span class="self">Self</span>::deserialize</a>(<a href="#161">config</a>)
     }
 }
 
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="doccomment">/// Errors that may occur when applying the [`Sz3Codec`].
-</span><span class="kw">pub enum </span>Sz3CodecError {
+</span><span class="kw">pub enum </span><a href="#168-229">Sz3CodecError</a> {
     <span class="doccomment">/// [`Sz3Codec`] does not support the dtype
     </span><span class="attr">#[error(<span class="string">"Sz3 does not support the dtype {0}"</span>)]
-    </span>UnsupportedDtype(AnyArrayDType),
+    </span>UnsupportedDtype(<a href="../../numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>),
     <span class="doccomment">/// [`Sz3Codec`] failed to encode the header
     </span><span class="attr">#[error(<span class="string">"Sz3 failed to encode the header"</span>)]
     </span>HeaderEncodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: Sz3HeaderError,
+        </span>source: <a href="#234">Sz3HeaderError</a>,
     },
     <span class="doccomment">/// [`Sz3Codec`] cannot encode an array of `shape`
     </span><span class="attr">#[error(<span class="string">"Sz3 cannot encode an array of shape {shape:?}"</span>)]
     </span>InvalidEncodeShape {
         <span class="doccomment">/// Opaque source error
-        </span>source: Sz3CodingError,
+        </span>source: <a href="#239">Sz3CodingError</a>,
         <span class="doccomment">/// The invalid shape of the encoded array
-        </span>shape: Vec&lt;usize&gt;,
+        </span>shape: Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
     },
     <span class="doccomment">/// [`Sz3Codec`] failed to encode the data
     </span><span class="attr">#[error(<span class="string">"Sz3 failed to encode the data"</span>)]
     </span>Sz3EncodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: Sz3CodingError,
+        </span>source: <a href="#239">Sz3CodingError</a>,
     },
     <span class="doccomment">/// [`Sz3Codec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
@@ -785,20 +700,20 @@
     </span>)]
     </span>EncodedDataNotBytes {
         <span class="doccomment">/// The unexpected dtype of the encoded array
-        </span>dtype: AnyArrayDType,
+        </span>dtype: <a href="../../numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
     },
     <span class="doccomment">/// [`Sz3Codec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
     </span><span class="attr">#[error(<span class="string">"Sz3 can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"</span>)]
     </span>EncodedDataNotOneDimensional {
         <span class="doccomment">/// The unexpected shape of the encoded array
-        </span>shape: Vec&lt;usize&gt;,
+        </span>shape: Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
     },
     <span class="doccomment">/// [`Sz3Codec`] failed to decode the header
     </span><span class="attr">#[error(<span class="string">"Sz3 failed to decode the header"</span>)]
     </span>HeaderDecodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: Sz3HeaderError,
+        </span>source: <a href="#234">Sz3HeaderError</a>,
     },
     <span class="doccomment">/// [`Sz3Codec`] decoded an invalid array shape header which does not fit
     /// the decoded data
@@ -806,37 +721,26 @@
     </span>DecodeInvalidShapeHeader {
         <span class="doccomment">/// Source error
         </span><span class="attr">#[from]
-        </span>source: ShapeError,
+        </span>source: <a href="https://docs.rs/ndarray/0.15/ndarray/error/struct.ShapeError.html">ShapeError</a>,
     },
-    <span class="doccomment">/// [`Sz3Codec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    </span><span class="attr">#[error(<span class="string">"Sz3 cannot decode the dtype {decoded} into the provided {provided} array"</span>)]
-    </span>MismatchedDecodeIntoDtype {
-        <span class="doccomment">/// Dtype of the `decoded` data
-        </span>decoded: Sz3DType,
-        <span class="doccomment">/// Dtype of the `provided` array into which the data is to be decoded
-        </span>provided: AnyArrayDType,
-    },
-    <span class="doccomment">/// [`Sz3Codec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    </span><span class="attr">#[error(<span class="string">"Sz3 cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}"</span>)]
-    </span>MismatchedDecodeIntoShape {
-        <span class="doccomment">/// Shape of the `decoded` data
-        </span>decoded: Vec&lt;usize&gt;,
-        <span class="doccomment">/// Shape of the `provided` array into which the data is to be decoded
-        </span>provided: Vec&lt;usize&gt;,
+    <span class="doccomment">/// [`Sz3Codec`] cannot decode into the provided array
+    </span><span class="attr">#[error(<span class="string">"Sz3 cannot decode into the provided array"</span>)]
+    </span>MismatchedDecodeIntoArray {
+        <span class="doccomment">/// The source of the error
+        </span><span class="attr">#[from]
+        </span>source: <a href="../../numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
     },
 }
 
 <span class="attr">#[derive(Debug, Error)]
 #[error(transparent)]
 </span><span class="doccomment">/// Opaque error for when encoding or decoding the header fails
-</span><span class="kw">pub struct </span>Sz3HeaderError(postcard::Error);
+</span><span class="kw">pub struct </span><a href="#234">Sz3HeaderError</a>(postcard::Error);
 
 <span class="attr">#[derive(Debug, Error)]
 #[error(transparent)]
 </span><span class="doccomment">/// Opaque error for when encoding or decoding with SZ3 fails
-</span><span class="kw">pub struct </span>Sz3CodingError(sz3::SZ3Error);
+</span><span class="kw">pub struct </span><a href="#239">Sz3CodingError</a>(sz3::SZ3Error);
 
 <span class="attr">#[allow(clippy::needless_pass_by_value)]
 </span><span class="doccomment">/// Compresses the input `data` array using SZ3 with the provided error `bound`
@@ -848,33 +752,33 @@
 /// - [`Sz3CodecError::HeaderEncodeFailed`] if encoding the header failed
 /// - [`Sz3CodecError::InvalidEncodeShape`] if the array shape is invalid
 /// - [`Sz3CodecError::Sz3EncodeFailed`] if encoding failed with an opaque error
-</span><span class="kw">pub fn </span>compress&lt;T: Sz3Element, S: Data&lt;Elem = T&gt;, D: Dimension&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.compress.html">compress</a>&lt;T: <a href="#395-398">Sz3Element</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: ArrayBase&lt;S, D&gt;,
-    bound: <span class="kw-2">&amp;</span>Sz3ErrorBound,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Sz3CodecError&gt; {
+    bound: <span class="kw-2">&amp;</span><a href="#46-97">Sz3ErrorBound</a>,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#168-229">Sz3CodecError</a>&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>encoded = postcard::to_extend(
-        <span class="kw-2">&amp;</span>CompressionHeader {
+        <span class="kw-2">&amp;</span><a href="#417-421">CompressionHeader</a> {
             dtype: &lt;T <span class="kw">as </span>Sz3Element&gt;::DTYPE,
-            shape: Cow::Borrowed(data.shape()),
+            shape: <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#252">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>()),
         },
-        Vec::new(),
+        <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>(),
     )
-    .map_err(|err| Sz3CodecError::HeaderEncodeFailed {
-        source: Sz3HeaderError(err),
+    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#174-177">Sz3CodecError::HeaderEncodeFailed</a> {
+        source: <a href="#234">Sz3HeaderError</a>(<a href="#262">err</a>),
     })<span class="question-mark">?</span>;
 
     <span class="comment">// sz3::DimensionedDataBuilder cannot handle zero-length dimensions
     </span><span class="kw">if </span>data.is_empty() {
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(encoded);
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<a href="#255">encoded</a>);
     }
 
     <span class="attr">#[allow(clippy::option_if_let_else)]
-    </span><span class="kw">let </span>data_cow = <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = data.as_slice() {
-        Cow::Borrowed(data)
+    </span><span class="kw">let </span>data_cow = <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = <a href="#252">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
+        <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#272">data</a>)
     } <span class="kw">else </span>{
-        Cow::Owned(data.iter().copied().collect())
+        <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#252">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>())
     };
-    <span class="kw">let </span><span class="kw-2">mut </span>builder = sz3::DimensionedData::build(<span class="kw-2">&amp;</span>data_cow);
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = sz3::DimensionedData::build(<span class="kw-2">&amp;</span><a href="#272">data_cow</a>);
 
     <span class="kw">for </span>length <span class="kw">in </span>data.shape() {
         <span class="comment">// Sz3 ignores dimensions of length 1 and panics on length zero
@@ -893,48 +797,48 @@
     <span class="kw">if </span>data.len() == <span class="number">1 </span>{
         <span class="comment">// If there is only one element, all dimensions will have been skipped,
         //  so we explicitly encode one dimension of size 1 here
-        </span>builder = builder
+        </span><a href="#277">builder</a> = <a href="#277">builder</a>
             .dim(<span class="number">1</span>)
-            .map_err(|err| Sz3CodecError::InvalidEncodeShape {
-                source: Sz3CodingError(err),
-                shape: data.shape().to_vec(),
+            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#180-185">Sz3CodecError::InvalidEncodeShape</a> {
+                source: <a href="#239">Sz3CodingError</a>(<a href="#298">err</a>),
+                shape: <a href="#252">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             })<span class="question-mark">?</span>;
     }
 
-    <span class="kw">let </span>data = builder
+    <span class="kw">let </span>data = <a href="#277">builder</a>
         .finish()
-        .map_err(|err| Sz3CodecError::InvalidEncodeShape {
-            source: Sz3CodingError(err),
-            shape: data.shape().to_vec(),
+        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#180-185">Sz3CodecError::InvalidEncodeShape</a> {
+            source: <a href="#239">Sz3CodingError</a>(<a href="#306">err</a>),
+            shape: <a href="#252">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
         })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>error_bound = <span class="kw">match </span>bound {
-        Sz3ErrorBound::AbsoluteAndRelative { abs, rel } =&gt; sz3::ErrorBound::AbsoluteAndRelative {
-            absolute_bound: <span class="kw-2">*</span>abs,
-            relative_bound: <span class="kw-2">*</span>rel,
+    <span class="kw">let </span>error_bound = <span class="kw">match </span><a href="#253">bound</a> {
+        <a href="#50-57">Sz3ErrorBound::AbsoluteAndRelative</a> { abs, rel } =&gt; sz3::ErrorBound::AbsoluteAndRelative {
+            absolute_bound: <span class="kw-2">*</span><a href="#312">abs</a>,
+            relative_bound: <span class="kw-2">*</span><a href="#312">rel</a>,
         },
-        Sz3ErrorBound::AbsoluteOrRelative { abs, rel } =&gt; sz3::ErrorBound::AbsoluteOrRelative {
-            absolute_bound: <span class="kw-2">*</span>abs,
-            relative_bound: <span class="kw-2">*</span>rel,
+        <a href="#61-68">Sz3ErrorBound::AbsoluteOrRelative</a> { abs, rel } =&gt; sz3::ErrorBound::AbsoluteOrRelative {
+            absolute_bound: <span class="kw-2">*</span><a href="#316">abs</a>,
+            relative_bound: <span class="kw-2">*</span><a href="#316">rel</a>,
         },
-        Sz3ErrorBound::Absolute { abs } =&gt; sz3::ErrorBound::Absolute(<span class="kw-2">*</span>abs),
-        Sz3ErrorBound::Relative { rel } =&gt; sz3::ErrorBound::Relative(<span class="kw-2">*</span>rel),
-        Sz3ErrorBound::PS2NR { psnr } =&gt; sz3::ErrorBound::PSNR(<span class="kw-2">*</span>psnr),
-        Sz3ErrorBound::L2Norm { l2 } =&gt; sz3::ErrorBound::L2Norm(<span class="kw-2">*</span>l2),
+        <a href="#71-75">Sz3ErrorBound::Absolute</a> { abs } =&gt; sz3::ErrorBound::Absolute(<span class="kw-2">*</span><a href="#320">abs</a>),
+        <a href="#78-82">Sz3ErrorBound::Relative</a> { rel } =&gt; sz3::ErrorBound::Relative(<span class="kw-2">*</span><a href="#321">rel</a>),
+        <a href="#85-89">Sz3ErrorBound::PS2NR</a> { psnr } =&gt; sz3::ErrorBound::PSNR(<span class="kw-2">*</span><a href="#322">psnr</a>),
+        <a href="#92-96">Sz3ErrorBound::L2Norm</a> { l2 } =&gt; sz3::ErrorBound::L2Norm(<span class="kw-2">*</span><a href="#323">l2</a>),
     };
 
     <span class="comment">// FIXME: Sz3 seems to have a UB bug that impacts the last few bytes but is
     //        somehow gone if we use stdio first ... aaaaaaaah
-    </span>std::mem::drop(std::io::Read::read(<span class="kw-2">&amp;mut </span>std::io::stdin(), <span class="kw-2">&amp;mut </span>[]));
+    </span><a href="https://doc.rust-lang.org/nightly/core/mem/fn.drop.html">std::mem::drop</a>(<a href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html#tymethod.read">std::io::Read::read</a>(<span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/std/io/stdio/fn.stdin.html">std::io::stdin</a>(), <span class="kw-2">&amp;mut </span>[]));
 
     <span class="comment">// TODO: avoid extra allocation here
     </span><span class="kw">let </span>compressed =
-        sz3::compress(<span class="kw-2">&amp;</span>data, error_bound).map_err(|err| Sz3CodecError::Sz3EncodeFailed {
-            source: Sz3CodingError(err),
+        sz3::compress(<span class="kw-2">&amp;</span><a href="#304">data</a>, <a href="#311">error_bound</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#188-191">Sz3CodecError::Sz3EncodeFailed</a> {
+            source: <a href="#239">Sz3CodingError</a>(<a href="#332">err</a>),
         })<span class="question-mark">?</span>;
-    encoded.extend_from_slice(<span class="kw-2">&amp;</span>compressed);
+    <a href="#255">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.extend_from_slice">extend_from_slice</a>(<span class="kw-2">&amp;</span><a href="#331">compressed</a>);
 
-    <span class="prelude-val">Ok</span>(encoded)
+    <span class="prelude-val">Ok</span>(<a href="#255">encoded</a>)
 }
 
 <span class="doccomment">/// Decompresses the `encoded` data into an array.
@@ -943,87 +847,87 @@
 ///
 /// Errors with
 /// - [`Sz3CodecError::HeaderDecodeFailed`] if decoding the header failed
-</span><span class="kw">pub fn </span>decompress(encoded: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;AnyArray, Sz3CodecError&gt; {
+</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#168-229">Sz3CodecError</a>&gt; {
     <span class="kw">let </span>(header, data) =
-        postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
-            Sz3CodecError::HeaderDecodeFailed {
-                source: Sz3HeaderError(err),
+        postcard::take_from_bytes::&lt;<a href="#417-421">CompressionHeader</a>&gt;(<a href="#346">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
+            <a href="#210-213">Sz3CodecError::HeaderDecodeFailed</a> {
+                source: <a href="#234">Sz3HeaderError</a>(<a href="#348">err</a>),
             }
         })<span class="question-mark">?</span>;
 
     <span class="kw">let </span>decoded = <span class="kw">if </span>header.shape.iter().copied().product::&lt;usize&gt;() == <span class="number">0 </span>{
-        <span class="kw">match </span>header.dtype {
-            Sz3DType::I32 =&gt; {
-                AnyArray::I32(Array::from_shape_vec(<span class="kw-2">&amp;*</span>header.shape, Vec::new())<span class="question-mark">?</span>.into_dyn())
+        <span class="kw">match </span><a href="#347">header</a>.dtype {
+            <a href="#428">Sz3DType::I32</a> =&gt; {
+                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#347">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
             }
-            Sz3DType::I64 =&gt; {
-                AnyArray::I64(Array::from_shape_vec(<span class="kw-2">&amp;*</span>header.shape, Vec::new())<span class="question-mark">?</span>.into_dyn())
+            <a href="#430">Sz3DType::I64</a> =&gt; {
+                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#347">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
             }
-            Sz3DType::F32 =&gt; {
-                AnyArray::F32(Array::from_shape_vec(<span class="kw-2">&amp;*</span>header.shape, Vec::new())<span class="question-mark">?</span>.into_dyn())
+            <a href="#432">Sz3DType::F32</a> =&gt; {
+                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#347">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
             }
-            Sz3DType::F64 =&gt; {
-                AnyArray::F64(Array::from_shape_vec(<span class="kw-2">&amp;*</span>header.shape, Vec::new())<span class="question-mark">?</span>.into_dyn())
+            <a href="#434">Sz3DType::F64</a> =&gt; {
+                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#347">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
             }
         }
     } <span class="kw">else </span>{
         <span class="comment">// TODO: avoid extra allocation here
-        </span><span class="kw">match </span>header.dtype {
-            Sz3DType::I32 =&gt; AnyArray::I32(Array::from_shape_vec(
-                <span class="kw-2">&amp;*</span>header.shape,
-                Vec::from(sz3::decompress(data).<span class="number">1</span>.data()),
+        </span><span class="kw">match </span><a href="#347">header</a>.dtype {
+            <a href="#428">Sz3DType::I32</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
+                <span class="kw-2">&amp;*</span><a href="#347">header</a>.shape,
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#347">data</a>).<span class="number">1</span>.data()),
             )<span class="question-mark">?</span>),
-            Sz3DType::I64 =&gt; AnyArray::I64(Array::from_shape_vec(
-                <span class="kw-2">&amp;*</span>header.shape,
-                Vec::from(sz3::decompress(data).<span class="number">1</span>.data()),
+            <a href="#430">Sz3DType::I64</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
+                <span class="kw-2">&amp;*</span><a href="#347">header</a>.shape,
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#347">data</a>).<span class="number">1</span>.data()),
             )<span class="question-mark">?</span>),
-            Sz3DType::F32 =&gt; AnyArray::F32(Array::from_shape_vec(
-                <span class="kw-2">&amp;*</span>header.shape,
-                Vec::from(sz3::decompress(data).<span class="number">1</span>.data()),
+            <a href="#432">Sz3DType::F32</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
+                <span class="kw-2">&amp;*</span><a href="#347">header</a>.shape,
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#347">data</a>).<span class="number">1</span>.data()),
             )<span class="question-mark">?</span>),
-            Sz3DType::F64 =&gt; AnyArray::F64(Array::from_shape_vec(
-                <span class="kw-2">&amp;*</span>header.shape,
-                Vec::from(sz3::decompress(data).<span class="number">1</span>.data()),
+            <a href="#434">Sz3DType::F64</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
+                <span class="kw-2">&amp;*</span><a href="#347">header</a>.shape,
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#347">data</a>).<span class="number">1</span>.data()),
             )<span class="question-mark">?</span>),
         }
     };
 
-    <span class="prelude-val">Ok</span>(decoded)
+    <span class="prelude-val">Ok</span>(<a href="#354">decoded</a>)
 }
 
 <span class="doccomment">/// Array element types which can be compressed with SZ3.
-</span><span class="kw">pub trait </span>Sz3Element: Copy + sz3::SZ3Compressible {
+</span><span class="kw">pub trait </span><a href="../../numcodecs_sz3/trait.Sz3Element.html">Sz3Element</a>: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a> + sz3::SZ3Compressible {
     <span class="doccomment">/// The dtype representation of the type
-    </span><span class="kw">const </span>DTYPE: Sz3DType;
+    </span><span class="kw">const </span>DTYPE: <a href="#426-435">Sz3DType</a>;
 }
 
-<span class="kw">impl </span>Sz3Element <span class="kw">for </span>i32 {
-    <span class="kw">const </span>DTYPE: Sz3DType = Sz3DType::I32;
+<span class="kw">impl </span><a href="#395-398">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a> {
+    <span class="kw">const </span>DTYPE: <a href="#426-435">Sz3DType</a> = <a href="#428">Sz3DType::I32</a>;
 }
 
-<span class="kw">impl </span>Sz3Element <span class="kw">for </span>i64 {
-    <span class="kw">const </span>DTYPE: Sz3DType = Sz3DType::I64;
+<span class="kw">impl </span><a href="#395-398">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a> {
+    <span class="kw">const </span>DTYPE: <a href="#426-435">Sz3DType</a> = <a href="#430">Sz3DType::I64</a>;
 }
 
-<span class="kw">impl </span>Sz3Element <span class="kw">for </span>f32 {
-    <span class="kw">const </span>DTYPE: Sz3DType = Sz3DType::F32;
+<span class="kw">impl </span><a href="#395-398">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
+    <span class="kw">const </span>DTYPE: <a href="#426-435">Sz3DType</a> = <a href="#432">Sz3DType::F32</a>;
 }
 
-<span class="kw">impl </span>Sz3Element <span class="kw">for </span>f64 {
-    <span class="kw">const </span>DTYPE: Sz3DType = Sz3DType::F64;
+<span class="kw">impl </span><a href="#395-398">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
+    <span class="kw">const </span>DTYPE: <a href="#426-435">Sz3DType</a> = <a href="#434">Sz3DType::F64</a>;
 }
 
 <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
 </span><span class="kw">struct </span>CompressionHeader&lt;<span class="lifetime">'a</span>&gt; {
-    dtype: Sz3DType,
+    dtype: <a href="#426-435">Sz3DType</a>,
     <span class="attr">#[serde(borrow)]
-    </span>shape: Cow&lt;<span class="lifetime">'a</span>, [usize]&gt;,
+    </span>shape: Cow&lt;<span class="lifetime">'a</span>, [<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>]&gt;,
 }
 
 <span class="doccomment">/// Dtypes that SZ3 can compress and decompress
 </span><span class="attr">#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[allow(missing_docs)]
-</span><span class="kw">pub enum </span>Sz3DType {
+</span><span class="kw">pub enum </span><a href="../../numcodecs_sz3/enum.Sz3DType.html">Sz3DType</a> {
     <span class="attr">#[serde(rename = <span class="string">"i32"</span>, alias = <span class="string">"int32"</span>)]
     </span>I32,
     <span class="attr">#[serde(rename = <span class="string">"i64"</span>, alias = <span class="string">"int64"</span>)]
@@ -1034,9 +938,9 @@
     </span>F64,
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Sz3DType {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        fmt.write_str(<span class="kw">match </span><span class="self">self </span>{
+<span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#426-435">Sz3DType</a> {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html">fmt::Formatter</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html">fmt::Result</a> {
+        <a href="#438">fmt</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.write_str">write_str</a>(<span class="kw">match </span><span class="self"><a href="#438">self</a> </span>{
             <span class="self">Self</span>::I32 =&gt; <span class="string">"i32"</span>,
             <span class="self">Self</span>::I64 =&gt; <span class="string">"i64"</span>,
             <span class="self">Self</span>::F32 =&gt; <span class="string">"f32"</span>,

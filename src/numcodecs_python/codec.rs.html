@@ -146,16 +146,16 @@
 <a href="#146" id="146">146</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>pyo3::{
     ffi::PyTypeObject,
-    intern,
-    prelude::<span class="kw-2">*</span>,
-    sync::GILOnceCell,
-    types::{DerefToPyAny, IntoPyDict, PyDict, PyType},
-    PyTypeInfo,
+    <a href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern</a>,
+    <a href="https://docs.rs/pyo3/0.21/pyo3/prelude/index.html">prelude</a>::<span class="kw-2">*</span>,
+    <a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html">sync::GILOnceCell</a>,
+    types::{<a href="https://docs.rs/pyo3/0.21/pyo3/types/trait.DerefToPyAny.html">DerefToPyAny</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/trait.IntoPyDict.html">IntoPyDict</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/typeobject/struct.PyType.html">PyType</a>},
+    <a href="https://docs.rs/pyo3/0.21/pyo3/type_object/trait.PyTypeInfo.html">PyTypeInfo</a>,
 };
 
 <span class="attr">#[allow(unused_imports)] </span><span class="comment">// FIXME: use expect, only used in docs
-</span><span class="kw">use </span><span class="kw">crate</span>::PyCodecClassMethods;
-<span class="kw">use crate</span>::{sealed::Sealed, PyCodecClass};
+</span><span class="kw">use </span><a href="codec_class.rs.html#22-39"><span class="kw">crate</span>::PyCodecClassMethods</a>;
+<span class="kw">use crate</span>::{<a href="lib.rs.html#39">sealed::Sealed</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>};
 
 <span class="doccomment">/// Represents a [`numcodecs.abc.Codec`] *instance* object.
 ///
@@ -163,12 +163,12 @@
 ///
 /// [`numcodecs.abc.Codec`]: https://numcodecs.readthedocs.io/en/stable/abc.html#module-numcodecs.abc
 </span><span class="attr">#[repr(transparent)]
-</span><span class="kw">pub struct </span>PyCodec {
-    _codec: PyAny,
+</span><span class="kw">pub struct </span><a href="../../numcodecs_python/struct.PyCodec.html">PyCodec</a> {
+    _codec: <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>,
 }
 
 <span class="doccomment">/// Methods implemented for [`PyCodec`]s.
-</span><span class="kw">pub trait </span>PyCodecMethods&lt;<span class="lifetime">'py</span>&gt;: Sealed {
+</span><span class="kw">pub trait </span><a href="../../numcodecs_python/trait.PyCodecMethods.html">PyCodecMethods</a>&lt;<span class="lifetime">'py</span>&gt;: <a href="lib.rs.html#39">Sealed</a> {
     <span class="doccomment">/// Encodes the data in the buffer `buf` and returns the result.
     ///
     /// The input and output buffers be any objects supporting the
@@ -179,7 +179,7 @@
     /// Errors if encoding the buffer fails.
     ///
     /// [new-style buffer protocol]: https://docs.python.org/3/c-api/buffer.html
-    </span><span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;, PyErr&gt;;
+    </span><span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;;
 
     <span class="doccomment">/// Decodes the data in the buffer `buf` and returns the result.
     ///
@@ -200,9 +200,9 @@
     /// [new-style buffer protocol]: https://docs.python.org/3/c-api/buffer.html
     </span><span class="kw">fn </span>decode(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;,
-        out: <span class="prelude-ty">Option</span>&lt;Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;, PyErr&gt;;
+        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
+        out: <span class="prelude-ty">Option</span>&lt;Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;;
 
     <span class="doccomment">/// Returns a dictionary holding configuration parameters for this codec.
     ///
@@ -213,81 +213,81 @@
     /// # Errors
     ///
     /// Errors if getting the codec configuration fails.
-    </span><span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;, PyErr&gt;;
+    </span><span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt;;
 
     <span class="doccomment">/// Returns the [`PyCodecClass`] of this codec.
-    </span><span class="kw">fn </span>class(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bound&lt;<span class="lifetime">'py</span>, PyCodecClass&gt;;
+    </span><span class="kw">fn </span>class(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bound&lt;<span class="lifetime">'py</span>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt;;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'py</span>&gt; PyCodecMethods&lt;<span class="lifetime">'py</span>&gt; <span class="kw">for </span>Bound&lt;<span class="lifetime">'py</span>, PyCodec&gt; {
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;, PyErr&gt; {
-        <span class="kw">let </span>py = <span class="self">self</span>.py();
+<span class="kw">impl</span>&lt;<span class="lifetime">'py</span>&gt; PyCodecMethods&lt;<span class="lifetime">'py</span>&gt; <span class="kw">for </span>Bound&lt;<span class="lifetime">'py</span>, <a href="#20-22">PyCodec</a>&gt; {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">let </span>py = <a class="self" href="#77">self</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.py">py</a>();
 
-        <span class="self">self</span>.as_any().call_method1(<span class="macro">intern!</span>(py, <span class="string">"encode"</span>), (buf,))
+        <a class="self" href="#77">self</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_any">as_any</a>().<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call_method1">call_method1</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"encode"</span>), (<a href="#77">buf</a>,))
     }
 
     <span class="kw">fn </span>decode(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;,
-        out: <span class="prelude-ty">Option</span>&lt;Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, PyAny&gt;&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyAny&gt;, PyErr&gt; {
-        <span class="kw">let </span>py = <span class="self">self</span>.as_any().py();
+        buf: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;,
+        out: <span class="prelude-ty">Option</span>&lt;Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">let </span>py = <a class="self" href="#84">self</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_any">as_any</a>().<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.py">py</a>();
 
-        <span class="self">self</span>.as_any().call_method(
-            <span class="macro">intern!</span>(py, <span class="string">"decode"</span>),
-            (buf,),
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[(<span class="macro">intern!</span>(py, <span class="string">"out"</span>), out)].into_py_dict_bound(py)),
+        <a class="self" href="#84">self</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_any">as_any</a>().<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call_method">call_method</a>(
+            <a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"decode"</span>),
+            (<a href="#85">buf</a>,),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"out"</span>), <a href="#86">out</a>)].<a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/trait.IntoPyDict.html#tymethod.into_py_dict_bound">into_py_dict_bound</a>(<a href="#88">py</a>)),
         )
     }
 
-    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, PyDict&gt;, PyErr&gt; {
-        <span class="kw">let </span>py = <span class="self">self</span>.as_any().py();
+    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bound&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/types/dict/struct.PyDict.html">PyDict</a>&gt;, <a href="https://docs.rs/pyo3/0.21/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+        <span class="kw">let </span>py = <a class="self" href="#97">self</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_any">as_any</a>().<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.py">py</a>();
 
-        <span class="self">self</span>.as_any()
-            .call_method0(<span class="macro">intern!</span>(py, <span class="string">"get_config"</span>))<span class="question-mark">?
-            </span>.extract()
+        <a class="self" href="#97">self</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_any">as_any</a>()
+            .<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call_method0">call_method0</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"get_config"</span>))<span class="question-mark">?
+            </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()
     }
 
     <span class="attr">#[allow(clippy::expect_used)]
-    </span><span class="kw">fn </span>class(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bound&lt;<span class="lifetime">'py</span>, PyCodecClass&gt; {
+    </span><span class="kw">fn </span>class(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bound&lt;<span class="lifetime">'py</span>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt; {
         <span class="comment">// extracting a codec guarantees that its class is a codec class
-        </span><span class="self">self</span>.as_any()
-            .get_type()
-            .extract()
-            .expect(<span class="string">"Codec's class must be a CodecClass"</span>)
+        </span><a class="self" href="#106">self</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Bound.html#method.as_any">as_any</a>()
+            .<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.get_type">get_type</a>()
+            .<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()
+            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.expect">expect</a>(<span class="string">"Codec's class must be a CodecClass"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'py</span>&gt; Sealed <span class="kw">for </span>Bound&lt;<span class="lifetime">'py</span>, PyCodec&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'py</span>&gt; <a href="lib.rs.html#39">Sealed</a> <span class="kw">for </span>Bound&lt;<span class="lifetime">'py</span>, <a href="#20-22">PyCodec</a>&gt; {}
 
 <span class="attr">#[doc(hidden)]
-</span><span class="kw">impl </span>DerefToPyAny <span class="kw">for </span>PyCodec {}
+</span><span class="kw">impl </span><a href="https://docs.rs/pyo3/0.21/pyo3/types/trait.DerefToPyAny.html">DerefToPyAny</a> <span class="kw">for </span><a href="#20-22">PyCodec</a> {}
 
 <span class="attr">#[doc(hidden)]
 #[allow(unsafe_code)]
-</span><span class="kw">unsafe impl </span>PyNativeType <span class="kw">for </span>PyCodec {
+</span><span class="kw">unsafe impl </span><a href="https://docs.rs/pyo3/0.21/pyo3/instance/trait.PyNativeType.html">PyNativeType</a> <span class="kw">for </span><a href="#20-22">PyCodec</a> {
     <span class="kw">type </span>AsRefSource = <span class="self">Self</span>;
 }
 
 <span class="attr">#[doc(hidden)]
 #[allow(unsafe_code)]
-</span><span class="kw">unsafe impl </span>PyTypeInfo <span class="kw">for </span>PyCodec {
-    <span class="kw">const </span>MODULE: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; = <span class="prelude-val">Some</span>(<span class="string">"numcodecs.abc"</span>);
-    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"Codec"</span>;
+</span><span class="kw">unsafe impl </span><a href="https://docs.rs/pyo3/0.21/pyo3/type_object/trait.PyTypeInfo.html">PyTypeInfo</a> <span class="kw">for </span><a href="#20-22">PyCodec</a> {
+    <span class="kw">const </span>MODULE: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; = <span class="prelude-val">Some</span>(<span class="string">"numcodecs.abc"</span>);
+    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"Codec"</span>;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>type_object_raw(py: Python) -&gt; <span class="kw-2">*mut </span>PyTypeObject {
-        <span class="kw">static </span>CODEC_TYPE: GILOnceCell&lt;Py&lt;PyType&gt;&gt; = GILOnceCell::new();
+    </span><span class="kw">fn </span>type_object_raw(py: <a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html">Python</a>) -&gt; <span class="kw-2">*mut </span>PyTypeObject {
+        <span class="kw">static </span>CODEC_TYPE: GILOnceCell&lt;Py&lt;<a href="https://docs.rs/pyo3/0.21/pyo3/types/typeobject/struct.PyType.html">PyType</a>&gt;&gt; = <a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html#method.new">GILOnceCell::new</a>();
 
-        <span class="kw">let </span>ty = CODEC_TYPE.get_or_try_init(py, || {
-            py.import_bound(<span class="macro">intern!</span>(py, <span class="string">"numcodecs.abc"</span>))<span class="question-mark">?
-                </span>.getattr(<span class="macro">intern!</span>(py, <span class="string">"Codec"</span>))<span class="question-mark">?
-                </span>.extract()
+        <span class="kw">let </span>ty = <a href="#134">CODEC_TYPE</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html#method.get_or_try_init">get_or_try_init</a>(<a href="#133">py</a>, || {
+            <a href="#133">py</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html#method.import_bound">import_bound</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"numcodecs.abc"</span>))<span class="question-mark">?
+                </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"Codec"</span>))<span class="question-mark">?
+                </span>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()
         });
         <span class="attr">#[allow(clippy::expect_used)]
-        </span><span class="kw">let </span>ty = ty.expect(<span class="string">"failed to access the `numpy.abc.Codec` type object"</span>);
+        </span><span class="kw">let </span>ty = <a href="#136">ty</a>.<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.expect">expect</a>(<span class="string">"failed to access the `numpy.abc.Codec` type object"</span>);
 
-        ty.bind(py).as_type_ptr()
+        <a href="#142">ty</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/instance/struct.Py.html#method.bind">bind</a>(<a href="#133">py</a>).<a href="https://docs.rs/pyo3/0.21/pyo3/types/typeobject/trait.PyTypeMethods.html#tymethod.as_type_ptr">as_type_ptr</a>()
     }
 }
 </code></pre></div></section></main></body></html>
