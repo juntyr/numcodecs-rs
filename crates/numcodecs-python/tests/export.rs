@@ -1,10 +1,10 @@
 use numcodecs::{
-    AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
-    StaticCodecType,
+    serialize_codec_config_with_id, AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut,
+    AnyCowArray, Codec, StaticCodec, StaticCodecType,
 };
 use numcodecs_python::{export_codec_class, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 use pyo3::{exceptions::PyTypeError, prelude::*, types::PyDict};
-use serde::ser::SerializeMap;
+use serde::{Deserialize, Serialize};
 use ::{
     convert_case as _, ndarray as _, pythonize as _, serde as _, serde_json as _,
     serde_transcode as _,
@@ -66,7 +66,7 @@ fn export() -> Result<(), PyErr> {
     })
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 struct NegateCodec;
 
 impl Codec for NegateCodec {
@@ -102,16 +102,14 @@ impl Codec for NegateCodec {
     }
 
     fn get_config<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        let mut map = serializer.serialize_map(None)?;
-        map.serialize_entry("id", Self::CODEC_ID)?;
-        map.end()
+        serialize_codec_config_with_id(self, self, serializer)
     }
 }
 
 impl StaticCodec for NegateCodec {
     const CODEC_ID: &'static str = "negate";
 
-    fn from_config<'de, D: serde::Deserializer<'de>>(_config: D) -> Result<Self, D::Error> {
-        Ok(Self)
+    fn from_config<'de, D: serde::Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
+        Self::deserialize(config)
     }
 }

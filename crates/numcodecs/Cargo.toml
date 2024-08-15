@@ -17,6 +17,7 @@ keywords = ["numcodecs", "compression", "encoding"]
 [dependencies]
 ndarray = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["std"] }
 thiserror = { workspace = true }
 
 [lints]

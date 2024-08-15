@@ -26,7 +26,10 @@ pub use array::{
     AnyArcArray, AnyArray, AnyArrayAssignError, AnyArrayBase, AnyArrayDType, AnyArrayView,
     AnyArrayViewMut, AnyCowArray, AnyRawData, ArrayDType,
 };
-pub use codec::{Codec, DynCodec, DynCodecType, StaticCodec, StaticCodecType};
+pub use codec::{
+    codec_from_config_with_id, serialize_codec_config_with_id, Codec, DynCodec, DynCodecType,
+    StaticCodec, StaticCodecType,
+};
 
 mod sealed {
     pub trait Sealed {}

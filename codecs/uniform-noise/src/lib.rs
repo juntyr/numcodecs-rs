@@ -21,8 +21,8 @@ use std::hash::{Hash, Hasher};
 
 use ndarray::{Array, ArrayBase, Data, Dimension};
 use numcodecs::{
-    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec,
+    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
+    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
 use rand::{
     distributions::{Distribution, Open01},
@@ -83,7 +83,7 @@ impl Codec for UniformNoiseCodec {
     }
 
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        self.serialize(serializer)
+        serialize_codec_config_with_id(self, self, serializer)
     }
 }
 

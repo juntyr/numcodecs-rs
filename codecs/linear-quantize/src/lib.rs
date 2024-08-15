@@ -23,7 +23,8 @@ use std::{borrow::Cow, fmt};
 
 use ndarray::{Array, Array1, ArrayBase, ArrayD, ArrayViewMutD, Data, Dimension, ShapeError};
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    serialize_codec_config_with_id, AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut,
+    AnyCowArray, Codec, StaticCodec,
 };
 use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer};
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -383,7 +384,7 @@ impl Codec for LinearQuantizeCodec {
     }
 
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        self.serialize(serializer)
+        serialize_codec_config_with_id(self, self, serializer)
     }
 }
 

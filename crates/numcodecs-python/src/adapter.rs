@@ -29,7 +29,7 @@ impl PyCodecAdapter {
     /// Instantiate a codec from the [`PyCodecRegistry`] with a serialized
     /// `config`uration.
     ///
-    /// The config must include the `id` field with the
+    /// The config *must* include the `id` field with the
     /// [`PyCodecClassMethods::codec_id`].
     ///
     /// # Errors

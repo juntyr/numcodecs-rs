@@ -18,7 +18,8 @@
 //! Identity codec implementation for the [`numcodecs`] API.
 
 use numcodecs::{
-    AnyArray, AnyArrayAssignError, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayView, AnyArrayViewMut,
+    AnyCowArray, Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -48,7 +49,7 @@ impl Codec for IdentityCodec {
     }
 
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        self.serialize(serializer)
+        serialize_codec_config_with_id(self, self, serializer)
     }
 }
 

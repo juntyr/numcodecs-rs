@@ -29,6 +29,8 @@ pub trait PyCodecClassMethods<'py>: Sealed {
 
     /// Instantiate a codec from a configuration dictionary.
     ///
+    /// The `config` dict must *not* contain an `id` field.
+    ///
     /// # Errors
     ///
     /// Errors if constructing the codec fails.

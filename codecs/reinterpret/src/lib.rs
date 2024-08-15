@@ -19,8 +19,8 @@
 
 use ndarray::{Array, ArrayBase, ArrayView, Data, DataMut, Dimension, ViewRepr};
 use numcodecs::{
-    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    ArrayDType, Codec, StaticCodec,
+    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
+    AnyArrayViewMut, AnyCowArray, ArrayDType, Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -291,7 +291,7 @@ impl Codec for ReinterpretCodec {
     }
 
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        self.serialize(serializer)
+        serialize_codec_config_with_id(self, self, serializer)
     }
 }
 

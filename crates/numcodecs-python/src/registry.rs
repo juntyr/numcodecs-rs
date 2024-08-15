@@ -12,7 +12,7 @@ pub struct PyCodecRegistry {
 impl PyCodecRegistry {
     /// Instantiate a codec from a configuration dictionary.
     ///
-    /// The config must include the `id` field with the
+    /// The config *must* include the `id` field with the
     /// [`PyCodecClassMethods::codec_id`].
     ///
     /// # Errors

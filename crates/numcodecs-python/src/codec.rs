@@ -60,9 +60,10 @@ pub trait PyCodecMethods<'py>: Sealed {
 
     /// Returns a dictionary holding configuration parameters for this codec.
     ///
-    /// The dict must include an `id` field with the
-    /// [`PyCodecClassMethods::codec_id`]. The dict must be compatible with JSON
-    /// encoding.
+    /// The dict *must* include an `id` field with the
+    /// [`PyCodecClassMethods::codec_id`].
+    ///
+    /// The dict *must* be compatible with JSON encoding.
     ///
     /// # Errors
     ///
