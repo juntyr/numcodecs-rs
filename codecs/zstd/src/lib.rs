@@ -24,7 +24,8 @@ use std::{borrow::Cow, io};
 
 use ndarray::Array1;
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -175,23 +176,12 @@ pub enum ZstdCodecError {
         /// Opaque source error
         source: ZstdCodingError,
     },
-    /// [`ZstdCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    #[error("Zstd cannot decode the dtype {decoded} into the provided {provided} array")]
-    MismatchedDecodeIntoDtype {
-        /// Dtype of the `decoded` data
-        decoded: AnyArrayDType,
-        /// Dtype of the `provided` array into which the data is to be decoded
-        provided: AnyArrayDType,
-    },
-    /// [`ZstdCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    #[error("Zstd cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
-    MismatchedDecodeIntoShape {
-        /// Shape of the `decoded` data
-        decoded: Vec<usize>,
-        /// Shape of the `provided` array into which the data is to be decoded
-        provided: Vec<usize>,
+    /// [`ZstdCodec`] cannot decode into the provided array
+    #[error("Zstd cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
     },
 }
 
@@ -271,10 +261,8 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZstdCodecError> {
 ///
 /// Errors with
 /// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed
-/// - [`ZstdCodecError::MismatchedDecodeIntoDtype`] if the `decoded` array is of
-///   the wrong dtype
-/// - [`ZstdCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
-///   the wrong shape
+/// - [`ZstdCodecError::MismatchedDecodeIntoArray`] if the `decoded` array is of
+///   the wrong dtype or shape
 /// - [`ZstdCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZstdCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
@@ -290,16 +278,20 @@ pub fn decompress_into(encoded: &[u8], mut decoded: AnyArrayViewMut) -> Result<(
         })?;
 
     if header.dtype != decoded.dtype() {
-        return Err(ZstdCodecError::MismatchedDecodeIntoDtype {
-            decoded: header.dtype,
-            provided: decoded.dtype(),
+        return Err(ZstdCodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::DTypeMismatch {
+                src: header.dtype,
+                dst: decoded.dtype(),
+            },
         });
     }
 
     if header.shape != decoded.shape() {
-        return Err(ZstdCodecError::MismatchedDecodeIntoShape {
-            decoded: header.shape.into_owned(),
-            provided: decoded.shape().to_vec(),
+        return Err(ZstdCodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::ShapeMismatch {
+                src: header.shape.into_owned(),
+                dst: decoded.shape().to_vec(),
+            },
         });
     }
 

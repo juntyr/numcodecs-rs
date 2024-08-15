@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
+use ndarray::{ArrayBase, DataMut, Dimension};
 use numcodecs::{
     AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec,
     DynCodecType,
 };
-use numpy::{PyArray, PyArrayDyn, PyArrayMethods, PyUntypedArray, PyUntypedArrayMethods};
+use numpy::{Element, PyArray, PyArrayDyn, PyArrayMethods, PyUntypedArray, PyUntypedArrayMethods};
 use pyo3::{
-    exceptions::PyTypeError,
+    exceptions::{PyTypeError, PyValueError},
     intern,
     prelude::*,
     types::{IntoPyDict, PyDict, PyDictMethods},
@@ -292,6 +293,22 @@ impl PyCodecAdapter {
         view_mut: &mut AnyArrayViewMut,
         array_like: Bound<PyAny>,
     ) -> Result<(), PyErr> {
+        fn shape_checked_assign<T: Element, S2: DataMut<Elem = T>, D1: Dimension, D2: Dimension>(
+            src: &Bound<PyArray<T, D1>>,
+            dst: &mut ArrayBase<S2, D2>,
+        ) -> Result<(), PyErr> {
+            #[allow(clippy::unit_arg)]
+            if src.shape() == dst.shape() {
+                Ok(dst.assign(&src.try_readonly()?.as_array()))
+            } else {
+                Err(PyValueError::new_err(format!(
+                    "mismatching shape {:?} of array-like, expected {:?}",
+                    src.shape(),
+                    dst.shape(),
+                )))
+            }
+        }
+
         let ndarray: Bound<PyUntypedArray> = py
             .import_bound(intern!(py, "numpy"))?
             .getattr(intern!(py, "asarray"))?
@@ -301,43 +318,43 @@ impl PyCodecAdapter {
         #[allow(clippy::unit_arg)]
         if let Ok(d) = ndarray.downcast::<PyArrayDyn<u8>>() {
             if let AnyArrayBase::U8(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<u16>>() {
             if let AnyArrayBase::U16(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<u32>>() {
             if let AnyArrayBase::U32(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<u64>>() {
             if let AnyArrayBase::U64(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i8>>() {
             if let AnyArrayBase::I8(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i16>>() {
             if let AnyArrayBase::I16(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i32>>() {
             if let AnyArrayBase::I32(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i64>>() {
             if let AnyArrayBase::I64(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<f32>>() {
             if let AnyArrayBase::F32(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<f64>>() {
             if let AnyArrayBase::F64(ref mut view_mut) = view_mut {
-                return Ok(view_mut.assign(&d.try_readonly()?.as_array()));
+                return shape_checked_assign(d, view_mut);
             }
         } else {
             return Err(PyTypeError::new_err(format!(

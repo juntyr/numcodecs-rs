@@ -19,9 +19,10 @@
 
 use std::ops::{Div, Mul};
 
-use ndarray::{Array, ArrayBase, ArrayViewD, ArrayViewMutD, Data, Dimension};
+use ndarray::{Array, ArrayBase, Data, Dimension};
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -64,38 +65,11 @@ impl Codec for RoundCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        fn shape_checked_assign<T: Copy>(
-            encoded: &ArrayViewD<T>,
-            decoded: &mut ArrayViewMutD<T>,
-        ) -> Result<(), RoundCodecError> {
-            #[allow(clippy::unit_arg)]
-            if encoded.shape() == decoded.shape() {
-                Ok(decoded.assign(encoded))
-            } else {
-                Err(RoundCodecError::MismatchedDecodeIntoShape {
-                    decoded: encoded.shape().to_vec(),
-                    provided: decoded.shape().to_vec(),
-                })
-            }
+        if !matches!(encoded.dtype(), AnyArrayDType::F32 | AnyArrayDType::F64) {
+            return Err(RoundCodecError::UnsupportedDtype(encoded.dtype()));
         }
 
-        match (&encoded, &mut decoded) {
-            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F32(_), decoded) => Err(RoundCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F32,
-                provided: decoded.dtype(),
-            }),
-            (AnyArrayView::F64(_), decoded) => Err(RoundCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F64,
-                provided: decoded.dtype(),
-            }),
-            (encoded, _decoded) => Err(RoundCodecError::UnsupportedDtype(encoded.dtype())),
-        }
+        Ok(decoded.assign(&encoded)?)
     }
 
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
@@ -143,23 +117,12 @@ pub enum RoundCodecError {
     /// [`RoundCodec`] does not support the dtype
     #[error("Round does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
-    /// [`RoundCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    #[error("Round cannot decode the dtype {decoded} into the provided {provided} array")]
-    MismatchedDecodeIntoDtype {
-        /// Dtype of the `decoded` data
-        decoded: AnyArrayDType,
-        /// Dtype of the `provided` array into which the data is to be decoded
-        provided: AnyArrayDType,
-    },
-    /// [`RoundCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    #[error("Round cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
-    MismatchedDecodeIntoShape {
-        /// Shape of the `decoded` data
-        decoded: Vec<usize>,
-        /// Shape of the `provided` array into which the data is to be decoded
-        provided: Vec<usize>,
+    /// [`RoundCodec`] cannot decode into the provided array
+    #[error("Round cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
     },
 }
 

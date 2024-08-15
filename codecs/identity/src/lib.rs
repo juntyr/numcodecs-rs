@@ -17,9 +17,8 @@
 //!
 //! Identity codec implementation for the [`numcodecs`] API.
 
-use ndarray::{ArrayViewD, ArrayViewMutD};
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -45,57 +44,7 @@ impl Codec for IdentityCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        fn shape_checked_assign<T: Copy>(
-            encoded: &ArrayViewD<T>,
-            decoded: &mut ArrayViewMutD<T>,
-        ) -> Result<(), IdentityCodecError> {
-            #[allow(clippy::unit_arg)]
-            if encoded.shape() == decoded.shape() {
-                Ok(decoded.assign(encoded))
-            } else {
-                Err(IdentityCodecError::MismatchedDecodeIntoShape {
-                    decoded: encoded.shape().to_vec(),
-                    provided: decoded.shape().to_vec(),
-                })
-            }
-        }
-
-        match (&encoded, &mut decoded) {
-            (AnyArrayView::U8(encoded), AnyArrayViewMut::U8(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::U16(encoded), AnyArrayViewMut::U16(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::U32(encoded), AnyArrayViewMut::U32(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::U64(encoded), AnyArrayViewMut::U64(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::I8(encoded), AnyArrayViewMut::I8(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::I16(encoded), AnyArrayViewMut::I16(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::I32(encoded), AnyArrayViewMut::I32(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::I64(encoded), AnyArrayViewMut::I64(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (encoded, decoded) => Err(IdentityCodecError::MismatchedDecodeIntoDtype {
-                decoded: encoded.dtype(),
-                provided: decoded.dtype(),
-            }),
-        }
+        Ok(decoded.assign(&encoded)?)
     }
 
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
@@ -114,22 +63,11 @@ impl StaticCodec for IdentityCodec {
 #[derive(Debug, Error)]
 /// Errors that may occur when applying the [`IdentityCodec`].
 pub enum IdentityCodecError {
-    /// [`IdentityCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    #[error("Identity cannot decode the dtype {decoded} into the provided {provided} array")]
-    MismatchedDecodeIntoDtype {
-        /// Dtype of the `decoded` data
-        decoded: AnyArrayDType,
-        /// Dtype of the `provided` array into which the data is to be decoded
-        provided: AnyArrayDType,
-    },
-    /// [`IdentityCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    #[error("Identity cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
-    MismatchedDecodeIntoShape {
-        /// Shape of the `decoded` data
-        decoded: Vec<usize>,
-        /// Shape of the `provided` array into which the data is to be decoded
-        provided: Vec<usize>,
+    /// [`IdentityCodec`] cannot decode into the provided array
+    #[error("Identity cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
     },
 }

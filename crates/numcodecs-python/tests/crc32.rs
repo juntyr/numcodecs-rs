@@ -1,6 +1,6 @@
+use ndarray::{Array1, ArrayView1};
 use numcodecs::{AnyArray, AnyArrayView, AnyCowArray, Codec, DynCodec, DynCodecType};
 use numcodecs_python::{PyCodecAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
-use numpy::ndarray::{Array1, ArrayView1};
 use pyo3::{exceptions::PyRuntimeError, prelude::*, types::PyDict};
 use serde_json::json;
 use ::{convert_case as _, pythonize as _, serde as _, serde_transcode as _};

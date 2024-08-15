@@ -1,6 +1,6 @@
+use ndarray::{ArrayViewD, ArrayViewMutD, CowArray};
 use numcodecs::{AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType};
 use numpy::{
-    ndarray::{ArrayViewD, ArrayViewMutD, CowArray},
     IxDyn, PyArray, PyArrayDescrMethods, PyArrayDyn, PyArrayMethods, PyUntypedArray,
     PyUntypedArrayMethods,
 };
@@ -505,10 +505,9 @@ impl RustCodec {
             AnyArray::I64(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
             AnyArray::F32(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
             AnyArray::F64(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            _ /*buf*/ => Err(PyTypeError::new_err(format!(
-                "{class_method} returned unsupported dtype",
-                // "{class_method} returned unsupported dtype `{}`",
-                // buf.as_slice().ty()
+            array => Err(PyTypeError::new_err(format!(
+                "{class_method} returned unsupported dtype `{}`",
+                array.dtype(),
             ))),
         }
     }

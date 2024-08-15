@@ -19,7 +19,8 @@
 
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension};
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -62,14 +63,14 @@ impl Codec for LogCodec {
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
                 exp_m1_into(encoded, decoded)
             }
-            (AnyArrayView::F32(_), decoded) => Err(LogCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F32,
-                provided: decoded.dtype(),
-            }),
-            (AnyArrayView::F64(_), decoded) => Err(LogCodecError::MismatchedDecodeIntoDtype {
-                decoded: AnyArrayDType::F64,
-                provided: decoded.dtype(),
-            }),
+            (encoded @ (AnyArrayView::F32(_) | AnyArrayView::F64(_)), decoded) => {
+                Err(LogCodecError::MismatchedDecodeIntoArray {
+                    source: AnyArrayAssignError::DTypeMismatch {
+                        src: encoded.dtype(),
+                        dst: decoded.dtype(),
+                    },
+                })
+            }
             (encoded, _decoded) => Err(LogCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
@@ -100,23 +101,12 @@ pub enum LogCodecError {
     /// point data
     #[error("Log does not support non-finite (infinite or NaN) floating point data")]
     NonFiniteData,
-    /// [`LogCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    #[error("Log cannot decode the dtype {decoded} into the provided {provided} array")]
-    MismatchedDecodeIntoDtype {
-        /// Dtype of the `decoded` data
-        decoded: AnyArrayDType,
-        /// Dtype of the `provided` array into which the data is to be decoded
-        provided: AnyArrayDType,
-    },
-    /// [`LogCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    #[error("Log cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
-    MismatchedDecodeIntoShape {
-        /// Shape of the `decoded` data
-        decoded: Vec<usize>,
-        /// Shape of the `provided` array into which the data is to be decoded
-        provided: Vec<usize>,
+    /// [`LogCodec`] cannot decode into the provided array
+    #[error("Log cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
     },
 }
 
@@ -180,16 +170,18 @@ pub fn exp_m1<T: Float, S: Data<Elem = T>, D: Dimension>(
 /// - [`LogCodecError::NegativeData`] if any data element is negative
 /// - [`LogCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN)
-/// - [`LogCodecError::MismatchedDecodeIntoShape`] if the `data` array's shape
+/// - [`LogCodecError::MismatchedDecodeIntoArray`] if the `data` array's shape
 ///   does not match the `out`put array's shape
 pub fn exp_m1_into<T: Float, D: Dimension>(
     data: ArrayView<T, D>,
     mut out: ArrayViewMut<T, D>,
 ) -> Result<(), LogCodecError> {
     if data.shape() != out.shape() {
-        return Err(LogCodecError::MismatchedDecodeIntoShape {
-            decoded: data.shape().to_vec(),
-            provided: out.shape().to_vec(),
+        return Err(LogCodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::ShapeMismatch {
+                src: data.shape().to_vec(),
+                dst: out.shape().to_vec(),
+            },
         });
     }
 

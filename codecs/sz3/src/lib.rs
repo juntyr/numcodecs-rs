@@ -19,9 +19,10 @@
 
 use std::{borrow::Cow, fmt};
 
-use ndarray::{Array, Array1, ArrayBase, ArrayViewMut, Data, Dimension, ShapeError};
+use ndarray::{Array, Array1, ArrayBase, Data, Dimension, ShapeError};
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -137,54 +138,16 @@ impl Codec for Sz3Codec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        fn shape_checked_assign<T: Copy, S: Data<Elem = T>, D: Dimension>(
-            decoded_in: &ArrayBase<S, D>,
-            decoded_out: &mut ArrayViewMut<T, D>,
-        ) -> Result<(), Sz3CodecError> {
-            #[allow(clippy::unit_arg)]
-            if decoded_in.shape() == decoded_out.shape() {
-                Ok(decoded_out.assign(decoded_in))
-            } else {
-                Err(Sz3CodecError::MismatchedDecodeIntoShape {
-                    decoded: decoded_in.shape().to_vec(),
-                    provided: decoded_out.shape().to_vec(),
-                })
-            }
+        if !matches!(
+            encoded.dtype(),
+            AnyArrayDType::I32 | AnyArrayDType::I64 | AnyArrayDType::F32 | AnyArrayDType::F64
+        ) {
+            return Err(Sz3CodecError::UnsupportedDtype(encoded.dtype()));
         }
 
         let decoded_in = self.decode(encoded.cow())?;
 
-        match (&decoded_in, &mut decoded) {
-            (AnyArray::I32(decoded_in), AnyArrayViewMut::I32(decoded)) => {
-                shape_checked_assign(decoded_in, decoded)
-            }
-            (AnyArray::I64(decoded_in), AnyArrayViewMut::I64(decoded)) => {
-                shape_checked_assign(decoded_in, decoded)
-            }
-            (AnyArray::F32(decoded_in), AnyArrayViewMut::F32(decoded)) => {
-                shape_checked_assign(decoded_in, decoded)
-            }
-            (AnyArray::F64(decoded_in), AnyArrayViewMut::F64(decoded)) => {
-                shape_checked_assign(decoded_in, decoded)
-            }
-            (AnyArray::I32(_), decoded) => Err(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: Sz3DType::I32,
-                provided: decoded.dtype(),
-            }),
-            (AnyArray::I64(_), decoded) => Err(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: Sz3DType::I64,
-                provided: decoded.dtype(),
-            }),
-            (AnyArray::F32(_), decoded) => Err(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: Sz3DType::F32,
-                provided: decoded.dtype(),
-            }),
-            (AnyArray::F64(_), decoded) => Err(Sz3CodecError::MismatchedDecodeIntoDtype {
-                decoded: Sz3DType::F64,
-                provided: decoded.dtype(),
-            }),
-            (encoded, _decoded) => Err(Sz3CodecError::UnsupportedDtype(encoded.dtype())),
-        }
+        Ok(decoded.assign(&decoded_in)?)
     }
 
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
@@ -256,23 +219,12 @@ pub enum Sz3CodecError {
         #[from]
         source: ShapeError,
     },
-    /// [`Sz3Codec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    #[error("Sz3 cannot decode the dtype {decoded} into the provided {provided} array")]
-    MismatchedDecodeIntoDtype {
-        /// Dtype of the `decoded` data
-        decoded: Sz3DType,
-        /// Dtype of the `provided` array into which the data is to be decoded
-        provided: AnyArrayDType,
-    },
-    /// [`Sz3Codec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    #[error("Sz3 cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
-    MismatchedDecodeIntoShape {
-        /// Shape of the `decoded` data
-        decoded: Vec<usize>,
-        /// Shape of the `provided` array into which the data is to be decoded
-        provided: Vec<usize>,
+    /// [`Sz3Codec`] cannot decode into the provided array
+    #[error("Sz3 cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
     },
 }
 

@@ -17,12 +17,10 @@
 //!
 //! Binary reinterpret codec implementation for the [`numcodecs`] API.
 
-use ndarray::{
-    Array, ArrayBase, ArrayView, ArrayViewD, ArrayViewMutD, Data, DataMut, Dimension, ViewRepr,
-};
+use ndarray::{Array, ArrayBase, ArrayView, Data, DataMut, Dimension, ViewRepr};
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, ArrayDType, Codec,
-    StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    ArrayDType, Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -224,21 +222,6 @@ impl Codec for ReinterpretCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        fn shape_checked_assign<T: Copy>(
-            encoded: &ArrayViewD<T>,
-            decoded: &mut ArrayViewMutD<T>,
-        ) -> Result<(), ReinterpretCodecError> {
-            #[allow(clippy::unit_arg)]
-            if encoded.shape() == decoded.shape() {
-                Ok(decoded.assign(encoded))
-            } else {
-                Err(ReinterpretCodecError::MismatchedDecodeIntoShape {
-                    decoded: encoded.shape().to_vec(),
-                    provided: decoded.shape().to_vec(),
-                })
-            }
-        }
-
         if encoded.dtype() != self.encode_dtype {
             return Err(ReinterpretCodecError::MismatchedDecodeDType {
                 configured: self.encode_dtype,
@@ -247,47 +230,14 @@ impl Codec for ReinterpretCodec {
         }
 
         match (encoded, self.decode_dtype) {
-            (encoded, dtype) if encoded.dtype() == dtype => match (&encoded, &mut decoded) {
-                (AnyArrayView::U8(encoded), AnyArrayViewMut::U8(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (AnyArrayView::U16(encoded), AnyArrayViewMut::U16(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (AnyArrayView::U32(encoded), AnyArrayViewMut::U32(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (AnyArrayView::U64(encoded), AnyArrayViewMut::U64(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (AnyArrayView::I8(encoded), AnyArrayViewMut::I8(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (AnyArrayView::I16(encoded), AnyArrayViewMut::I16(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (AnyArrayView::I32(encoded), AnyArrayViewMut::I32(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (AnyArrayView::I64(encoded), AnyArrayViewMut::I64(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
-                    shape_checked_assign(encoded, decoded)
-                }
-                (encoded, decoded) => Err(ReinterpretCodecError::MismatchedDecodeIntoDtype {
-                    decoded: encoded.dtype(),
-                    provided: decoded.dtype(),
-                }),
-            },
+            (encoded, dtype) if encoded.dtype() == dtype => Ok(decoded.assign(&encoded)?),
             (AnyArrayView::U8(encoded), dtype) => {
                 if decoded.dtype() != dtype {
-                    return Err(ReinterpretCodecError::MismatchedDecodeIntoDtype {
-                        decoded: dtype,
-                        provided: decoded.dtype(),
+                    return Err(ReinterpretCodecError::MismatchedDecodeIntoArray {
+                        source: AnyArrayAssignError::DTypeMismatch {
+                            src: dtype,
+                            dst: decoded.dtype(),
+                        },
                     });
                 }
 
@@ -302,9 +252,11 @@ impl Codec for ReinterpretCodec {
                 }
 
                 if decoded.shape() != shape {
-                    return Err(ReinterpretCodecError::MismatchedDecodeIntoShape {
-                        decoded: shape,
-                        provided: decoded.shape().to_vec(),
+                    return Err(ReinterpretCodecError::MismatchedDecodeIntoArray {
+                        source: AnyArrayAssignError::ShapeMismatch {
+                            src: shape,
+                            dst: decoded.shape().to_vec(),
+                        },
                     });
                 }
 
@@ -416,23 +368,12 @@ pub enum ReinterpretCodecError {
         /// Dtype of the array into which the encoded data is to be decoded
         dtype: AnyArrayDType,
     },
-    /// [`ReinterpretCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    #[error("Reinterpret cannot decode the dtype {decoded} into the provided {provided} array")]
-    MismatchedDecodeIntoDtype {
-        /// Dtype of the `decoded` data
-        decoded: AnyArrayDType,
-        /// Dtype of the `provided` array into which the data is to be decoded
-        provided: AnyArrayDType,
-    },
-    /// [`ReinterpretCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    #[error("Reinterpret cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
-    MismatchedDecodeIntoShape {
-        /// Shape of the `decoded` data
-        decoded: Vec<usize>,
-        /// Shape of the `provided` array into which the data is to be decoded
-        provided: Vec<usize>,
+    /// [`ReinterpretCodec`] cannot decode into the provided array
+    #[error("Reinterpret cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
     },
 }
 
@@ -462,10 +403,9 @@ pub fn reinterpret_array<T: Copy, U, S: Data<Elem = T>, D: Dimension>(
 /// # Errors
 ///
 /// Errors with
-/// - [`ReinterpretCodecError::MismatchedDecodeIntoDtype`] if `decoded` does not
-///   contain an array with elements of type `U`
-/// - [`ReinterpretCodecError::MismatchedDecodeIntoShape`] if `decoded`'s shape
-///   does not match `encoded`'s shape
+/// - [`ReinterpretCodecError::MismatchedDecodeIntoArray`] if `decoded` does not
+///   contain an array with elements of type `U` or its shape does not match the
+///   `encoded` array's shape
 #[inline]
 pub fn reinterpret_array_into<'a, T: Copy, U: ArrayDType, D: Dimension>(
     encoded: ArrayView<T, D>,
@@ -476,16 +416,20 @@ where
     U::RawData<ViewRepr<&'a mut ()>>: DataMut,
 {
     let Some(decoded) = decoded.as_typed_mut::<U>() else {
-        return Err(ReinterpretCodecError::MismatchedDecodeIntoDtype {
-            decoded: U::DTYPE,
-            provided: decoded.dtype(),
+        return Err(ReinterpretCodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::DTypeMismatch {
+                src: U::DTYPE,
+                dst: decoded.dtype(),
+            },
         });
     };
 
     if encoded.shape() != decoded.shape() {
-        return Err(ReinterpretCodecError::MismatchedDecodeIntoShape {
-            decoded: encoded.shape().to_vec(),
-            provided: decoded.shape().to_vec(),
+        return Err(ReinterpretCodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::ShapeMismatch {
+                src: encoded.shape().to_vec(),
+                dst: decoded.shape().to_vec(),
+            },
         });
     }
 

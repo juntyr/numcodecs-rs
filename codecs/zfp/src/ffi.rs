@@ -3,7 +3,7 @@
 use std::{marker::PhantomData, mem::ManuallyDrop};
 
 use ndarray::{ArrayView, Dimension};
-use numcodecs::{AnyArray, AnyArrayDType, AnyArrayViewMut};
+use numcodecs::{AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayViewMut};
 
 use crate::{ZfpCodecError, ZfpCompressionMode};
 
@@ -323,9 +323,11 @@ impl<'a> ZfpDecompressionStreamWithHeader<'a> {
         };
 
         if decompressed.dtype() != dtype {
-            return Err(ZfpCodecError::MismatchedDecodeIntoDtype {
-                decoded: dtype,
-                provided: decompressed.dtype(),
+            return Err(ZfpCodecError::MismatchedDecodeIntoArray {
+                source: AnyArrayAssignError::DTypeMismatch {
+                    src: dtype,
+                    dst: decompressed.dtype(),
+                },
             });
         }
 
@@ -340,9 +342,11 @@ impl<'a> ZfpDecompressionStreamWithHeader<'a> {
         .collect::<Vec<usize>>();
 
         if decompressed.shape() != shape {
-            return Err(ZfpCodecError::MismatchedDecodeIntoShape {
-                decoded: shape,
-                provided: decompressed.shape().to_vec(),
+            return Err(ZfpCodecError::MismatchedDecodeIntoArray {
+                source: AnyArrayAssignError::ShapeMismatch {
+                    src: shape,
+                    dst: decompressed.shape().to_vec(),
+                },
             });
         }
 

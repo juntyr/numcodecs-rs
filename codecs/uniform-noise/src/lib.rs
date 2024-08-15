@@ -19,9 +19,10 @@
 
 use std::hash::{Hash, Hasher};
 
-use ndarray::{Array, ArrayBase, ArrayViewD, ArrayViewMutD, Data, Dimension};
+use ndarray::{Array, ArrayBase, Data, Dimension};
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec,
 };
 use rand::{
     distributions::{Distribution, Open01},
@@ -74,42 +75,11 @@ impl Codec for UniformNoiseCodec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        fn shape_checked_assign<T: Copy>(
-            encoded: &ArrayViewD<T>,
-            decoded: &mut ArrayViewMutD<T>,
-        ) -> Result<(), UniformNoiseCodecError> {
-            #[allow(clippy::unit_arg)]
-            if encoded.shape() == decoded.shape() {
-                Ok(decoded.assign(encoded))
-            } else {
-                Err(UniformNoiseCodecError::MismatchedDecodeIntoShape {
-                    decoded: encoded.shape().to_vec(),
-                    provided: decoded.shape().to_vec(),
-                })
-            }
+        if !matches!(encoded.dtype(), AnyArrayDType::F32 | AnyArrayDType::F64) {
+            return Err(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype()));
         }
 
-        match (&encoded, &mut decoded) {
-            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
-                shape_checked_assign(encoded, decoded)
-            }
-            (AnyArrayView::F32(_), decoded) => {
-                Err(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
-                    decoded: AnyArrayDType::F32,
-                    provided: decoded.dtype(),
-                })
-            }
-            (AnyArrayView::F64(_), decoded) => {
-                Err(UniformNoiseCodecError::MismatchedDecodeIntoDtype {
-                    decoded: AnyArrayDType::F64,
-                    provided: decoded.dtype(),
-                })
-            }
-            (encoded, _decoded) => Err(UniformNoiseCodecError::UnsupportedDtype(encoded.dtype())),
-        }
+        Ok(decoded.assign(&encoded)?)
     }
 
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
@@ -131,23 +101,12 @@ pub enum UniformNoiseCodecError {
     /// [`UniformNoiseCodec`] does not support the dtype
     #[error("UniformNoise does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
-    /// [`UniformNoiseCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    #[error("UniformNoise cannot decode the dtype {decoded} into the provided {provided} array")]
-    MismatchedDecodeIntoDtype {
-        /// Dtype of the `decoded` data
-        decoded: AnyArrayDType,
-        /// Dtype of the `provided` array into which the data is to be decoded
-        provided: AnyArrayDType,
-    },
-    /// [`UniformNoiseCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    #[error("UniformNoise cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
-    MismatchedDecodeIntoShape {
-        /// Shape of the `decoded` data
-        decoded: Vec<usize>,
-        /// Shape of the `provided` array into which the data is to be decoded
-        provided: Vec<usize>,
+    /// [`UniformNoiseCodec`] cannot decode into the provided array
+    #[error("UniformNoise cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
     },
 }
 

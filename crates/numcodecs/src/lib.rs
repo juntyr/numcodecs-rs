@@ -23,8 +23,8 @@ mod array;
 mod codec;
 
 pub use array::{
-    AnyArcArray, AnyArray, AnyArrayBase, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    AnyRawData, ArrayDType,
+    AnyArcArray, AnyArray, AnyArrayAssignError, AnyArrayBase, AnyArrayDType, AnyArrayView,
+    AnyArrayViewMut, AnyCowArray, AnyRawData, ArrayDType,
 };
 pub use codec::{Codec, DynCodec, DynCodecType, StaticCodec, StaticCodecType};
 

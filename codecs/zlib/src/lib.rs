@@ -21,7 +21,8 @@ use std::borrow::Cow;
 
 use ndarray::Array1;
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -154,23 +155,12 @@ pub enum ZlibCodecError {
         /// Opaque source error
         source: ZlibDecodeError,
     },
-    /// [`ZlibCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    #[error("Zlib cannot decode the dtype {decoded} into the provided {provided} array")]
-    MismatchedDecodeIntoDtype {
-        /// Dtype of the `decoded` data
-        decoded: AnyArrayDType,
-        /// Dtype of the `provided` array into which the data is to be decoded
-        provided: AnyArrayDType,
-    },
-    /// [`ZlibCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    #[error("Zlib cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
-    MismatchedDecodeIntoShape {
-        /// Shape of the `decoded` data
-        decoded: Vec<usize>,
-        /// Shape of the `provided` array into which the data is to be decoded
-        provided: Vec<usize>,
+    /// [`ZlibCodec`] cannot decode into the provided array
+    #[error("Zlib cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
     },
 }
 
@@ -267,7 +257,7 @@ pub fn compress(array: AnyArrayView, level: ZlibLevel) -> Result<Vec<u8>, ZlibCo
 /// # Errors
 ///
 /// Errors with
-/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZlibCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
 /// - [`ZlibCodecError::DecodeProducedLess`] if decoding produced less data than
@@ -293,12 +283,10 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZlibCodecError> {
 /// # Errors
 ///
 /// Errors with
-/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
-/// - [`ZlibCodecError::MismatchedDecodeIntoDtype`] if the `decoded` array is of
-///   the wrong dtype.
-/// - [`ZlibCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
-///   the wrong shape.
-/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed.
+/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed
+/// - [`ZlibCodecError::MismatchedDecodeIntoArray`] if the `decoded` array is of
+///   the wrong dtype or shape
+/// - [`ZlibCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZlibCodecError::DecodeExcessiveEncodedData`] if the encoded data
 ///   contains excessive trailing data junk
 /// - [`ZlibCodecError::DecodeProducedLess`] if decoding produced less data than
@@ -313,16 +301,20 @@ pub fn decompress_into(encoded: &[u8], mut decoded: AnyArrayViewMut) -> Result<(
         })?;
 
     if header.dtype != decoded.dtype() {
-        return Err(ZlibCodecError::MismatchedDecodeIntoDtype {
-            decoded: header.dtype,
-            provided: decoded.dtype(),
+        return Err(ZlibCodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::DTypeMismatch {
+                src: header.dtype,
+                dst: decoded.dtype(),
+            },
         });
     }
 
     if header.shape != decoded.shape() {
-        return Err(ZlibCodecError::MismatchedDecodeIntoShape {
-            decoded: header.shape.into_owned(),
-            provided: decoded.shape().to_vec(),
+        return Err(ZlibCodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::ShapeMismatch {
+                src: header.shape.into_owned(),
+                dst: decoded.shape().to_vec(),
+            },
         });
     }
 

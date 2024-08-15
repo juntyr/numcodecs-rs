@@ -19,7 +19,8 @@
 
 use ndarray::{Array1, ArrayView, Dimension};
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -168,33 +169,33 @@ impl StaticCodec for ZfpCodec {
 /// Errors that may occur when applying the [`ZfpCodec`].
 pub enum ZfpCodecError {
     /// [`ZfpCodec`] does not support the dtype
-    #[error("ZFP does not support the dtype {0}")]
+    #[error("Zfp does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
     /// [`ZfpCodec`] does not support the fixed accuracy mode for integer data
-    #[error("ZFP does not support the fixed accuracy mode for integer data")]
+    #[error("Zfp does not support the fixed accuracy mode for integer data")]
     FixedAccuracyModeIntegerData,
     /// [`ZfpCodec`] only supports 1-4 dimensional data
-    #[error("ZFP only supports 1-4 dimensional data but found shape {shape:?}")]
+    #[error("Zfp only supports 1-4 dimensional data but found shape {shape:?}")]
     ExcessiveDimensionality {
         /// The unexpected shape of the data
         shape: Vec<usize>,
     },
     /// [`ZfpCodec`] was configured with an invalid expert `mode`
-    #[error("ZFP was configured with an invalid expert mode {mode:?}")]
+    #[error("Zfp was configured with an invalid expert mode {mode:?}")]
     InvalidExpertMode {
         /// The unexpected compression mode
         mode: ZfpCompressionMode,
     },
     /// [`ZfpCodec`] failed to encode the header
-    #[error("ZFP failed to encode the header")]
+    #[error("Zfp failed to encode the header")]
     HeaderEncodeFailed,
     /// [`ZfpCodec`] failed to encode the data
-    #[error("ZFP failed to encode the data")]
+    #[error("Zfp failed to encode the data")]
     ZfpEncodeFailed,
     /// [`ZfpCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
     #[error(
-        "ZFP can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
+        "Zfp can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
     )]
     EncodedDataNotBytes {
         /// The unexpected dtype of the encoded array
@@ -202,37 +203,26 @@ pub enum ZfpCodecError {
     },
     /// [`ZfpCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("ZFP can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error("Zfp can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,
     },
     /// [`ZfpCodec`] failed to decode the header
-    #[error("ZFP failed to decode the header")]
+    #[error("Zfp failed to decode the header")]
     HeaderDecodeFailed,
-    /// [`ZfpCodec`] cannot decode the `decoded` dtype into the `provided`
-    /// array
-    #[error("ZFP cannot decode the dtype {decoded} into the provided {provided} array")]
-    MismatchedDecodeIntoDtype {
-        /// Dtype of the `decoded` data
-        decoded: AnyArrayDType,
-        /// Dtype of the `provided` array into which the data is to be decoded
-        provided: AnyArrayDType,
-    },
-    /// [`ZfpCodec`] cannot decode the decoded array into the provided
-    /// array of a different shape
-    #[error("ZFP cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
-    MismatchedDecodeIntoShape {
-        /// Shape of the `decoded` data
-        decoded: Vec<usize>,
-        /// Shape of the `provided` array into which the data is to be decoded
-        provided: Vec<usize>,
+    /// [`ZfpCodec`] cannot decode into the provided array
+    #[error("ZfpCodec cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
     },
     /// [`ZfpCodec`] failed to decode the data with the unknown dtype
-    #[error("ZFP failed to decode the data with an unknown dtype #{0}")]
+    #[error("Zfp failed to decode the data with an unknown dtype #{0}")]
     DecodeUnknownDtype(u32),
     /// [`ZfpCodec`] failed to decode the data
-    #[error("ZFP failed to decode the data")]
+    #[error("Zfp failed to decode the data")]
     ZfpDecodeFailed,
 }
 
@@ -294,10 +284,8 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZfpCodecError> {
 /// - [`ZfpCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`ZfpCodecError::DecodeUnknownDtype`] if the encoded data uses an unknown
 ///   dtype
-/// - [`ZfpCodecError::MismatchedDecodeIntoDtype`] if the `decoded` array is of
-///   the wrong dtype
-/// - [`ZfpCodecError::MismatchedDecodeIntoShape`] if the `decoded` array is of
-///   the wrong shape
+/// - [`ZfpCodecError::MismatchedDecodeIntoArray`] if the `decoded` array is of
+///   the wrong dtype or shape
 /// - [`ZfpCodecError::ZfpDecodeFailed`] if an opaque decoding error occurred
 pub fn decompress_into(encoded: &[u8], decoded: AnyArrayViewMut) -> Result<(), ZfpCodecError> {
     // Setup zfp structs to begin decompression

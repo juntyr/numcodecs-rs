@@ -1,10 +1,11 @@
 use std::{borrow::Cow, fmt, mem::ManuallyDrop, ptr};
 
 use ndarray::{
-    ArrayBase, ArrayD, CowRepr, Data, DataMut, IxDyn, OwnedArcRepr, OwnedRepr, RawData,
+    ArrayBase, ArrayD, CowRepr, Data, DataMut, Dimension, IxDyn, OwnedArcRepr, OwnedRepr, RawData,
     RawDataClone, RawDataSubst, ViewRepr,
 };
 use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
 /// An array where the data has shared ownership and is copy-on-write.
 pub type AnyArcArray = AnyArrayBase<OwnedArcRepr<()>>;
@@ -365,6 +366,70 @@ where
             Self::F64(a) => array_with_bytes_mut(a, with),
         }
     }
+
+    /// Perform an elementwise assigment to `self` from `src`.
+    ///
+    /// # Errors
+    ///
+    /// Errors with
+    /// - [`AnyArrayAssignError::DTypeMismatch`] if the dtypes of `self` and
+    ///   `src` do not match
+    /// - [`AnyArrayAssignError::ShapeMismatch`] if the shapes of `self` and
+    ///   `src` do not match
+    pub fn assign<U: AnyRawData>(
+        &mut self,
+        src: &AnyArrayBase<U>,
+    ) -> Result<(), AnyArrayAssignError>
+    where
+        U::U8: Data,
+        U::U16: Data,
+        U::U32: Data,
+        U::U64: Data,
+        U::I8: Data,
+        U::I16: Data,
+        U::I32: Data,
+        U::I64: Data,
+        U::F32: Data,
+        U::F64: Data,
+    {
+        fn shape_checked_assign<
+            T: Copy,
+            S1: Data<Elem = T>,
+            S2: DataMut<Elem = T>,
+            D1: Dimension,
+            D2: Dimension,
+        >(
+            src: &ArrayBase<S1, D1>,
+            dst: &mut ArrayBase<S2, D2>,
+        ) -> Result<(), AnyArrayAssignError> {
+            #[allow(clippy::unit_arg)]
+            if src.shape() == dst.shape() {
+                Ok(dst.assign(src))
+            } else {
+                Err(AnyArrayAssignError::ShapeMismatch {
+                    src: src.shape().to_vec(),
+                    dst: dst.shape().to_vec(),
+                })
+            }
+        }
+
+        match (src, self) {
+            (AnyArrayBase::U8(src), Self::U8(dst)) => shape_checked_assign(src, dst),
+            (AnyArrayBase::U16(src), Self::U16(dst)) => shape_checked_assign(src, dst),
+            (AnyArrayBase::U32(src), Self::U32(dst)) => shape_checked_assign(src, dst),
+            (AnyArrayBase::U64(src), Self::U64(dst)) => shape_checked_assign(src, dst),
+            (AnyArrayBase::I8(src), Self::I8(dst)) => shape_checked_assign(src, dst),
+            (AnyArrayBase::I16(src), Self::I16(dst)) => shape_checked_assign(src, dst),
+            (AnyArrayBase::I32(src), Self::I32(dst)) => shape_checked_assign(src, dst),
+            (AnyArrayBase::I64(src), Self::I64(dst)) => shape_checked_assign(src, dst),
+            (AnyArrayBase::F32(src), Self::F32(dst)) => shape_checked_assign(src, dst),
+            (AnyArrayBase::F64(src), Self::F64(dst)) => shape_checked_assign(src, dst),
+            (src, dst) => Err(AnyArrayAssignError::DTypeMismatch {
+                src: src.dtype(),
+                dst: dst.dtype(),
+            }),
+        }
+    }
 }
 
 impl AnyArray {
@@ -688,4 +753,25 @@ array_dtype! {
     U8(u8), U16(u16), U32(u32), U64(u64),
     I8(i8), I16(i16), I32(i32), I64(i64),
     F32(f32), F64(f64)
+}
+
+#[derive(Debug, Error)]
+/// Errors that may occur when calling [`AnyArrayBase::assign`].
+pub enum AnyArrayAssignError {
+    /// cannot assign from mismatching `src` array to `dst`
+    #[error("cannot assign from mismatching {src} array to {dst}")]
+    DTypeMismatch {
+        /// Dtype of the `src` array from which the data is copied
+        src: AnyArrayDType,
+        /// Dtype of the `dst` array into which the data is copied
+        dst: AnyArrayDType,
+    },
+    /// cannot assign from array of shape `src` to one of shape `dst`
+    #[error("cannot assign from array of shape {src:?} to one of shape {dst:?}")]
+    ShapeMismatch {
+        /// Shape of the `src` array from which the data is copied
+        src: Vec<usize>,
+        /// Shape of the `dst` array into which the data is copied
+        dst: Vec<usize>,
+    },
 }
