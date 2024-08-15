@@ -553,7 +553,7 @@
 ///
 /// # Errors
 ///
-/// Errors with [`BitRoundError::ExcessiveKeepBits`] if `keepbits` exceeds
+/// Errors with [`BitRoundCodecError::ExcessiveKeepBits`] if `keepbits` exceeds
 /// [`T::MANITSSA_BITS`][`Float::MANITSSA_BITS`].
 </span><span class="kw">pub fn </span>bit_round&lt;T: Float, S: Data&lt;Elem = T&gt;, D: Dimension&gt;(
     data: ArrayBase&lt;S, D&gt;,
