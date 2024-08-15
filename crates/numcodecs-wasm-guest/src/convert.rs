@@ -82,7 +82,7 @@ pub fn into_wit_error<T: Error>(err: T) -> wit::Error {
     };
 
     while let Some(err) = source.take() {
-        chain.push(format!("{err}"));
+        error.chain.push(format!("{err}"));
         source = err.source();
     }
 

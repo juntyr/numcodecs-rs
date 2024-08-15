@@ -156,7 +156,7 @@ pub enum BitRoundCodecError {
 ///
 /// # Errors
 ///
-/// Errors with [`BitRoundError::ExcessiveKeepBits`] if `keepbits` exceeds
+/// Errors with [`BitRoundCodecError::ExcessiveKeepBits`] if `keepbits` exceeds
 /// [`T::MANITSSA_BITS`][`Float::MANITSSA_BITS`].
 pub fn bit_round<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,

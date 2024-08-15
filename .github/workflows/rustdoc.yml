@@ -30,6 +30,7 @@ jobs:
           RUSTDOCFLAGS="\
             --enable-index-page \
             --extern-html-root-url ndarray=https://docs.rs/ndarray/0.15/ \
+            --extern-html-root-url ndarray=https://docs.rs/numcodecs/0.1/ \
             --extern-html-root-url pyo3=https://docs.rs/pyo3/0.21/ \
             --extern-html-root-url serde=https://docs.rs/serde/1.0/ \
             -Zunstable-options\
