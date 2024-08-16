@@ -58,7 +58,9 @@ pub mod bindings {
 /// ```rust,ignore
 /// # use numcodecs_wasm_guest::export_codec;
 ///
-/// struct MyCodec;
+/// struct MyCodec {
+///     // ...
+/// }
 ///
 /// impl numcodecs::Codec for MyCodec {
 ///     // ...

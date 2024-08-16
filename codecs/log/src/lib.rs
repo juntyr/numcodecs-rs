@@ -30,7 +30,9 @@ use thiserror::Error;
 /// decoding.
 ///
 /// The codec only supports non-negative floating point numbers.
-pub struct LogCodec;
+pub struct LogCodec {
+    // empty
+}
 
 impl Codec for LogCodec {
     type Error = LogCodecError;

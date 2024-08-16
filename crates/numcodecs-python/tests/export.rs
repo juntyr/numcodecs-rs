@@ -67,7 +67,9 @@ fn export() -> Result<(), PyErr> {
 }
 
 #[derive(Copy, Clone, Serialize, Deserialize)]
-struct NegateCodec;
+struct NegateCodec {
+    // empty
+}
 
 impl Codec for NegateCodec {
     type Error = PyErr;

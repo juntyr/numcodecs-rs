@@ -27,7 +27,9 @@ use thiserror::Error;
 #[derive(Clone, Serialize, Deserialize)]
 /// Identity codec which applies the identity function, i.e. passes through the
 /// input unchanged during encoding and decoding.
-pub struct IdentityCodec;
+pub struct IdentityCodec {
+    // empty
+}
 
 impl Codec for IdentityCodec {
     type Error = IdentityCodecError;
