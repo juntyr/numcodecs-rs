@@ -255,3 +255,28 @@ impl Float for f64 {
         self.is_finite()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn roundtrip() -> Result<(), LogCodecError> {
+        let data = (0..1000).map(|x| x as f64).collect::<Vec<_>>();
+        let data = Array::from_vec(data);
+
+        let encoded = ln_1p(data.view())?;
+
+        for (r, e) in data.iter().zip(encoded.iter()) {
+            assert_eq!((*r).ln_1p().to_bits(), (*e).to_bits());
+        }
+
+        let decoded = exp_m1(encoded)?;
+
+        for (r, d) in data.iter().zip(decoded.iter()) {
+            assert!(((*r) - (*d)).abs() < 1e-12);
+        }
+
+        Ok(())
+    }
+}
