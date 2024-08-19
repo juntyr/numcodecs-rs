@@ -1,5 +1,6 @@
-use std::{error::Error, marker::PhantomData};
+use std::{borrow::Cow, error::Error, marker::PhantomData};
 
+use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
 
@@ -39,6 +40,39 @@ pub trait Codec: 'static + Send + Sync + Clone {
         encoded: AnyArrayView,
         decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error>;
+}
+
+/// Statically typed compression codec.
+pub trait StaticCodec: Codec {
+    /// Codec identifier.
+    const CODEC_ID: &'static str;
+
+    /// Configuration type, from which the codec can be created infallibly.
+    /// 
+    /// The `config` must *not* contain an `id` field.
+    /// 
+    /// The config *must* be compatible with JSON encoding and have a schema.
+    type Config<'de>: Serialize + Deserialize<'de> + JsonSchema;
+
+    /// Instantiate a codec from its `config`uration.
+    fn from_config<'de>(config: Self::Config<'de>) -> Self;
+
+    /// Get the configuration for this codec.
+    /// 
+    /// The [`StaticCodecConfig`] ensures that the returned config includes an
+    /// `id` field with the codec's [`StaticCodec::CODEC_ID`].
+    fn get_config(&self) -> StaticCodecConfig<Self>;
+}
+
+/// Dynamically typed compression codec.
+///
+/// Every codec that implements [`StaticCodec`] also implements [`DynCodec`].
+pub trait DynCodec: Codec {
+    /// Type object type for this codec.
+    type Type: DynCodecType;
+
+    /// Returns the type object for this codec.
+    fn ty(&self) -> Self::Type;
 
     /// Serializes the configuration parameters for this codec.
     ///
@@ -52,35 +86,6 @@ pub trait Codec: 'static + Send + Sync + Clone {
     ///
     /// Errors if serializing the codec configuration fails.
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error>;
-}
-
-/// Statically typed compression codec.
-pub trait StaticCodec: Codec {
-    /// Codec identifier.
-    const CODEC_ID: &'static str;
-
-    /// Instantiate a codec from a serialized `config`uration.
-    ///
-    /// The `config` must *not* contain an `id` field. If the `config` *may*
-    /// contain one, use the [`codec_from_config_with_id`] helper function.
-    ///
-    /// The `config` *must* be compatible with JSON encoding.
-    ///
-    /// # Errors
-    ///
-    /// Errors if constructing the codec fails.
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error>;
-}
-
-/// Dynamically typed compression codec.
-///
-/// Every codec that implements [`StaticCodec`] also implements [`DynCodec`].
-pub trait DynCodec: Codec {
-    /// Type object type for this codec.
-    type Type: DynCodecType;
-
-    /// Returns the type object for this codec.
-    fn ty(&self) -> Self::Type;
 }
 
 /// Type object for dynamically typed compression codecs.
@@ -113,6 +118,10 @@ impl<T: StaticCodec> DynCodec for T {
     fn ty(&self) -> Self::Type {
         StaticCodecType::of()
     }
+
+    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        <T as StaticCodec>::get_config(self).serialize(serializer)
+    }
 }
 
 /// Type object for statically typed compression codecs.
@@ -141,7 +150,71 @@ impl<T: StaticCodec> DynCodecType for StaticCodecType<T> {
         &self,
         config: D,
     ) -> Result<Self::Codec, D::Error> {
-        T::from_config(config)
+        let config = T::Config::deserialize(config)?;
+        Ok(T::from_config(config))
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(bound = "")]
+pub struct StaticCodecConfig<'a, T: StaticCodec> {
+    #[serde(default)]
+    id: StaticCodecId<T>,
+    #[serde(flatten)]
+    #[serde(borrow)]
+    pub config: T::Config<'a>,
+}
+
+impl<'a, T: StaticCodec> StaticCodecConfig<'a, T> {
+    #[must_use]
+    pub fn new(config: T::Config<'a>) -> Self {
+        Self {
+            id: StaticCodecId::of(),
+            config,
+        }
+    }
+}
+
+impl<'a, T: StaticCodec> From<&T::Config<'a>> for StaticCodecConfig<'a, T> where T::Config<'a>: Clone {
+    fn from(config: &T::Config<'a>) -> Self {
+        Self::new(config.clone())
+    }
+}
+
+struct StaticCodecId<T: StaticCodec>(PhantomData<T>);
+
+impl<T: StaticCodec> StaticCodecId<T> {
+    #[must_use]
+    pub fn of() -> Self {
+        Self(PhantomData::<T>)
+    }
+}
+
+impl<T: StaticCodec> Default for StaticCodecId<T> {
+    fn default() -> Self {
+        Self::of()
+    }
+}
+
+impl<T: StaticCodec> Serialize for StaticCodecId<T> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        T::CODEC_ID.serialize(serializer)
+    }
+}
+
+impl<'de, T: StaticCodec> Deserialize<'de> for StaticCodecId<T> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let id = Cow::<str>::deserialize(deserializer)?;
+        let id = &*id;
+
+        if id != T::CODEC_ID {
+            return Err(serde::de::Error::custom(format!(
+                "expected codec id {:?} but found {id:?}",
+                T::CODEC_ID,
+            )));
+        }
+        
+        Ok(Self::of())
     }
 }
 
@@ -160,13 +233,13 @@ pub fn serialize_codec_config_with_id<T: Serialize, C: DynCodec, S: Serializer>(
     serializer: S,
 ) -> Result<S::Ok, S::Error> {
     #[derive(Serialize)]
-    struct CodecConfigWithId<'a, T> {
+    struct DynCodecConfigWithId<'a, T> {
         id: &'a str,
         #[serde(flatten)]
         config: &'a T,
     }
 
-    CodecConfigWithId {
+    DynCodecConfigWithId {
         id: codec.ty().codec_id(),
         config,
     }

@@ -28,7 +28,7 @@ pub use array::{
 };
 pub use codec::{
     codec_from_config_with_id, serialize_codec_config_with_id, Codec, DynCodec, DynCodecType,
-    StaticCodec, StaticCodecType,
+    StaticCodec, StaticCodecType, StaticCodecConfig,
 };
 
 mod sealed {

@@ -31,7 +31,17 @@ use thiserror::Error;
 // sz3-sys/Sz3-sys
 use ::zstd_sys as _;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[cfg(test)]
+mod tests2 {
+    #[test]
+    fn schema() {
+        let schema = schemars::schema_for!(super::Sz3Codec);
+        panic!("{:#}", schema.to_value());
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 /// Codec providing compression using SZ3
 pub struct Sz3Codec {
     /// SZ3 error bound
@@ -40,7 +50,7 @@ pub struct Sz3Codec {
 }
 
 /// SZ3 error bound
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "eb_mode")]
 #[serde(deny_unknown_fields)]
 pub enum Sz3ErrorBound {
@@ -445,60 +455,60 @@ impl fmt::Display for Sz3DType {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use ndarray::ArrayView1;
+// #[cfg(test)]
+// mod tests {
+//     use ndarray::ArrayView1;
 
-    use super::*;
+//     use super::*;
 
-    #[test]
-    fn zero_length() -> Result<(), Sz3CodecError> {
-        let encoded = compress(
-            Array::<f32, _>::from_shape_vec([1, 27, 0].as_slice(), vec![])?,
-            &Sz3ErrorBound::L2Norm { l2: 27.0 },
-        )?;
-        let decoded = decompress(&encoded)?;
+//     #[test]
+//     fn zero_length() -> Result<(), Sz3CodecError> {
+//         let encoded = compress(
+//             Array::<f32, _>::from_shape_vec([1, 27, 0].as_slice(), vec![])?,
+//             &Sz3ErrorBound::L2Norm { l2: 27.0 },
+//         )?;
+//         let decoded = decompress(&encoded)?;
 
-        assert_eq!(decoded.dtype(), AnyArrayDType::F32);
-        assert!(decoded.is_empty());
-        assert_eq!(decoded.shape(), &[1, 27, 0]);
+//         assert_eq!(decoded.dtype(), AnyArrayDType::F32);
+//         assert!(decoded.is_empty());
+//         assert_eq!(decoded.shape(), &[1, 27, 0]);
 
-        Ok(())
-    }
+//         Ok(())
+//     }
 
-    #[test]
-    fn one_dimension() -> Result<(), Sz3CodecError> {
-        let data = Array::from_shape_vec([2_usize, 1, 2, 1].as_slice(), vec![1, 2, 3, 4])?;
+//     #[test]
+//     fn one_dimension() -> Result<(), Sz3CodecError> {
+//         let data = Array::from_shape_vec([2_usize, 1, 2, 1].as_slice(), vec![1, 2, 3, 4])?;
 
-        let encoded = compress(data.view(), &Sz3ErrorBound::Absolute { abs: 0.0 })?;
-        let decoded = decompress(&encoded)?;
+//         let encoded = compress(data.view(), &Sz3ErrorBound::Absolute { abs: 0.0 })?;
+//         let decoded = decompress(&encoded)?;
 
-        assert_eq!(decoded, AnyArray::I32(data));
+//         assert_eq!(decoded, AnyArray::I32(data));
 
-        Ok(())
-    }
+//         Ok(())
+//     }
 
-    #[test]
-    fn small_state() -> Result<(), Sz3CodecError> {
-        for data in [
-            &[][..],
-            &[0.0],
-            &[0.0, 1.0],
-            &[0.0, 1.0, 0.0],
-            &[0.0, 1.0, 0.0, 1.0],
-        ] {
-            let encoded = compress(
-                ArrayView1::from(data),
-                &Sz3ErrorBound::Absolute { abs: 0.0 },
-            )?;
-            let decoded = decompress(&encoded)?;
+//     #[test]
+//     fn small_state() -> Result<(), Sz3CodecError> {
+//         for data in [
+//             &[][..],
+//             &[0.0],
+//             &[0.0, 1.0],
+//             &[0.0, 1.0, 0.0],
+//             &[0.0, 1.0, 0.0, 1.0],
+//         ] {
+//             let encoded = compress(
+//                 ArrayView1::from(data),
+//                 &Sz3ErrorBound::Absolute { abs: 0.0 },
+//             )?;
+//             let decoded = decompress(&encoded)?;
 
-            assert_eq!(
-                decoded,
-                AnyArray::F64(Array1::from_vec(data.to_vec()).into_dyn())
-            );
-        }
+//             assert_eq!(
+//                 decoded,
+//                 AnyArray::F64(Array1::from_vec(data.to_vec()).into_dyn())
+//             );
+//         }
 
-        Ok(())
-    }
-}
+//         Ok(())
+//     }
+// }

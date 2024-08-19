@@ -19,13 +19,15 @@
 
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension};
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
+    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec, StaticCodecConfig,
 };
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 /// Log codec which calculates `c = log(1+x)` on encoding and `d = exp(c)-1` on
 /// decoding.
 ///
@@ -76,17 +78,19 @@ impl Codec for LogCodec {
             (encoded, _decoded) => Err(LogCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for LogCodec {
     const CODEC_ID: &'static str = "log";
 
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }
 

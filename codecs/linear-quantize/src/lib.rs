@@ -23,15 +23,17 @@ use std::{borrow::Cow, fmt};
 
 use ndarray::{Array, Array1, ArrayBase, ArrayD, ArrayViewMutD, Data, Dimension, ShapeError};
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut,
-    AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut,
+    AnyCowArray, Codec, StaticCodec, StaticCodecConfig,
 };
-use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer};
+use schemars::JsonSchema;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use thiserror::Error;
 use twofloat::TwoFloat;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 /// Lossy codec to reduce the precision of floating point data.
 ///
 /// The data is quantized to unsigned integers of the best-fitting type.
@@ -44,7 +46,8 @@ pub struct LinearQuantizeCodec {
 }
 
 /// Data types which the [`LinearQuantizeCodec`] can quantize
-#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+#[schemars(extend("enum" = ["f32", "float32", "f64", "float64"]))]
 #[allow(missing_docs)]
 pub enum LinearQuantizeDType {
     #[serde(rename = "f32", alias = "float32")]
@@ -67,7 +70,7 @@ impl fmt::Display for LinearQuantizeDType {
 /// The binary `#[repr(u8)]` value of each variant is equivalent to the binary
 /// logarithm of the number of bins, i.e. the binary precision or the number of
 /// bits used.
-#[derive(Copy, Clone, Serialize_repr, Deserialize_repr)]
+#[derive(Copy, Clone, Serialize_repr, Deserialize_repr, schemars::JsonSchema_repr)]
 #[repr(u8)]
 #[rustfmt::skip]
 #[allow(missing_docs)]
@@ -382,17 +385,19 @@ impl Codec for LinearQuantizeCodec {
 
         Ok(())
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for LinearQuantizeCodec {
     const CODEC_ID: &'static str = "linear-quantize";
 
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }
 

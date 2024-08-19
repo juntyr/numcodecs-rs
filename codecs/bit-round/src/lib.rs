@@ -19,13 +19,15 @@
 
 use ndarray::{Array, ArrayBase, Data, Dimension};
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
+    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec, StaticCodecConfig,
 };
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 /// Codec providing floating-point [`bit_round`]ing.
 pub struct BitRoundCodec {
     /// The number of bits of the mantissa to keep.
@@ -67,17 +69,19 @@ impl Codec for BitRoundCodec {
 
         Ok(decoded.assign(&encoded)?)
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for BitRoundCodec {
     const CODEC_ID: &'static str = "bit-round";
 
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }
 

@@ -18,13 +18,15 @@
 //! Identity codec implementation for the [`numcodecs`] API.
 
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayView, AnyArrayViewMut,
-    AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayView, AnyArrayViewMut,
+    AnyCowArray, Codec, StaticCodec, StaticCodecConfig,
 };
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 /// Identity codec which applies the identity function, i.e. passes through the
 /// input unchanged during encoding and decoding.
 pub struct IdentityCodec {
@@ -49,17 +51,19 @@ impl Codec for IdentityCodec {
     ) -> Result<(), Self::Error> {
         Ok(decoded.assign(&encoded)?)
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for IdentityCodec {
     const CODEC_ID: &'static str = "identity";
 
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }
 
