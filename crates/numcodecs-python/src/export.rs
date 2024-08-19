@@ -1,5 +1,7 @@
 use ndarray::{ArrayViewD, ArrayViewMutD, CowArray};
-use numcodecs::{AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType};
+use numcodecs::{
+    AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec, DynCodecType,
+};
 use numpy::{
     IxDyn, PyArray, PyArrayDescrMethods, PyArrayDyn, PyArrayMethods, PyUntypedArray,
     PyUntypedArrayMethods,
@@ -82,7 +84,7 @@ trait AnyCodec {
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr>;
 }
 
-impl<T: Codec> AnyCodec for T {
+impl<T: DynCodec> AnyCodec for T {
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, PyErr> {
         <T as Codec>::encode(self, data).map_err(|err| PyRuntimeError::new_err(format!("{err}")))
     }
@@ -97,7 +99,7 @@ impl<T: Codec> AnyCodec for T {
     }
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {
-        <T as Codec>::get_config(self, Pythonizer::new(py))?.extract(py)
+        <T as DynCodec>::get_config(self, Pythonizer::new(py))?.extract(py)
     }
 }
 

@@ -19,8 +19,8 @@
 
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension};
 use numcodecs::{
-    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec, StaticCodecConfig,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec, StaticCodecConfig,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -85,7 +85,7 @@ impl StaticCodec for LogCodec {
 
     type Config<'de> = Self;
 
-    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+    fn from_config(config: Self::Config<'_>) -> Self {
         config
     }
 

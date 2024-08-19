@@ -21,21 +21,23 @@ use std::borrow::Cow;
 
 use ndarray::Array1;
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec, StaticCodecConfig,
 };
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use schemars::{JsonSchema, JsonSchema_repr};
+use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use thiserror::Error;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 /// Codec providing compression using Zlib
 pub struct ZlibCodec {
     /// Compression level
     pub level: ZlibLevel,
 }
 
-#[derive(Copy, Clone, Serialize_repr, Deserialize_repr)]
+#[derive(Copy, Clone, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
 #[repr(u8)]
 /// Zlib compression level.
 ///
@@ -97,17 +99,19 @@ impl Codec for ZlibCodec {
 
         decompress_into(&AnyArrayView::U8(encoded).as_bytes(), decoded)
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for ZlibCodec {
     const CODEC_ID: &'static str = "zlib";
 
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config(config: Self::Config<'_>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }
 
@@ -349,7 +353,7 @@ fn decompress_into_bytes(encoded: &[u8], decoded: &mut [u8]) -> Result<(), ZlibC
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct CompressionHeader<'a> {
     dtype: AnyArrayDType,
     #[serde(borrow)]

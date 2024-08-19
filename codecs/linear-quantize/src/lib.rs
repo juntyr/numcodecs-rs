@@ -23,10 +23,10 @@ use std::{borrow::Cow, fmt};
 
 use ndarray::{Array, Array1, ArrayBase, ArrayD, ArrayViewMutD, Data, Dimension, ShapeError};
 use numcodecs::{
-    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut,
-    AnyCowArray, Codec, StaticCodec, StaticCodecConfig,
+    AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    StaticCodecConfig,
 };
-use schemars::JsonSchema;
+use schemars::{JsonSchema, JsonSchema_repr};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use thiserror::Error;
@@ -46,7 +46,7 @@ pub struct LinearQuantizeCodec {
 }
 
 /// Data types which the [`LinearQuantizeCodec`] can quantize
-#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[schemars(extend("enum" = ["f32", "float32", "f64", "float64"]))]
 #[allow(missing_docs)]
 pub enum LinearQuantizeDType {
@@ -70,7 +70,7 @@ impl fmt::Display for LinearQuantizeDType {
 /// The binary `#[repr(u8)]` value of each variant is equivalent to the binary
 /// logarithm of the number of bins, i.e. the binary precision or the number of
 /// bits used.
-#[derive(Copy, Clone, Serialize_repr, Deserialize_repr, schemars::JsonSchema_repr)]
+#[derive(Copy, Clone, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
 #[repr(u8)]
 #[rustfmt::skip]
 #[allow(missing_docs)]
@@ -392,7 +392,7 @@ impl StaticCodec for LinearQuantizeCodec {
 
     type Config<'de> = Self;
 
-    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+    fn from_config(config: Self::Config<'_>) -> Self {
         config
     }
 
@@ -719,7 +719,7 @@ impl Unsigned for u64 {
     const ZERO: Self = 0;
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(bound = "")]
 struct CompressionHeader<'a, T: Float> {
     #[serde(borrow)]

@@ -17,18 +17,22 @@
 //!
 //! Rounding codec implementation for the [`numcodecs`] API.
 
-use std::ops::{Div, Mul};
+use std::{
+    borrow::Cow,
+    ops::{Div, Mul},
+};
 
 use ndarray::{Array, ArrayBase, Data, Dimension};
 use numcodecs::{
-    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec, StaticCodecConfig,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec, StaticCodecConfig,
 };
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 /// Codec that [`round`]s the data on encoding and passes through the input
 /// unchanged during decoding.
 ///
@@ -79,7 +83,7 @@ impl StaticCodec for RoundCodec {
 
     type Config<'de> = Self;
 
-    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+    fn from_config(config: Self::Config<'_>) -> Self {
         config
     }
 
@@ -93,14 +97,14 @@ impl StaticCodec for RoundCodec {
 /// Positive floating point number
 pub struct Positive<T: Float>(T);
 
-impl serde::Serialize for Positive<f64> {
-    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+impl Serialize for Positive<f64> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_f64(self.0)
     }
 }
 
-impl<'de> serde::Deserialize<'de> for Positive<f64> {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+impl<'de> Deserialize<'de> for Positive<f64> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let x = f64::deserialize(deserializer)?;
 
         if x > 0.0 {
@@ -111,6 +115,23 @@ impl<'de> serde::Deserialize<'de> for Positive<f64> {
                 &"a positive value",
             ))
         }
+    }
+}
+
+impl JsonSchema for Positive<f64> {
+    fn schema_name() -> Cow<'static, str> {
+        Cow::Borrowed("PositiveF64")
+    }
+
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Borrowed(concat!(module_path!(), "::", "Positive<f64>"))
+    }
+
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "number",
+            "exclusiveMinimum": 0.0
+        })
     }
 }
 

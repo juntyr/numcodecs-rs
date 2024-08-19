@@ -19,6 +19,7 @@ ndarray = { workspace = true }
 numcodecs = { workspace = true }
 miniz_oxide = { workspace = true, features = ["std", "with-alloc"] }
 postcard = { workspace = true }
+schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 serde_repr = { workspace = true }
 thiserror = { workspace = true }

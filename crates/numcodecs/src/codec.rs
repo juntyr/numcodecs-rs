@@ -48,17 +48,17 @@ pub trait StaticCodec: Codec {
     const CODEC_ID: &'static str;
 
     /// Configuration type, from which the codec can be created infallibly.
-    /// 
+    ///
     /// The `config` must *not* contain an `id` field.
-    /// 
+    ///
     /// The config *must* be compatible with JSON encoding and have a schema.
     type Config<'de>: Serialize + Deserialize<'de> + JsonSchema;
 
     /// Instantiate a codec from its `config`uration.
-    fn from_config<'de>(config: Self::Config<'de>) -> Self;
+    fn from_config(config: Self::Config<'_>) -> Self;
 
     /// Get the configuration for this codec.
-    /// 
+    ///
     /// The [`StaticCodecConfig`] ensures that the returned config includes an
     /// `id` field with the codec's [`StaticCodec::CODEC_ID`].
     fn get_config(&self) -> StaticCodecConfig<Self>;
@@ -155,17 +155,22 @@ impl<T: StaticCodec> DynCodecType for StaticCodecType<T> {
     }
 }
 
+/// Utility struct to serialize a [`StaticCodec`]'s [`StaticCodec::Config`]
+/// together with its [`StaticCodec::CODEC_ID`]
 #[derive(Serialize, Deserialize)]
 #[serde(bound = "")]
 pub struct StaticCodecConfig<'a, T: StaticCodec> {
     #[serde(default)]
     id: StaticCodecId<T>,
+    /// The configration parameters
     #[serde(flatten)]
     #[serde(borrow)]
     pub config: T::Config<'a>,
 }
 
 impl<'a, T: StaticCodec> StaticCodecConfig<'a, T> {
+    /// Wraps the `config` so that it can be serialized together with its
+    /// [`StaticCodec::CODEC_ID`]
     #[must_use]
     pub fn new(config: T::Config<'a>) -> Self {
         Self {
@@ -175,7 +180,10 @@ impl<'a, T: StaticCodec> StaticCodecConfig<'a, T> {
     }
 }
 
-impl<'a, T: StaticCodec> From<&T::Config<'a>> for StaticCodecConfig<'a, T> where T::Config<'a>: Clone {
+impl<'a, T: StaticCodec> From<&T::Config<'a>> for StaticCodecConfig<'a, T>
+where
+    T::Config<'a>: Clone,
+{
     fn from(config: &T::Config<'a>) -> Self {
         Self::new(config.clone())
     }
@@ -185,7 +193,7 @@ struct StaticCodecId<T: StaticCodec>(PhantomData<T>);
 
 impl<T: StaticCodec> StaticCodecId<T> {
     #[must_use]
-    pub fn of() -> Self {
+    pub const fn of() -> Self {
         Self(PhantomData::<T>)
     }
 }
@@ -213,7 +221,7 @@ impl<'de, T: StaticCodec> Deserialize<'de> for StaticCodecId<T> {
                 T::CODEC_ID,
             )));
         }
-        
+
         Ok(Self::of())
     }
 }

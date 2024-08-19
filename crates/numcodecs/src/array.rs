@@ -4,6 +4,7 @@ use ndarray::{
     ArrayBase, ArrayD, CowRepr, Data, DataMut, Dimension, IxDyn, OwnedArcRepr, OwnedRepr, RawData,
     RawDataClone, RawDataSubst, ViewRepr,
 };
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -641,7 +642,7 @@ impl<
 }
 
 /// Enum of all dtypes included in [`AnyArrayBase`].
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, schemars::JsonSchema)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[schemars(extend("enum" = [
     "u8", "uint8",
     "u16", "uint16",

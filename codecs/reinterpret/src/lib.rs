@@ -19,8 +19,8 @@
 
 use ndarray::{Array, ArrayBase, ArrayView, Data, DataMut, Dimension, ViewRepr};
 use numcodecs::{
-    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, ArrayDType, Codec, StaticCodec, StaticCodecConfig,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    ArrayDType, Codec, StaticCodec, StaticCodecConfig,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -298,7 +298,7 @@ impl StaticCodec for ReinterpretCodec {
 
     type Config<'de> = Self;
 
-    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+    fn from_config(config: Self::Config<'_>) -> Self {
         config
     }
 

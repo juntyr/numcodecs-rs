@@ -156,21 +156,6 @@ impl Codec for PyCodecAdapter {
             Self::copy_into_any_array_view_mut_from_ndarray_like(py, &mut decoded, decoded_out)
         })
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        Python::with_gil(|py| {
-            let config = self
-                .codec
-                .bind(py)
-                .get_config()
-                .map_err(serde::ser::Error::custom)?;
-
-            transcode(
-                &mut Depythonizer::from_object_bound(config.into_any()),
-                serializer,
-            )
-        })
-    }
 }
 
 impl PyCodecAdapter {
@@ -388,6 +373,21 @@ impl DynCodec for PyCodecAdapter {
         Python::with_gil(|py| PyCodecClassAdapter {
             class: self.class.clone_ref(py),
             codec_id: self.codec_id.clone(),
+        })
+    }
+
+    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        Python::with_gil(|py| {
+            let config = self
+                .codec
+                .bind(py)
+                .get_config()
+                .map_err(serde::ser::Error::custom)?;
+
+            transcode(
+                &mut Depythonizer::from_object_bound(config.into_any()),
+                serializer,
+            )
         })
     }
 }

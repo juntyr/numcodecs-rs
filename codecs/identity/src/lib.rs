@@ -18,8 +18,8 @@
 //! Identity codec implementation for the [`numcodecs`] API.
 
 use numcodecs::{
-    AnyArray, AnyArrayAssignError, AnyArrayView, AnyArrayViewMut,
-    AnyCowArray, Codec, StaticCodec, StaticCodecConfig,
+    AnyArray, AnyArrayAssignError, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    StaticCodecConfig,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -58,7 +58,7 @@ impl StaticCodec for IdentityCodec {
 
     type Config<'de> = Self;
 
-    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+    fn from_config(config: Self::Config<'_>) -> Self {
         config
     }
 

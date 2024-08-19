@@ -28,7 +28,8 @@ use numcodecs::StaticCodec;
 #[cfg(target_arch = "wasm32")]
 use ::{
     numcodecs::{Codec, StaticCodec},
-    serde::{Serialize, Serializer},
+    schemars::schema_for,
+    serde::Deserialize,
 };
 
 #[cfg(target_arch = "wasm32")]
@@ -93,18 +94,26 @@ impl<T: StaticCodec> wit::Guest for T {
     fn codec_id() -> String {
         String::from(<Self as StaticCodec>::CODEC_ID)
     }
+
+    fn codec_config_schema() -> wit::JsonSchema {
+        schema_for!(<Self as StaticCodec>::Config<'static>)
+            .as_value()
+            .to_string()
+    }
 }
 
 #[cfg(target_arch = "wasm32")]
 impl<T: StaticCodec> wit::GuestCodec for T {
     fn from_config(config: String) -> Result<wit::Codec, wit::Error> {
-        match <T as StaticCodec>::from_config(&mut serde_json::Deserializer::from_str(&config)) {
-            Ok(codec) => Ok(wit::Codec::new(codec)),
-            Err(err) => {
-                let err = format_serde_error::SerdeError::new(config, err);
-                Err(into_wit_error(err))
-            }
-        }
+        let err = match <Self as StaticCodec>::Config::deserialize(
+            &mut serde_json::Deserializer::from_str(&config),
+        ) {
+            Ok(config) => return Ok(wit::Codec::new(<Self as StaticCodec>::from_config(config))),
+            Err(err) => err,
+        };
+
+        let err = format_serde_error::SerdeError::new(config, err);
+        Err(into_wit_error(err))
     }
 
     fn encode(&self, data: wit::AnyArray) -> Result<wit::AnyArray, wit::Error> {
@@ -113,7 +122,7 @@ impl<T: StaticCodec> wit::GuestCodec for T {
             Err(err) => return Err(into_wit_error(err)),
         };
 
-        match <T as Codec>::encode(self, data.into_cow()) {
+        match <Self as Codec>::encode(self, data.into_cow()) {
             Ok(encoded) => match into_wit_any_array(encoded) {
                 Ok(encoded) => Ok(encoded),
                 Err(err) => Err(into_wit_error(err)),
@@ -128,7 +137,7 @@ impl<T: StaticCodec> wit::GuestCodec for T {
             Err(err) => return Err(into_wit_error(err)),
         };
 
-        match <T as Codec>::decode(self, encoded.into_cow()) {
+        match <Self as Codec>::decode(self, encoded.into_cow()) {
             Ok(decoded) => match into_wit_any_array(decoded) {
                 Ok(decoded) => Ok(decoded),
                 Err(err) => Err(into_wit_error(err)),
@@ -137,15 +146,8 @@ impl<T: StaticCodec> wit::GuestCodec for T {
         }
     }
 
-    fn get_config(&self) -> Result<String, wit::Error> {
-        struct SerializeWrapper<'a, T: Codec>(&'a T);
-        impl<'a, T: Codec> Serialize for SerializeWrapper<'a, T> {
-            fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-                <T as Codec>::get_config(self.0, serializer)
-            }
-        }
-
-        match serde_json::to_string(&SerializeWrapper(self)) {
+    fn get_config(&self) -> Result<wit::Json, wit::Error> {
+        match serde_json::to_string(&<Self as StaticCodec>::get_config(self)) {
             Ok(config) => Ok(config),
             Err(err) => Err(into_wit_error(err)),
         }
