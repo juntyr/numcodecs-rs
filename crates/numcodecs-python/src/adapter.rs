@@ -509,21 +509,21 @@ impl DynCodecType for PyCodecClassAdapter {
                     );
                     schema.insert(String::from("properties"), Value::Object(properties));
                     schema.insert(String::from("required"), Value::Array(required));
-
-                    if let Ok(doc) = init.getattr(intern!(py, "__doc__")) {
-                        if !doc.is_none() {
-                            let doc: String = doc.extract().expect("Python __doc__ must be a str");
-
-                            schema.insert(String::from("description"), Value::String(doc));
-                        }
-                    }
                 } else {
                     schema.insert(String::from("additionalProperties"), Value::Bool(true));
                 }
 
-                let title =
-                    convert_case::Casing::to_case(&*self.codec_id, convert_case::Case::Pascal);
-                schema.insert(String::from("title"), Value::String(title));
+                if let Ok(doc) = class.getattr(intern!(py, "__doc__")) {
+                    if !doc.is_none() {
+                        let doc: String = doc.extract().expect("Python __doc__ must be a str");
+
+                        schema.insert(String::from("description"), Value::String(doc));
+                    }
+                }
+
+                let name = (|| class.getattr(intern!(py, "__name__"))?.extract())()
+                    .expect("Python class must have a str __name__");
+                schema.insert(String::from("title"), Value::String(name));
 
                 schema.insert(
                     String::from("$schema"),
