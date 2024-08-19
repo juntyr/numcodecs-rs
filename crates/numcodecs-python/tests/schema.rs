@@ -14,7 +14,7 @@ fn collect_schemas() -> Result<(), PyErr> {
             .getattr(intern!(py, "registry"))?
             .getattr(intern!(py, "codec_registry"))?;
 
-        for codec in registry.iter()? {
+        for codec in registry.call_method0(intern!(py, "items"))?.iter()? {
             let (codec_id, codec_class): (String, Bound<PyCodecClass>) = codec?.extract()?;
 
             let codec_ty = PyCodecClassAdapter::from_codec_class(codec_class)?;

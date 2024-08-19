@@ -436,6 +436,7 @@ impl DynCodecType for PyCodecClassAdapter {
         &self.codec_id
     }
 
+    #[allow(clippy::expect_used)]
     fn codec_config_schema(&self) -> Schema {
         Python::with_gil(|py| {
             let class = self.class.bind(py);
@@ -468,6 +469,7 @@ impl DynCodecType for PyCodecClassAdapter {
                             .getattr(intern!(py, "signature"))?
                             .call1((&init,))?
                             .getattr(intern!(py, "parameters"))?
+                            .call_method0(intern!(py, "items"))?
                             .iter()?
                             .enumerate()
                         {
