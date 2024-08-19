@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zstd/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b25d77b18a16a9a4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zstd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (2c93fabd9 2024-08-15)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-cb0df477c2d67d00.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zstd/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b25d77b18a16a9a4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zstd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (6de928dce 2024-08-18)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-cb0df477c2d67d00.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -350,8 +350,8 @@
 
 <span class="kw">use </span><a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Array1.html">ndarray::Array1</a>;
 <span class="kw">use </span>numcodecs::{
-    <a href="../../numcodecs/codec/fn.serialize_codec_config_with_id.html">serialize_codec_config_with_id</a>, <a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="../../numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="../../numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="../../numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
-    <a href="../../numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>, <a href="../../numcodecs/codec/trait.Codec.html">Codec</a>, <a href="../../numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>,
+    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/fn.serialize_codec_config_with_id.html">serialize_codec_config_with_id</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
+    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>,
 };
 <span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.208/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.208/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.208/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.208/serde/ser/trait.Serializer.html">Serializer</a>};
 <span class="kw">use </span>thiserror::Error;
@@ -363,18 +363,18 @@
     </span><span class="kw">pub </span>level: <a href="#101-103">ZstdLevel</a>,
 }
 
-<span class="kw">impl </span><a href="../../numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#35-38">ZstdCodec</a> {
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#35-38">ZstdCodec</a> {
     <span class="kw">type </span>Error = <a href="#131-186">ZstdCodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
-        <a href="#211-230">compress</a>(<a href="#43">data</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.view">view</a>(), <a class="self" href="#43">self</a>.level)
-            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map">map</a>(|bytes| <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#45">bytes</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>()))
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+        <a href="#211-230">compress</a>(<a href="#43">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.view">view</a>(), <a class="self" href="#43">self</a>.level)
+            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map">map</a>(|bytes| <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#45">bytes</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>()))
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>AnyCowArray::U8(encoded) = <a href="#48">encoded</a> <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#149-152">ZstdCodecError::EncodedDataNotBytes</a> {
-                dtype: <a href="#48">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+                dtype: <a href="#48">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             });
         };
 
@@ -384,17 +384,17 @@
             });
         }
 
-        <a href="#243-256">decompress</a>(<span class="kw-2">&amp;</span><a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(<a href="#49">encoded</a>).<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>())
+        <a href="#243-256">decompress</a>(<span class="kw-2">&amp;</span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(<a href="#49">encoded</a>).<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>())
     }
 
     <span class="kw">fn </span>decode_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        encoded: <a href="../../numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
-        decoded: <a href="../../numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
+        encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
+        decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>AnyArrayView::U8(encoded) = <a href="#66">encoded</a> <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#149-152">ZstdCodecError::EncodedDataNotBytes</a> {
-                dtype: <a href="#66">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+                dtype: <a href="#66">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             });
         };
 
@@ -404,15 +404,15 @@
             });
         }
 
-        <a href="#272-299">decompress_into</a>(<span class="kw-2">&amp;</span><a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(<a href="#69">encoded</a>).<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>(), <a href="#67">decoded</a>)
+        <a href="#272-299">decompress_into</a>(<span class="kw-2">&amp;</span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(<a href="#69">encoded</a>).<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>(), <a href="#67">decoded</a>)
     }
 
     <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.208/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        <a href="../../numcodecs/codec/fn.serialize_codec_config_with_id.html">serialize_codec_config_with_id</a>(<a class="self" href="#84">self</a>, <a class="self" href="#84">self</a>, <a href="#84">serializer</a>)
+        <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/fn.serialize_codec_config_with_id.html">serialize_codec_config_with_id</a>(<a class="self" href="#84">self</a>, <a class="self" href="#84">self</a>, <a href="#84">serializer</a>)
     }
 }
 
-<span class="kw">impl </span><a href="../../numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#35-38">ZstdCodec</a> {
+<span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#35-38">ZstdCodec</a> {
     <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"zstd"</span>;
 
     <span class="kw">fn </span>from_config&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(config: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
@@ -474,7 +474,7 @@
     </span>)]
     </span>EncodedDataNotBytes {
         <span class="doccomment">/// The unexpected dtype of the encoded array
-        </span>dtype: <a href="../../numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+        </span>dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
     },
     <span class="doccomment">/// [`ZstdCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
@@ -507,7 +507,7 @@
     </span>MismatchedDecodeIntoArray {
         <span class="doccomment">/// The source of the error
         </span><span class="attr">#[from]
-        </span>source: <a href="../../numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
+        </span>source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
     },
 }
 
@@ -534,11 +534,11 @@
 /// # Panics
 ///
 /// Panics if the infallible encoding with Zstd fails.
-</span><span class="kw">pub fn </span><a href="../../numcodecs_zstd/fn.compress.html">compress</a>(array: <a href="../../numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, level: <a href="#101-103">ZstdLevel</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#131-186">ZstdCodecError</a>&gt; {
+</span><span class="kw">pub fn </span><a href="../../numcodecs_zstd/fn.compress.html">compress</a>(array: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, level: <a href="#101-103">ZstdLevel</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#131-186">ZstdCodecError</a>&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>encoded = postcard::to_extend(
         <span class="kw-2">&amp;</span><a href="#322-326">CompressionHeader</a> {
-            dtype: <a href="#211">array</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
-            shape: <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#211">array</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>()),
+            dtype: <a href="#211">array</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+            shape: <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#211">array</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>()),
         },
         <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>(),
     )
@@ -546,7 +546,7 @@
         source: <a href="#191">ZstdHeaderError</a>(<a href="#219">err</a>),
     })<span class="question-mark">?</span>;
 
-    zstd::stream::copy_encode(<span class="kw-2">&amp;*</span><a href="#211">array</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>(), <span class="kw-2">&amp;mut </span><a href="#212">encoded</a>, <a href="#211">level</a>.level).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
+    zstd::stream::copy_encode(<span class="kw-2">&amp;*</span><a href="#211">array</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>(), <span class="kw-2">&amp;mut </span><a href="#212">encoded</a>, <a href="#211">level</a>.level).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
         <a href="#140-143">ZstdCodecError::ZstdEncodeFailed</a> {
             source: <a href="#196">ZstdCodingError</a>(<a href="#223">err</a>),
         }
@@ -566,7 +566,7 @@
 /// - [`ZstdCodecError::DecodeProducedLess`] if decoding produced less data than
 ///   expected
 /// - [`ZstdCodecError::ZstdDecodeFailed`] if an opaque decoding error occurred
-</span><span class="kw">pub fn </span><a href="../../numcodecs_zstd/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#131-186">ZstdCodecError</a>&gt; {
+</span><span class="kw">pub fn </span><a href="../../numcodecs_zstd/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#131-186">ZstdCodecError</a>&gt; {
     <span class="kw">let </span>(header, encoded) =
         postcard::take_from_bytes::&lt;<a href="#322-326">CompressionHeader</a>&gt;(<a href="#243">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
             <a href="#162-165">ZstdCodecError::HeaderDecodeFailed</a> {
@@ -574,7 +574,7 @@
             }
         })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(decoded, result) = <a href="../../numcodecs/array/enum.AnyArrayBase.html#method.with_zeros_bytes">AnyArray::with_zeros_bytes</a>(<a href="#244">header</a>.dtype, <span class="kw-2">&amp;</span><a href="#244">header</a>.shape, |decoded| {
+    <span class="kw">let </span>(decoded, result) = <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.with_zeros_bytes">AnyArray::with_zeros_bytes</a>(<a href="#244">header</a>.dtype, <span class="kw-2">&amp;</span><a href="#244">header</a>.shape, |decoded| {
         <a href="#301-319">decompress_into_bytes</a>(<a href="#244">encoded</a>, <a href="#251">decoded</a>)
     });
 
@@ -595,7 +595,7 @@
 /// - [`ZstdCodecError::DecodeProducedLess`] if decoding produced less data than
 ///   expected
 /// - [`ZstdCodecError::ZstdDecodeFailed`] if an opaque decoding error occurred
-</span><span class="kw">pub fn </span><a href="../../numcodecs_zstd/fn.decompress_into.html">decompress_into</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], <span class="kw-2">mut </span>decoded: <a href="../../numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#131-186">ZstdCodecError</a>&gt; {
+</span><span class="kw">pub fn </span><a href="../../numcodecs_zstd/fn.decompress_into.html">decompress_into</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#131-186">ZstdCodecError</a>&gt; {
     <span class="kw">let </span>(header, encoded) =
         postcard::take_from_bytes::&lt;<a href="#322-326">CompressionHeader</a>&gt;(<a href="#272">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
             <a href="#162-165">ZstdCodecError::HeaderDecodeFailed</a> {
@@ -605,23 +605,23 @@
 
     <span class="kw">if </span>header.dtype != decoded.dtype() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#181-185">ZstdCodecError::MismatchedDecodeIntoArray</a> {
-            source: <a href="../../numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
+            source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
                 src: <a href="#273">header</a>.dtype,
-                dst: <a href="#272">decoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+                dst: <a href="#272">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             },
         });
     }
 
     <span class="kw">if </span>header.shape != decoded.shape() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#181-185">ZstdCodecError::MismatchedDecodeIntoArray</a> {
-            source: <a href="../../numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
+            source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
                 src: <a href="#273">header</a>.shape.<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#method.into_owned">into_owned</a>(),
-                dst: <a href="#272">decoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+                dst: <a href="#272">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             },
         });
     }
 
-    <a href="#272">decoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.with_bytes_mut">with_bytes_mut</a>(|decoded| <a href="#301-319">decompress_into_bytes</a>(<a href="#273">encoded</a>, <a href="#298">decoded</a>))
+    <a href="#272">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.with_bytes_mut">with_bytes_mut</a>(|decoded| <a href="#301-319">decompress_into_bytes</a>(<a href="#273">encoded</a>, <a href="#298">decoded</a>))
 }
 
 <span class="kw">fn </span>decompress_into_bytes(<span class="kw-2">mut </span>encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], <span class="kw-2">mut </span>decoded: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#131-186">ZstdCodecError</a>&gt; {
@@ -646,7 +646,7 @@
 
 <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
 </span><span class="kw">struct </span>CompressionHeader&lt;<span class="lifetime">'a</span>&gt; {
-    dtype: <a href="../../numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+    dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
     <span class="attr">#[serde(borrow)]
     </span>shape: Cow&lt;<span class="lifetime">'a</span>, [<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>]&gt;,
 }
