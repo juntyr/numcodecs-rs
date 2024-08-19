@@ -511,9 +511,11 @@ impl DynCodecType for PyCodecClassAdapter {
                     schema.insert(String::from("required"), Value::Array(required));
 
                     if let Ok(doc) = init.getattr(intern!(py, "__doc__")) {
-                        let doc: String = doc.extract().expect("Python __doc__ must be a str");
+                        if !doc.is_none() {
+                            let doc: String = doc.extract().expect("Python __doc__ must be a str");
 
-                        schema.insert(String::from("description"), Value::String(doc));
+                            schema.insert(String::from("description"), Value::String(doc));
+                        }
                     }
                 } else {
                     schema.insert(String::from("additionalProperties"), Value::Bool(true));
