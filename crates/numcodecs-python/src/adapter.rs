@@ -12,8 +12,10 @@ use pyo3::{
     prelude::*,
     types::{IntoPyDict, PyDict, PyDictMethods},
 };
-use pythonize::{Depythonizer, Pythonizer};
+use pythonize::{depythonize_bound, Depythonizer, Pythonizer};
+use schemars::Schema;
 use serde::{Deserializer, Serializer};
+use serde_json::{Map, Value};
 use serde_transcode::transcode;
 
 use crate::{PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
@@ -432,6 +434,101 @@ impl DynCodecType for PyCodecClassAdapter {
 
     fn codec_id(&self) -> &str {
         &self.codec_id
+    }
+
+    fn codec_config_schema(&self) -> Schema {
+        Python::with_gil(|py| {
+            let class = self.class.bind(py);
+
+            if let Ok(schema) = class.getattr(intern!(py, "__schema__")) {
+                return depythonize_bound(schema)
+                    .expect("codec config schema must be a valid json schema");
+            }
+
+            let mut schema = Schema::default();
+
+            {
+                let schema = schema.ensure_object();
+
+                schema.insert(String::from("type"), Value::String(String::from("object")));
+
+                if let Ok(init) = class.getattr(intern!(py, "__init__")) {
+                    let mut properties = Map::new();
+                    let mut additional_properties = false;
+                    let mut required = Vec::new();
+
+                    (|| -> Result<_, PyErr> {
+                        let inspect = py.import_bound(intern!(py, "inspect"))?;
+                        let parameter = inspect.getattr(intern!(py, "Parameter"))?;
+                        let empty = parameter.getattr(intern!(py, "empty"))?;
+                        let args = parameter.getattr(intern!(py, "VAR_POSITIONAL"))?;
+                        let kwargs = parameter.getattr(intern!(py, "VAR_KEYWORD"))?;
+
+                        for (i, param) in inspect
+                            .getattr(intern!(py, "signature"))?
+                            .call1((&init,))?
+                            .getattr(intern!(py, "parameters"))?
+                            .iter()?
+                            .enumerate()
+                        {
+                            let (name, param): (String, Bound<PyAny>) = param?.extract()?;
+
+                            if i == 0 && name == "self" {
+                                continue;
+                            }
+
+                            let kind = param.getattr(intern!(py, "kind"))?;
+
+                            assert!(
+                                !kind.eq(&args)?,
+                                "codec configs must not contain unnamed parameters"
+                            );
+
+                            if kind.eq(&kwargs)? {
+                                additional_properties = true;
+                            } else {
+                                let default = param.getattr(intern!(py, "default"))?;
+
+                                if default.eq(&empty)? {
+                                    required.push(Value::String(name.clone()));
+                                }
+
+                                properties.insert(name, Value::Object(Map::new()));
+                            }
+                        }
+
+                        Ok(())
+                    })()
+                    .expect("interpreting the codec signature should not fail");
+
+                    schema.insert(
+                        String::from("additionalProperties"),
+                        Value::Bool(additional_properties),
+                    );
+                    schema.insert(String::from("properties"), Value::Object(properties));
+                    schema.insert(String::from("required"), Value::Array(required));
+
+                    if let Ok(doc) = init.getattr(intern!(py, "__doc__")) {
+                        let doc: String = doc.extract().expect("Python __doc__ must be a str");
+
+                        schema.insert(String::from("description"), Value::String(doc));
+                    }
+                } else {
+                    schema.insert(String::from("additionalProperties"), Value::Bool(true));
+                }
+
+                let title =
+                    convert_case::Casing::to_case(&*self.codec_id, convert_case::Case::Pascal);
+                schema.insert(String::from("title"), Value::String(title));
+
+                schema.insert(
+                    String::from("$schema"),
+                    Value::String(String::from("https://json-schema.org/draft/2020-12/schema")),
+                );
+            }
+
+            schema
+        })
     }
 
     fn codec_from_config<'de, D: Deserializer<'de>>(

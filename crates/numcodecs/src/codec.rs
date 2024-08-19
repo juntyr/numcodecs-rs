@@ -1,6 +1,6 @@
 use std::{borrow::Cow, error::Error, marker::PhantomData};
 
-use schemars::JsonSchema;
+use schemars::{schema_for, JsonSchema, Schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
 
@@ -96,6 +96,9 @@ pub trait DynCodecType: 'static + Send + Sync {
     /// Codec identifier.
     fn codec_id(&self) -> &str;
 
+    /// JSON schema for the codec's configuration.
+    fn codec_config_schema(&self) -> Schema;
+
     /// Instantiate a codec of this type from a serialized `config`uration.
     ///
     /// The `config` must *not* contain an `id` field. If the `config` *may*
@@ -144,6 +147,10 @@ impl<T: StaticCodec> DynCodecType for StaticCodecType<T> {
 
     fn codec_id(&self) -> &str {
         T::CODEC_ID
+    }
+
+    fn codec_config_schema(&self) -> Schema {
+        schema_for!(T::Config<'static>)
     }
 
     fn codec_from_config<'de, D: Deserializer<'de>>(
