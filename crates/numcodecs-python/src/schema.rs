@@ -205,7 +205,7 @@ pub fn signature_from_schema(schema: &Schema) -> String {
         signature.push_str(parameter.name);
 
         if let Some(default) = parameter.default {
-            signature.push_str("=");
+            signature.push('=');
             signature.push_str(&format!("{default}"));
         } else if !parameter.required {
             signature.push_str("=None");

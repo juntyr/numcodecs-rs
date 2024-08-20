@@ -89,6 +89,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
     Ok(codec_class)
 }
 
+#[allow(clippy::redundant_pub_crate)]
 #[pyclass(frozen)]
 pub(crate) struct RustCodecType {
     ty: Box<dyn 'static + Send + Sync + AnyCodecType>,
@@ -163,6 +164,7 @@ impl<T: DynCodecType> AnyCodecType for T {
     }
 }
 
+#[allow(clippy::redundant_pub_crate)]
 #[pyclass(subclass, frozen)]
 pub(crate) struct RustCodec {
     cls_module: String,
