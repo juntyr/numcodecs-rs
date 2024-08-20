@@ -1,4 +1,7 @@
-use std::collections::{hash_map::Entry, HashMap};
+use std::{
+    borrow::Cow,
+    collections::{hash_map::Entry, HashMap},
+};
 
 use pyo3::{intern, prelude::*, sync::GILOnceCell};
 use pythonize::{depythonize_bound, PythonizeError};
@@ -171,9 +174,9 @@ pub fn docs_from_schema(schema: &Schema, codec_id: &str) -> Option<String> {
 
         docs.push(')');
 
-        if let Some(info) = parameter.docs {
+        if let Some(info) = &parameter.docs {
             docs.push_str(": ");
-            docs.push_str(info);
+            docs.push_str(&info.replace('\n', "\n   "));
         }
 
         docs.push('\n');
@@ -219,6 +222,7 @@ pub fn signature_from_schema(schema: &Schema) -> String {
     signature
 }
 
+#[allow(clippy::too_many_lines)] // FIXME
 fn parameters_from_schema(schema: &Schema) -> Parameters {
     if schema.as_bool() == Some(true) {
         return Parameters {
@@ -250,7 +254,7 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
                     .any(|r| matches!(r, Value::String(n) if n == name)),
                 default: parameter.get("default"),
                 docs: match parameter.get("description") {
-                    Some(Value::String(docs)) => Some(docs),
+                    Some(Value::String(docs)) => Some(Cow::Borrowed(docs)),
                     _ => None,
                 },
             });
@@ -269,6 +273,10 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
                 Some(Value::Array(required)) => &**required,
                 _ => &[],
             };
+            let variant_docs = match schema.get("description") {
+                Some(Value::String(docs)) => Some(docs.as_str()),
+                _ => None,
+            };
 
             if let Some(Value::Object(properties)) = schema.get("properties") {
                 for (name, parameter) in properties {
@@ -276,13 +284,23 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
                         .iter()
                         .any(|r| matches!(r, Value::String(n) if n == name));
                     let default = parameter.get("default");
+                    let r#const = parameter.get("const");
                     let docs = match parameter.get("description") {
-                        Some(Value::String(docs)) => Some(docs.as_str()),
+                        Some(Value::String(docs)) => Some(Cow::Borrowed(docs.as_str())),
                         _ => None,
                     };
 
                     match variant_parameters.entry(name) {
                         Entry::Vacant(entry) => {
+                            let (docs, tag_docs) = match r#const {
+                                None => (docs, None),
+                                Some(r#const) => (
+                                    None,
+                                    #[allow(clippy::or_fun_call)]
+                                    Some(vec![(r#const, docs.or(variant_docs.map(Cow::Borrowed)))]),
+                                ),
+                            };
+
                             entry.insert((
                                 i,
                                 Parameter {
@@ -291,24 +309,39 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
                                     default,
                                     docs,
                                 },
+                                tag_docs,
                             ));
                         }
                         Entry::Occupied(mut entry) => {
-                            let (j, entry) = entry.get_mut();
+                            let (j, entry, tag_docs) = entry.get_mut();
                             *j = i;
                             entry.required &= required;
                             if entry.default != default {
                                 entry.default = None;
                             }
-                            if entry.docs != docs {
-                                entry.docs = None;
+                            match (r#const, tag_docs) {
+                                (None, None) => {
+                                    if entry.docs != docs {
+                                        entry.docs = None;
+                                    }
+                                }
+                                (Some(_), None) => {
+                                    entry.docs = None;
+                                }
+                                (None, tag_docs @ Some(_)) => {
+                                    *tag_docs = None;
+                                    entry.docs = None;
+                                }
+                                #[allow(clippy::or_fun_call)]
+                                (Some(r#const), Some(tag_docs)) => tag_docs
+                                    .push((r#const, docs.or(variant_docs.map(Cow::Borrowed)))),
                             }
                         }
                     }
                 }
             }
 
-            for (j, parameter) in variant_parameters.values_mut() {
+            for (j, parameter, _tag_docs) in variant_parameters.values_mut() {
                 if (*j) < i {
                     parameter.required = false;
                 }
@@ -318,7 +351,27 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
         parameters.extend(
             variant_parameters
                 .into_values()
-                .map(|(_i, parameter)| parameter),
+                .map(|(_i, mut parameter, tag_docs)| {
+                    if let Some(tag_docs) = tag_docs {
+                        let mut docs = String::from("\n");
+
+                        for (tag, tag_docs) in tag_docs {
+                            docs.push_str(" - ");
+                            docs.push_str(&format!("{tag}"));
+                            if let Some(tag_docs) = tag_docs {
+                                docs.push_str(": ");
+                                docs.push_str(&tag_docs);
+                            }
+                            docs.push('\n');
+                        }
+
+                        docs.truncate(docs.trim_end().len());
+
+                        parameter.docs = Some(Cow::Owned(docs));
+                    }
+
+                    parameter
+                }),
         );
     }
 
@@ -361,7 +414,7 @@ struct Parameter<'a> {
     name: &'a str,
     required: bool,
     default: Option<&'a Value>,
-    docs: Option<&'a str>,
+    docs: Option<Cow<'a, str>>,
 }
 
 #[cfg(test)]
@@ -375,16 +428,18 @@ mod tests {
         assert_eq!(
             docs_from_schema(&schema_for!(MyCodec), "my-codec").as_deref(),
             Some(
-                "# my-codec (MyCodec)
+                r#"# my-codec (MyCodec)
 
 A codec that does something on encoding and decoding.
 
 ## Parameters
 
  - common (required): A common string value.
- - mode (required)
+ - mode (required): 
+    - "A": Mode a.
+    - "B": Mode b.
  - param (optional): An optional integer value.
- - value (optional): A boolean value."
+ - value (optional): A boolean value."#
             )
         );
     }

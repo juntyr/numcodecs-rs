@@ -33,7 +33,9 @@ use thiserror::Error;
 #[serde(deny_unknown_fields)]
 /// Codec providing compression using Zlib
 pub struct ZlibCodec {
-    /// Compression level
+    /// Zlib compression level.
+    ///
+    /// The level ranges from 0, no compression, to 9, best compression.
     pub level: ZlibLevel,
 }
 

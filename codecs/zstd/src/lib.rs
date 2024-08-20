@@ -35,7 +35,9 @@ use thiserror::Error;
 #[serde(deny_unknown_fields)]
 /// Codec providing compression using Zstandard
 pub struct ZstdCodec {
-    /// Compression level
+    /// Zstandard compression level.
+    ///
+    /// The level ranges from small (fastest) to large (best compression).
     pub level: ZstdLevel,
 }
 

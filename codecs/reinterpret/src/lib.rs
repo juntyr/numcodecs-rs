@@ -31,8 +31,13 @@ use thiserror::Error;
 /// Codec to reinterpret data between different compatible types.
 ///
 /// Note that no conversion happens, only the meaning of the bits changes.
+///
+/// Reinterpreting to bytes, or to a same-sized unsigned integer type, or
+/// without the changing the dtype are supported.
 pub struct ReinterpretCodec {
+    /// Dtype of the encoded data.
     encode_dtype: AnyArrayDType,
+    /// Dtype of the decoded data
     decode_dtype: AnyArrayDType,
 }
 

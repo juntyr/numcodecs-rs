@@ -28,7 +28,15 @@ use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-/// Codec providing floating-point [`bit_round`]ing.
+/// Codec providing floating-point bit rounding.
+///
+/// Drops the specified number of bits from the floating point mantissa,
+/// leaving an array that is more amenable to compression. The number of
+/// bits to keep should be determined by information analysis of the data
+/// to be compressed.
+///
+/// The approach is based on the paper by Klöwer et al. 2021
+/// (<https://www.nature.com/articles/s43588-021-00156-2>).
 pub struct BitRoundCodec {
     /// The number of bits of the mantissa to keep.
     ///
@@ -108,15 +116,8 @@ pub enum BitRoundCodecError {
     },
 }
 
-/// Floating-point bit rounding.
-///
-/// Drops the specified number of bits from the floating point mantissa,
-/// leaving an array that is more amenable to compression. The number of
-/// bits to keep should be determined by information analysis of the data
-/// to be compressed.
-///
-/// The approach is based on the paper by Klöwer et al. 2021
-/// (<https://www.nature.com/articles/s43588-021-00156-2>).
+/// Floating-point bit rounding, which drops the specified number of bits from
+/// the floating point mantissa.
 ///
 /// See <https://github.com/milankl/BitInformation.jl> for the the original
 /// implementation in Julia.
