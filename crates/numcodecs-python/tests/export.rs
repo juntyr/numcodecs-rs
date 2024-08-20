@@ -1,14 +1,16 @@
 use numcodecs::{
-    AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
-    StaticCodecConfig, StaticCodecType,
+    AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec,
+    DynCodecType, StaticCodec, StaticCodecConfig, StaticCodecType,
 };
-use numcodecs_python::{export_codec_class, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
+use numcodecs_python::{
+    export_codec_class, PyCodecAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
+};
 use pyo3::{exceptions::PyTypeError, prelude::*, types::PyDict};
-use schemars::JsonSchema;
+use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use ::{
     convert_case as _, ndarray as _, pythonize as _, serde as _, serde_json as _,
-    serde_transcode as _,
+    serde_transcode as _, thiserror as _,
 };
 
 #[test]
@@ -62,6 +64,12 @@ fn export() -> Result<(), PyErr> {
         assert_eq!(encoded, [-1.0, -2.0, -3.0, -4.0]);
         assert_eq!(decoded, data);
         assert_eq!(decoded_out, data);
+
+        let codec = PyCodecAdapter::from_codec(codec)?;
+        assert_eq!(
+            codec.ty().codec_config_schema(),
+            schema_for!(<NegateCodec as StaticCodec>::Config<'static>)
+        );
 
         Ok(())
     })

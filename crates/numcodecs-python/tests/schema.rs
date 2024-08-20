@@ -3,7 +3,7 @@ use numcodecs_python::{PyCodecClass, PyCodecClassAdapter};
 use pyo3::{intern, prelude::*};
 use ::{
     convert_case as _, ndarray as _, numpy as _, pythonize as _, schemars as _, serde as _,
-    serde_json as _, serde_transcode as _,
+    serde_json as _, serde_transcode as _, thiserror as _,
 };
 
 #[test]
@@ -25,6 +25,6 @@ fn collect_schemas() -> Result<(), PyErr> {
             );
         }
 
-        panic!("")
+        Ok(())
     })
 }

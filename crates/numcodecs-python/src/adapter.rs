@@ -12,19 +12,22 @@ use pyo3::{
     prelude::*,
     types::{IntoPyDict, PyDict, PyDictMethods},
 };
-use pythonize::{depythonize_bound, Depythonizer, Pythonizer};
+use pythonize::{Depythonizer, Pythonizer};
 use schemars::Schema;
 use serde::{Deserializer, Serializer};
-use serde_json::{Map, Value};
 use serde_transcode::transcode;
 
-use crate::{PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
+use crate::{
+    schema::schema_from_codec_class, PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods,
+    PyCodecRegistry,
+};
 
 /// Wrapper around [`PyCodec`]s to use the [`Codec`] API.
 pub struct PyCodecAdapter {
     codec: Py<PyCodec>,
     class: Py<PyCodecClass>,
     codec_id: Arc<String>,
+    codec_config_schema: Arc<Schema>,
 }
 
 impl PyCodecAdapter {
@@ -60,11 +63,17 @@ impl PyCodecAdapter {
     pub fn from_codec(codec: Bound<PyCodec>) -> Result<Self, PyErr> {
         let class = codec.class();
         let codec_id = class.codec_id()?;
+        let codec_config_schema = schema_from_codec_class(class.py(), &class).map_err(|err| {
+            PyTypeError::new_err(format!(
+                "failed to extract the {codec_id} codec config schema: {err}"
+            ))
+        })?;
 
         Ok(Self {
             codec: codec.unbind(),
             class: class.unbind(),
             codec_id: Arc::new(codec_id),
+            codec_config_schema: Arc::new(codec_config_schema),
         })
     }
 
@@ -101,6 +110,7 @@ impl PyCodecAdapter {
             codec: codec.unbind(),
             class: self.class.clone_ref(py),
             codec_id: self.codec_id.clone(),
+            codec_config_schema: self.codec_config_schema.clone(),
         })
     }
 }
@@ -375,6 +385,7 @@ impl DynCodec for PyCodecAdapter {
         Python::with_gil(|py| PyCodecClassAdapter {
             class: self.class.clone_ref(py),
             codec_id: self.codec_id.clone(),
+            codec_config_schema: self.codec_config_schema.clone(),
         })
     }
 
@@ -398,6 +409,7 @@ impl DynCodec for PyCodecAdapter {
 pub struct PyCodecClassAdapter {
     class: Py<PyCodecClass>,
     codec_id: Arc<String>,
+    codec_config_schema: Arc<Schema>,
 }
 
 impl PyCodecClassAdapter {
@@ -409,9 +421,16 @@ impl PyCodecClassAdapter {
     pub fn from_codec_class(class: Bound<PyCodecClass>) -> Result<Self, PyErr> {
         let codec_id = class.codec_id()?;
 
+        let codec_config_schema = schema_from_codec_class(class.py(), &class).map_err(|err| {
+            PyTypeError::new_err(format!(
+                "failed to extract the {codec_id} codec config schema: {err}"
+            ))
+        })?;
+
         Ok(Self {
             class: class.unbind(),
             codec_id: Arc::new(codec_id),
+            codec_config_schema: Arc::new(codec_config_schema),
         })
     }
 
@@ -436,103 +455,8 @@ impl DynCodecType for PyCodecClassAdapter {
         &self.codec_id
     }
 
-    #[allow(clippy::expect_used)]
     fn codec_config_schema(&self) -> Schema {
-        Python::with_gil(|py| {
-            let class = self.class.bind(py);
-
-            if let Ok(schema) = class.getattr(intern!(py, "__schema__")) {
-                return depythonize_bound(schema)
-                    .expect("codec config schema must be a valid json schema");
-            }
-
-            let mut schema = Schema::default();
-
-            {
-                let schema = schema.ensure_object();
-
-                schema.insert(String::from("type"), Value::String(String::from("object")));
-
-                if let Ok(init) = class.getattr(intern!(py, "__init__")) {
-                    let mut properties = Map::new();
-                    let mut additional_properties = false;
-                    let mut required = Vec::new();
-
-                    (|| -> Result<_, PyErr> {
-                        let inspect = py.import_bound(intern!(py, "inspect"))?;
-                        let parameter = inspect.getattr(intern!(py, "Parameter"))?;
-                        let empty = parameter.getattr(intern!(py, "empty"))?;
-                        let args = parameter.getattr(intern!(py, "VAR_POSITIONAL"))?;
-                        let kwargs = parameter.getattr(intern!(py, "VAR_KEYWORD"))?;
-
-                        for (i, param) in inspect
-                            .getattr(intern!(py, "signature"))?
-                            .call1((&init,))?
-                            .getattr(intern!(py, "parameters"))?
-                            .call_method0(intern!(py, "items"))?
-                            .iter()?
-                            .enumerate()
-                        {
-                            let (name, param): (String, Bound<PyAny>) = param?.extract()?;
-
-                            if i == 0 && name == "self" {
-                                continue;
-                            }
-
-                            let kind = param.getattr(intern!(py, "kind"))?;
-
-                            assert!(
-                                !kind.eq(&args)?,
-                                "codec configs must not contain unnamed parameters"
-                            );
-
-                            if kind.eq(&kwargs)? {
-                                additional_properties = true;
-                            } else {
-                                let default = param.getattr(intern!(py, "default"))?;
-
-                                if default.eq(&empty)? {
-                                    required.push(Value::String(name.clone()));
-                                }
-
-                                properties.insert(name, Value::Object(Map::new()));
-                            }
-                        }
-
-                        Ok(())
-                    })()
-                    .expect("interpreting the codec signature should not fail");
-
-                    schema.insert(
-                        String::from("additionalProperties"),
-                        Value::Bool(additional_properties),
-                    );
-                    schema.insert(String::from("properties"), Value::Object(properties));
-                    schema.insert(String::from("required"), Value::Array(required));
-                } else {
-                    schema.insert(String::from("additionalProperties"), Value::Bool(true));
-                }
-
-                if let Ok(doc) = class.getattr(intern!(py, "__doc__")) {
-                    if !doc.is_none() {
-                        let doc: String = doc.extract().expect("Python __doc__ must be a str");
-
-                        schema.insert(String::from("description"), Value::String(doc));
-                    }
-                }
-
-                let name = (|| class.getattr(intern!(py, "__name__"))?.extract())()
-                    .expect("Python class must have a str __name__");
-                schema.insert(String::from("title"), Value::String(name));
-
-                schema.insert(
-                    String::from("$schema"),
-                    Value::String(String::from("https://json-schema.org/draft/2020-12/schema")),
-                );
-            }
-
-            schema
-        })
+        (*self.codec_config_schema).clone()
     }
 
     fn codec_from_config<'de, D: Deserializer<'de>>(
@@ -554,6 +478,7 @@ impl DynCodecType for PyCodecClassAdapter {
                 codec: codec.unbind(),
                 class: self.class.clone_ref(py),
                 codec_id: self.codec_id.clone(),
+                codec_config_schema: self.codec_config_schema.clone(),
             })
         })
     }

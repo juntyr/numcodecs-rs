@@ -3,7 +3,10 @@ use numcodecs::{AnyArray, AnyArrayView, AnyCowArray, Codec, DynCodec, DynCodecTy
 use numcodecs_python::{PyCodecAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 use pyo3::{exceptions::PyRuntimeError, prelude::*, types::PyDict};
 use serde_json::json;
-use ::{convert_case as _, pythonize as _, schemars as _, serde as _, serde_transcode as _};
+use ::{
+    convert_case as _, pythonize as _, schemars as _, serde as _, serde_transcode as _,
+    thiserror as _,
+};
 
 #[test]
 fn python_api() -> Result<(), PyErr> {

@@ -25,6 +25,7 @@ schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true }
 serde-transcode = { workspace = true }
 serde_json = { workspace = true, features = ["std"] }
+thiserror = { workspace = true }
 
 [dev-dependencies]
 pyo3 = { workspace = true, features = ["auto-initialize"] }
