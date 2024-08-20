@@ -5,7 +5,7 @@ use numcodecs::{
 use numcodecs_python::{
     export_codec_class, PyCodecClassAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
 };
-use pyo3::{exceptions::PyTypeError, prelude::*, types::PyDict};
+use pyo3::{exceptions::PyTypeError, intern, prelude::*, types::PyDict};
 use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use ::{
@@ -93,7 +93,17 @@ A codec that negates its inputs on encoding and decoding.
 
 ## Parameters
 
- - param (optional): An optional integer value."
+This codec does *not* take any parameters."
+        );
+
+        assert_eq!(
+            format!(
+                "{}",
+                py.import_bound(intern!(py, "inspect"))?
+                    .getattr(intern!(py, "signature"))?
+                    .call1((class.getattr(intern!(py, "__init__"))?,))?
+            ),
+            "(self)",
         );
 
         Ok(())
@@ -104,30 +114,7 @@ A codec that negates its inputs on encoding and decoding.
 #[serde(deny_unknown_fields)]
 /// A codec that negates its inputs on encoding and decoding.
 struct NegateCodec {
-    /// An optional integer value.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    param: Option<i32>,
-    /// The flattened configuration.
-    #[serde(default, flatten)]
-    config: Option<Config>,
-}
-
-#[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "mode")]
-#[serde(deny_unknown_fields)]
-enum Config {
-    /// Mode a.
-    A {
-        /// A boolean value.
-        value: bool,
-        /// A common string value.
-        common: String,
-    },
-    /// Mode b.
-    B {
-        /// A common string value.
-        common: String,
-    },
+    // empty
 }
 
 impl Codec for NegateCodec {

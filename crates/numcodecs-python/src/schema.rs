@@ -1,3 +1,5 @@
+use std::collections::{hash_map::Entry, HashMap};
+
 use pyo3::{intern, prelude::*, sync::GILOnceCell};
 use pythonize::{depythonize_bound, PythonizeError};
 use schemars::Schema;
@@ -192,6 +194,31 @@ pub fn docs_from_schema(schema: &Schema, codec_id: &str) -> Option<String> {
     Some(docs)
 }
 
+pub fn signature_from_schema(schema: &Schema) -> String {
+    let parameters = parameters_from_schema(schema);
+
+    let mut signature = String::new();
+    signature.push_str("self");
+
+    for parameter in parameters.named {
+        signature.push_str(", ");
+        signature.push_str(parameter.name);
+
+        if let Some(default) = parameter.default {
+            signature.push_str("=");
+            signature.push_str(&format!("{default}"));
+        } else if !parameter.required {
+            signature.push_str("=None");
+        }
+    }
+
+    if parameters.additional {
+        signature.push_str(", **kwargs");
+    }
+
+    signature
+}
+
 fn parameters_from_schema(schema: &Schema) -> Parameters {
     if schema.as_bool() == Some(true) {
         return Parameters {
@@ -230,11 +257,76 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
         }
     }
 
-    // TODO: handle oneOf recursion
+    let mut additional = !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
+
+    if let Some(Value::Array(variants)) = schema.get("oneOf") {
+        additional |= !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
+
+        let mut variant_parameters = HashMap::new();
+
+        for (i, schema) in variants.iter().enumerate() {
+            let required = match schema.get("required") {
+                Some(Value::Array(required)) => &**required,
+                _ => &[],
+            };
+
+            if let Some(Value::Object(properties)) = schema.get("properties") {
+                for (name, parameter) in properties {
+                    let required = required
+                        .iter()
+                        .any(|r| matches!(r, Value::String(n) if n == name));
+                    let default = parameter.get("default");
+                    let docs = match parameter.get("description") {
+                        Some(Value::String(docs)) => Some(docs.as_str()),
+                        _ => None,
+                    };
+
+                    match variant_parameters.entry(name) {
+                        Entry::Vacant(entry) => {
+                            entry.insert((
+                                i,
+                                Parameter {
+                                    name,
+                                    required: required && i == 0,
+                                    default,
+                                    docs,
+                                },
+                            ));
+                        }
+                        Entry::Occupied(mut entry) => {
+                            let (j, entry) = entry.get_mut();
+                            *j = i;
+                            entry.required &= required;
+                            if entry.default != default {
+                                entry.default = None;
+                            }
+                            if entry.docs != docs {
+                                entry.docs = None;
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (j, parameter) in variant_parameters.values_mut() {
+                if (*j) < i {
+                    parameter.required = false;
+                }
+            }
+        }
+
+        parameters.extend(
+            variant_parameters
+                .into_values()
+                .map(|(_i, parameter)| parameter),
+        );
+    }
+
+    parameters.sort_by_key(|p| (!p.required, p.name));
 
     Parameters {
         named: parameters,
-        additional: !matches!(schema.get("additionalProperties"), Some(Value::Bool(false))),
+        additional,
     }
 }
 
@@ -270,4 +362,70 @@ struct Parameter<'a> {
     required: bool,
     default: Option<&'a Value>,
     docs: Option<&'a str>,
+}
+
+#[cfg(test)]
+mod tests {
+    use schemars::{schema_for, JsonSchema};
+
+    use super::*;
+
+    #[test]
+    fn docs() {
+        assert_eq!(
+            docs_from_schema(&schema_for!(MyCodec), "my-codec").as_deref(),
+            Some(
+                "# my-codec (MyCodec)
+
+A codec that does something on encoding and decoding.
+
+## Parameters
+
+ - common (required): A common string value.
+ - mode (required)
+ - param (optional): An optional integer value.
+ - value (optional): A boolean value."
+            )
+        );
+    }
+
+    #[test]
+    fn signature() {
+        assert_eq!(
+            signature_from_schema(&schema_for!(MyCodec)),
+            "self, common, mode, param=None, value=None",
+        );
+    }
+
+    #[allow(dead_code)]
+    #[derive(JsonSchema)]
+    #[schemars(deny_unknown_fields)]
+    /// A codec that does something on encoding and decoding.
+    struct MyCodec {
+        /// An optional integer value.
+        #[schemars(default, skip_serializing_if = "Option::is_none")]
+        param: Option<i32>,
+        /// The flattened configuration.
+        #[schemars(flatten)]
+        config: Config,
+    }
+
+    #[allow(dead_code)]
+    #[derive(JsonSchema)]
+    #[schemars(tag = "mode")]
+    #[schemars(deny_unknown_fields)]
+    enum Config {
+        /// Mode a.
+        A {
+            /// A boolean value.
+            value: bool,
+            /// A common string value.
+            common: String,
+        },
+        /// Mode b.
+        B {
+            /// A common string value.
+            common: String,
+        },
+    }
 }

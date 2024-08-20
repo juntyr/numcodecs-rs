@@ -18,7 +18,8 @@ use pyo3::{
 use pythonize::{pythonize, Depythonizer, Pythonizer};
 
 use crate::{
-    schema::docs_from_schema, PyCodec, PyCodecClass, PyCodecClassAdapter, PyCodecRegistry,
+    schema::{docs_from_schema, signature_from_schema},
+    PyCodec, PyCodecClass, PyCodecClassAdapter, PyCodecRegistry,
 };
 
 /// Export the [`DynCodecType`] `ty` to Python by generating a fresh
@@ -66,10 +67,13 @@ pub fn export_codec_class<'py, T: DynCodecType>(
                     intern!(py, "__schema__"),
                     pythonize(py, &codec_config_schema)?.into_bound(py),
                 ),
-                // (
-                //     intern!(py, "__init__"),
-                //     py.eval_bound(&format!("lambda self, {signature}: None"), None, None)?,
-                // ),
+                (
+                    intern!(py, "__init__"),
+                    py.eval_bound(&format!(
+                        "lambda {}: None",
+                        signature_from_schema(&codec_config_schema),
+                    ), None, None)?,
+                ),
             ]
             .into_py_dict_bound(py);
 
