@@ -179,7 +179,7 @@ impl<'a, T: StaticCodec> StaticCodecConfig<'a, T> {
     /// Wraps the `config` so that it can be serialized together with its
     /// [`StaticCodec::CODEC_ID`]
     #[must_use]
-    pub fn new(config: T::Config<'a>) -> Self {
+    pub const fn new(config: T::Config<'a>) -> Self {
         Self {
             id: StaticCodecId::of(),
             config,
