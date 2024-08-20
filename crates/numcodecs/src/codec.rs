@@ -1,6 +1,6 @@
 use std::{borrow::Cow, error::Error, marker::PhantomData};
 
-use schemars::{schema_for, JsonSchema, Schema};
+use schemars::{gen::SchemaSettings, JsonSchema, Schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
 
@@ -150,7 +150,13 @@ impl<T: StaticCodec> DynCodecType for StaticCodecType<T> {
     }
 
     fn codec_config_schema(&self) -> Schema {
-        schema_for!(T::Config<'static>)
+        let mut settings = SchemaSettings::draft2020_12();
+        // TODO: perhaps this could be done as a more generally applicable
+        //       transformation instead
+        settings.inline_subschemas = true;
+        settings
+            .into_generator()
+            .into_root_schema_for::<T::Config<'static>>()
     }
 
     fn codec_from_config<'de, D: Deserializer<'de>>(
