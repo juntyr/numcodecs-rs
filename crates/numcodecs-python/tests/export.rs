@@ -1,9 +1,9 @@
 use numcodecs::{
-    AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec,
-    DynCodecType, StaticCodec, StaticCodecConfig, StaticCodecType,
+    AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType,
+    StaticCodec, StaticCodecConfig, StaticCodecType,
 };
 use numcodecs_python::{
-    export_codec_class, PyCodecAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
+    export_codec_class, PyCodecClassAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
 };
 use pyo3::{exceptions::PyTypeError, prelude::*, types::PyDict};
 use schemars::{schema_for, JsonSchema};
@@ -65,20 +65,69 @@ fn export() -> Result<(), PyErr> {
         assert_eq!(decoded, data);
         assert_eq!(decoded_out, data);
 
-        let codec = PyCodecAdapter::from_codec(codec)?;
+        Ok(())
+    })
+}
+
+#[test]
+fn schema() -> Result<(), PyErr> {
+    Python::with_gil(|py| {
+        let module = PyModule::new_bound(py, "codecs")?;
+        let class = export_codec_class(
+            py,
+            StaticCodecType::<NegateCodec>::of(),
+            module.as_borrowed(),
+        )?;
+
+        let ty = PyCodecClassAdapter::from_codec_class(class.clone())?;
         assert_eq!(
-            codec.ty().codec_config_schema(),
+            ty.codec_config_schema(),
             schema_for!(<NegateCodec as StaticCodec>::Config<'static>)
+        );
+
+        assert_eq!(
+            class.getattr("__doc__")?.extract::<String>()?,
+            "# negate (NegateCodec)
+
+A codec that negates its inputs on encoding and decoding.
+
+## Parameters
+
+ - param (optional): An optional integer value."
         );
 
         Ok(())
     })
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
+/// A codec that negates its inputs on encoding and decoding.
 struct NegateCodec {
-    // empty
+    /// An optional integer value.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    param: Option<i32>,
+    /// The flattened configuration.
+    #[serde(default, flatten)]
+    config: Option<Config>,
+}
+
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "mode")]
+#[serde(deny_unknown_fields)]
+enum Config {
+    /// Mode a.
+    A {
+        /// A boolean value.
+        value: bool,
+        /// A common string value.
+        common: String,
+    },
+    /// Mode b.
+    B {
+        /// A common string value.
+        common: String,
+    },
 }
 
 impl Codec for NegateCodec {

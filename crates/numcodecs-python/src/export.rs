@@ -17,7 +17,9 @@ use pyo3::{
 };
 use pythonize::{pythonize, Depythonizer, Pythonizer};
 
-use crate::{PyCodec, PyCodecClass, PyCodecClassAdapter, PyCodecRegistry};
+use crate::{
+    schema::docs_from_schema, PyCodec, PyCodecClass, PyCodecClassAdapter, PyCodecRegistry,
+};
 
 /// Export the [`DynCodecType`] `ty` to Python by generating a fresh
 /// [`PyCodecClass`] inside `module` and registering it with the
@@ -39,7 +41,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
         if let Some(adapter) = (&ty as &dyn Any).downcast_ref::<PyCodecClassAdapter>() {
             adapter.as_codec_class(py).clone()
         } else {
-            let codec_config_schema = pythonize(py, &ty.codec_config_schema())?;
+            let codec_config_schema = ty.codec_config_schema();
 
             let codec_class_bases = (
                 RustCodec::type_object_bound(py),
@@ -48,10 +50,10 @@ pub fn export_codec_class<'py, T: DynCodecType>(
 
             let codec_class_namespace = [
                 (intern!(py, "__module__"), module.name()?.into_any()),
-                // (
-                //     intern!(py, "__doc__"),
-                //     PyString::new_bound(py, &documentation).into_any(),
-                // ),
+                (
+                    intern!(py, "__doc__"),
+                    docs_from_schema(&codec_config_schema, &codec_id).to_object(py).into_bound(py),
+                ),
                 (
                     intern!(py, "_ty"),
                     Bound::new(py, RustCodecType { ty: Box::new(ty) })?.into_any(),
@@ -62,7 +64,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
                 ),
                 (
                     intern!(py, "__schema__"),
-                    codec_config_schema.into_bound(py),
+                    pythonize(py, &codec_config_schema)?.into_bound(py),
                 ),
                 // (
                 //     intern!(py, "__init__"),

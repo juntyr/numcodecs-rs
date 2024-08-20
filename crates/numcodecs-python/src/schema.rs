@@ -125,6 +125,119 @@ pub fn schema_from_codec_class(
     Ok(schema)
 }
 
+pub fn docs_from_schema(schema: &Schema, codec_id: &str) -> Option<String> {
+    let parameters = parameters_from_schema(schema);
+    let schema = schema.as_object()?;
+
+    let mut docs = String::new();
+
+    docs.push_str("# ");
+    docs.push_str(codec_id);
+
+    if let Some(Value::String(title)) = schema.get("title") {
+        docs.push_str(" (");
+        docs.push_str(title);
+        docs.push(')');
+    }
+
+    docs.push_str("\n\n");
+
+    if let Some(Value::String(description)) = schema.get("description") {
+        docs.push_str(description);
+        docs.push_str("\n\n");
+    }
+
+    docs.push_str("## Parameters\n\n");
+
+    for parameter in &parameters.named {
+        docs.push_str(" - ");
+        docs.push_str(parameter.name);
+
+        docs.push_str(" (");
+
+        if parameter.required {
+            docs.push_str("required");
+        } else {
+            docs.push_str("optional");
+        }
+
+        if let Some(default) = parameter.default {
+            docs.push_str(", default = `");
+            docs.push_str(&format!("{default}"));
+            docs.push('`');
+        }
+
+        docs.push(')');
+
+        if let Some(info) = parameter.docs {
+            docs.push_str(": ");
+            docs.push_str(info);
+        }
+
+        docs.push('\n');
+    }
+
+    if parameters.named.is_empty() {
+        if parameters.additional {
+            docs.push_str("This codec takes *any* parameters.");
+        } else {
+            docs.push_str("This codec does *not* take any parameters.");
+        }
+    } else if parameters.additional {
+        docs.push_str("\nThis codec takes *any* additional parameters.");
+    }
+
+    docs.truncate(docs.trim_end().len());
+
+    Some(docs)
+}
+
+fn parameters_from_schema(schema: &Schema) -> Parameters {
+    if schema.as_bool() == Some(true) {
+        return Parameters {
+            named: Vec::new(),
+            additional: true,
+        };
+    }
+
+    let Some(schema) = schema.as_object() else {
+        return Parameters {
+            named: Vec::new(),
+            additional: false,
+        };
+    };
+
+    let mut parameters = Vec::new();
+
+    let required = match schema.get("required") {
+        Some(Value::Array(required)) => &**required,
+        _ => &[],
+    };
+
+    if let Some(Value::Object(properties)) = schema.get("properties") {
+        for (name, parameter) in properties {
+            parameters.push(Parameter {
+                name,
+                required: required
+                    .iter()
+                    .any(|r| matches!(r, Value::String(n) if n == name)),
+                default: parameter.get("default"),
+                docs: match parameter.get("description") {
+                    Some(Value::String(docs)) => Some(docs),
+                    _ => None,
+                },
+            });
+        }
+    }
+
+    // TODO: handle oneOf recursion
+
+    Parameters {
+        named: parameters,
+        additional: !matches!(schema.get("additionalProperties"), Some(Value::Bool(false))),
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum SchemaError {
     #[error("codec class' `__schema__` is invalid")]
@@ -145,4 +258,16 @@ pub enum SchemaError {
     InvalidClassDocs { source: PyErr },
     #[error("codec class must have a string `__name__`")]
     InvalidClassName { source: PyErr },
+}
+
+struct Parameters<'a> {
+    named: Vec<Parameter<'a>>,
+    additional: bool,
+}
+
+struct Parameter<'a> {
+    name: &'a str,
+    required: bool,
+    default: Option<&'a Value>,
+    docs: Option<&'a str>,
 }
