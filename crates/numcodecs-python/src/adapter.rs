@@ -18,8 +18,9 @@ use serde::{Deserializer, Serializer};
 use serde_transcode::transcode;
 
 use crate::{
-    schema::schema_from_codec_class, PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods,
-    PyCodecRegistry,
+    export::{RustCodec, RustCodecType},
+    schema::schema_from_codec_class,
+    PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
 };
 
 /// Wrapper around [`PyCodec`]s to use the [`Codec`] API.
@@ -112,6 +113,25 @@ impl PyCodecAdapter {
             codec_id: self.codec_id.clone(),
             codec_config_schema: self.codec_config_schema.clone(),
         })
+    }
+
+    /// If `codec` represents an exported [`DynCodec`] `T`, i.e. it's class was
+    /// initially created with [`crate::export_codec_class`], the `with` closure
+    /// provides access to the instance of type `T`.
+    ///
+    /// If `codec` is not an instance of `T`, the `with` closure is *not* run
+    /// and `None` is returned.
+    pub fn with_downcast<T: DynCodec, O>(
+        codec: &Bound<PyCodec>,
+        with: impl for<'a> FnOnce(&'a T) -> O,
+    ) -> Option<O> {
+        let Ok(codec) = codec.downcast::<RustCodec>() else {
+            return None;
+        };
+
+        let codec = codec.get().downcast()?;
+
+        Some(with(codec))
     }
 }
 
@@ -445,6 +465,29 @@ impl PyCodecClassAdapter {
     #[must_use]
     pub fn into_codec_class(self, py: Python) -> Bound<PyCodecClass> {
         self.class.into_bound(py)
+    }
+
+    /// If `class` represents an exported [`DynCodecType`] `T`, i.e. it was
+    /// initially created with [`crate::export_codec_class`], the `with` closure
+    /// provides access to the instance of type `T`.
+    ///
+    /// If `class` is not an instance of `T`, the `with` closure is *not* run
+    /// and `None` is returned.
+    pub fn with_downcast<T: DynCodecType, O>(
+        class: &Bound<PyCodecClass>,
+        with: impl for<'a> FnOnce(&'a T) -> O,
+    ) -> Option<O> {
+        let Ok(ty) = class.getattr(intern!(class.py(), "_ty")) else {
+            return None;
+        };
+
+        let Ok(ty) = ty.downcast_into_exact::<RustCodecType>() else {
+            return None;
+        };
+
+        let ty: &T = ty.get().downcast()?;
+
+        Some(with(ty))
     }
 }
 

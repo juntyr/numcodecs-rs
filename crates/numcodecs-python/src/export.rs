@@ -90,8 +90,14 @@ pub fn export_codec_class<'py, T: DynCodecType>(
 }
 
 #[pyclass(frozen)]
-struct RustCodecType {
+pub(crate) struct RustCodecType {
     ty: Box<dyn 'static + Send + Sync + AnyCodecType>,
+}
+
+impl RustCodecType {
+    pub fn downcast<T: DynCodecType>(&self) -> Option<&T> {
+        self.ty.as_any().downcast_ref()
+    }
 }
 
 trait AnyCodec {
@@ -102,6 +108,8 @@ trait AnyCodec {
     fn decode_into(&self, encoded: AnyArrayView, decoded: AnyArrayViewMut) -> Result<(), PyErr>;
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr>;
+
+    fn as_any(&self) -> &dyn Any;
 }
 
 impl<T: DynCodec> AnyCodec for T {
@@ -121,6 +129,10 @@ impl<T: DynCodec> AnyCodec for T {
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {
         <T as DynCodec>::get_config(self, Pythonizer::new(py))?.extract(py)
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 trait AnyCodecType {
@@ -128,6 +140,8 @@ trait AnyCodecType {
         &self,
         config: Bound<'py, PyDict>,
     ) -> Result<Box<dyn 'static + Send + Sync + AnyCodec>, PyErr>;
+
+    fn as_any(&self) -> &dyn Any;
 }
 
 impl<T: DynCodecType> AnyCodecType for T {
@@ -143,13 +157,23 @@ impl<T: DynCodecType> AnyCodecType for T {
             Err(err) => Err(err.into()),
         }
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 #[pyclass(subclass, frozen)]
-struct RustCodec {
+pub(crate) struct RustCodec {
     cls_module: String,
     cls_name: String,
     codec: Box<dyn 'static + Send + Sync + AnyCodec>,
+}
+
+impl RustCodec {
+    pub fn downcast<T: DynCodec>(&self) -> Option<&T> {
+        self.codec.as_any().downcast_ref()
+    }
 }
 
 #[pymethods]

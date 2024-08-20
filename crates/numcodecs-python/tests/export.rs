@@ -3,7 +3,8 @@ use numcodecs::{
     StaticCodec, StaticCodecConfig, StaticCodecType,
 };
 use numcodecs_python::{
-    export_codec_class, PyCodecClassAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
+    export_codec_class, PyCodecAdapter, PyCodecClassAdapter, PyCodecClassMethods, PyCodecMethods,
+    PyCodecRegistry,
 };
 use pyo3::{exceptions::PyTypeError, intern, prelude::*, types::PyDict};
 use schemars::{schema_for, JsonSchema};
@@ -105,6 +106,29 @@ This codec does *not* take any parameters."
             ),
             "(self)",
         );
+
+        Ok(())
+    })
+}
+
+#[test]
+fn downcast() -> Result<(), PyErr> {
+    Python::with_gil(|py| {
+        let module = PyModule::new_bound(py, "codecs")?;
+        let class = export_codec_class(
+            py,
+            StaticCodecType::<NegateCodec>::of(),
+            module.as_borrowed(),
+        )?;
+
+        assert!(
+            PyCodecClassAdapter::with_downcast(&class, |_: &StaticCodecType<NegateCodec>| ())
+                .is_some()
+        );
+
+        let codec = class.codec_from_config(PyDict::new_bound(py).as_borrowed())?;
+
+        assert!(PyCodecAdapter::with_downcast(&codec, |_: &NegateCodec| ()).is_some());
 
         Ok(())
     })
