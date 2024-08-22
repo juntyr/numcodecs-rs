@@ -29,11 +29,10 @@ use thiserror::Error;
 mod ffi;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+#[serde(transparent)]
 /// Codec providing compression using ZFP
 pub struct ZfpCodec {
     /// ZFP compression mode
-    #[serde(flatten)]
     pub mode: ZfpCompressionMode,
 }
 

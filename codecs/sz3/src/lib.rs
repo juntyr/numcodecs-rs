@@ -33,11 +33,10 @@ use thiserror::Error;
 use ::zstd_sys as _;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+#[serde(transparent)]
 /// Codec providing compression using SZ3
 pub struct Sz3Codec {
     /// SZ3 error bound
-    #[serde(flatten)]
     pub error: Sz3ErrorBound,
 }
 
