@@ -224,6 +224,7 @@ pub fn signature_from_schema(schema: &Schema) -> String {
 
 #[allow(clippy::too_many_lines)] // FIXME
 fn parameters_from_schema(schema: &Schema) -> Parameters {
+    // schema = true means that any parameters are allowed
     if schema.as_bool() == Some(true) {
         return Parameters {
             named: Vec::new(),
@@ -231,6 +232,8 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
         };
     }
 
+    // schema = false means that no config is valid
+    // we approximate that by saying that no parameters are allowed
     let Some(schema) = schema.as_object() else {
         return Parameters {
             named: Vec::new(),
@@ -245,30 +248,24 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
         _ => &[],
     };
 
+    // extract the top-level parameters
     if let Some(Value::Object(properties)) = schema.get("properties") {
         for (name, parameter) in properties {
-            parameters.push(Parameter {
-                name,
-                required: required
-                    .iter()
-                    .any(|r| matches!(r, Value::String(n) if n == name)),
-                default: parameter.get("default"),
-                docs: match parameter.get("description") {
-                    Some(Value::String(docs)) => Some(Cow::Borrowed(docs)),
-                    _ => None,
-                },
-            });
+            parameters.push(Parameter::new(name, parameter, required));
         }
     }
 
     let mut additional = !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
 
+    // iterate over oneOf to handle top-level or flattened enums
     if let Some(Value::Array(variants)) = schema.get("oneOf") {
+        // if any variant allows additional parameters, the top-level also
+        //  allows additional parameters
         additional |= !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
 
         let mut variant_parameters = HashMap::new();
 
-        for (i, schema) in variants.iter().enumerate() {
+        for (generation, schema) in variants.iter().enumerate() {
             let required = match schema.get("required") {
                 Some(Value::Array(required)) => &**required,
                 _ => &[],
@@ -278,103 +275,47 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
                 _ => None,
             };
 
+            // extract the per-variant parameters and check for tag parameters
             if let Some(Value::Object(properties)) = schema.get("properties") {
                 for (name, parameter) in properties {
-                    let required = required
-                        .iter()
-                        .any(|r| matches!(r, Value::String(n) if n == name));
-                    let default = parameter.get("default");
-                    let r#const = parameter.get("const");
-                    let docs = match parameter.get("description") {
-                        Some(Value::String(docs)) => Some(Cow::Borrowed(docs.as_str())),
-                        _ => None,
-                    };
-
                     match variant_parameters.entry(name) {
                         Entry::Vacant(entry) => {
-                            let (docs, tag_docs) = match r#const {
-                                None => (docs, None),
-                                Some(r#const) => (
-                                    None,
-                                    #[allow(clippy::or_fun_call)]
-                                    Some(vec![(r#const, docs.or(variant_docs.map(Cow::Borrowed)))]),
-                                ),
-                            };
-
-                            entry.insert((
-                                i,
-                                Parameter {
-                                    name,
-                                    required: required && i == 0,
-                                    default,
-                                    docs,
-                                },
-                                tag_docs,
+                            entry.insert(VariantParameter::new(
+                                generation,
+                                name,
+                                parameter,
+                                required,
+                                variant_docs,
                             ));
                         }
                         Entry::Occupied(mut entry) => {
-                            let (j, entry, tag_docs) = entry.get_mut();
-                            *j = i;
-                            entry.required &= required;
-                            if entry.default != default {
-                                entry.default = None;
-                            }
-                            match (r#const, tag_docs) {
-                                (None, None) => {
-                                    if entry.docs != docs {
-                                        entry.docs = None;
-                                    }
-                                }
-                                (Some(_), None) => {
-                                    entry.docs = None;
-                                }
-                                (None, tag_docs @ Some(_)) => {
-                                    *tag_docs = None;
-                                    entry.docs = None;
-                                }
-                                #[allow(clippy::or_fun_call)]
-                                (Some(r#const), Some(tag_docs)) => tag_docs
-                                    .push((r#const, docs.or(variant_docs.map(Cow::Borrowed)))),
-                            }
+                            entry.get_mut().merge(
+                                generation,
+                                name,
+                                parameter,
+                                required,
+                                variant_docs,
+                            );
                         }
                     }
                 }
             }
 
-            for (j, parameter, _tag_docs) in variant_parameters.values_mut() {
-                if (*j) < i {
-                    parameter.required = false;
-                }
+            // ensure that only parameters in all variants are required or tags
+            for parameter in variant_parameters.values_mut() {
+                parameter.update_generation(generation);
             }
         }
 
+        // merge the variant parameters into the top-level parameters
         parameters.extend(
             variant_parameters
                 .into_values()
-                .map(|(_i, mut parameter, tag_docs)| {
-                    if let Some(tag_docs) = tag_docs {
-                        let mut docs = String::from("\n");
-
-                        for (tag, tag_docs) in tag_docs {
-                            docs.push_str(" - ");
-                            docs.push_str(&format!("{tag}"));
-                            if let Some(tag_docs) = tag_docs {
-                                docs.push_str(": ");
-                                docs.push_str(&tag_docs);
-                            }
-                            docs.push('\n');
-                        }
-
-                        docs.truncate(docs.trim_end().len());
-
-                        parameter.docs = Some(Cow::Owned(docs));
-                    }
-
-                    parameter
-                }),
+                .map(VariantParameter::into_parameter),
         );
     }
 
+    // sort parameters by name and so that required parameters come first
     parameters.sort_by_key(|p| (!p.required, p.name));
 
     Parameters {
@@ -415,6 +356,136 @@ struct Parameter<'a> {
     required: bool,
     default: Option<&'a Value>,
     docs: Option<Cow<'a, str>>,
+}
+
+impl<'a> Parameter<'a> {
+    #[must_use]
+    pub fn new(name: &'a str, parameter: &'a Value, required: &[Value]) -> Self {
+        Self {
+            name,
+            required: required
+                .iter()
+                .any(|r| matches!(r, Value::String(n) if n == name)),
+            default: parameter.get("default"),
+            docs: match parameter.get("description") {
+                Some(Value::String(docs)) => Some(Cow::Borrowed(docs)),
+                _ => None,
+            },
+        }
+    }
+}
+
+struct VariantParameter<'a> {
+    generation: usize,
+    parameter: Parameter<'a>,
+    #[allow(clippy::type_complexity)]
+    tag_docs: Option<Vec<(&'a Value, Option<Cow<'a, str>>)>>,
+}
+
+impl<'a> VariantParameter<'a> {
+    #[must_use]
+    pub fn new(
+        generation: usize,
+        name: &'a str,
+        parameter: &'a Value,
+        required: &[Value],
+        variant_docs: Option<&'a str>,
+    ) -> Self {
+        let r#const = parameter.get("const");
+
+        let mut parameter = Parameter::new(name, parameter, required);
+        parameter.required &= generation == 0;
+
+        let tag_docs = match r#const {
+            // a tag parameter must be introduced in the first generation
+            Some(r#const) if generation == 0 => {
+                #[allow(clippy::or_fun_call)]
+                let docs = parameter.docs.take().or(variant_docs.map(Cow::Borrowed));
+                Some(vec![(r#const, docs)])
+            }
+            _ => None,
+        };
+
+        Self {
+            generation,
+            parameter,
+            tag_docs,
+        }
+    }
+
+    pub fn merge(
+        &mut self,
+        generation: usize,
+        name: &'a str,
+        parameter: &'a Value,
+        required: &[Value],
+        variant_docs: Option<&'a str>,
+    ) {
+        self.generation = generation;
+
+        let r#const = parameter.get("const");
+
+        let parameter = Parameter::new(name, parameter, required);
+
+        self.parameter.required &= parameter.required;
+        if self.parameter.default != parameter.default {
+            self.parameter.default = None;
+        }
+
+        if let Some(tag_docs) = &mut self.tag_docs {
+            // we're building docs for a tag-like parameter
+            if let Some(r#const) = r#const {
+                #[allow(clippy::or_fun_call)]
+                tag_docs.push((r#const, parameter.docs.or(variant_docs.map(Cow::Borrowed))));
+            } else {
+                // mixing tag and non-tag parameter => no docs
+                self.tag_docs = None;
+                self.parameter.docs = None;
+            }
+        } else {
+            // we're building docs for a normal parameter
+            if r#const.is_none() {
+                // we only accept always matching docs for normal parameters
+                if self.parameter.docs != parameter.docs {
+                    self.parameter.docs = None;
+                }
+            } else {
+                // mixing tag and non-tag parameter => no docs
+                self.tag_docs = None;
+            }
+        }
+    }
+
+    pub fn update_generation(&mut self, generation: usize) {
+        if self.generation < generation {
+            // required and tag parameters must appear in all generations
+            self.parameter.required = false;
+            self.tag_docs = None;
+        }
+    }
+
+    #[must_use]
+    pub fn into_parameter(mut self) -> Parameter<'a> {
+        if let Some(tag_docs) = self.tag_docs {
+            let mut docs = String::from("\n");
+
+            for (tag, tag_docs) in tag_docs {
+                docs.push_str(" - ");
+                docs.push_str(&format!("{tag}"));
+                if let Some(tag_docs) = tag_docs {
+                    docs.push_str(": ");
+                    docs.push_str(&tag_docs);
+                }
+                docs.push('\n');
+            }
+
+            docs.truncate(docs.trim_end().len());
+
+            self.parameter.docs = Some(Cow::Owned(docs));
+        }
+
+        self.parameter
+    }
 }
 
 #[cfg(test)]
