@@ -74,7 +74,9 @@ pub mod bindings {
 /// export_codec!(MyCodec);
 /// ```
 macro_rules! export_codec {
-    ($codec:ident) => {
+    ($codec:ty) => {{
+        type Codec = $codec;
+
         const _: () = {
             const fn can_only_export_static_codec<T: $crate::numcodecs::StaticCodec>() {}
 
@@ -82,8 +84,8 @@ macro_rules! export_codec {
         };
 
         #[cfg(target_arch = "wasm32")]
-        $crate::bindings::export!($codec with_types_in $crate::bindings);
-    };
+        $crate::bindings::export!(Codec with_types_in $crate::bindings);
+    }};
 }
 
 #[cfg(target_arch = "wasm32")]
