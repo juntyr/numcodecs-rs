@@ -153,6 +153,8 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -229,7 +231,9 @@
 /// export_codec!(MyCodec);
 /// ```
 </span><span class="macro">macro_rules!</span> <a href="../../numcodecs_wasm_guest/macro.export_codec.html">export_codec</a> {
-    (<span class="macro-nonterminal">$codec</span>:ident) =&gt; {
+    (<span class="macro-nonterminal">$codec</span>:ty) =&gt; {{
+        <span class="kw">type </span>Codec = <span class="macro-nonterminal">$codec</span>;
+
         <span class="kw">const _</span>: () = {
             <span class="kw">const fn </span>can_only_export_static_codec&lt;T: <span class="macro-nonterminal">$crate::numcodecs::StaticCodec</span>&gt;() {}
 
@@ -237,8 +241,8 @@
         };
 
         <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
-        </span><span class="macro-nonterminal">$</span><span class="macro">crate::bindings::export!</span>(<span class="macro-nonterminal">$codec </span>with_types_in <span class="macro-nonterminal">$crate::bindings</span>);
-    };
+        </span><span class="macro-nonterminal">$</span><span class="macro">crate::bindings::export!</span>(<span class="macro-nonterminal">Codec </span>with_types_in <span class="macro-nonterminal">$crate::bindings</span>);
+    }};
 }
 
 <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
