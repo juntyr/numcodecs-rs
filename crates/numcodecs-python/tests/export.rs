@@ -1,13 +1,17 @@
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut,
-    AnyCowArray, Codec, StaticCodec, StaticCodecType,
+    AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType,
+    StaticCodec, StaticCodecConfig, StaticCodecType,
 };
-use numcodecs_python::{export_codec_class, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
-use pyo3::{exceptions::PyTypeError, prelude::*, types::PyDict};
+use numcodecs_python::{
+    export_codec_class, PyCodecAdapter, PyCodecClassAdapter, PyCodecClassMethods, PyCodecMethods,
+    PyCodecRegistry,
+};
+use pyo3::{exceptions::PyTypeError, intern, prelude::*, types::PyDict};
+use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use ::{
     convert_case as _, ndarray as _, pythonize as _, serde as _, serde_json as _,
-    serde_transcode as _,
+    serde_transcode as _, thiserror as _,
 };
 
 #[test]
@@ -66,7 +70,73 @@ fn export() -> Result<(), PyErr> {
     })
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[test]
+fn schema() -> Result<(), PyErr> {
+    Python::with_gil(|py| {
+        let module = PyModule::new_bound(py, "codecs")?;
+        let class = export_codec_class(
+            py,
+            StaticCodecType::<NegateCodec>::of(),
+            module.as_borrowed(),
+        )?;
+
+        let ty = PyCodecClassAdapter::from_codec_class(class.clone())?;
+        assert_eq!(
+            ty.codec_config_schema(),
+            schema_for!(<NegateCodec as StaticCodec>::Config<'static>)
+        );
+
+        assert_eq!(
+            class.getattr("__doc__")?.extract::<String>()?,
+            "# negate (NegateCodec)
+
+A codec that negates its inputs on encoding and decoding.
+
+## Parameters
+
+This codec does *not* take any parameters."
+        );
+
+        assert_eq!(
+            format!(
+                "{}",
+                py.import_bound(intern!(py, "inspect"))?
+                    .getattr(intern!(py, "signature"))?
+                    .call1((class.getattr(intern!(py, "__init__"))?,))?
+            ),
+            "(self)",
+        );
+
+        Ok(())
+    })
+}
+
+#[test]
+fn downcast() -> Result<(), PyErr> {
+    Python::with_gil(|py| {
+        let module = PyModule::new_bound(py, "codecs")?;
+        let class = export_codec_class(
+            py,
+            StaticCodecType::<NegateCodec>::of(),
+            module.as_borrowed(),
+        )?;
+
+        assert!(
+            PyCodecClassAdapter::with_downcast(&class, |_: &StaticCodecType<NegateCodec>| ())
+                .is_some()
+        );
+
+        let codec = class.codec_from_config(PyDict::new_bound(py).as_borrowed())?;
+
+        assert!(PyCodecAdapter::with_downcast(&codec, |_: &NegateCodec| ()).is_some());
+
+        Ok(())
+    })
+}
+
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+/// A codec that negates its inputs on encoding and decoding.
 struct NegateCodec {
     // empty
 }
@@ -102,16 +172,18 @@ impl Codec for NegateCodec {
             _ => Err(PyTypeError::new_err("negate only supports f64")),
         }
     }
-
-    fn get_config<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for NegateCodec {
     const CODEC_ID: &'static str = "negate";
 
-    fn from_config<'de, D: serde::Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }

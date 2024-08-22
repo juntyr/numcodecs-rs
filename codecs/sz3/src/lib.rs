@@ -21,26 +21,27 @@ use std::{borrow::Cow, fmt};
 
 use ndarray::{Array, Array1, ArrayBase, Data, Dimension, ShapeError};
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec, StaticCodecConfig,
 };
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 // Only included to explicitly enable the `no_wasm_shim` feature for
 // sz3-sys/Sz3-sys
 use ::zstd_sys as _;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(transparent)]
 /// Codec providing compression using SZ3
 pub struct Sz3Codec {
     /// SZ3 error bound
-    #[serde(flatten)]
     pub error: Sz3ErrorBound,
 }
 
 /// SZ3 error bound
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "eb_mode")]
 #[serde(deny_unknown_fields)]
 pub enum Sz3ErrorBound {
@@ -149,17 +150,19 @@ impl Codec for Sz3Codec {
 
         Ok(decoded.assign(&decoded_in)?)
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for Sz3Codec {
     const CODEC_ID: &'static str = "sz3";
 
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config(config: Self::Config<'_>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }
 
@@ -413,7 +416,7 @@ impl Sz3Element for f64 {
     const DTYPE: Sz3DType = Sz3DType::F64;
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct CompressionHeader<'a> {
     dtype: Sz3DType,
     #[serde(borrow)]
@@ -421,7 +424,7 @@ struct CompressionHeader<'a> {
 }
 
 /// Dtypes that SZ3 can compress and decompress
-#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 #[allow(missing_docs)]
 pub enum Sz3DType {
     #[serde(rename = "i32", alias = "int32")]

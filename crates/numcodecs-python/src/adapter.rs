@@ -13,16 +13,22 @@ use pyo3::{
     types::{IntoPyDict, PyDict, PyDictMethods},
 };
 use pythonize::{Depythonizer, Pythonizer};
+use schemars::Schema;
 use serde::{Deserializer, Serializer};
 use serde_transcode::transcode;
 
-use crate::{PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
+use crate::{
+    export::{RustCodec, RustCodecType},
+    schema::schema_from_codec_class,
+    PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
+};
 
 /// Wrapper around [`PyCodec`]s to use the [`Codec`] API.
 pub struct PyCodecAdapter {
     codec: Py<PyCodec>,
     class: Py<PyCodecClass>,
     codec_id: Arc<String>,
+    codec_config_schema: Arc<Schema>,
 }
 
 impl PyCodecAdapter {
@@ -58,11 +64,17 @@ impl PyCodecAdapter {
     pub fn from_codec(codec: Bound<PyCodec>) -> Result<Self, PyErr> {
         let class = codec.class();
         let codec_id = class.codec_id()?;
+        let codec_config_schema = schema_from_codec_class(class.py(), &class).map_err(|err| {
+            PyTypeError::new_err(format!(
+                "failed to extract the {codec_id} codec config schema: {err}"
+            ))
+        })?;
 
         Ok(Self {
             codec: codec.unbind(),
             class: class.unbind(),
             codec_id: Arc::new(codec_id),
+            codec_config_schema: Arc::new(codec_config_schema),
         })
     }
 
@@ -99,7 +111,27 @@ impl PyCodecAdapter {
             codec: codec.unbind(),
             class: self.class.clone_ref(py),
             codec_id: self.codec_id.clone(),
+            codec_config_schema: self.codec_config_schema.clone(),
         })
+    }
+
+    /// If `codec` represents an exported [`DynCodec`] `T`, i.e. its class was
+    /// initially created with [`crate::export_codec_class`], the `with` closure
+    /// provides access to the instance of type `T`.
+    ///
+    /// If `codec` is not an instance of `T`, the `with` closure is *not* run
+    /// and `None` is returned.
+    pub fn with_downcast<T: DynCodec, O>(
+        codec: &Bound<PyCodec>,
+        with: impl for<'a> FnOnce(&'a T) -> O,
+    ) -> Option<O> {
+        let Ok(codec) = codec.downcast::<RustCodec>() else {
+            return None;
+        };
+
+        let codec = codec.get().downcast()?;
+
+        Some(with(codec))
     }
 }
 
@@ -154,21 +186,6 @@ impl Codec for PyCodecAdapter {
 
             // Otherwise, we force-copy the output into the decoded array
             Self::copy_into_any_array_view_mut_from_ndarray_like(py, &mut decoded, decoded_out)
-        })
-    }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        Python::with_gil(|py| {
-            let config = self
-                .codec
-                .bind(py)
-                .get_config()
-                .map_err(serde::ser::Error::custom)?;
-
-            transcode(
-                &mut Depythonizer::from_object_bound(config.into_any()),
-                serializer,
-            )
         })
     }
 }
@@ -388,6 +405,22 @@ impl DynCodec for PyCodecAdapter {
         Python::with_gil(|py| PyCodecClassAdapter {
             class: self.class.clone_ref(py),
             codec_id: self.codec_id.clone(),
+            codec_config_schema: self.codec_config_schema.clone(),
+        })
+    }
+
+    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        Python::with_gil(|py| {
+            let config = self
+                .codec
+                .bind(py)
+                .get_config()
+                .map_err(serde::ser::Error::custom)?;
+
+            transcode(
+                &mut Depythonizer::from_object_bound(config.into_any()),
+                serializer,
+            )
         })
     }
 }
@@ -396,6 +429,7 @@ impl DynCodec for PyCodecAdapter {
 pub struct PyCodecClassAdapter {
     class: Py<PyCodecClass>,
     codec_id: Arc<String>,
+    codec_config_schema: Arc<Schema>,
 }
 
 impl PyCodecClassAdapter {
@@ -407,9 +441,16 @@ impl PyCodecClassAdapter {
     pub fn from_codec_class(class: Bound<PyCodecClass>) -> Result<Self, PyErr> {
         let codec_id = class.codec_id()?;
 
+        let codec_config_schema = schema_from_codec_class(class.py(), &class).map_err(|err| {
+            PyTypeError::new_err(format!(
+                "failed to extract the {codec_id} codec config schema: {err}"
+            ))
+        })?;
+
         Ok(Self {
             class: class.unbind(),
             codec_id: Arc::new(codec_id),
+            codec_config_schema: Arc::new(codec_config_schema),
         })
     }
 
@@ -425,6 +466,29 @@ impl PyCodecClassAdapter {
     pub fn into_codec_class(self, py: Python) -> Bound<PyCodecClass> {
         self.class.into_bound(py)
     }
+
+    /// If `class` represents an exported [`DynCodecType`] `T`, i.e. it was
+    /// initially created with [`crate::export_codec_class`], the `with` closure
+    /// provides access to the instance of type `T`.
+    ///
+    /// If `class` is not an instance of `T`, the `with` closure is *not* run
+    /// and `None` is returned.
+    pub fn with_downcast<T: DynCodecType, O>(
+        class: &Bound<PyCodecClass>,
+        with: impl for<'a> FnOnce(&'a T) -> O,
+    ) -> Option<O> {
+        let Ok(ty) = class.getattr(intern!(class.py(), RustCodec::TYPE_ATTRIBUTE)) else {
+            return None;
+        };
+
+        let Ok(ty) = ty.downcast_into_exact::<RustCodecType>() else {
+            return None;
+        };
+
+        let ty: &T = ty.get().downcast()?;
+
+        Some(with(ty))
+    }
 }
 
 impl DynCodecType for PyCodecClassAdapter {
@@ -432,6 +496,10 @@ impl DynCodecType for PyCodecClassAdapter {
 
     fn codec_id(&self) -> &str {
         &self.codec_id
+    }
+
+    fn codec_config_schema(&self) -> Schema {
+        (*self.codec_config_schema).clone()
     }
 
     fn codec_from_config<'de, D: Deserializer<'de>>(
@@ -453,6 +521,7 @@ impl DynCodecType for PyCodecClassAdapter {
                 codec: codec.unbind(),
                 class: self.class.clone_ref(py),
                 codec_id: self.codec_id.clone(),
+                codec_config_schema: self.codec_config_schema.clone(),
             })
         })
     }

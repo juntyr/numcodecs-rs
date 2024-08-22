@@ -17,6 +17,7 @@
 //!
 //! Zstandard codec implementation for the [`numcodecs`] API.
 
+use schemars::JsonSchema;
 // Only used to explicitly enable the `no_wasm_shim` feature in zstd/zstd-sys
 use zstd_sys as _;
 
@@ -24,16 +25,19 @@ use std::{borrow::Cow, io};
 
 use ndarray::Array1;
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec, StaticCodecConfig,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 /// Codec providing compression using Zstandard
 pub struct ZstdCodec {
-    /// Compression level
+    /// Zstandard compression level.
+    ///
+    /// The level ranges from small (fastest) to large (best compression).
     pub level: ZstdLevel,
 }
 
@@ -80,21 +84,24 @@ impl Codec for ZstdCodec {
 
         decompress_into(&AnyArrayView::U8(encoded).as_bytes(), decoded)
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for ZstdCodec {
     const CODEC_ID: &'static str = "zstd";
 
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config(config: Self::Config<'_>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, JsonSchema)]
+#[schemars(transparent)]
 /// Zstandard compression level.
 ///
 /// The level ranges from small (fastest) to large (best compression).
@@ -102,15 +109,15 @@ pub struct ZstdLevel {
     level: zstd::zstd_safe::CompressionLevel,
 }
 
-impl serde::Serialize for ZstdLevel {
-    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+impl Serialize for ZstdLevel {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.level.serialize(serializer)
     }
 }
 
-impl<'de> serde::Deserialize<'de> for ZstdLevel {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let level = serde::Deserialize::deserialize(deserializer)?;
+impl<'de> Deserialize<'de> for ZstdLevel {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let level = Deserialize::deserialize(deserializer)?;
 
         let level_range = zstd::compression_level_range();
 
@@ -318,7 +325,7 @@ fn decompress_into_bytes(mut encoded: &[u8], mut decoded: &mut [u8]) -> Result<(
     Ok(())
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct CompressionHeader<'a> {
     dtype: AnyArrayDType,
     #[serde(borrow)]

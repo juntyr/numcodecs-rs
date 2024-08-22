@@ -38,6 +38,9 @@ pub trait PyCodecClassMethods<'py>: Sealed {
         &self,
         config: Borrowed<'_, 'py, PyDict>,
     ) -> Result<Bound<'py, PyCodec>, PyErr>;
+
+    /// Gets the [`PyType`] that this [`PyCodecClass`] represents.
+    fn as_type(&self) -> &Bound<'py, PyType>;
 }
 
 impl<'py> PyCodecClassMethods<'py> for Bound<'py, PyCodecClass> {
@@ -58,6 +61,14 @@ impl<'py> PyCodecClassMethods<'py> for Bound<'py, PyCodecClass> {
         self.as_any()
             .call_method1(intern!(py, "from_config"), (config,))?
             .extract()
+    }
+
+    fn as_type(&self) -> &Bound<'py, PyType> {
+        #[allow(unsafe_code)]
+        // Safety: PyCodecClass is a wrapper around PyType
+        unsafe {
+            self.downcast_unchecked()
+        }
     }
 }
 

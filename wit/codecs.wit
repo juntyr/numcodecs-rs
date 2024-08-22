@@ -1,6 +1,8 @@
 package numcodecs:abc@0.1.0;
 
 interface codec {
+    type json = string;
+    type json-schema = json;
     type usize = u32;
 
     record any-array {
@@ -27,11 +29,13 @@ interface codec {
     }
 
     resource codec {
-        from-config: static func(config: string) -> result<codec, error>;
+        from-config: static func(config: json) -> result<codec, error>;
         encode: func(data: any-array) -> result<any-array, error>;
         decode: func(encoded: any-array) -> result<any-array, error>;
-        get-config: func() -> result<string, error>;
+        get-config: func() -> result<json, error>;
     }
 
     codec-id: func() -> string;
+
+    codec-config-schema: func() -> json-schema;
 }

@@ -18,6 +18,7 @@ keywords = ["zstd", "numcodecs", "compression", "encoding"]
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
 postcard = { workspace = true }
+schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
 zstd = { workspace = true }

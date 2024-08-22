@@ -19,18 +19,25 @@
 
 use ndarray::{Array, ArrayBase, ArrayView, Data, DataMut, Dimension, ViewRepr};
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, ArrayDType, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    ArrayDType, Codec, StaticCodec, StaticCodecConfig,
 };
+use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-#[derive(Clone)]
+#[derive(Clone, JsonSchema)]
+#[serde(deny_unknown_fields)]
 /// Codec to reinterpret data between different compatible types.
 ///
 /// Note that no conversion happens, only the meaning of the bits changes.
+///
+/// Reinterpreting to bytes, or to a same-sized unsigned integer type, or
+/// without the changing the dtype are supported.
 pub struct ReinterpretCodec {
+    /// Dtype of the encoded data.
     encode_dtype: AnyArrayDType,
+    /// Dtype of the decoded data
     decode_dtype: AnyArrayDType,
 }
 
@@ -289,17 +296,19 @@ impl Codec for ReinterpretCodec {
 
         Ok(())
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for ReinterpretCodec {
     const CODEC_ID: &'static str = "reinterpret";
 
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config(config: Self::Config<'_>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }
 

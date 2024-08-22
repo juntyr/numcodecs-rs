@@ -1,5 +1,9 @@
+use std::any::Any;
+
 use ndarray::{ArrayViewD, ArrayViewMutD, CowArray};
-use numcodecs::{AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType};
+use numcodecs::{
+    AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec, DynCodecType,
+};
 use numpy::{
     IxDyn, PyArray, PyArrayDescrMethods, PyArrayDyn, PyArrayMethods, PyUntypedArray,
     PyUntypedArrayMethods,
@@ -11,9 +15,12 @@ use pyo3::{
     types::{IntoPyDict, PyDict, PyString, PyType},
     PyTypeInfo,
 };
-use pythonize::{Depythonizer, Pythonizer};
+use pythonize::{pythonize, Depythonizer, Pythonizer};
 
-use crate::{PyCodec, PyCodecClass, PyCodecRegistry};
+use crate::{
+    schema::{docs_from_schema, signature_from_schema},
+    PyCodec, PyCodecClass, PyCodecClassAdapter, PyCodecRegistry,
+};
 
 /// Export the [`DynCodecType`] `ty` to Python by generating a fresh
 /// [`PyCodecClass`] inside `module` and registering it with the
@@ -30,35 +37,50 @@ pub fn export_codec_class<'py, T: DynCodecType>(
     let codec_id = String::from(ty.codec_id());
     let codec_class_name = convert_case::Casing::to_case(&codec_id, convert_case::Case::Pascal);
 
-    let codec_class_bases = (
-        RustCodec::type_object_bound(py),
-        PyCodec::type_object_bound(py),
-    );
+    let codec_class: Bound<PyCodecClass> =
+        // re-exporting a Python codec class should roundtrip
+        if let Some(adapter) = (&ty as &dyn Any).downcast_ref::<PyCodecClassAdapter>() {
+            adapter.as_codec_class(py).clone()
+        } else {
+            let codec_config_schema = ty.codec_config_schema();
 
-    let codec_class_namespace = [
-        (intern!(py, "__module__"), module.name()?.into_any()),
-        // (
-        //     intern!(py, "__doc__"),
-        //     PyString::new_bound(py, &documentation).into_any(),
-        // ),
-        (
-            intern!(py, "_ty"),
-            Bound::new(py, RustCodecType { ty: Box::new(ty) })?.into_any(),
-        ),
-        (
-            intern!(py, "codec_id"),
-            PyString::new_bound(py, &codec_id).into_any(),
-        ),
-        // (
-        //     intern!(py, "__init__"),
-        //     py.eval_bound(&format!("lambda self, {signature}: None"), None, None)?,
-        // ),
-    ]
-    .into_py_dict_bound(py);
+            let codec_class_bases = (
+                RustCodec::type_object_bound(py),
+                PyCodec::type_object_bound(py),
+            );
 
-    let codec_class: Bound<PyCodecClass> = PyType::type_object_bound(py)
-        .call1((&codec_class_name, codec_class_bases, codec_class_namespace))?
-        .extract()?;
+            let codec_class_namespace = [
+                (intern!(py, "__module__"), module.name()?.into_any()),
+                (
+                    intern!(py, "__doc__"),
+                    docs_from_schema(&codec_config_schema, &codec_id).to_object(py).into_bound(py),
+                ),
+                (
+                    intern!(py, RustCodec::TYPE_ATTRIBUTE),
+                    Bound::new(py, RustCodecType { ty: Box::new(ty) })?.into_any(),
+                ),
+                (
+                    intern!(py, "codec_id"),
+                    PyString::new_bound(py, &codec_id).into_any(),
+                ),
+                (
+                    intern!(py, RustCodec::SCHEMA_ATTRIBUTE),
+                    pythonize(py, &codec_config_schema)?.into_bound(py),
+                ),
+                (
+                    intern!(py, "__init__"),
+                    py.eval_bound(&format!(
+                        "lambda {}: None",
+                        signature_from_schema(&codec_config_schema),
+                    ), None, None)?,
+                ),
+            ]
+            .into_py_dict_bound(py);
+
+            PyType::type_object_bound(py)
+                .call1((&codec_class_name, codec_class_bases, codec_class_namespace))?
+                .extract()?
+        };
 
     module.add(codec_class_name.as_str(), &codec_class)?;
 
@@ -67,9 +89,16 @@ pub fn export_codec_class<'py, T: DynCodecType>(
     Ok(codec_class)
 }
 
+#[allow(clippy::redundant_pub_crate)]
 #[pyclass(frozen)]
-struct RustCodecType {
+pub(crate) struct RustCodecType {
     ty: Box<dyn 'static + Send + Sync + AnyCodecType>,
+}
+
+impl RustCodecType {
+    pub fn downcast<T: DynCodecType>(&self) -> Option<&T> {
+        self.ty.as_any().downcast_ref()
+    }
 }
 
 trait AnyCodec {
@@ -80,9 +109,11 @@ trait AnyCodec {
     fn decode_into(&self, encoded: AnyArrayView, decoded: AnyArrayViewMut) -> Result<(), PyErr>;
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr>;
+
+    fn as_any(&self) -> &dyn Any;
 }
 
-impl<T: Codec> AnyCodec for T {
+impl<T: DynCodec> AnyCodec for T {
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, PyErr> {
         <T as Codec>::encode(self, data).map_err(|err| PyRuntimeError::new_err(format!("{err}")))
     }
@@ -97,7 +128,11 @@ impl<T: Codec> AnyCodec for T {
     }
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {
-        <T as Codec>::get_config(self, Pythonizer::new(py))?.extract(py)
+        <T as DynCodec>::get_config(self, Pythonizer::new(py))?.extract(py)
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 
@@ -106,6 +141,8 @@ trait AnyCodecType {
         &self,
         config: Bound<'py, PyDict>,
     ) -> Result<Box<dyn 'static + Send + Sync + AnyCodec>, PyErr>;
+
+    fn as_any(&self) -> &dyn Any;
 }
 
 impl<T: DynCodecType> AnyCodecType for T {
@@ -121,13 +158,27 @@ impl<T: DynCodecType> AnyCodecType for T {
             Err(err) => Err(err.into()),
         }
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
+#[allow(clippy::redundant_pub_crate)]
 #[pyclass(subclass, frozen)]
-struct RustCodec {
+pub(crate) struct RustCodec {
     cls_module: String,
     cls_name: String,
     codec: Box<dyn 'static + Send + Sync + AnyCodec>,
+}
+
+impl RustCodec {
+    pub const SCHEMA_ATTRIBUTE: &'static str = "__schema__";
+    pub const TYPE_ATTRIBUTE: &'static str = "_ty";
+
+    pub fn downcast<T: DynCodec>(&self) -> Option<&T> {
+        self.codec.as_any().downcast_ref()
+    }
 }
 
 #[pymethods]
@@ -145,7 +196,7 @@ impl RustCodec {
         let cls_name: String = cls.getattr(intern!(py, "__name__"))?.extract()?;
 
         let ty: Bound<RustCodecType> = cls
-            .getattr(intern!(py, "_ty"))
+            .getattr(intern!(py, RustCodec::TYPE_ATTRIBUTE))
             .map_err(|_| {
                 PyValueError::new_err(format!(
                     "{cls_module}.{cls_name} is not linked to a Rust codec type"

@@ -21,21 +21,28 @@ use std::hash::{Hash, Hasher};
 
 use ndarray::{Array, ArrayBase, Data, Dimension};
 use numcodecs::{
-    serialize_codec_config_with_id, AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec, StaticCodecConfig,
 };
 use rand::{
     distributions::{Distribution, Open01},
     SeedableRng,
 };
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use wyhash::{WyHash, WyRng};
 
-#[derive(Clone, Serialize, Deserialize)]
-/// Codec that adds `seed`ed uniform noise of the given `scale` and with
-/// [`add_uniform_noise`] during encoding and passes through the input unchanged
-/// during decoding.
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+/// Codec that adds `seed`ed `U(-scale/2, scale/2)` uniform noise of the given
+/// `scale` during encoding and passes through the input unchanged during
+/// decoding.
+///
+/// This codec first hashes the input array data and shape to then seed a
+/// pseudo-random number generator that generates the uniform noise. Therefore,
+/// passing in the same input with the same `seed` will produce the same noise
+/// and thus the same encoded output.
 pub struct UniformNoiseCodec {
     /// Scale of the uniform noise, which is sampled from
     /// `U(-scale/2, +scale/2)`
@@ -81,17 +88,19 @@ impl Codec for UniformNoiseCodec {
 
         Ok(decoded.assign(&encoded)?)
     }
-
-    fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serialize_codec_config_with_id(self, self, serializer)
-    }
 }
 
 impl StaticCodec for UniformNoiseCodec {
     const CODEC_ID: &'static str = "uniform-noise";
 
-    fn from_config<'de, D: Deserializer<'de>>(config: D) -> Result<Self, D::Error> {
-        Self::deserialize(config)
+    type Config<'de> = Self;
+
+    fn from_config(config: Self::Config<'_>) -> Self {
+        config
+    }
+
+    fn get_config(&self) -> StaticCodecConfig<Self> {
+        StaticCodecConfig::from(self)
     }
 }
 
