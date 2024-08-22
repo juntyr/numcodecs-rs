@@ -9,7 +9,7 @@ use schemars::Schema;
 use serde_json::{Map, Value};
 use thiserror::Error;
 
-use crate::PyCodecClass;
+use crate::{export::RustCodec, PyCodecClass};
 
 macro_rules! once {
     ($py:ident, $module:literal $(, $path:literal)*) => {{
@@ -31,7 +31,7 @@ pub fn schema_from_codec_class(
     py: Python,
     class: &Bound<PyCodecClass>,
 ) -> Result<Schema, SchemaError> {
-    if let Ok(schema) = class.getattr(intern!(py, "__schema__")) {
+    if let Ok(schema) = class.getattr(intern!(py, RustCodec::SCHEMA_ATTRIBUTE)) {
         return depythonize_bound(schema)
             .map_err(|err| SchemaError::InvalidCachedJsonSchema { source: err });
     }
@@ -385,7 +385,7 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
 
 #[derive(Debug, Error)]
 pub enum SchemaError {
-    #[error("codec class' `__schema__` is invalid")]
+    #[error("codec class' cached config schema is invalid")]
     InvalidCachedJsonSchema { source: PythonizeError },
     #[error("extracting the codec signature failed")]
     SignatureExtraction {

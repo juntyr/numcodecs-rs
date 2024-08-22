@@ -56,7 +56,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
                     docs_from_schema(&codec_config_schema, &codec_id).to_object(py).into_bound(py),
                 ),
                 (
-                    intern!(py, "_ty"),
+                    intern!(py, RustCodec::TYPE_ATTRIBUTE),
                     Bound::new(py, RustCodecType { ty: Box::new(ty) })?.into_any(),
                 ),
                 (
@@ -64,7 +64,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
                     PyString::new_bound(py, &codec_id).into_any(),
                 ),
                 (
-                    intern!(py, "__schema__"),
+                    intern!(py, RustCodec::SCHEMA_ATTRIBUTE),
                     pythonize(py, &codec_config_schema)?.into_bound(py),
                 ),
                 (
@@ -173,6 +173,9 @@ pub(crate) struct RustCodec {
 }
 
 impl RustCodec {
+    pub const SCHEMA_ATTRIBUTE: &'static str = "__schema__";
+    pub const TYPE_ATTRIBUTE: &'static str = "_ty";
+
     pub fn downcast<T: DynCodec>(&self) -> Option<&T> {
         self.codec.as_any().downcast_ref()
     }
@@ -193,7 +196,7 @@ impl RustCodec {
         let cls_name: String = cls.getattr(intern!(py, "__name__"))?.extract()?;
 
         let ty: Bound<RustCodecType> = cls
-            .getattr(intern!(py, "_ty"))
+            .getattr(intern!(py, RustCodec::TYPE_ATTRIBUTE))
             .map_err(|_| {
                 PyValueError::new_err(format!(
                     "{cls_module}.{cls_name} is not linked to a Rust codec type"

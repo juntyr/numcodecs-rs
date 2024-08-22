@@ -115,7 +115,7 @@ impl PyCodecAdapter {
         })
     }
 
-    /// If `codec` represents an exported [`DynCodec`] `T`, i.e. it's class was
+    /// If `codec` represents an exported [`DynCodec`] `T`, i.e. its class was
     /// initially created with [`crate::export_codec_class`], the `with` closure
     /// provides access to the instance of type `T`.
     ///
@@ -477,7 +477,7 @@ impl PyCodecClassAdapter {
         class: &Bound<PyCodecClass>,
         with: impl for<'a> FnOnce(&'a T) -> O,
     ) -> Option<O> {
-        let Ok(ty) = class.getattr(intern!(class.py(), "_ty")) else {
+        let Ok(ty) = class.getattr(intern!(class.py(), RustCodec::TYPE_ATTRIBUTE)) else {
             return None;
         };
 
