@@ -1,6 +1,6 @@
 use std::{borrow::Cow, error::Error, marker::PhantomData};
 
-use schemars::{gen::SchemaSettings, JsonSchema, Schema};
+use schemars::{generate::SchemaSettings, JsonSchema, Schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
 
