@@ -1,1 +1,2 @@
 window.ALL_CRATES = ["numcodecs","numcodecs_bit_round","numcodecs_identity","numcodecs_linear_quantize","numcodecs_log","numcodecs_python","numcodecs_reinterpret","numcodecs_round","numcodecs_sz3","numcodecs_uniform_noise","numcodecs_wasm_guest","numcodecs_zfp","numcodecs_zlib","numcodecs_zstd"];
+//{"start":21,"fragment_lengths":[11,22,21,28,16,19,24,18,16,26,23,16,17,17]}

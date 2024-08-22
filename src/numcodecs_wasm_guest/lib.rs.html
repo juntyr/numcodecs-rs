@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-guest/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b25d77b18a16a9a4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_guest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (6de928dce 2024-08-18)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-cb0df477c2d67d00.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-guest/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b25d77b18a16a9a4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_guest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (a32d4a0e8 2024-08-21)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-cb0df477c2d67d00.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -151,6 +151,8 @@
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -181,7 +183,8 @@
 <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
 </span><span class="kw">use </span>::{
     numcodecs::{Codec, StaticCodec},
-    serde::{Serialize, Serializer},
+    schemars::schema_for,
+    serde::Deserialize,
 };
 
 <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
@@ -246,18 +249,26 @@
     <span class="kw">fn </span>codec_id() -&gt; String {
         String::from(&lt;<span class="self">Self </span><span class="kw">as </span>StaticCodec&gt;::CODEC_ID)
     }
+
+    <span class="kw">fn </span>codec_config_schema() -&gt; wit::JsonSchema {
+        <span class="macro">schema_for!</span>(&lt;<span class="self">Self </span><span class="kw">as </span>StaticCodec&gt;::Config&lt;<span class="lifetime">'static</span>&gt;)
+            .as_value()
+            .to_string()
+    }
 }
 
 <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
 </span><span class="kw">impl</span>&lt;T: StaticCodec&gt; wit::GuestCodec <span class="kw">for </span>T {
     <span class="kw">fn </span>from_config(config: String) -&gt; <span class="prelude-ty">Result</span>&lt;wit::Codec, wit::Error&gt; {
-        <span class="kw">match </span>&lt;T <span class="kw">as </span>StaticCodec&gt;::from_config(<span class="kw-2">&amp;mut </span>serde_json::Deserializer::from_str(<span class="kw-2">&amp;</span>config)) {
-            <span class="prelude-val">Ok</span>(codec) =&gt; <span class="prelude-val">Ok</span>(wit::Codec::new(codec)),
-            <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="kw">let </span>err = format_serde_error::SerdeError::new(config, err);
-                <span class="prelude-val">Err</span>(into_wit_error(err))
-            }
-        }
+        <span class="kw">let </span>err = <span class="kw">match </span>&lt;<span class="self">Self </span><span class="kw">as </span>StaticCodec&gt;::Config::deserialize(
+            <span class="kw-2">&amp;mut </span>serde_json::Deserializer::from_str(<span class="kw-2">&amp;</span>config),
+        ) {
+            <span class="prelude-val">Ok</span>(config) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(wit::Codec::new(&lt;<span class="self">Self </span><span class="kw">as </span>StaticCodec&gt;::from_config(config))),
+            <span class="prelude-val">Err</span>(err) =&gt; err,
+        };
+
+        <span class="kw">let </span>err = format_serde_error::SerdeError::new(config, err);
+        <span class="prelude-val">Err</span>(into_wit_error(err))
     }
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: wit::AnyArray) -&gt; <span class="prelude-ty">Result</span>&lt;wit::AnyArray, wit::Error&gt; {
@@ -266,7 +277,7 @@
             <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(into_wit_error(err)),
         };
 
-        <span class="kw">match </span>&lt;T <span class="kw">as </span>Codec&gt;::encode(<span class="self">self</span>, data.into_cow()) {
+        <span class="kw">match </span>&lt;<span class="self">Self </span><span class="kw">as </span>Codec&gt;::encode(<span class="self">self</span>, data.into_cow()) {
             <span class="prelude-val">Ok</span>(encoded) =&gt; <span class="kw">match </span>into_wit_any_array(encoded) {
                 <span class="prelude-val">Ok</span>(encoded) =&gt; <span class="prelude-val">Ok</span>(encoded),
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(into_wit_error(err)),
@@ -281,7 +292,7 @@
             <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(into_wit_error(err)),
         };
 
-        <span class="kw">match </span>&lt;T <span class="kw">as </span>Codec&gt;::decode(<span class="self">self</span>, encoded.into_cow()) {
+        <span class="kw">match </span>&lt;<span class="self">Self </span><span class="kw">as </span>Codec&gt;::decode(<span class="self">self</span>, encoded.into_cow()) {
             <span class="prelude-val">Ok</span>(decoded) =&gt; <span class="kw">match </span>into_wit_any_array(decoded) {
                 <span class="prelude-val">Ok</span>(decoded) =&gt; <span class="prelude-val">Ok</span>(decoded),
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(into_wit_error(err)),
@@ -290,15 +301,8 @@
         }
     }
 
-    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String, wit::Error&gt; {
-        <span class="kw">struct </span>SerializeWrapper&lt;<span class="lifetime">'a</span>, T: Codec&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
-        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Codec&gt; Serialize <span class="kw">for </span>SerializeWrapper&lt;<span class="lifetime">'a</span>, T&gt; {
-            <span class="kw">fn </span>serialize&lt;S: Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-                &lt;T <span class="kw">as </span>Codec&gt;::get_config(<span class="self">self</span>.<span class="number">0</span>, serializer)
-            }
-        }
-
-        <span class="kw">match </span>serde_json::to_string(<span class="kw-2">&amp;</span>SerializeWrapper(<span class="self">self</span>)) {
+    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;wit::Json, wit::Error&gt; {
+        <span class="kw">match </span>serde_json::to_string(<span class="kw-2">&amp;</span>&lt;<span class="self">Self </span><span class="kw">as </span>StaticCodec&gt;::get_config(<span class="self">self</span>)) {
             <span class="prelude-val">Ok</span>(config) =&gt; <span class="prelude-val">Ok</span>(config),
             <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(into_wit_error(err)),
         }
