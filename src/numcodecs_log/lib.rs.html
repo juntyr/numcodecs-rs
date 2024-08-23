@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/log/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b25d77b18a16a9a4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_log" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (a32d4a0e8 2024-08-21)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-cb0df477c2d67d00.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/log/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_log" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0-nightly (eff09483c 2024-08-22)" data-channel="nightly" data-search-js="search-ef54e092fea9c776.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-cb0df477c2d67d00.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -275,15 +275,6 @@
 <a href="#275" id="275">275</a>
 <a href="#276" id="276">276</a>
 <a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
-<a href="#280" id="280">280</a>
-<a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a>
-<a href="#284" id="284">284</a>
-<a href="#285" id="285">285</a>
-<a href="#286" id="286">286</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -301,7 +292,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_log
 //!
-//! `ln(x+1)` codec implementation for the [`numcodecs`] API.
+//! `ln(x)` codec implementation for the [`numcodecs`] API.
 
 </span><span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayViewMut.html">ArrayViewMut</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>};
 <span class="kw">use </span>numcodecs::{
@@ -314,29 +305,29 @@
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-</span><span class="doccomment">/// Log codec which calculates `c = log(1+x)` on encoding and `d = exp(c)-1` on
+</span><span class="doccomment">/// Log codec which calculates `c = ln(1)` on encoding and `d = exp(c)` on
 /// decoding.
 ///
-/// The codec only supports non-negative floating point numbers.
+/// The codec only supports positive floating point numbers.
 </span><span class="kw">pub struct </span><a href="../../numcodecs_log/struct.LogCodec.html">LogCodec</a> {
     <span class="comment">// empty
 </span>}
 
 <span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#35-37">LogCodec</a> {
-    <span class="kw">type </span>Error = <a href="#99-117">LogCodecError</a>;
+    <span class="kw">type </span>Error = <a href="#99-118">LogCodecError</a>;
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#42">data</a> {
-            AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#127-142">ln_1p</a>(<a href="#44">data</a>)<span class="question-mark">?</span>)),
-            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#127-142">ln_1p</a>(<a href="#45">data</a>)<span class="question-mark">?</span>)),
+            AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#128-143">ln</a>(<a href="#44">data</a>)<span class="question-mark">?</span>)),
+            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#128-143">ln</a>(<a href="#45">data</a>)<span class="question-mark">?</span>)),
             encoded =&gt; <span class="prelude-val">Err</span>(<a href="#102">LogCodecError::UnsupportedDtype</a>(<a href="#46">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#50">encoded</a> {
-            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#152-167">exp_m1</a>(<a href="#52">encoded</a>)<span class="question-mark">?</span>)),
-            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#152-167">exp_m1</a>(<a href="#53">encoded</a>)<span class="question-mark">?</span>)),
+            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#152-163">exp</a>(<a href="#52">encoded</a>)<span class="question-mark">?</span>)),
+            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#152-163">exp</a>(<a href="#53">encoded</a>)<span class="question-mark">?</span>)),
             encoded =&gt; <span class="prelude-val">Err</span>(<a href="#102">LogCodecError::UnsupportedDtype</a>(<a href="#54">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
@@ -348,13 +339,13 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>(<a href="#60">encoded</a>, <a href="#61">decoded</a>) {
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
-                <a href="#181-208">exp_m1_into</a>(<a href="#64">encoded</a>, <a href="#64">decoded</a>)
+                <a href="#176-199">exp_into</a>(<a href="#64">encoded</a>, <a href="#64">decoded</a>)
             }
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) =&gt; {
-                <a href="#181-208">exp_m1_into</a>(<a href="#67">encoded</a>, <a href="#67">decoded</a>)
+                <a href="#176-199">exp_into</a>(<a href="#67">encoded</a>, <a href="#67">decoded</a>)
             }
             (encoded @ (AnyArrayView::F32(<span class="kw">_</span>) | AnyArrayView::F64(<span class="kw">_</span>)), decoded) =&gt; {
-                <span class="prelude-val">Err</span>(<a href="#112-116">LogCodecError::MismatchedDecodeIntoArray</a> {
+                <span class="prelude-val">Err</span>(<a href="#113-117">LogCodecError::MismatchedDecodeIntoArray</a> {
                     source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
                         src: <a href="#70">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
                         dst: <a href="#70">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
@@ -382,13 +373,14 @@
 
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="doccomment">/// Errors that may occur when applying the [`LogCodec`].
-</span><span class="kw">pub enum </span><a href="#99-117">LogCodecError</a> {
+</span><span class="kw">pub enum </span><a href="#99-118">LogCodecError</a> {
     <span class="doccomment">/// [`LogCodec`] does not support the dtype
     </span><span class="attr">#[error(<span class="string">"Log does not support the dtype {0}"</span>)]
     </span>UnsupportedDtype(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>),
-    <span class="doccomment">/// [`LogCodec`] does not support negative floating point data
-    </span><span class="attr">#[error(<span class="string">"Log does not support negative floating point data"</span>)]
-    </span>NegativeData,
+    <span class="doccomment">/// [`LogCodec`] does not support non-positive (negative or zero) floating
+    /// point data
+    </span><span class="attr">#[error(<span class="string">"Log does not support non-positive (negative or zero) floating point data"</span>)]
+    </span>NonPositiveData,
     <span class="doccomment">/// [`LogCodec`] does not support non-finite (infinite or NaN) floating
     /// point data
     </span><span class="attr">#[error(<span class="string">"Log does not support non-finite (infinite or NaN) floating point data"</span>)]
@@ -402,92 +394,82 @@
     },
 }
 
-<span class="doccomment">/// Compute `ln(x+1)` over the elements of the input `data` array.
+<span class="doccomment">/// Compute `ln(x)` over the elements of the input `data` array.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`LogCodecError::NegativeData`] if any data element is negative
+/// - [`LogCodecError::NonPositiveData`] if any data element is non-positive
 /// - [`LogCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN)
-</span><span class="kw">pub fn </span><a href="../../numcodecs_log/fn.ln_1p.html">ln_1p</a>&lt;T: <a href="#211-225">Float</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_log/fn.ln.html">ln</a>&lt;T: <a href="#202-216">Float</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: ArrayBase&lt;S, D&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, D&gt;, <a href="#99-117">LogCodecError</a>&gt; {
-    <span class="kw">if </span>data.iter().copied().any(T::is_negative) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#105">LogCodecError::NegativeData</a>);
+) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, D&gt;, <a href="#99-118">LogCodecError</a>&gt; {
+    <span class="kw">if </span>!data.iter().copied().all(T::is_positive) {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#106">LogCodecError::NonPositiveData</a>);
     }
 
     <span class="kw">if </span>!data.iter().copied().all(T::is_finite) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#109">LogCodecError::NonFiniteData</a>);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#110">LogCodecError::NonFiniteData</a>);
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>data = <a href="#128">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
-    <a href="#138">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(T::ln_1p);
+    <span class="kw">let </span><span class="kw-2">mut </span>data = <a href="#129">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
+    <a href="#139">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(T::ln);
 
-    <span class="prelude-val">Ok</span>(<a href="#138">data</a>)
+    <span class="prelude-val">Ok</span>(<a href="#139">data</a>)
 }
 
-<span class="doccomment">/// Compute `exp(x)-1` over the elements of the input `data` array.
+<span class="doccomment">/// Compute `exp(x)` over the elements of the input `data` array.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`LogCodecError::NegativeData`] if any data element is negative
 /// - [`LogCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN)
-</span><span class="kw">pub fn </span><a href="../../numcodecs_log/fn.exp_m1.html">exp_m1</a>&lt;T: <a href="#211-225">Float</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_log/fn.exp.html">exp</a>&lt;T: <a href="#202-216">Float</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: ArrayBase&lt;S, D&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, D&gt;, <a href="#99-117">LogCodecError</a>&gt; {
-    <span class="kw">if </span>data.iter().copied().any(T::is_negative) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#105">LogCodecError::NegativeData</a>);
-    }
-
+) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, D&gt;, <a href="#99-118">LogCodecError</a>&gt; {
     <span class="kw">if </span>!data.iter().copied().all(T::is_finite) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#109">LogCodecError::NonFiniteData</a>);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#110">LogCodecError::NonFiniteData</a>);
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>data = <a href="#153">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
-    <a href="#163">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(T::exp_m1);
+    <a href="#159">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(T::exp);
 
-    <span class="prelude-val">Ok</span>(<a href="#163">data</a>)
+    <span class="prelude-val">Ok</span>(<a href="#159">data</a>)
 }
 
 <span class="attr">#[allow(clippy::needless_pass_by_value)]
-</span><span class="doccomment">/// Compute `exp(x)-1` over the elements of the input `data` array and write
-/// them into the `out`put array.
+</span><span class="doccomment">/// Compute `exp(x)` over the elements of the input `data` array and write them
+/// into the `out`put array.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`LogCodecError::NegativeData`] if any data element is negative
 /// - [`LogCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN)
 /// - [`LogCodecError::MismatchedDecodeIntoArray`] if the `data` array's shape
 ///   does not match the `out`put array's shape
-</span><span class="kw">pub fn </span><a href="../../numcodecs_log/fn.exp_m1_into.html">exp_m1_into</a>&lt;T: <a href="#211-225">Float</a>, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_log/fn.exp_into.html">exp_into</a>&lt;T: <a href="#202-216">Float</a>, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: ArrayView&lt;T, D&gt;,
     <span class="kw-2">mut </span>out: ArrayViewMut&lt;T, D&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#99-117">LogCodecError</a>&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#99-118">LogCodecError</a>&gt; {
     <span class="kw">if </span>data.shape() != out.shape() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#112-116">LogCodecError::MismatchedDecodeIntoArray</a> {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#113-117">LogCodecError::MismatchedDecodeIntoArray</a> {
             source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
-                src: <a href="#182">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
-                dst: <a href="#183">out</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+                src: <a href="#177">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+                dst: <a href="#178">out</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             },
         });
     }
 
-    <span class="kw">if </span>data.iter().copied().any(T::is_negative) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#105">LogCodecError::NegativeData</a>);
-    }
-
     <span class="kw">if </span>!data.iter().copied().all(T::is_finite) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#109">LogCodecError::NonFiniteData</a>);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#110">LogCodecError::NonFiniteData</a>);
     }
 
     <span class="comment">// iteration must occur in synchronised (standard) order
     </span><span class="kw">for </span>(d, o) <span class="kw">in </span>data.iter().zip(out.iter_mut()) {
-        <span class="kw-2">*</span>o = T::exp_m1(<span class="kw-2">*</span>d);
+        <span class="kw-2">*</span>o = T::exp(<span class="kw-2">*</span>d);
     }
 
     <span class="prelude-val">Ok</span>(())
@@ -495,54 +477,54 @@
 
 <span class="doccomment">/// Floating point types.
 </span><span class="kw">pub trait </span><a href="../../numcodecs_log/trait.Float.html">Float</a>: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a> {
-    <span class="doccomment">/// Returns `ln(self+1)`, the natural logarithm.
+    <span class="doccomment">/// Returns `ln(self)`, the natural logarithm.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>ln_1p(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
+    </span><span class="kw">fn </span>ln(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// Returns `exp(self)-1`.
+    <span class="doccomment">/// Returns `exp(self)`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>exp_m1(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
+    </span><span class="kw">fn </span>exp(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// Returns `true` if this number is negative.
-    </span><span class="kw">fn </span>is_negative(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+    <span class="doccomment">/// Returns `true` if this number is positive.
+    </span><span class="kw">fn </span>is_positive(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
 
     <span class="doccomment">/// Returns `true` if this number is neither infinite nor NaN.
     </span><span class="kw">fn </span>is_finite(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
 }
 
-<span class="kw">impl </span><a href="#211-225">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
-    <span class="kw">fn </span>ln_1p(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <a class="self" href="#228">self</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.ln_1p">ln_1p</a>()
+<span class="kw">impl </span><a href="#202-216">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
+    <span class="kw">fn </span>ln(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <a class="self" href="#219">self</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.ln">ln</a>()
     }
 
-    <span class="kw">fn </span>exp_m1(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <a class="self" href="#232">self</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.exp_m1">exp_m1</a>()
+    <span class="kw">fn </span>exp(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <a class="self" href="#223">self</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.exp">exp</a>()
     }
 
-    <span class="kw">fn </span>is_negative(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
-        <a class="self" href="#236">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.is_sign_negative">is_sign_negative</a>()
-    }
+    <span class="kw">fn </span>is_positive(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <span class="self"><a href="#227">self</a> </span>&gt; <span class="number">0.0
+    </span>}
 
     <span class="kw">fn </span>is_finite(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
-        <a class="self" href="#240">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.is_finite">is_finite</a>()
+        <a class="self" href="#231">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.is_finite">is_finite</a>()
     }
 }
 
-<span class="kw">impl </span><a href="#211-225">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
-    <span class="kw">fn </span>ln_1p(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <a class="self" href="#246">self</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.ln_1p">ln_1p</a>()
+<span class="kw">impl </span><a href="#202-216">Float</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
+    <span class="kw">fn </span>ln(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <a class="self" href="#237">self</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.ln">ln</a>()
     }
 
-    <span class="kw">fn </span>exp_m1(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <a class="self" href="#250">self</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.exp_m1">exp_m1</a>()
+    <span class="kw">fn </span>exp(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <a class="self" href="#241">self</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.exp">exp</a>()
     }
 
-    <span class="kw">fn </span>is_negative(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
-        <a class="self" href="#254">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.is_sign_negative">is_sign_negative</a>()
-    }
+    <span class="kw">fn </span>is_positive(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <span class="self"><a href="#245">self</a> </span>&gt; <span class="number">0.0
+    </span>}
 
     <span class="kw">fn </span>is_finite(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
-        <a class="self" href="#258">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.is_finite">is_finite</a>()
+        <a class="self" href="#249">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.is_finite">is_finite</a>()
     }
 }
 
@@ -552,16 +534,16 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>roundtrip() -&gt; <span class="prelude-ty">Result</span>&lt;(), LogCodecError&gt; {
-        <span class="kw">let </span>data = (<span class="number">0</span>..<span class="number">1000</span>).map(|x| x <span class="kw">as </span>f64).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>data = (<span class="number">1</span>..<span class="number">1000</span>).map(f64::from).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>data = Array::from_vec(data);
 
-        <span class="kw">let </span>encoded = ln_1p(data.view())<span class="question-mark">?</span>;
+        <span class="kw">let </span>encoded = ln(data.view())<span class="question-mark">?</span>;
 
         <span class="kw">for </span>(r, e) <span class="kw">in </span>data.iter().zip(encoded.iter()) {
-            <span class="macro">assert_eq!</span>((<span class="kw-2">*</span>r).ln_1p().to_bits(), (<span class="kw-2">*</span>e).to_bits());
+            <span class="macro">assert_eq!</span>((<span class="kw-2">*</span>r).ln().to_bits(), (<span class="kw-2">*</span>e).to_bits());
         }
 
-        <span class="kw">let </span>decoded = exp_m1(encoded)<span class="question-mark">?</span>;
+        <span class="kw">let </span>decoded = exp(encoded)<span class="question-mark">?</span>;
 
         <span class="kw">for </span>(r, d) <span class="kw">in </span>data.iter().zip(decoded.iter()) {
             <span class="macro">assert!</span>(((<span class="kw-2">*</span>r) - (<span class="kw-2">*</span>d)).abs() &lt; <span class="number">1e-12</span>);
