@@ -123,6 +123,7 @@ pub enum LogCodecError {
 ///
 /// Errors with
 /// - [`LogCodecError::NonPositiveData`] if any data element is non-positive
+///   (negative or zero)
 /// - [`LogCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN)
 pub fn ln<T: Float, S: Data<Elem = T>, D: Dimension>(
