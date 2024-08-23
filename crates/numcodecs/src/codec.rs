@@ -242,7 +242,7 @@ impl<'de, T: StaticCodec> Deserialize<'de> for StaticCodecId<T> {
 /// Utility function to serialize a codec's config together with its
 /// [`DynCodecType::codec_id`].
 ///
-/// This function may be useful when implementing the [`Codec::get_config`]
+/// This function may be useful when implementing the [`DynCodec::get_config`]
 /// method.
 ///
 /// # Errors
