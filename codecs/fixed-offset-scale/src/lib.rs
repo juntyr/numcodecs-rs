@@ -37,9 +37,9 @@ use thiserror::Error;
 /// The codec only supports floating point numbers.
 pub struct FixedOffsetScaleCodec {
     /// The offset of the data.
-    offset: f64,
+    pub offset: f64,
     /// The scale of the data.
-    scale: f64,
+    pub scale: f64,
 }
 
 impl Codec for FixedOffsetScaleCodec {
