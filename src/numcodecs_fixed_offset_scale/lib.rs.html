@@ -329,9 +329,9 @@
 /// The codec only supports floating point numbers.
 </span><span class="kw">pub struct </span><a href="../../numcodecs_fixed_offset_scale/struct.FixedOffsetScaleCodec.html">FixedOffsetScaleCodec</a> {
     <span class="doccomment">/// The offset of the data.
-    </span>offset: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
+    </span><span class="kw">pub </span>offset: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
     <span class="doccomment">/// The scale of the data.
-    </span>scale: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
+    </span><span class="kw">pub </span>scale: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
 }
 
 <span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#38-43">FixedOffsetScaleCodec</a> {
