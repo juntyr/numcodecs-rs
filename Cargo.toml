@@ -6,6 +6,7 @@ members = [
     "crates/numcodecs-wasm-guest",
 
     "codecs/bit-round",
+    "codecs/fixed-offset-scale",
     "codecs/identity",
     "codecs/linear-quantize",
     "codecs/log",
@@ -33,6 +34,7 @@ numcodecs-wasm-guest = { version = "0.1", path = "crates/numcodecs-wasm-guest", 
 
 # workspace-internal codecs crates
 numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
+numcodecs-fixed-offset-scale = { version = "0.1", path = "codecs/fixed-offset-scale", default-features = false }
 numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
 numcodecs-linear-quantize = { version = "0.1", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.1", path = "codecs/log", default-features = false }

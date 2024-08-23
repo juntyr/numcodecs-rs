@@ -15,7 +15,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_log
 //!
-//! `ln(x+1)` codec implementation for the [`numcodecs`] API.
+//! `ln(x)` codec implementation for the [`numcodecs`] API.
 
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension};
 use numcodecs::{
@@ -28,10 +28,10 @@ use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-/// Log codec which calculates `c = log(1+x)` on encoding and `d = exp(c)-1` on
+/// Log codec which calculates `c = ln(1)` on encoding and `d = exp(c)` on
 /// decoding.
 ///
-/// The codec only supports non-negative floating point numbers.
+/// The codec only supports positive floating point numbers.
 pub struct LogCodec {
     // empty
 }
@@ -41,16 +41,16 @@ impl Codec for LogCodec {
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
-            AnyCowArray::F32(data) => Ok(AnyArray::F32(ln_1p(data)?)),
-            AnyCowArray::F64(data) => Ok(AnyArray::F64(ln_1p(data)?)),
+            AnyCowArray::F32(data) => Ok(AnyArray::F32(ln(data)?)),
+            AnyCowArray::F64(data) => Ok(AnyArray::F64(ln(data)?)),
             encoded => Err(LogCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match encoded {
-            AnyCowArray::F32(encoded) => Ok(AnyArray::F32(exp_m1(encoded)?)),
-            AnyCowArray::F64(encoded) => Ok(AnyArray::F64(exp_m1(encoded)?)),
+            AnyCowArray::F32(encoded) => Ok(AnyArray::F32(exp(encoded)?)),
+            AnyCowArray::F64(encoded) => Ok(AnyArray::F64(exp(encoded)?)),
             encoded => Err(LogCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
@@ -62,10 +62,10 @@ impl Codec for LogCodec {
     ) -> Result<(), Self::Error> {
         match (encoded, decoded) {
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
-                exp_m1_into(encoded, decoded)
+                exp_into(encoded, decoded)
             }
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
-                exp_m1_into(encoded, decoded)
+                exp_into(encoded, decoded)
             }
             (encoded @ (AnyArrayView::F32(_) | AnyArrayView::F64(_)), decoded) => {
                 Err(LogCodecError::MismatchedDecodeIntoArray {
@@ -100,9 +100,10 @@ pub enum LogCodecError {
     /// [`LogCodec`] does not support the dtype
     #[error("Log does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
-    /// [`LogCodec`] does not support negative floating point data
-    #[error("Log does not support negative floating point data")]
-    NegativeData,
+    /// [`LogCodec`] does not support non-positive (negative or zero) floating
+    /// point data
+    #[error("Log does not support non-positive (negative or zero) floating point data")]
+    NonPositiveData,
     /// [`LogCodec`] does not support non-finite (infinite or NaN) floating
     /// point data
     #[error("Log does not support non-finite (infinite or NaN) floating point data")]
@@ -116,19 +117,19 @@ pub enum LogCodecError {
     },
 }
 
-/// Compute `ln(x+1)` over the elements of the input `data` array.
+/// Compute `ln(x)` over the elements of the input `data` array.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`LogCodecError::NegativeData`] if any data element is negative
+/// - [`LogCodecError::NonPositiveData`] if any data element is non-positive
 /// - [`LogCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN)
-pub fn ln_1p<T: Float, S: Data<Elem = T>, D: Dimension>(
+pub fn ln<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
 ) -> Result<Array<T, D>, LogCodecError> {
-    if data.iter().copied().any(T::is_negative) {
-        return Err(LogCodecError::NegativeData);
+    if !data.iter().copied().all(T::is_positive) {
+        return Err(LogCodecError::NonPositiveData);
     }
 
     if !data.iter().copied().all(T::is_finite) {
@@ -136,49 +137,43 @@ pub fn ln_1p<T: Float, S: Data<Elem = T>, D: Dimension>(
     }
 
     let mut data = data.into_owned();
-    data.mapv_inplace(T::ln_1p);
+    data.mapv_inplace(T::ln);
 
     Ok(data)
 }
 
-/// Compute `exp(x)-1` over the elements of the input `data` array.
+/// Compute `exp(x)` over the elements of the input `data` array.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`LogCodecError::NegativeData`] if any data element is negative
 /// - [`LogCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN)
-pub fn exp_m1<T: Float, S: Data<Elem = T>, D: Dimension>(
+pub fn exp<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
 ) -> Result<Array<T, D>, LogCodecError> {
-    if data.iter().copied().any(T::is_negative) {
-        return Err(LogCodecError::NegativeData);
-    }
-
     if !data.iter().copied().all(T::is_finite) {
         return Err(LogCodecError::NonFiniteData);
     }
 
     let mut data = data.into_owned();
-    data.mapv_inplace(T::exp_m1);
+    data.mapv_inplace(T::exp);
 
     Ok(data)
 }
 
 #[allow(clippy::needless_pass_by_value)]
-/// Compute `exp(x)-1` over the elements of the input `data` array and write
-/// them into the `out`put array.
+/// Compute `exp(x)` over the elements of the input `data` array and write them
+/// into the `out`put array.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`LogCodecError::NegativeData`] if any data element is negative
 /// - [`LogCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN)
 /// - [`LogCodecError::MismatchedDecodeIntoArray`] if the `data` array's shape
 ///   does not match the `out`put array's shape
-pub fn exp_m1_into<T: Float, D: Dimension>(
+pub fn exp_into<T: Float, D: Dimension>(
     data: ArrayView<T, D>,
     mut out: ArrayViewMut<T, D>,
 ) -> Result<(), LogCodecError> {
@@ -191,17 +186,13 @@ pub fn exp_m1_into<T: Float, D: Dimension>(
         });
     }
 
-    if data.iter().copied().any(T::is_negative) {
-        return Err(LogCodecError::NegativeData);
-    }
-
     if !data.iter().copied().all(T::is_finite) {
         return Err(LogCodecError::NonFiniteData);
     }
 
     // iteration must occur in synchronised (standard) order
     for (d, o) in data.iter().zip(out.iter_mut()) {
-        *o = T::exp_m1(*d);
+        *o = T::exp(*d);
     }
 
     Ok(())
@@ -209,32 +200,32 @@ pub fn exp_m1_into<T: Float, D: Dimension>(
 
 /// Floating point types.
 pub trait Float: Copy {
-    /// Returns `ln(self+1)`, the natural logarithm.
+    /// Returns `ln(self)`, the natural logarithm.
     #[must_use]
-    fn ln_1p(self) -> Self;
+    fn ln(self) -> Self;
 
-    /// Returns `exp(self)-1`.
+    /// Returns `exp(self)`.
     #[must_use]
-    fn exp_m1(self) -> Self;
+    fn exp(self) -> Self;
 
-    /// Returns `true` if this number is negative.
-    fn is_negative(self) -> bool;
+    /// Returns `true` if this number is positive.
+    fn is_positive(self) -> bool;
 
     /// Returns `true` if this number is neither infinite nor NaN.
     fn is_finite(self) -> bool;
 }
 
 impl Float for f32 {
-    fn ln_1p(self) -> Self {
-        self.ln_1p()
+    fn ln(self) -> Self {
+        self.ln()
     }
 
-    fn exp_m1(self) -> Self {
-        self.exp_m1()
+    fn exp(self) -> Self {
+        self.exp()
     }
 
-    fn is_negative(self) -> bool {
-        self.is_sign_negative()
+    fn is_positive(self) -> bool {
+        self > 0.0
     }
 
     fn is_finite(self) -> bool {
@@ -243,16 +234,16 @@ impl Float for f32 {
 }
 
 impl Float for f64 {
-    fn ln_1p(self) -> Self {
-        self.ln_1p()
+    fn ln(self) -> Self {
+        self.ln()
     }
 
-    fn exp_m1(self) -> Self {
-        self.exp_m1()
+    fn exp(self) -> Self {
+        self.exp()
     }
 
-    fn is_negative(self) -> bool {
-        self.is_sign_negative()
+    fn is_positive(self) -> bool {
+        self > 0.0
     }
 
     fn is_finite(self) -> bool {
@@ -266,16 +257,16 @@ mod tests {
 
     #[test]
     fn roundtrip() -> Result<(), LogCodecError> {
-        let data = (0..1000).map(|x| x as f64).collect::<Vec<_>>();
+        let data = (1..1000).map(f64::from).collect::<Vec<_>>();
         let data = Array::from_vec(data);
 
-        let encoded = ln_1p(data.view())?;
+        let encoded = ln(data.view())?;
 
         for (r, e) in data.iter().zip(encoded.iter()) {
-            assert_eq!((*r).ln_1p().to_bits(), (*e).to_bits());
+            assert_eq!((*r).ln().to_bits(), (*e).to_bits());
         }
 
-        let decoded = exp_m1(encoded)?;
+        let decoded = exp(encoded)?;
 
         for (r, d) in data.iter().zip(decoded.iter()) {
             assert!(((*r) - (*d)).abs() < 1e-12);

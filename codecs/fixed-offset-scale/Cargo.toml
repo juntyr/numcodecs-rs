@@ -1,18 +1,16 @@
 [package]
-name = "numcodecs-log"
-version = "0.2.0"
+name = "numcodecs-fixed-offset-scale"
+version = "0.1.0"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 
-description = "ln(x) codec implementation for the numcodecs API"
+description = "(x-o) / s codec implementation for the numcodecs API"
 readme = "README.md"
 categories = ["compression", "encoding"]
-keywords = ["log", "numcodecs", "compression", "encoding"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+keywords = ["scale", "offset", "numcodecs", "compression", "encoding"]
 
 [dependencies]
 ndarray = { workspace = true }
