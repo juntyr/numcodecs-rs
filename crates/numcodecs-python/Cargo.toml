@@ -20,6 +20,7 @@ ndarray = { workspace = true }
 numcodecs = { workspace = true }
 numpy = { workspace = true }
 pyo3 = { workspace = true }
+pyo3-error = { workspace = true }
 pythonize = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true }
