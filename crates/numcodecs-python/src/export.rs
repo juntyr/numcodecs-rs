@@ -121,11 +121,11 @@ trait AnyCodec {
 
 impl<T: DynCodec> AnyCodec for T {
     fn encode(&self, py: Python, data: AnyCowArray) -> Result<AnyArray, PyErr> {
-        <T as Codec>::encode(self, data).map_err(|err| PyErrChain::new(py, err).into())
+        <T as Codec>::encode(self, data).map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn decode(&self, py: Python, encoded: AnyCowArray) -> Result<AnyArray, PyErr> {
-        <T as Codec>::decode(self, encoded).map_err(|err| PyErrChain::new(py, err).into())
+        <T as Codec>::decode(self, encoded).map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn decode_into(
@@ -135,7 +135,7 @@ impl<T: DynCodec> AnyCodec for T {
         decoded: AnyArrayViewMut,
     ) -> Result<(), PyErr> {
         <T as Codec>::decode_into(self, encoded, decoded)
-            .map_err(|err| PyErrChain::new(py, err).into())
+            .map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {

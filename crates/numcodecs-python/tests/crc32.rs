@@ -76,7 +76,7 @@ fn rust_api() -> Result<(), PyErr> {
     let codec = PyCodecAdapter::from_registry_with_config(json!({
         "id": "crc32",
     }))
-    .map_err(|err| Python::with_gil(|py| PyErr::from(PyErrChain::new(py, err))))?;
+    .map_err(|err| Python::with_gil(|py| PyErrChain::pyerr_from_err(py, err)))?;
     assert_eq!(codec.ty().codec_id(), "crc32");
 
     // clone the codec
@@ -86,12 +86,12 @@ fn rust_api() -> Result<(), PyErr> {
     let codec = codec
         .ty()
         .codec_from_config(json!({}))
-        .map_err(|err| Python::with_gil(|py| PyErr::from(PyErrChain::new(py, err))))?;
+        .map_err(|err| Python::with_gil(|py| PyErrChain::pyerr_from_err(py, err)))?;
 
     // check the codec's config
     let config = codec
         .get_config(serde_json::value::Serializer)
-        .map_err(|err| Python::with_gil(|py| PyErr::from(PyErrChain::new(py, err))))?;
+        .map_err(|err| Python::with_gil(|py| PyErrChain::pyerr_from_err(py, err)))?;
     assert_eq!(
         config,
         json!({
