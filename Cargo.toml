@@ -54,7 +54,7 @@ ndarray = { version = "0.15", default-features = false } # keep in sync with num
 numpy = { version = "0.21", default-features = false }
 postcard = { version = "1.0", default-features = false }
 pyo3 = { version = "0.21", default-features = false }
-pyo3-error = { git = "https://github.com/juntyr/pyo3-error.git", rev = "9ad403e", version = "0.1", default-features = false }
+pyo3-error = { version = "0.1", default-features = false }
 pythonize = { version = "0.21", default-features = false }
 rand = { version = "0.8", default-features = false }
 schemars = { version = "=1.0.0-alpha.9", default-features = false }
