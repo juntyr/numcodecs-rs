@@ -9,12 +9,13 @@ use numpy::{
     PyUntypedArrayMethods,
 };
 use pyo3::{
-    exceptions::{PyRuntimeError, PyTypeError, PyValueError},
+    exceptions::PyTypeError,
     intern,
     prelude::*,
     types::{IntoPyDict, PyDict, PyString, PyType},
     PyTypeInfo,
 };
+use pyo3_error::PyErrChain;
 use pythonize::{pythonize, Depythonizer, Pythonizer};
 
 use crate::{
@@ -102,11 +103,16 @@ impl RustCodecType {
 }
 
 trait AnyCodec {
-    fn encode(&self, data: AnyCowArray) -> Result<AnyArray, PyErr>;
+    fn encode(&self, py: Python, data: AnyCowArray) -> Result<AnyArray, PyErr>;
 
-    fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, PyErr>;
+    fn decode(&self, py: Python, encoded: AnyCowArray) -> Result<AnyArray, PyErr>;
 
-    fn decode_into(&self, encoded: AnyArrayView, decoded: AnyArrayViewMut) -> Result<(), PyErr>;
+    fn decode_into(
+        &self,
+        py: Python,
+        encoded: AnyArrayView,
+        decoded: AnyArrayViewMut,
+    ) -> Result<(), PyErr>;
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr>;
 
@@ -114,17 +120,22 @@ trait AnyCodec {
 }
 
 impl<T: DynCodec> AnyCodec for T {
-    fn encode(&self, data: AnyCowArray) -> Result<AnyArray, PyErr> {
-        <T as Codec>::encode(self, data).map_err(|err| PyRuntimeError::new_err(format!("{err}")))
+    fn encode(&self, py: Python, data: AnyCowArray) -> Result<AnyArray, PyErr> {
+        <T as Codec>::encode(self, data).map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
-    fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, PyErr> {
-        <T as Codec>::decode(self, encoded).map_err(|err| PyRuntimeError::new_err(format!("{err}")))
+    fn decode(&self, py: Python, encoded: AnyCowArray) -> Result<AnyArray, PyErr> {
+        <T as Codec>::decode(self, encoded).map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
-    fn decode_into(&self, encoded: AnyArrayView, decoded: AnyArrayViewMut) -> Result<(), PyErr> {
+    fn decode_into(
+        &self,
+        py: Python,
+        encoded: AnyArrayView,
+        decoded: AnyArrayViewMut,
+    ) -> Result<(), PyErr> {
         <T as Codec>::decode_into(self, encoded, decoded)
-            .map_err(|err| PyRuntimeError::new_err(format!("{err}")))
+            .map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {
@@ -198,7 +209,7 @@ impl RustCodec {
         let ty: Bound<RustCodecType> = cls
             .getattr(intern!(py, RustCodec::TYPE_ATTRIBUTE))
             .map_err(|_| {
-                PyValueError::new_err(format!(
+                PyTypeError::new_err(format!(
                     "{cls_module}.{cls_name} is not linked to a Rust codec type"
                 ))
             })?
@@ -307,12 +318,13 @@ impl RustCodec {
         buf: Borrowed<'_, 'py, PyAny>,
         process: impl FnOnce(
             &(dyn 'static + Send + Sync + AnyCodec),
+            Python,
             AnyCowArray,
         ) -> Result<AnyArray, PyErr>,
         class_method: &str,
     ) -> Result<Bound<'py, PyAny>, PyErr> {
         Self::with_pyarraylike_as_cow(py, buf, class_method, |data| {
-            let processed = process(&*self.codec, data)?;
+            let processed = process(&*self.codec, py, data)?;
             Self::any_array_into_pyarray(py, processed, class_method)
         })
     }
@@ -324,6 +336,7 @@ impl RustCodec {
         out: Borrowed<'_, 'py, PyAny>,
         process: impl FnOnce(
             &(dyn 'static + Send + Sync + AnyCodec),
+            Python,
             AnyArrayView,
             AnyArrayViewMut,
         ) -> Result<(), PyErr>,
@@ -331,7 +344,7 @@ impl RustCodec {
     ) -> Result<(), PyErr> {
         Self::with_pyarraylike_as_view(py, buf, class_method, |data| {
             Self::with_pyarraylike_as_view_mut(py, out, class_method, |data_out| {
-                process(&*self.codec, data, data_out)
+                process(&*self.codec, py, data, data_out)
             })
         })
     }
