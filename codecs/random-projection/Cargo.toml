@@ -1,0 +1,26 @@
+[package]
+name = "numcodecs-random-projection"
+version = "0.1.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "random projection codec implementation for the numcodecs API"
+readme = "README.md"
+categories = ["compression", "encoding"]
+keywords = ["random", "projection", "numcodecs", "compression", "encoding"]
+
+[dependencies]
+ndarray = { workspace = true }
+numcodecs = { workspace = true }
+schemars = { workspace = true, features = ["derive", "preserve_order"] }
+serde = { workspace = true, features = ["std", "derive"] }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+ndarray-rand = { workspace = true }
+
+[lints]
+workspace = true

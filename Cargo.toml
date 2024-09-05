@@ -10,6 +10,7 @@ members = [
     "codecs/identity",
     "codecs/linear-quantize",
     "codecs/log",
+    "codecs/random-projection",
     "codecs/reinterpret",
     "codecs/round",
     "codecs/sz3",
@@ -51,6 +52,7 @@ convert_case = { version = "0.6", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
 miniz_oxide = { version = "0.8", default-features = false }
 ndarray = { version = "0.15", default-features = false } # keep in sync with numpy
+ndarray-rand = { version = "0.14", default-features = false }
 numpy = { version = "0.21", default-features = false }
 postcard = { version = "1.0", default-features = false }
 pyo3 = { version = "0.21", default-features = false }
