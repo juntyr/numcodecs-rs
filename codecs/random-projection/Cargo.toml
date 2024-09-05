@@ -13,7 +13,7 @@ categories = ["compression", "encoding"]
 keywords = ["random", "projection", "numcodecs", "compression", "encoding"]
 
 [dependencies]
-ndarray = { workspace = true }
+ndarray = { workspace = true, features = ["std"] }
 numcodecs = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }

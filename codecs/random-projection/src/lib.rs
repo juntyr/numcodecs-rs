@@ -17,32 +17,80 @@
 //!
 //! Random Projection codec implementation for the [`numcodecs`] API.
 
+use std::borrow::Cow;
+
 use ndarray::{s, Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix2, ShapeError};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
 };
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
+/// Codec that uses random projections to reduce the dimensionality of high-
+/// dimensional data to compress it.
+///
+/// A two-dimensional array of shape `N x D` is encoded as n array of shape
+/// `N x K`, where `K` is chosen using the the Johnson-Lindenstrauss lemma.
+/// For `K` to be smaller than `D`, `D` must be quite large. Therefore, this
+/// codec should only applied on large datasets as it otherwise significantly
+/// inflates the data size instead of reducing it.
+///
+/// Choosing a lower distortion rate `epsilon` will improve the quality of the
+/// lossy compression, i.e. reduce the compression error, at the cost of
+/// increasing `K`.
+///
+/// This codec only supports finite floating point data.
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RandomProjectionCodec {
+    /// Seed for generating the random projection matrix
     pub seed: u64,
-    pub epsilon: f64, // TODO: (0, 1)
+    /// Maximum distortion rate, as defined by the Johnson-Lindenstrauss lemma
+    pub epsilon: OpenClosedUnit<f64>,
+    /// Projection kind that is used to generate the random projection matrix
     #[serde(flatten)]
-    pub projection: RandomProjection,
+    pub projection: RandomProjectionKind,
 }
 
+/// Projection kind that is used to generate the random projection matrix
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 #[serde(tag = "projection", rename_all = "kebab-case")]
-pub enum RandomProjection {
+pub enum RandomProjectionKind {
+    /// The random projection matrix is dense and its components are sampled
+    /// from `N(0, 1/k)`
     Gaussian,
+    /// The random projection matrix is sparse where only `density`% of entries
+    /// are non-zero.
+    ///
+    /// The matrix's components are sampled from
+    ///
+    /// - `-sqrt(1 / (k * density))` with probability `density/2`
+    /// - `0` with probability `1-density`
+    /// - `+sqrt(1 / (k * density))` with probability `density/2`
     Sparse {
+        /// The `density` of the sparse projection matrix.
+        ///
+        /// Setting `density` to `Some(1.0/3.0)` reproduces the settings by
+        /// Achlioptas [^1]. If `density` is `None`, it is set to `1/sqrt(d)`,
+        /// the minimum density as recommended by Li et al [^2].
+        ///
+        ///
+        /// [^1]: Achlioptas, D. (2003). Database-friendly random projections:
+        ///       Johnson-Lindenstrauss with binary coins. *Journal of Computer
+        ///       and System Sciences*, 66(4), 671-687. Available from:
+        ///       [doi:10.1016/S0022-0000(03)00025-4](https://doi.org/10.1016/S0022-0000(03)00025-4).
+        ///
+        /// [^2]: Li, P., Hastie, T. J., and Church, K. W. (2006). Very sparse
+        ///       random projections. In *Proceedings of the 12th ACM SIGKDD
+        ///       international conference on Knowledge discovery and data
+        ///       mining (KDD '06)*. Association for Computing Machinery, New
+        ///       York, NY, USA, 287–296. Available from:
+        ///       [doi:10.1145/1150402.1150436](https://doi.org/10.1145/1150402.1150436).
         #[serde(skip_serializing_if = "Option::is_none")]
-        density: Option<f64>, // TODO: (0, 1]
+        density: Option<OpenClosedUnit<f64>>,
     },
 }
 
@@ -133,8 +181,8 @@ pub enum RandomProjectionCodecError {
         #[from]
         source: ShapeError,
     },
-    /// [`RandomProjectionCodec`] does not support non-finite (infinite or NaN) floating
-    /// point data
+    /// [`RandomProjectionCodec`] does not support non-finite (infinite or NaN)
+    /// floating point data
     #[error("RandomProjection does not support non-finite (infinite or NaN) floating point data")]
     NonFiniteData,
     /// [`RandomProjectionCodec`] cannot decode into the provided array
@@ -146,11 +194,22 @@ pub enum RandomProjectionCodecError {
     },
 }
 
+/// Applies random projection to the input `data` with the given `seed`,
+/// distortion rate `epsilon`, and `projection` kind and returns the
+/// resulting array.
+///
+/// # Errors
+///
+/// Errors with
+/// - [`RandomProjectionCodecError::NonMatrixData`] if the input `data` is not
+///   a two-dimensional matrix
+/// - [`RandomProjectionCodecError::NonFiniteData`] if the input `data` or
+///   projected output contains non-finite data
 pub fn project_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     seed: u64,
-    epsilon: f64,
-    projection: &RandomProjection,
+    epsilon: OpenClosedUnit<f64>,
+    projection: &RandomProjectionKind,
 ) -> Result<Array<T, Ix2>, RandomProjectionCodecError> {
     let data = data
         .into_dimensionality()
@@ -167,16 +226,14 @@ pub fn project_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
     }
 
     match projection {
-        RandomProjection::Gaussian => project_into(
+        RandomProjectionKind::Gaussian => project_into(
             data,
             projected.slice_mut(s!(.., ..k)),
             |x, y| gaussian_project(x, y, seed),
             gaussian_normaliser(k),
         ),
-        RandomProjection::Sparse { density } => {
-            let density = density
-                .map(T::from_f64)
-                .unwrap_or(T::from_usize(d).sqrt().recip());
+        RandomProjectionKind::Sparse { density } => {
+            let density = density_or_ping_li_minimum(*density, d);
             project_into(
                 data,
                 projected.slice_mut(s!(.., ..k)),
@@ -189,6 +246,19 @@ pub fn project_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
     Ok(projected)
 }
 
+#[allow(clippy::needless_pass_by_value)]
+/// Applies random projection to the input `data` and outputs into the
+/// `projected` array.
+///
+/// The random projection matrix is defined by the `projection` function
+/// `(i, j) -> P[i, j]` and a globally applied `normalizer` factor.
+///
+/// # Errors
+///
+/// Errors with
+/// - TODO: panic
+/// - [`RandomProjectionCodecError::NonFiniteData`] if the input `data` or
+///   projected output contains non-finite data
 pub fn project_into<T: Float, S: Data<Elem = T>>(
     data: ArrayBase<S, Ix2>,
     mut projected: ArrayViewMut<T, Ix2>,
@@ -221,7 +291,7 @@ pub fn project_into<T: Float, S: Data<Elem = T>>(
 pub fn reconstruct_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
     projected: ArrayBase<S, D>,
     seed: u64,
-    projection: &RandomProjection,
+    projection: &RandomProjectionKind,
 ) -> Result<Array<T, Ix2>, RandomProjectionCodecError> {
     let projected = projected
         .into_dimensionality()
@@ -248,16 +318,14 @@ pub fn reconstruct_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
     let projected = projected.slice_move(s!(.., ..k));
 
     match projection {
-        RandomProjection::Gaussian => reconstruct(
+        RandomProjectionKind::Gaussian => reconstruct(
             projected,
             d,
             |x, y| gaussian_project(x, y, seed),
             gaussian_normaliser(k),
         ),
-        RandomProjection::Sparse { density } => {
-            let density = density
-                .map(T::from_f64)
-                .unwrap_or(T::from_usize(d).sqrt().recip());
+        RandomProjectionKind::Sparse { density } => {
+            let density = density_or_ping_li_minimum(*density, d);
             reconstruct(
                 projected,
                 d,
@@ -268,6 +336,7 @@ pub fn reconstruct_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
     }
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn reconstruct<T: Float, S: Data<Elem = T>>(
     projected: ArrayBase<S, Ix2>,
     d: usize,
@@ -302,7 +371,7 @@ pub fn reconstruct_into_with_projection<T: Float, S: Data<Elem = T>, D: Dimensio
     projected: ArrayBase<S, D>,
     reconstructed: ArrayViewMut<T, D>,
     seed: u64,
-    projection: &RandomProjection,
+    projection: &RandomProjectionKind,
 ) -> Result<(), RandomProjectionCodecError> {
     let projected: ArrayBase<S, Ix2> = projected
         .into_dimensionality()
@@ -338,16 +407,14 @@ pub fn reconstruct_into_with_projection<T: Float, S: Data<Elem = T>, D: Dimensio
     let projected = projected.slice_move(s!(.., ..k));
 
     match projection {
-        RandomProjection::Gaussian => reconstruct_into(
+        RandomProjectionKind::Gaussian => reconstruct_into(
             projected,
             reconstructed,
             |x, y| gaussian_project(x, y, seed),
             gaussian_normaliser(k),
         ),
-        RandomProjection::Sparse { density } => {
-            let density = density
-                .map(T::from_f64)
-                .unwrap_or(T::from_usize(d).sqrt().recip());
+        RandomProjectionKind::Sparse { density } => {
+            let density = density_or_ping_li_minimum(*density, d);
             reconstruct_into(
                 projected,
                 reconstructed,
@@ -358,6 +425,7 @@ pub fn reconstruct_into_with_projection<T: Float, S: Data<Elem = T>, D: Dimensio
     }
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn reconstruct_into<T: Float, S: Data<Elem = T>>(
     projected: ArrayBase<S, Ix2>,
     mut reconstructed: ArrayViewMut<T, Ix2>,
@@ -389,17 +457,32 @@ pub fn reconstruct_into<T: Float, S: Data<Elem = T>>(
 }
 
 // https://github.com/scikit-learn/scikit-learn/blob/3b39d7cb957ab781744b346c1848be9db3f4e221/sklearn/random_projection.py#L56-L142
-pub fn johnson_lindenstrauss_min_k(n_samples: usize, epsilon: f64) -> usize {
+#[must_use]
+pub fn johnson_lindenstrauss_min_k(
+    n_samples: usize,
+    OpenClosedUnit(epsilon): OpenClosedUnit<f64>,
+) -> usize {
+    #[allow(clippy::suboptimal_flops)]
     let denominator = (epsilon * epsilon * 0.5) - (epsilon * epsilon * epsilon / 3.0);
+    #[allow(clippy::cast_precision_loss)]
     let min_k = (n_samples as f64).ln() * 4.0 / denominator;
-    min_k as usize
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let min_k = min_k as usize;
+    min_k
+}
+
+pub fn density_or_ping_li_minimum<T: Float>(density: Option<OpenClosedUnit<f64>>, d: usize) -> T {
+    match density {
+        Some(OpenClosedUnit(density)) => T::from_f64(density),
+        None => T::from_usize(d).sqrt().recip(),
+    }
 }
 
 fn gaussian_project<T: Float>(x: usize, y: usize, seed: u64) -> T {
-    let (u0, u1) = T::u0_u1(hash_matrix_index(x, y, seed));
+    let (ClosedOpenUnit(u0), OpenClosedUnit(u1)) = T::u01x2(hash_matrix_index(x, y, seed));
 
-    let r = (-T::TWO * u0.ln()).sqrt();
-    let theta = -T::TAU * u1;
+    let theta = -T::TAU * u0;
+    let r = (-T::TWO * u1.ln()).sqrt();
 
     r * theta.sin()
 }
@@ -409,11 +492,11 @@ fn gaussian_normaliser<T: Float>(k: usize) -> T {
 }
 
 fn sparse_project<T: Float>(x: usize, y: usize, density: T, seed: u64) -> T {
-    let (u0, _u1) = T::u0_u1(hash_matrix_index(x, y, seed));
+    let (ClosedOpenUnit(u0), _u1) = T::u01x2(hash_matrix_index(x, y, seed));
 
-    if u0 <= (density * T::HALF) {
+    if u0 < (density * T::HALF) {
         -T::ONE
-    } else if u0 <= density {
+    } else if u0 < density {
         T::ONE
     } else {
         T::ZERO
@@ -424,11 +507,10 @@ fn sparse_normaliser<T: Float>(k: usize, density: T) -> T {
     (T::from_usize(k) * density).recip().sqrt()
 }
 
-fn hash_matrix_index(x: usize, y: usize, seed: u64) -> u64 {
+const fn hash_matrix_index(x: usize, y: usize, seed: u64) -> u64 {
     seahash_diffuse(seahash_diffuse(x as u64) ^ seed ^ (y as u64))
 }
 
-#[inline]
 const fn seahash_diffuse(mut x: u64) -> u64 {
     // SeaHash diffusion function
     // https://docs.rs/seahash/4.1.0/src/seahash/helper.rs.html#75-92
@@ -451,6 +533,55 @@ const fn seahash_diffuse(mut x: u64) -> u64 {
     x
 }
 
+#[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
+#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
+/// Floating point number in [0.0, 1.0)
+pub struct ClosedOpenUnit<T: Float>(T);
+
+#[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
+#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
+/// Floating point number in (0.0, 1.0]
+pub struct OpenClosedUnit<T: Float>(T);
+
+impl Serialize for OpenClosedUnit<f64> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_f64(self.0)
+    }
+}
+
+impl<'de> Deserialize<'de> for OpenClosedUnit<f64> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let x = f64::deserialize(deserializer)?;
+
+        if x > 0.0 && x <= 1.0 {
+            Ok(Self(x))
+        } else {
+            Err(serde::de::Error::invalid_value(
+                serde::de::Unexpected::Float(x),
+                &"a value in (0.0, 1.0]",
+            ))
+        }
+    }
+}
+
+impl JsonSchema for OpenClosedUnit<f64> {
+    fn schema_name() -> Cow<'static, str> {
+        Cow::Borrowed("OpenClosedUnitF64")
+    }
+
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Borrowed(concat!(module_path!(), "::", "OpenClosedUnit<f64>"))
+    }
+
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.0,
+        })
+    }
+}
+
 /// Floating point types.
 pub trait Float:
     Copy
@@ -460,30 +591,53 @@ pub trait Float:
     + std::ops::Sub<Output = Self>
     + std::ops::Mul<Output = Self>
 {
+    /// `0.0`
     const ZERO: Self;
+    /// `0.5`
     const HALF: Self;
+    /// `1.0`
     const ONE: Self;
+    /// `2.0`
     const TWO: Self;
+    /// The full circle constant `τ = 2π`
     const TAU: Self;
 
     /// Returns `true` if this number is neither infinite nor NaN.
     fn is_finite(self) -> bool;
 
+    /// Returns the square root of a number.
+    #[must_use]
     fn sqrt(self) -> Self;
 
+    /// Returns the reciprocal (inverse) of a number, `1/self`.
+    #[must_use]
     fn recip(self) -> Self;
 
+    /// Returns the sine of a number (in radians).
+    #[must_use]
     fn sin(self) -> Self;
 
+    /// Returns the natural logarithm of a number.
+    #[must_use]
     fn ln(self) -> Self;
 
+    /// Converts from a [`f64`].
+    #[must_use]
     fn from_f64(x: f64) -> Self;
 
+    /// Converts from a [`usize`].
+    #[must_use]
     fn from_usize(n: usize) -> Self;
 
+    /// Converts into a [`usize`].
+    #[must_use]
     fn into_usize(self) -> usize;
 
-    fn u0_u1(hash: u64) -> (Self, Self);
+    /// Generates two uniform random numbers from a random `hash` value.
+    ///
+    /// The first is sampled from `[0.0, 1.0)`, the second from `(0.0, 1.0]`.
+    #[must_use]
+    fn u01x2(hash: u64) -> (ClosedOpenUnit<Self>, OpenClosedUnit<Self>);
 }
 
 impl Float for f32 {
@@ -513,29 +667,37 @@ impl Float for f32 {
         self.ln()
     }
 
+    #[allow(clippy::cast_possible_truncation)]
     fn from_f64(x: f64) -> Self {
-        x as f32
+        x as Self
     }
 
+    #[allow(clippy::cast_precision_loss)]
     fn from_usize(n: usize) -> Self {
         n as Self
     }
 
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn into_usize(self) -> usize {
         self as usize
     }
 
-    fn u0_u1(hash: u64) -> (Self, Self) {
+    fn u01x2(hash: u64) -> (ClosedOpenUnit<Self>, OpenClosedUnit<Self>) {
+        #[allow(clippy::cast_possible_truncation)] // split u64 into (u32, u32)
         let (low, high) = (
             (hash & u64::from(u32::MAX)) as u32,
             ((hash >> 32) & u64::from(u32::MAX)) as u32,
         );
 
-        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
-        let u0 = (((low >> 8) + 1) as f32) * f32::from_bits(0x3380_0000_u32); // 0x1.0p-24
-
         // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval [0.0, 1.0)
-        let u1 = ((high >> 8) as f32) * f32::from_bits(0x3380_0000_u32); // 0x1.0p-24
+        // the hash is shifted to only cover the mantissa
+        #[allow(clippy::cast_precision_loss)]
+        let u0 = ClosedOpenUnit(((high >> 8) as Self) * Self::from_bits(0x3380_0000_u32)); // 0x1.0p-24
+
+        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
+        // the hash is shifted to only cover the mantissa
+        #[allow(clippy::cast_precision_loss)]
+        let u1 = OpenClosedUnit((((low >> 8) + 1) as Self) * Self::from_bits(0x3380_0000_u32)); // 0x1.0p-24
 
         (u0, u1)
     }
@@ -572,21 +734,31 @@ impl Float for f64 {
         x
     }
 
+    #[allow(clippy::cast_precision_loss)]
     fn from_usize(n: usize) -> Self {
         n as Self
     }
 
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn into_usize(self) -> usize {
         self as usize
     }
 
-    fn u0_u1(hash: u64) -> (Self, Self) {
-        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
-        let u0 = (((hash >> 11) + 1) as f64) * f64::from_bits(0x3CA0_0000_0000_0000_u64); // 0x1.0p-53
+    fn u01x2(hash: u64) -> (ClosedOpenUnit<Self>, OpenClosedUnit<Self>) {
+        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval [0.0, 1.0)
+        // the hash is shifted to only cover the mantissa
+        #[allow(clippy::cast_precision_loss)]
+        let u0 =
+            ClosedOpenUnit(((hash >> 11) as Self) * Self::from_bits(0x3CA0_0000_0000_0000_u64)); // 0x1.0p-53
 
         let hash = seahash_diffuse(hash + 1);
-        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval [0.0, 1.0)
-        let u1 = ((hash >> 11) as f64) * f64::from_bits(0x3CA0_0000_0000_0000_u64); // 0x1.0p-53
+
+        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
+        // the hash is shifted to only cover the mantissa
+        #[allow(clippy::cast_precision_loss)]
+        let u1 = OpenClosedUnit(
+            (((hash >> 11) + 1) as Self) * Self::from_bits(0x3CA0_0000_0000_0000_u64),
+        ); // 0x1.0p-53
 
         (u0, u1)
     }
@@ -605,7 +777,7 @@ mod tests {
             (10, 10),
             Normal::new(42.0, 24.0).unwrap(),
             42,
-            RandomProjection::Gaussian,
+            RandomProjectionKind::Gaussian,
         );
     }
 
@@ -615,7 +787,7 @@ mod tests {
             (10, 10),
             Normal::new(42.0, 24.0).unwrap(),
             42,
-            RandomProjection::Gaussian,
+            RandomProjectionKind::Gaussian,
         );
     }
 
@@ -625,8 +797,8 @@ mod tests {
             (100, 10),
             Normal::new(42.0, 24.0).unwrap(),
             42,
-            RandomProjection::Sparse {
-                density: Some(1.0 / 3.0),
+            RandomProjectionKind::Sparse {
+                density: Some(OpenClosedUnit(1.0 / 3.0)),
             },
         );
     }
@@ -637,8 +809,8 @@ mod tests {
             (100, 10),
             Normal::new(42.0, 24.0).unwrap(),
             42,
-            RandomProjection::Sparse {
-                density: Some(1.0 / 3.0),
+            RandomProjectionKind::Sparse {
+                density: Some(OpenClosedUnit(1.0 / 3.0)),
             },
         );
     }
@@ -649,7 +821,7 @@ mod tests {
             (10, 100),
             Normal::new(42.0, 24.0).unwrap(),
             42,
-            RandomProjection::Sparse { density: None },
+            RandomProjectionKind::Sparse { density: None },
         );
     }
 
@@ -659,7 +831,7 @@ mod tests {
             (10, 100),
             Normal::new(42.0, 24.0).unwrap(),
             42,
-            RandomProjection::Sparse { density: None },
+            RandomProjectionKind::Sparse { density: None },
         );
     }
 
@@ -667,17 +839,25 @@ mod tests {
         shape: (usize, usize),
         distribution: impl Distribution<T>,
         seed: u64,
-        projection: RandomProjection,
+        projection: RandomProjectionKind,
     ) {
         let data = Array::<T, Ix2>::random(shape, distribution);
 
-        let mut max_rmse = rmse(&data, &roundtrip(&data, 42, 1.0, &projection));
+        let mut max_rmse = rmse(
+            &data,
+            &roundtrip(&data, 42, OpenClosedUnit(1.0), &projection),
+        );
 
-        for epsilon in [0.5, 0.1, 0.01] {
+        for epsilon in [
+            OpenClosedUnit(0.5),
+            OpenClosedUnit(0.1),
+            OpenClosedUnit(0.01),
+        ] {
             let new_rmse = rmse(&data, &roundtrip(&data, seed, epsilon, &projection));
             assert!(
                 new_rmse <= max_rmse,
-                "{new_rmse} > {max_rmse} for {epsilon}"
+                "{new_rmse} > {max_rmse} for {epsilon}",
+                epsilon = epsilon.0
             );
             max_rmse = new_rmse;
         }
@@ -686,8 +866,8 @@ mod tests {
     fn roundtrip<T: Float>(
         data: &Array<T, Ix2>,
         seed: u64,
-        epsilon: f64,
-        projection: &RandomProjection,
+        epsilon: OpenClosedUnit<f64>,
+        projection: &RandomProjectionKind,
     ) -> Array<T, Ix2> {
         let projected = project_with_projection(data.view(), seed, epsilon, projection)
             .expect("projecting must not fail");
