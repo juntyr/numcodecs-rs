@@ -19,7 +19,7 @@
 
 use std::borrow::Cow;
 
-use ndarray::{s, Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix2, ShapeError};
+use ndarray::{s, Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix2, ShapeError, Zip};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -293,7 +293,7 @@ pub fn project_into<T: Float, S: Data<Elem = T>>(
         }
     }
 
-    if !projected.iter().copied().all(T::is_finite) {
+    if !Zip::from(projected).all(|x| x.is_finite()) {
         return Err(RandomProjectionCodecError::NonFiniteData);
     }
 
@@ -383,7 +383,7 @@ pub fn reconstruct<T: Float, S: Data<Elem = T>>(
         }
     }
 
-    if !reconstructed.iter().copied().all(T::is_finite) {
+    if !Zip::from(&reconstructed).all(|x| x.is_finite()) {
         return Err(RandomProjectionCodecError::NonFiniteData);
     }
 
@@ -483,7 +483,7 @@ pub fn reconstruct_into<T: Float, S: Data<Elem = T>>(
         }
     }
 
-    if !reconstructed.iter().copied().all(T::is_finite) {
+    if !Zip::from(reconstructed).all(|x| x.is_finite()) {
         return Err(RandomProjectionCodecError::NonFiniteData);
     }
 

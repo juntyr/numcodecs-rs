@@ -17,7 +17,7 @@
 //!
 //! `ln(x)` codec implementation for the [`numcodecs`] API.
 
-use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension};
+use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension, Zip};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -129,11 +129,11 @@ pub enum LogCodecError {
 pub fn ln<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
 ) -> Result<Array<T, D>, LogCodecError> {
-    if !data.iter().copied().all(T::is_positive) {
+    if !Zip::from(&data).all(|x| x.is_positive()) {
         return Err(LogCodecError::NonPositiveData);
     }
 
-    if !data.iter().copied().all(T::is_finite) {
+    if !Zip::from(&data).all(|x| x.is_finite()) {
         return Err(LogCodecError::NonFiniteData);
     }
 
@@ -153,7 +153,7 @@ pub fn ln<T: Float, S: Data<Elem = T>, D: Dimension>(
 pub fn exp<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
 ) -> Result<Array<T, D>, LogCodecError> {
-    if !data.iter().copied().all(T::is_finite) {
+    if !Zip::from(&data).all(|x| x.is_finite()) {
         return Err(LogCodecError::NonFiniteData);
     }
 
@@ -187,7 +187,7 @@ pub fn exp_into<T: Float, D: Dimension>(
         });
     }
 
-    if !data.iter().copied().all(T::is_finite) {
+    if !Zip::from(&data).all(|x| x.is_finite()) {
         return Err(LogCodecError::NonFiniteData);
     }
 

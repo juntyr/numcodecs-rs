@@ -21,7 +21,7 @@
 
 use std::{borrow::Cow, fmt};
 
-use ndarray::{Array, Array1, ArrayBase, ArrayD, ArrayViewMutD, Data, Dimension, ShapeError};
+use ndarray::{Array, Array1, ArrayBase, ArrayD, ArrayViewMutD, Data, Dimension, ShapeError, Zip};
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
     StaticCodecConfig,
@@ -66,7 +66,7 @@ impl fmt::Display for LinearQuantizeDType {
 }
 
 /// Number of bins for quantization, written in base-2 scientific notation.
-/// 
+///
 /// The binary `#[repr(u8)]` value of each variant is equivalent to the binary
 /// logarithm of the number of bins, i.e. the binary precision or the number of
 /// bits used.
@@ -491,12 +491,16 @@ pub fn quantize<T: Float, Q: Unsigned, S: Data<Elem = T>, D: Dimension>(
     data: &ArrayBase<S, D>,
     quantize: impl Fn(T) -> Q,
 ) -> Result<Vec<Q>, LinearQuantizeCodecError> {
-    if !data.iter().copied().all(T::is_finite) {
+    if !Zip::from(data).all(|x| x.is_finite()) {
         return Err(LinearQuantizeCodecError::NonFiniteData);
     }
 
-    let minimum = data.iter().copied().reduce(T::minimum).unwrap_or(T::ZERO);
-    let maximum = data.iter().copied().reduce(T::maximum).unwrap_or(T::ONE);
+    let (minimum, maximum) = data.first().map_or((T::ZERO, T::ONE), |first| {
+        (
+            Zip::from(data).fold(*first, |a, b| a.minimum(*b)),
+            Zip::from(data).fold(*first, |a, b| a.maximum(*b)),
+        )
+    });
 
     let header = postcard::to_extend(
         &CompressionHeader {
