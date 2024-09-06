@@ -271,14 +271,26 @@ pub fn project_into<T: Float, S: Data<Elem = T>>(
         panic!("must have the same number of samples");
     }
 
-    for ((i, j), p) in projected.indexed_iter_mut() {
-        let mut acc = T::ZERO;
+    let (_n, k) = projected.dim();
 
-        for l in 0..d {
-            acc += data[(i, l)] * projection(l, j);
+    let mut projection_column = vec![T::ZERO; d];
+
+    for j in 0..k {
+        // materialize one column of the projection matrix
+        // i.e. instead of A x B = C, compute A x [bs] = [cs].T
+        for (l, p) in projection_column.iter_mut().enumerate() {
+            *p = projection(l, j);
         }
 
-        *p = acc * normalizer;
+        for i in 0..n {
+            let mut acc = T::ZERO;
+
+            for l in 0..d {
+                acc += data[(i, l)] * projection_column[l];
+            }
+
+            projected[(i, j)] = acc * normalizer;
+        }
     }
 
     if !projected.iter().copied().all(T::is_finite) {
@@ -349,16 +361,27 @@ pub fn reconstruct<T: Float, S: Data<Elem = T>>(
 
     let (n, k) = projected.dim();
 
-    let reconstructed = Array::<T, Ix2>::from_shape_fn((n, d), |(i, j)| {
-        let mut acc = T::ZERO;
+    let mut reconstructed = Array::<T, Ix2>::from_elem((n, d), T::ZERO);
 
-        for l in 0..k {
-            // projection[j,l] = transpose(projection)[l,j]
-            acc += projected[(i, l)] * projection(j, l);
+    let mut projection_row = vec![T::ZERO; k];
+
+    for l in 0..d {
+        // materialize one row of the projection matrix transpose
+        // i.e. instead of A x B = C, compute A x [bs] = [cs].T
+        for (j, p) in projection_row.iter_mut().enumerate() {
+            *p = projection(l, j);
         }
 
-        acc * normalizer
-    });
+        for i in 0..n {
+            let mut acc = T::ZERO;
+
+            for j in 0..k {
+                acc += projected[(i, j)] * projection_row[j];
+            }
+
+            reconstructed[(i, l)] = acc * normalizer;
+        }
+    }
 
     if !reconstructed.iter().copied().all(T::is_finite) {
         return Err(RandomProjectionCodecError::NonFiniteData);
@@ -438,15 +461,26 @@ pub fn reconstruct_into<T: Float, S: Data<Elem = T>>(
         panic!("must have the same number of samples");
     }
 
-    for ((i, j), r) in reconstructed.indexed_iter_mut() {
-        let mut acc = T::ZERO;
+    let (_n, d) = reconstructed.dim();
 
-        for l in 0..k {
-            // projection[j,l] = transpose(projection)[l,j]
-            acc += projected[(i, l)] * projection(j, l);
+    let mut projection_row = vec![T::ZERO; k];
+
+    for l in 0..d {
+        // materialize one row of the projection matrix transpose
+        // i.e. instead of A x B = C, compute A x [bs] = [cs].T
+        for (j, p) in projection_row.iter_mut().enumerate() {
+            *p = projection(l, j);
         }
 
-        *r = acc * normalizer;
+        for i in 0..n {
+            let mut acc = T::ZERO;
+
+            for j in 0..k {
+                acc += projected[(i, j)] * projection_row[j];
+            }
+
+            reconstructed[(i, l)] = acc * normalizer;
+        }
     }
 
     if !reconstructed.iter().copied().all(T::is_finite) {
@@ -774,7 +808,7 @@ mod tests {
     #[test]
     fn gaussian_f32() {
         test_error_decline::<f32>(
-            (10, 10),
+            (100, 100),
             Normal::new(42.0, 24.0).unwrap(),
             42,
             RandomProjectionKind::Gaussian,
@@ -784,7 +818,7 @@ mod tests {
     #[test]
     fn gaussian_f64() {
         test_error_decline::<f64>(
-            (10, 10),
+            (100, 100),
             Normal::new(42.0, 24.0).unwrap(),
             42,
             RandomProjectionKind::Gaussian,
@@ -794,7 +828,7 @@ mod tests {
     #[test]
     fn achlioptas_sparse_f32() {
         test_error_decline::<f32>(
-            (100, 10),
+            (100, 100),
             Normal::new(42.0, 24.0).unwrap(),
             42,
             RandomProjectionKind::Sparse {
@@ -806,7 +840,7 @@ mod tests {
     #[test]
     fn achlioptas_sparse_f64() {
         test_error_decline::<f64>(
-            (100, 10),
+            (100, 100),
             Normal::new(42.0, 24.0).unwrap(),
             42,
             RandomProjectionKind::Sparse {
@@ -818,7 +852,7 @@ mod tests {
     #[test]
     fn ping_li_sparse_f32() {
         test_error_decline::<f32>(
-            (10, 100),
+            (100, 100),
             Normal::new(42.0, 24.0).unwrap(),
             42,
             RandomProjectionKind::Sparse { density: None },
@@ -828,7 +862,7 @@ mod tests {
     #[test]
     fn ping_li_sparse_f64() {
         test_error_decline::<f64>(
-            (10, 100),
+            (100, 100),
             Normal::new(42.0, 24.0).unwrap(),
             42,
             RandomProjectionKind::Sparse { density: None },
