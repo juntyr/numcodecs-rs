@@ -88,7 +88,8 @@ jobs:
       - name: Run the test-suite powerset
         run: |
           cargo hack test --workspace \
-            --no-fail-fast --feature-powerset --keep-going
+            --no-fail-fast --feature-powerset --keep-going \
+            --release
 
   fmt:
     name: Rustfmt
