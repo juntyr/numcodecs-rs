@@ -185,6 +185,15 @@ pub enum RandomProjectionCodecError {
     /// floating point data
     #[error("RandomProjection does not support non-finite (infinite or NaN) floating point data")]
     NonFiniteData,
+    /// [`RandomProjectionCodec`] cannot encode or decode from an array with `N`
+    /// samples to an array with a different number of samples
+    #[error("RandomProjection cannot encode or decode from an array with {input} samples to an array with {output} samples")]
+    NumberOfSamplesMismatch {
+        /// Number of samples `N` in the input array
+        input: usize,
+        /// Number of samples `N` in the output array
+        output: usize,
+    },
     /// [`RandomProjectionCodec`] cannot decode into the provided array
     #[error("RandomProjection cannot decode into the provided array")]
     MismatchedDecodeIntoArray {
@@ -256,7 +265,9 @@ pub fn project_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
 /// # Errors
 ///
 /// Errors with
-/// - TODO: panic
+/// - [`RandomProjectionCodecError::NumberOfSamplesMismatch`] if the input
+///   `data`'s number of samples doesn't match the `projected` array's number
+///   of samples
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the input `data` or
 ///   projected output contains non-finite data
 pub fn project_into<T: Float, S: Data<Elem = T>>(
@@ -266,12 +277,14 @@ pub fn project_into<T: Float, S: Data<Elem = T>>(
     normalizer: T,
 ) -> Result<(), RandomProjectionCodecError> {
     let (n, d) = data.dim();
+    let (n2, k) = projected.dim();
 
-    if projected.dim().0 != n {
-        panic!("must have the same number of samples");
+    if n2 != n {
+        return Err(RandomProjectionCodecError::NumberOfSamplesMismatch {
+            input: n,
+            output: n2,
+        });
     }
-
-    let (_n, k) = projected.dim();
 
     let mut projection_column = vec![T::ZERO; d];
 
@@ -403,13 +416,16 @@ pub fn reconstruct_into_with_projection<T: Float, S: Data<Elem = T>, D: Dimensio
         .into_dimensionality()
         .map_err(|err| RandomProjectionCodecError::NonMatrixData { source: err })?;
 
-    let (n, _k) = projected.dim();
+    let (n, k) = projected.dim();
+    let (n2, d2) = reconstructed.dim();
 
-    if reconstructed.dim().0 != n {
-        panic!("must have the same number of samples");
+    if n2 != n {
+        return Err(RandomProjectionCodecError::NumberOfSamplesMismatch {
+            input: n,
+            output: n2,
+        });
     }
 
-    let (_n, k): (usize, usize) = projected.dim();
     let Some(k) = k.checked_sub(1) else {
         panic!("projected array must have non-zero dimensionality");
     };
@@ -423,7 +439,7 @@ pub fn reconstruct_into_with_projection<T: Float, S: Data<Elem = T>, D: Dimensio
         panic!("projected array must have consistent dimensionality metadata");
     };
 
-    if reconstructed.dim().1 != d {
+    if d2 != d {
         panic!("must have the same number of features");
     }
 
@@ -456,12 +472,14 @@ pub fn reconstruct_into<T: Float, S: Data<Elem = T>>(
     normalizer: T,
 ) -> Result<(), RandomProjectionCodecError> {
     let (n, k) = projected.dim();
+    let (n2, d) = reconstructed.dim();
 
-    if reconstructed.dim().0 != n {
-        panic!("must have the same number of samples");
+    if n2 != n {
+        return Err(RandomProjectionCodecError::NumberOfSamplesMismatch {
+            input: n,
+            output: n2,
+        });
     }
-
-    let (_n, d) = reconstructed.dim();
 
     let mut projection_row = vec![T::ZERO; k];
 
@@ -505,6 +523,7 @@ pub fn johnson_lindenstrauss_min_k(
     min_k
 }
 
+#[must_use]
 pub fn density_or_ping_li_minimum<T: Float>(density: Option<OpenClosedUnit<f64>>, d: usize) -> T {
     match density {
         Some(OpenClosedUnit(density)) => T::from_f64(density),
