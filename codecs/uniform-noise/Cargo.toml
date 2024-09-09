@@ -17,6 +17,7 @@ keywords = ["noise", "numcodecs", "compression", "encoding"]
 [dependencies]
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
+num-traits = { workspace = true, features = ["std"] }
 rand = { workspace = true }
 wyhash = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }

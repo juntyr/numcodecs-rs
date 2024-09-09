@@ -22,6 +22,7 @@
 use std::{borrow::Cow, fmt};
 
 use ndarray::{Array, Array1, ArrayBase, ArrayD, ArrayViewMutD, Data, Dimension, ShapeError, Zip};
+use num_traits::{ConstOne, ConstZero, Float};
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
     StaticCodecConfig,
@@ -95,7 +96,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ ..=8 => AnyArray::U8(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f32::from(u8::MAX >> (8 - bits));
-                        let x = (x * f32::scale_for_bits(bits)).clamp(0.0, max);
+                        let x = (x * scale_for_bits::<f32>(bits)).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -107,7 +108,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ 9..=16 => AnyArray::U16(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f32::from(u16::MAX >> (16 - bits));
-                        let x = (x * f32::scale_for_bits(bits)).clamp(0.0, max);
+                        let x = (x * scale_for_bits::<f32>(bits)).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -120,7 +121,7 @@ impl Codec for LinearQuantizeCodec {
                     Array1::from_vec(quantize(data, |x| {
                         // we need to use f64 here to have sufficient precision
                         let max = f64::from(u32::MAX >> (32 - bits));
-                        let x = (f64::from(x) * f64::scale_for_bits(bits)).clamp(0.0, max);
+                        let x = (f64::from(x) * scale_for_bits::<f64>(bits)).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -133,7 +134,7 @@ impl Codec for LinearQuantizeCodec {
                     Array1::from_vec(quantize(data, |x| {
                         // we need to use TwoFloat here to have sufficient precision
                         let max = TwoFloat::from(u64::MAX >> (64 - bits));
-                        let x = (TwoFloat::from(x) * f64::scale_for_bits(bits))
+                        let x = (TwoFloat::from(x) * scale_for_bits::<f64>(bits))
                             .max(TwoFloat::from(0.0))
                             .min(max);
                         #[allow(unsafe_code)]
@@ -149,7 +150,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ ..=8 => AnyArray::U8(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f64::from(u8::MAX >> (8 - bits));
-                        let x = (x * f64::scale_for_bits(bits)).clamp(0.0, max);
+                        let x = (x * scale_for_bits::<f64>(bits)).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -161,7 +162,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ 9..=16 => AnyArray::U16(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f64::from(u16::MAX >> (16 - bits));
-                        let x = (x * f64::scale_for_bits(bits)).clamp(0.0, max);
+                        let x = (x * scale_for_bits::<f64>(bits)).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -173,7 +174,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ 17..=32 => AnyArray::U32(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f64::from(u32::MAX >> (32 - bits));
-                        let x = (x * f64::scale_for_bits(bits)).clamp(0.0, max);
+                        let x = (x * scale_for_bits::<f64>(bits)).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -186,7 +187,7 @@ impl Codec for LinearQuantizeCodec {
                     Array1::from_vec(quantize(data, |x| {
                         // we need to use TwoFloat here to have sufficient precision
                         let max = TwoFloat::from(u64::MAX >> (64 - bits));
-                        let x = (TwoFloat::from(x) * f64::scale_for_bits(bits))
+                        let x = (TwoFloat::from(x) * scale_for_bits::<f64>(bits))
                             .max(TwoFloat::from(0.0))
                             .min(max);
                         #[allow(unsafe_code)]
@@ -230,18 +231,18 @@ impl Codec for LinearQuantizeCodec {
         let decoded = match (&encoded, self.dtype) {
             (AnyCowArray::U8(encoded), LinearQuantizeDType::F32) => {
                 AnyArray::F32(reconstruct(&as_standard_order(encoded), |x| {
-                    f32::from(x) / f32::scale_for_bits(self.bits as u8)
+                    f32::from(x) / scale_for_bits::<f32>(self.bits as u8)
                 })?)
             }
             (AnyCowArray::U16(encoded), LinearQuantizeDType::F32) => {
                 AnyArray::F32(reconstruct(&as_standard_order(encoded), |x| {
-                    f32::from(x) / f32::scale_for_bits(self.bits as u8)
+                    f32::from(x) / scale_for_bits::<f32>(self.bits as u8)
                 })?)
             }
             (AnyCowArray::U32(encoded), LinearQuantizeDType::F32) => {
                 AnyArray::F32(reconstruct(&as_standard_order(encoded), |x| {
                     // we need to use f64 here to have sufficient precision
-                    let x = f64::from(x) / f64::scale_for_bits(self.bits as u8);
+                    let x = f64::from(x) / scale_for_bits::<f64>(self.bits as u8);
                     #[allow(clippy::cast_possible_truncation)]
                     let x = x as f32;
                     x
@@ -250,29 +251,29 @@ impl Codec for LinearQuantizeCodec {
             (AnyCowArray::U64(encoded), LinearQuantizeDType::F32) => {
                 AnyArray::F32(reconstruct(&as_standard_order(encoded), |x| {
                     // we need to use TwoFloat here to have sufficient precision
-                    let x = TwoFloat::from(x) / f64::scale_for_bits(self.bits as u8);
+                    let x = TwoFloat::from(x) / scale_for_bits::<f64>(self.bits as u8);
                     f32::from(x)
                 })?)
             }
             (AnyCowArray::U8(encoded), LinearQuantizeDType::F64) => {
                 AnyArray::F64(reconstruct(&as_standard_order(encoded), |x| {
-                    f64::from(x) / f64::scale_for_bits(self.bits as u8)
+                    f64::from(x) / scale_for_bits::<f64>(self.bits as u8)
                 })?)
             }
             (AnyCowArray::U16(encoded), LinearQuantizeDType::F64) => {
                 AnyArray::F64(reconstruct(&as_standard_order(encoded), |x| {
-                    f64::from(x) / f64::scale_for_bits(self.bits as u8)
+                    f64::from(x) / scale_for_bits::<f64>(self.bits as u8)
                 })?)
             }
             (AnyCowArray::U32(encoded), LinearQuantizeDType::F64) => {
                 AnyArray::F64(reconstruct(&as_standard_order(encoded), |x| {
-                    f64::from(x) / f64::scale_for_bits(self.bits as u8)
+                    f64::from(x) / scale_for_bits::<f64>(self.bits as u8)
                 })?)
             }
             (AnyCowArray::U64(encoded), LinearQuantizeDType::F64) => {
                 AnyArray::F64(reconstruct(&as_standard_order(encoded), |x| {
                     // we need to use TwoFloat here to have sufficient precision
-                    let x = TwoFloat::from(x) / f64::scale_for_bits(self.bits as u8);
+                    let x = TwoFloat::from(x) / scale_for_bits::<f64>(self.bits as u8);
                     f64::from(x)
                 })?)
             }
@@ -313,18 +314,18 @@ impl Codec for LinearQuantizeCodec {
                 match &encoded {
                     AnyArrayView::U8(encoded) => {
                         reconstruct_into(&as_standard_order(encoded), decoded, |x| {
-                            f32::from(x) / f32::scale_for_bits(self.bits as u8)
+                            f32::from(x) / scale_for_bits::<f32>(self.bits as u8)
                         })
                     }
                     AnyArrayView::U16(encoded) => {
                         reconstruct_into(&as_standard_order(encoded), decoded, |x| {
-                            f32::from(x) / f32::scale_for_bits(self.bits as u8)
+                            f32::from(x) / scale_for_bits::<f32>(self.bits as u8)
                         })
                     }
                     AnyArrayView::U32(encoded) => {
                         reconstruct_into(&as_standard_order(encoded), decoded, |x| {
                             // we need to use f64 here to have sufficient precision
-                            let x = f64::from(x) / f64::scale_for_bits(self.bits as u8);
+                            let x = f64::from(x) / scale_for_bits::<f64>(self.bits as u8);
                             #[allow(clippy::cast_possible_truncation)]
                             let x = x as f32;
                             x
@@ -333,7 +334,7 @@ impl Codec for LinearQuantizeCodec {
                     AnyArrayView::U64(encoded) => {
                         reconstruct_into(&as_standard_order(encoded), decoded, |x| {
                             // we need to use TwoFloat here to have sufficient precision
-                            let x = TwoFloat::from(x) / f64::scale_for_bits(self.bits as u8);
+                            let x = TwoFloat::from(x) / scale_for_bits::<f64>(self.bits as u8);
                             f32::from(x)
                         })
                     }
@@ -348,23 +349,23 @@ impl Codec for LinearQuantizeCodec {
                 match &encoded {
                     AnyArrayView::U8(encoded) => {
                         reconstruct_into(&as_standard_order(encoded), decoded, |x| {
-                            f64::from(x) / f64::scale_for_bits(self.bits as u8)
+                            f64::from(x) / scale_for_bits::<f64>(self.bits as u8)
                         })
                     }
                     AnyArrayView::U16(encoded) => {
                         reconstruct_into(&as_standard_order(encoded), decoded, |x| {
-                            f64::from(x) / f64::scale_for_bits(self.bits as u8)
+                            f64::from(x) / scale_for_bits::<f64>(self.bits as u8)
                         })
                     }
                     AnyArrayView::U32(encoded) => {
                         reconstruct_into(&as_standard_order(encoded), decoded, |x| {
-                            f64::from(x) / f64::scale_for_bits(self.bits as u8)
+                            f64::from(x) / scale_for_bits::<f64>(self.bits as u8)
                         })
                     }
                     AnyArrayView::U64(encoded) => {
                         reconstruct_into(&as_standard_order(encoded), decoded, |x| {
                             // we need to use TwoFloat here to have sufficient precision
-                            let x = TwoFloat::from(x) / f64::scale_for_bits(self.bits as u8);
+                            let x = TwoFloat::from(x) / scale_for_bits::<f64>(self.bits as u8);
                             f64::from(x)
                         })
                     }
@@ -487,7 +488,12 @@ pub struct LinearQuantizeHeaderError(postcard::Error);
 ///   finite (infinite or NaN)
 /// - [`LinearQuantizeCodecError::HeaderEncodeFailed`] if encoding the header
 ///   failed
-pub fn quantize<T: Float, Q: Unsigned, S: Data<Elem = T>, D: Dimension>(
+pub fn quantize<
+    T: Float + ConstZero + ConstOne + Serialize,
+    Q: Unsigned,
+    S: Data<Elem = T>,
+    D: Dimension,
+>(
     data: &ArrayBase<S, D>,
     quantize: impl Fn(T) -> Q,
 ) -> Result<Vec<Q>, LinearQuantizeCodecError> {
@@ -497,8 +503,8 @@ pub fn quantize<T: Float, Q: Unsigned, S: Data<Elem = T>, D: Dimension>(
 
     let (minimum, maximum) = data.first().map_or((T::ZERO, T::ONE), |first| {
         (
-            Zip::from(data).fold(*first, |a, b| a.minimum(*b)),
-            Zip::from(data).fold(*first, |a, b| a.maximum(*b)),
+            Zip::from(data).fold(*first, |a, b| a.min(*b)),
+            Zip::from(data).fold(*first, |a, b| a.max(*b)),
         )
     });
 
@@ -543,7 +549,7 @@ pub fn quantize<T: Float, Q: Unsigned, S: Data<Elem = T>, D: Dimension>(
 /// Errors with
 /// - [`LinearQuantizeCodecError::HeaderDecodeFailed`] if decoding the header
 ///   failed
-pub fn reconstruct<T: Float, Q: Unsigned>(
+pub fn reconstruct<T: Float + DeserializeOwned, Q: Unsigned>(
     encoded: &[Q],
     floatify: impl Fn(Q) -> T,
 ) -> Result<ArrayD<T>, LinearQuantizeCodecError> {
@@ -582,7 +588,7 @@ pub fn reconstruct<T: Float, Q: Unsigned>(
 ///   failed
 /// - [`LinearQuantizeCodecError::MismatchedDecodeIntoShape`] if the `decoded`
 ///   array is of the wrong shape
-pub fn reconstruct_into<T: Float, Q: Unsigned>(
+pub fn reconstruct_into<T: Float + DeserializeOwned, Q: Unsigned>(
     encoded: &[Q],
     mut decoded: ArrayViewMutD<T>,
     floatify: impl Fn(Q) -> T,
@@ -616,89 +622,9 @@ pub fn reconstruct_into<T: Float, Q: Unsigned>(
     Ok(())
 }
 
-/// Floating point types.
-pub trait Float:
-    Copy
-    + Serialize
-    + DeserializeOwned
-    + std::ops::Sub<Self, Output = Self>
-    + std::ops::Div<Self, Output = Self>
-    + std::ops::Add<Self, Output = Self>
-    + std::ops::Mul<Self, Output = Self>
-    + PartialEq
-{
-    /// 0.0
-    const ZERO: Self;
-    /// 1.0
-    const ONE: Self;
-
-    /// Returns the minimum of the two numbers, ignoring NaN.
-    #[must_use]
-    fn minimum(self, other: Self) -> Self;
-
-    /// Returns the maximum of the two numbers, ignoring NaN.
-    #[must_use]
-    fn maximum(self, other: Self) -> Self;
-
-    /// Restrict a value to a certain interval unless it is NaN.
-    #[must_use]
-    fn clamp(self, min: Self, max: Self) -> Self;
-
-    /// Returns `exp2(bits) - 1.0`
-    fn scale_for_bits(bits: u8) -> Self;
-
-    /// Returns `true` if this number is neither infinite nor NaN.
-    fn is_finite(self) -> bool;
-}
-
-impl Float for f32 {
-    const ONE: Self = 1.0;
-    const ZERO: Self = 0.0;
-
-    fn minimum(self, other: Self) -> Self {
-        Self::min(self, other)
-    }
-
-    fn maximum(self, other: Self) -> Self {
-        Self::max(self, other)
-    }
-
-    fn clamp(self, min: Self, max: Self) -> Self {
-        Self::clamp(self, min, max)
-    }
-
-    fn scale_for_bits(bits: u8) -> Self {
-        Self::from(bits).exp2() - 1.0
-    }
-
-    fn is_finite(self) -> bool {
-        self.is_finite()
-    }
-}
-
-impl Float for f64 {
-    const ONE: Self = 1.0;
-    const ZERO: Self = 0.0;
-
-    fn minimum(self, other: Self) -> Self {
-        Self::min(self, other)
-    }
-
-    fn maximum(self, other: Self) -> Self {
-        Self::max(self, other)
-    }
-
-    fn clamp(self, min: Self, max: Self) -> Self {
-        Self::clamp(self, min, max)
-    }
-
-    fn scale_for_bits(bits: u8) -> Self {
-        Self::from(bits).exp2() - 1.0
-    }
-
-    fn is_finite(self) -> bool {
-        self.is_finite()
-    }
+/// Returns `exp2(bits) - 1.0`
+fn scale_for_bits<T: Float + From<u8> + ConstOne>(bits: u8) -> T {
+    <T as From<u8>>::from(bits).exp2() - T::ONE
 }
 
 /// Unsigned binary types.
@@ -724,8 +650,7 @@ impl Unsigned for u64 {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(bound = "")]
-struct CompressionHeader<'a, T: Float> {
+struct CompressionHeader<'a, T> {
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
     minimum: T,

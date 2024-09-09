@@ -229,6 +229,7 @@ impl Float for f64 {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use ndarray::{Array1, ArrayView1};
 

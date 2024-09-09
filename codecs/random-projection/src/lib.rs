@@ -17,9 +17,10 @@
 //!
 //! Random Projection codec implementation for the [`numcodecs`] API.
 
-use std::{borrow::Cow, num::NonZeroUsize};
+use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 
 use ndarray::{s, Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix2, ShapeError, Zip};
+use num_traits::{ConstOne, ConstZero, Float, FloatConst};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -239,7 +240,7 @@ pub enum RandomProjectionCodecError {
 ///   a two-dimensional matrix
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the input `data` or
 ///   projected output contains non-finite data
-pub fn project_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
+pub fn project_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     seed: u64,
     reduction: &RandomProjectionReduction,
@@ -298,7 +299,7 @@ pub fn project_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
 ///   of samples
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the input `data` or
 ///   projected output contains non-finite data
-pub fn project_into<T: Float, S: Data<Elem = T>>(
+pub fn project_into<T: FloatExt, S: Data<Elem = T>>(
     data: ArrayBase<S, Ix2>,
     mut projected: ArrayViewMut<T, Ix2>,
     projection: impl Fn(usize, usize) -> T,
@@ -325,7 +326,7 @@ pub fn project_into<T: Float, S: Data<Elem = T>>(
         skip_projection_column.clear();
         for l in 0..d {
             let p = projection(l, j);
-            if p != T::ZERO {
+            if !p.is_zero() {
                 skip_projection_column.push((l - last_non_zero, p));
                 last_non_zero = l;
             }
@@ -351,7 +352,7 @@ pub fn project_into<T: Float, S: Data<Elem = T>>(
     Ok(())
 }
 
-pub fn reconstruct_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
+pub fn reconstruct_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     projected: ArrayBase<S, D>,
     seed: u64,
     projection: &RandomProjectionKind,
@@ -400,7 +401,7 @@ pub fn reconstruct_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
 }
 
 #[allow(clippy::needless_pass_by_value)]
-pub fn reconstruct<T: Float, S: Data<Elem = T>>(
+pub fn reconstruct<T: FloatExt, S: Data<Elem = T>>(
     projected: ArrayBase<S, Ix2>,
     d: usize,
     projection: impl Fn(usize, usize) -> T,
@@ -425,7 +426,7 @@ pub fn reconstruct<T: Float, S: Data<Elem = T>>(
         skip_projection_row.clear();
         for j in 0..k {
             let p = projection(l, j);
-            if p != T::ZERO {
+            if !p.is_zero() {
                 skip_projection_row.push((j - last_non_zero, p));
                 last_non_zero = j;
             }
@@ -451,7 +452,7 @@ pub fn reconstruct<T: Float, S: Data<Elem = T>>(
     Ok(reconstructed)
 }
 
-pub fn reconstruct_into_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
+pub fn reconstruct_into_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     projected: ArrayBase<S, D>,
     reconstructed: ArrayViewMut<T, D>,
     seed: u64,
@@ -516,7 +517,7 @@ pub fn reconstruct_into_with_projection<T: Float, S: Data<Elem = T>, D: Dimensio
 }
 
 #[allow(clippy::needless_pass_by_value)]
-pub fn reconstruct_into<T: Float, S: Data<Elem = T>>(
+pub fn reconstruct_into<T: FloatExt, S: Data<Elem = T>>(
     projected: ArrayBase<S, Ix2>,
     mut reconstructed: ArrayViewMut<T, Ix2>,
     projection: impl Fn(usize, usize) -> T,
@@ -543,7 +544,7 @@ pub fn reconstruct_into<T: Float, S: Data<Elem = T>>(
         skip_projection_row.clear();
         for j in 0..k {
             let p = projection(l, j);
-            if p != T::ZERO {
+            if !p.is_zero() {
                 skip_projection_row.push((j - last_non_zero, p));
                 last_non_zero = j;
             }
@@ -601,27 +602,30 @@ pub fn johnson_lindenstrauss_min_k(
 ///       York, NY, USA, 287–296. Available from:
 ///       [doi:10.1145/1150402.1150436](https://doi.org/10.1145/1150402.1150436).
 #[must_use]
-pub fn density_or_ping_li_minimum<T: Float>(density: Option<OpenClosedUnit<f64>>, d: usize) -> T {
+pub fn density_or_ping_li_minimum<T: FloatExt>(
+    density: Option<OpenClosedUnit<f64>>,
+    d: usize,
+) -> T {
     match density {
         Some(OpenClosedUnit(density)) => T::from_f64(density),
         None => T::from_usize(d).sqrt().recip(),
     }
 }
 
-fn gaussian_project<T: Float>(x: usize, y: usize, seed: u64) -> T {
+fn gaussian_project<T: FloatExt>(x: usize, y: usize, seed: u64) -> T {
     let (ClosedOpenUnit(u0), OpenClosedUnit(u1)) = T::u01x2(hash_matrix_index(x, y, seed));
 
-    let theta = -T::TAU * u0;
+    let theta = -T::TAU() * u0;
     let r = (-T::TWO * u1.ln()).sqrt();
 
     r * theta.sin()
 }
 
-fn gaussian_normaliser<T: Float>(k: usize) -> T {
+fn gaussian_normaliser<T: FloatExt>(k: usize) -> T {
     T::from_usize(k).sqrt().recip()
 }
 
-fn sparse_project<T: Float>(x: usize, y: usize, density: T, seed: u64) -> T {
+fn sparse_project<T: FloatExt>(x: usize, y: usize, density: T, seed: u64) -> T {
     let (ClosedOpenUnit(u0), _u1) = T::u01x2(hash_matrix_index(x, y, seed));
 
     if u0 < (density * T::HALF) {
@@ -633,7 +637,7 @@ fn sparse_project<T: Float>(x: usize, y: usize, density: T, seed: u64) -> T {
     }
 }
 
-fn sparse_normaliser<T: Float>(k: usize, density: T) -> T {
+fn sparse_normaliser<T: FloatExt>(k: usize, density: T) -> T {
     (T::from_usize(k) * density).recip().sqrt()
 }
 
@@ -666,12 +670,12 @@ const fn seahash_diffuse(mut x: u64) -> u64 {
 #[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 /// Floating point number in [0.0, 1.0)
-pub struct ClosedOpenUnit<T: Float>(T);
+pub struct ClosedOpenUnit<T: FloatExt>(T);
 
 #[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 /// Floating point number in (0.0, 1.0]
-pub struct OpenClosedUnit<T: Float>(T);
+pub struct OpenClosedUnit<T: FloatExt>(T);
 
 impl Serialize for OpenClosedUnit<f64> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
@@ -713,43 +717,11 @@ impl JsonSchema for OpenClosedUnit<f64> {
 }
 
 /// Floating point types.
-pub trait Float:
-    Copy
-    + PartialOrd
-    + std::ops::Neg<Output = Self>
-    + std::ops::AddAssign
-    + std::ops::Sub<Output = Self>
-    + std::ops::Mul<Output = Self>
-{
-    /// `0.0`
-    const ZERO: Self;
+pub trait FloatExt: Float + ConstZero + ConstOne + FloatConst + AddAssign {
     /// `0.5`
     const HALF: Self;
-    /// `1.0`
-    const ONE: Self;
     /// `2.0`
     const TWO: Self;
-    /// The full circle constant `τ = 2π`
-    const TAU: Self;
-
-    /// Returns `true` if this number is neither infinite nor NaN.
-    fn is_finite(self) -> bool;
-
-    /// Returns the square root of a number.
-    #[must_use]
-    fn sqrt(self) -> Self;
-
-    /// Returns the reciprocal (inverse) of a number, `1/self`.
-    #[must_use]
-    fn recip(self) -> Self;
-
-    /// Returns the sine of a number (in radians).
-    #[must_use]
-    fn sin(self) -> Self;
-
-    /// Returns the natural logarithm of a number.
-    #[must_use]
-    fn ln(self) -> Self;
 
     /// Converts from a [`f64`].
     #[must_use]
@@ -770,32 +742,9 @@ pub trait Float:
     fn u01x2(hash: u64) -> (ClosedOpenUnit<Self>, OpenClosedUnit<Self>);
 }
 
-impl Float for f32 {
-    const ZERO: Self = 0.0;
+impl FloatExt for f32 {
     const HALF: Self = 0.5;
-    const ONE: Self = 1.0;
     const TWO: Self = 2.0;
-    const TAU: Self = std::f32::consts::TAU;
-
-    fn is_finite(self) -> bool {
-        self.is_finite()
-    }
-
-    fn sqrt(self) -> Self {
-        self.sqrt()
-    }
-
-    fn recip(self) -> Self {
-        self.recip()
-    }
-
-    fn sin(self) -> Self {
-        self.sin()
-    }
-
-    fn ln(self) -> Self {
-        self.ln()
-    }
 
     #[allow(clippy::cast_possible_truncation)]
     fn from_f64(x: f64) -> Self {
@@ -833,32 +782,9 @@ impl Float for f32 {
     }
 }
 
-impl Float for f64 {
-    const ZERO: Self = 0.0;
+impl FloatExt for f64 {
     const HALF: Self = 0.5;
-    const ONE: Self = 1.0;
     const TWO: Self = 2.0;
-    const TAU: Self = std::f64::consts::TAU;
-
-    fn is_finite(self) -> bool {
-        self.is_finite()
-    }
-
-    fn sqrt(self) -> Self {
-        self.sqrt()
-    }
-
-    fn recip(self) -> Self {
-        self.recip()
-    }
-
-    fn sin(self) -> Self {
-        self.sin()
-    }
-
-    fn ln(self) -> Self {
-        self.ln()
-    }
 
     fn from_f64(x: f64) -> Self {
         x
@@ -967,7 +893,7 @@ mod tests {
     }
 
     #[allow(clippy::needless_pass_by_value)]
-    fn test_error_decline<T: Float + std::fmt::Display>(
+    fn test_error_decline<T: FloatExt + std::fmt::Display>(
         shape: (usize, usize),
         distribution: impl Distribution<T>,
         seed: u64,
@@ -995,7 +921,7 @@ mod tests {
         }
     }
 
-    fn roundtrip<T: Float>(
+    fn roundtrip<T: FloatExt>(
         data: &Array<T, Ix2>,
         seed: u64,
         epsilon: OpenClosedUnit<f64>,
@@ -1014,7 +940,7 @@ mod tests {
         reconstructed
     }
 
-    fn rmse<T: Float>(data: &Array<T, Ix2>, reconstructed: &Array<T, Ix2>) -> T {
+    fn rmse<T: FloatExt>(data: &Array<T, Ix2>, reconstructed: &Array<T, Ix2>) -> T {
         let mut err = T::ZERO;
 
         for (&d, &r) in data.iter().zip(reconstructed) {

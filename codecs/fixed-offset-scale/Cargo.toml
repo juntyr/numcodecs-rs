@@ -15,6 +15,7 @@ keywords = ["scale", "offset", "numcodecs", "compression", "encoding"]
 [dependencies]
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
+num-traits = { workspace = true, features = ["std"] }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
