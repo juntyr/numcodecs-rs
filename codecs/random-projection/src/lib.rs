@@ -17,7 +17,7 @@
 //!
 //! Random Projection codec implementation for the [`numcodecs`] API.
 
-use std::borrow::Cow;
+use std::{borrow::Cow, num::NonZeroUsize};
 
 use ndarray::{s, Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix2, ShapeError, Zip};
 use numcodecs::{
@@ -32,10 +32,10 @@ use thiserror::Error;
 /// dimensional data to compress it.
 ///
 /// A two-dimensional array of shape `N x D` is encoded as n array of shape
-/// `N x K`, where `K` is chosen using the the Johnson-Lindenstrauss lemma.
-/// For `K` to be smaller than `D`, `D` must be quite large. Therefore, this
-/// codec should only applied on large datasets as it otherwise significantly
-/// inflates the data size instead of reducing it.
+/// `N x K`, where `K` is either set explicitly or chosen using the the Johnson-
+/// Lindenstrauss lemma. For `K` to be smaller than `D`, `D` must be quite
+/// large. Therefore, this codec should only applied on large datasets as it
+/// otherwise significantly inflates the data size instead of reducing it.
 ///
 /// Choosing a lower distortion rate `epsilon` will improve the quality of the
 /// lossy compression, i.e. reduce the compression error, at the cost of
@@ -47,11 +47,24 @@ use thiserror::Error;
 pub struct RandomProjectionCodec {
     /// Seed for generating the random projection matrix
     pub seed: u64,
-    /// Maximum distortion rate, as defined by the Johnson-Lindenstrauss lemma
-    pub epsilon: OpenClosedUnit<f64>,
+    /// Method with which the reduced dimensionality `K` is selected
+    #[serde(flatten)]
+    pub reduction: RandomProjectionReduction,
     /// Projection kind that is used to generate the random projection matrix
     #[serde(flatten)]
     pub projection: RandomProjectionKind,
+}
+
+/// Method with which the reduced dimensionality `K` is selected
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum RandomProjectionReduction {
+    /// Maximum distortion rate, as defined by the Johnson-Lindenstrauss lemma.
+    ///
+    /// The reduced dimensionality `K` is derived from `epsilon`.
+    Epsilon(OpenClosedUnit<f64>),
+    /// Reduced dimensionality `K` to which the data is projected.
+    ReducedDimensionality(NonZeroUsize),
 }
 
 /// Projection kind that is used to generate the random projection matrix
@@ -100,11 +113,11 @@ impl Codec for RandomProjectionCodec {
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
             AnyCowArray::F32(data) => Ok(AnyArray::F32(
-                project_with_projection(data, self.seed, self.epsilon, &self.projection)?
+                project_with_projection(data, self.seed, &self.reduction, &self.projection)?
                     .into_dyn(),
             )),
             AnyCowArray::F64(data) => Ok(AnyArray::F64(
-                project_with_projection(data, self.seed, self.epsilon, &self.projection)?
+                project_with_projection(data, self.seed, &self.reduction, &self.projection)?
                     .into_dyn(),
             )),
             encoded => Err(RandomProjectionCodecError::UnsupportedDtype(
@@ -194,6 +207,19 @@ pub enum RandomProjectionCodecError {
         /// Number of samples `N` in the output array
         output: usize,
     },
+    /// [`RandomProjectionCodec`] cannot decode from an array with zero
+    /// dimensionality `K`
+    #[error("RandomProjection cannot decode from an array with zero dimensionality `K`")]
+    ProjectedArrayZeroComponents,
+    /// [`RandomProjectionCodec`] cannot decode into an array with `D` features
+    /// that differs from the `D` stored in the encoded metadata
+    #[error("RandomProjection cannot decode into an array with {output} features that differs from the {metadata} features stored in the encoded metadata")]
+    NumberOfFeaturesMismatch {
+        /// Number of features `D` in the encoded array metadata
+        metadata: usize,
+        /// Number of features `D` in the decoded output array
+        output: usize,
+    },
     /// [`RandomProjectionCodec`] cannot decode into the provided array
     #[error("RandomProjection cannot decode into the provided array")]
     MismatchedDecodeIntoArray {
@@ -204,8 +230,7 @@ pub enum RandomProjectionCodecError {
 }
 
 /// Applies random projection to the input `data` with the given `seed`,
-/// distortion rate `epsilon`, and `projection` kind and returns the
-/// resulting array.
+/// `reduction` method, and `projection` kind and returns the resulting array.
 ///
 /// # Errors
 ///
@@ -217,7 +242,7 @@ pub enum RandomProjectionCodecError {
 pub fn project_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     seed: u64,
-    epsilon: OpenClosedUnit<f64>,
+    reduction: &RandomProjectionReduction,
     projection: &RandomProjectionKind,
 ) -> Result<Array<T, Ix2>, RandomProjectionCodecError> {
     let data = data
@@ -226,7 +251,10 @@ pub fn project_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
 
     let (n, d) = data.dim();
 
-    let k = johnson_lindenstrauss_min_k(n, epsilon);
+    let k = match reduction {
+        RandomProjectionReduction::Epsilon(epsilon) => johnson_lindenstrauss_min_k(n, *epsilon),
+        RandomProjectionReduction::ReducedDimensionality(k) => k.get(),
+    };
 
     let mut projected = Array::<T, Ix2>::from_elem((n, k + 1), T::ZERO);
 
@@ -286,20 +314,30 @@ pub fn project_into<T: Float, S: Data<Elem = T>>(
         });
     }
 
-    let mut projection_column = vec![T::ZERO; d];
+    let mut skip_projection_column = Vec::with_capacity(d);
 
     for j in 0..k {
         // materialize one column of the projection matrix
-        // i.e. instead of A x B = C, compute A x [bs] = [cs].T
-        for (l, p) in projection_column.iter_mut().enumerate() {
-            *p = projection(l, j);
+        //   i.e. instead of A x B = C, compute A x [bs] = [cs].T
+        // the column is stored in a sparse representation [(s, p)]
+        //   where s is the index skip to the next non-zero entry p
+        let mut last_non_zero = 0;
+        skip_projection_column.clear();
+        for l in 0..d {
+            let p = projection(l, j);
+            if p != T::ZERO {
+                skip_projection_column.push((l - last_non_zero, p));
+                last_non_zero = l;
+            }
         }
 
         for i in 0..n {
             let mut acc = T::ZERO;
 
-            for l in 0..d {
-                acc += data[(i, l)] * projection_column[l];
+            let mut l = 0;
+            for &(skip, p) in &skip_projection_column {
+                l += skip;
+                acc += data[(i, l)] * p;
             }
 
             projected[(i, j)] = acc * normalizer;
@@ -328,7 +366,7 @@ pub fn reconstruct_with_projection<T: Float, S: Data<Elem = T>, D: Dimension>(
 
     let (_n, k): (usize, usize) = projected.dim();
     let Some(k) = k.checked_sub(1) else {
-        panic!("projected array must have non-zero dimensionality");
+        return Err(RandomProjectionCodecError::ProjectedArrayZeroComponents);
     };
 
     let ds = projected.slice(s!(.., k));
@@ -376,20 +414,30 @@ pub fn reconstruct<T: Float, S: Data<Elem = T>>(
 
     let mut reconstructed = Array::<T, Ix2>::from_elem((n, d), T::ZERO);
 
-    let mut projection_row = vec![T::ZERO; k];
+    let mut skip_projection_row = Vec::with_capacity(k);
 
     for l in 0..d {
         // materialize one row of the projection matrix transpose
         // i.e. instead of A x B = C, compute A x [bs] = [cs].T
-        for (j, p) in projection_row.iter_mut().enumerate() {
-            *p = projection(l, j);
+        // the row is stored in a sparse representation [(s, p)]
+        //   where s is the index skip to the next non-zero entry p
+        let mut last_non_zero = 0;
+        skip_projection_row.clear();
+        for j in 0..k {
+            let p = projection(l, j);
+            if p != T::ZERO {
+                skip_projection_row.push((j - last_non_zero, p));
+                last_non_zero = j;
+            }
         }
 
         for i in 0..n {
             let mut acc = T::ZERO;
 
-            for j in 0..k {
-                acc += projected[(i, j)] * projection_row[j];
+            let mut j = 0;
+            for &(skip, p) in &skip_projection_row {
+                j += skip;
+                acc += projected[(i, j)] * p;
             }
 
             reconstructed[(i, l)] = acc * normalizer;
@@ -427,7 +475,7 @@ pub fn reconstruct_into_with_projection<T: Float, S: Data<Elem = T>, D: Dimensio
     }
 
     let Some(k) = k.checked_sub(1) else {
-        panic!("projected array must have non-zero dimensionality");
+        return Err(RandomProjectionCodecError::ProjectedArrayZeroComponents);
     };
 
     let ds = projected.slice(s!(.., k));
@@ -440,7 +488,10 @@ pub fn reconstruct_into_with_projection<T: Float, S: Data<Elem = T>, D: Dimensio
     };
 
     if d2 != d {
-        panic!("must have the same number of features");
+        return Err(RandomProjectionCodecError::NumberOfFeaturesMismatch {
+            metadata: d,
+            output: d2,
+        });
     }
 
     let projected = projected.slice_move(s!(.., ..k));
@@ -481,20 +532,30 @@ pub fn reconstruct_into<T: Float, S: Data<Elem = T>>(
         });
     }
 
-    let mut projection_row = vec![T::ZERO; k];
+    let mut skip_projection_row = Vec::with_capacity(k);
 
     for l in 0..d {
         // materialize one row of the projection matrix transpose
         // i.e. instead of A x B = C, compute A x [bs] = [cs].T
-        for (j, p) in projection_row.iter_mut().enumerate() {
-            *p = projection(l, j);
+        // the row is stored in a sparse representation [(s, p)]
+        //   where s is the index skip to the next non-zero entry p
+        let mut last_non_zero = 0;
+        skip_projection_row.clear();
+        for j in 0..k {
+            let p = projection(l, j);
+            if p != T::ZERO {
+                skip_projection_row.push((j - last_non_zero, p));
+                last_non_zero = j;
+            }
         }
 
         for i in 0..n {
             let mut acc = T::ZERO;
 
-            for j in 0..k {
-                acc += projected[(i, j)] * projection_row[j];
+            let mut j = 0;
+            for &(skip, p) in &skip_projection_row {
+                j += skip;
+                acc += projected[(i, j)] * p;
             }
 
             reconstructed[(i, l)] = acc * normalizer;
@@ -508,7 +569,14 @@ pub fn reconstruct_into<T: Float, S: Data<Elem = T>>(
     Ok(())
 }
 
-// https://github.com/scikit-learn/scikit-learn/blob/3b39d7cb957ab781744b346c1848be9db3f4e221/sklearn/random_projection.py#L56-L142
+/// Find a 'safe' number of components `K` to randomly project to.
+///
+/// The minimum number of components to guarantee the eps-embedding is
+/// given by `K >= 4 log(N) / (eps^2 / 2 - eps^3 / 3)`.
+///
+/// The implementation is adapted from [`sklearn`]'s.
+///
+/// [`sklearn`]: https://github.com/scikit-learn/scikit-learn/blob/3b39d7cb957ab781744b346c1848be9db3f4e221/sklearn/random_projection.py#L56-L142
 #[must_use]
 pub fn johnson_lindenstrauss_min_k(
     n_samples: usize,
@@ -523,6 +591,15 @@ pub fn johnson_lindenstrauss_min_k(
     min_k
 }
 
+/// Extract the provided `density` if it is `Some(_)`, or compute the minimum
+/// required density `1/sqrt(d)` as recommended by Li et al [^3].
+///
+/// [^3]: Li, P., Hastie, T. J., and Church, K. W. (2006). Very sparse
+///       random projections. In *Proceedings of the 12th ACM SIGKDD
+///       international conference on Knowledge discovery and data
+///       mining (KDD '06)*. Association for Computing Machinery, New
+///       York, NY, USA, 287–296. Available from:
+///       [doi:10.1145/1150402.1150436](https://doi.org/10.1145/1150402.1150436).
 #[must_use]
 pub fn density_or_ping_li_minimum<T: Float>(density: Option<OpenClosedUnit<f64>>, d: usize) -> T {
     match density {
@@ -818,6 +895,7 @@ impl Float for f64 {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use ndarray_rand::rand_distr::{Distribution, Normal};
     use ndarray_rand::RandomExt;
@@ -888,6 +966,7 @@ mod tests {
         );
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     fn test_error_decline<T: Float + std::fmt::Display>(
         shape: (usize, usize),
         distribution: impl Distribution<T>,
@@ -922,10 +1001,16 @@ mod tests {
         epsilon: OpenClosedUnit<f64>,
         projection: &RandomProjectionKind,
     ) -> Array<T, Ix2> {
-        let projected = project_with_projection(data.view(), seed, epsilon, projection)
-            .expect("projecting must not fail");
+        let projected = project_with_projection(
+            data.view(),
+            seed,
+            &RandomProjectionReduction::Epsilon(epsilon),
+            projection,
+        )
+        .expect("projecting must not fail");
         let reconstructed = reconstruct_with_projection(projected, seed, projection)
             .expect("reconstruction must not fail");
+        #[allow(clippy::let_and_return)]
         reconstructed
     }
 
