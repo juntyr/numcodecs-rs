@@ -889,59 +889,59 @@ mod tests {
 
     use super::*;
 
-    // #[test]
-    // fn gaussian_f32() {
-    //     test_error_decline::<f32>(
-    //         (100, 100),
-    //         Normal::new(42.0, 24.0).unwrap(),
-    //         42,
-    //         RandomProjectionKind::Gaussian,
-    //     );
-    // }
+    #[test]
+    fn gaussian_f32() {
+        test_error_decline::<f32>(
+            (100, 100),
+            Normal::new(42.0, 24.0).unwrap(),
+            42,
+            RandomProjectionKind::Gaussian,
+        );
+    }
 
-    // #[test]
-    // fn gaussian_f64() {
-    //     test_error_decline::<f64>(
-    //         (100, 100),
-    //         Normal::new(42.0, 24.0).unwrap(),
-    //         42,
-    //         RandomProjectionKind::Gaussian,
-    //     );
-    // }
+    #[test]
+    fn gaussian_f64() {
+        test_error_decline::<f64>(
+            (100, 100),
+            Normal::new(42.0, 24.0).unwrap(),
+            42,
+            RandomProjectionKind::Gaussian,
+        );
+    }
 
-    // #[test]
-    // fn achlioptas_sparse_f32() {
-    //     test_error_decline::<f32>(
-    //         (100, 100),
-    //         Normal::new(42.0, 24.0).unwrap(),
-    //         42,
-    //         RandomProjectionKind::Sparse {
-    //             density: Some(OpenClosedUnit(1.0 / 3.0)),
-    //         },
-    //     );
-    // }
+    #[test]
+    fn achlioptas_sparse_f32() {
+        test_error_decline::<f32>(
+            (100, 100),
+            Normal::new(42.0, 24.0).unwrap(),
+            42,
+            RandomProjectionKind::Sparse {
+                density: Some(OpenClosedUnit(1.0 / 3.0)),
+            },
+        );
+    }
 
-    // #[test]
-    // fn achlioptas_sparse_f64() {
-    //     test_error_decline::<f64>(
-    //         (100, 100),
-    //         Normal::new(42.0, 24.0).unwrap(),
-    //         42,
-    //         RandomProjectionKind::Sparse {
-    //             density: Some(OpenClosedUnit(1.0 / 3.0)),
-    //         },
-    //     );
-    // }
+    #[test]
+    fn achlioptas_sparse_f64() {
+        test_error_decline::<f64>(
+            (100, 100),
+            Normal::new(42.0, 24.0).unwrap(),
+            42,
+            RandomProjectionKind::Sparse {
+                density: Some(OpenClosedUnit(1.0 / 3.0)),
+            },
+        );
+    }
 
-    // #[test]
-    // fn ping_li_sparse_f32() {
-    //     test_error_decline::<f32>(
-    //         (100, 100),
-    //         Normal::new(42.0, 24.0).unwrap(),
-    //         42,
-    //         RandomProjectionKind::Sparse { density: None },
-    //     );
-    // }
+    #[test]
+    fn ping_li_sparse_f32() {
+        test_error_decline::<f32>(
+            (100, 100),
+            Normal::new(42.0, 24.0).unwrap(),
+            42,
+            RandomProjectionKind::Sparse { density: None },
+        );
+    }
 
     #[test]
     fn ping_li_sparse_f64() {
