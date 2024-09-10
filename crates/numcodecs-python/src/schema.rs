@@ -257,62 +257,75 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
 
     let mut additional = !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
 
-    // iterate over oneOf to handle top-level or flattened enums
-    if let Some(Value::Array(variants)) = schema.get("oneOf") {
-        // if any variant allows additional parameters, the top-level also
-        //  allows additional parameters
-        additional |= !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
+    let mut handle_one_of = |schema: &Map<String, Value>| {
+        // iterate over oneOf to handle top-level or flattened enums
+        if let Some(Value::Array(variants)) = schema.get("oneOf") {
+            // if any variant allows additional parameters, the top-level also
+            //  allows additional parameters
+            additional |= !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
 
-        let mut variant_parameters = HashMap::new();
+            let mut variant_parameters = HashMap::new();
 
-        for (generation, schema) in variants.iter().enumerate() {
-            let required = match schema.get("required") {
-                Some(Value::Array(required)) => &**required,
-                _ => &[],
-            };
-            let variant_docs = match schema.get("description") {
-                Some(Value::String(docs)) => Some(docs.as_str()),
-                _ => None,
-            };
+            for (generation, schema) in variants.iter().enumerate() {
+                let required = match schema.get("required") {
+                    Some(Value::Array(required)) => &**required,
+                    _ => &[],
+                };
+                let variant_docs = match schema.get("description") {
+                    Some(Value::String(docs)) => Some(docs.as_str()),
+                    _ => None,
+                };
 
-            // extract the per-variant parameters and check for tag parameters
-            if let Some(Value::Object(properties)) = schema.get("properties") {
-                for (name, parameter) in properties {
-                    match variant_parameters.entry(name) {
-                        Entry::Vacant(entry) => {
-                            entry.insert(VariantParameter::new(
-                                generation,
-                                name,
-                                parameter,
-                                required,
-                                variant_docs,
-                            ));
-                        }
-                        Entry::Occupied(mut entry) => {
-                            entry.get_mut().merge(
-                                generation,
-                                name,
-                                parameter,
-                                required,
-                                variant_docs,
-                            );
+                // extract the per-variant parameters and check for tag parameters
+                if let Some(Value::Object(properties)) = schema.get("properties") {
+                    for (name, parameter) in properties {
+                        match variant_parameters.entry(name) {
+                            Entry::Vacant(entry) => {
+                                entry.insert(VariantParameter::new(
+                                    generation,
+                                    name,
+                                    parameter,
+                                    required,
+                                    variant_docs,
+                                ));
+                            }
+                            Entry::Occupied(mut entry) => {
+                                entry.get_mut().merge(
+                                    generation,
+                                    name,
+                                    parameter,
+                                    required,
+                                    variant_docs,
+                                );
+                            }
                         }
                     }
                 }
+
+                // ensure that only parameters in all variants are required or tags
+                for parameter in variant_parameters.values_mut() {
+                    parameter.update_generation(generation);
+                }
             }
 
-            // ensure that only parameters in all variants are required or tags
-            for parameter in variant_parameters.values_mut() {
-                parameter.update_generation(generation);
+            // merge the variant parameters into the top-level parameters
+            parameters.extend(
+                variant_parameters
+                    .into_values()
+                    .map(VariantParameter::into_parameter),
+            );
+        }
+    };
+
+    (handle_one_of)(schema);
+
+    // iterate over allOf to handle flattened enums
+    if let Some(Value::Array(all)) = schema.get("allOf") {
+        for variant in all {
+            if let Some(variant) = variant.as_object() {
+                (handle_one_of)(variant);
             }
         }
-
-        // merge the variant parameters into the top-level parameters
-        parameters.extend(
-            variant_parameters
-                .into_values()
-                .map(VariantParameter::into_parameter),
-        );
     }
 
     // sort parameters by name and so that required parameters come first

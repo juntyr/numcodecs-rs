@@ -44,7 +44,7 @@ use thiserror::Error;
 ///
 /// This codec only supports finite floating point data.
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-// #[serde(deny_unknown_fields)]
+// FIXME: #[serde(deny_unknown_fields)]
 pub struct RandomProjectionCodec {
     /// Seed for generating the random projection matrix
     pub seed: u64,
