@@ -31,8 +31,12 @@ use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
 };
-use schemars::{JsonSchema, Schema, SchemaGenerator};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
+use serde::{
+    de::{MapAccess, Visitor},
+    ser::SerializeMap,
+    Deserialize, Deserializer, Serialize, Serializer,
+};
 use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
@@ -47,18 +51,29 @@ use thiserror::Error;
 /// array's shape is required to reconstruct it.
 pub struct SwizzleReshapeCodec {
     /// The permutation of the axes that is applied on encoding
-    pub axes: Vec<Axis>,
+    pub axes: Vec<AxisGroup>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 #[serde(deny_unknown_fields)]
-/// An axis, potentially from a merged combination of multiple input axes
-pub enum Axis {
+/// An axis group, potentially from a merged combination of multiple input axes
+pub enum AxisGroup {
     /// A single axis
-    Single(usize),
+    Single(Axis),
     /// A merged combination of multiple input axes
-    Merged(Multiple<usize>),
+    Merged(Multiple<Axis>),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(untagged)]
+#[serde(deny_unknown_fields)]
+/// An axis or all remaining axes
+pub enum Axis {
+    /// A single axis, as determined by its index
+    Index(usize),
+    /// All remaining axes
+    Rest(Rest),
 }
 
 impl Codec for SwizzleReshapeCodec {
@@ -204,10 +219,14 @@ pub enum SwizzleReshapeCodecError {
     #[error("SwizzleReshape can only encode or decode with an axis permutation {axes:?} that contains every axis of an array with {ndim} dimensions index exactly once")]
     InvalidAxisPermutation {
         /// The invalid permutation of axes
-        axes: Vec<Axis>,
+        axes: Vec<AxisGroup>,
         /// The number of dimensions of the array
         ndim: usize,
     },
+    /// [`SwizzleReshapeCodec`] cannot encode or decode with an axis permutation
+    /// that contains multiple rest-axes markers
+    #[error("SwizzleReshape cannot encode or decode with an axis permutation that contains multiple rest-axes markers")]
+    MultipleRestAxes,
     /// [`SwizzleReshapeCodec`] cannot decode into the provided array
     #[error("SwizzleReshape cannot decode into the provided array")]
     MismatchedDecodeIntoArray {
@@ -227,9 +246,11 @@ pub enum SwizzleReshapeCodecError {
 ///   bounds
 /// - [`SwizzleReshapeCodecError::InvalidAxisPermutation`] if the `axes`
 ///   permutation does not contain every axis index exactly once
+/// - [`SwizzleReshapeCodecError::MultipleRestAxes`] if the `axes` permutation
+///   contains more than one [`Rest`]-axes marker
 pub fn swizzle_reshape<T: Copy, S: Data<Elem = T>>(
     data: ArrayBase<S, IxDyn>,
-    axes: &[Axis],
+    axes: &[AxisGroup],
 ) -> Result<Array<T, IxDyn>, SwizzleReshapeCodecError> {
     let (permutation, new_shape) = validate_into_axes_shape(&data, axes)?;
 
@@ -259,11 +280,13 @@ pub fn swizzle_reshape<T: Copy, S: Data<Elem = T>>(
 ///   bounds
 /// - [`SwizzleReshapeCodecError::InvalidAxisPermutation`] if the `axes`
 ///   permutation does not contain every axis index exactly once
+/// - [`SwizzleReshapeCodecError::MultipleRestAxes`] if the `axes` permutation
+///   contains more than one [`Rest`]-axes marker
 pub fn undo_swizzle_reshape<T: Copy, S: Data<Elem = T>>(
     encoded: ArrayBase<S, IxDyn>,
-    axes: &[Axis],
+    axes: &[AxisGroup],
 ) -> Result<Array<T, IxDyn>, SwizzleReshapeCodecError> {
-    if !axes.iter().all(|axis| matches!(axis, Axis::Single(_))) {
+    if !axes.iter().all(|axis| matches!(axis, AxisGroup::Single(_))) {
         return Err(SwizzleReshapeCodecError::CannotDecodeMergedAxes);
     }
 
@@ -293,13 +316,15 @@ pub fn undo_swizzle_reshape<T: Copy, S: Data<Elem = T>>(
 ///   bounds
 /// - [`SwizzleReshapeCodecError::InvalidAxisPermutation`] if the `axes`
 ///   permutation does not contain every axis index exactly once
+/// - [`SwizzleReshapeCodecError::MultipleRestAxes`] if the `axes` permutation
+///   contains more than one [`Rest`]-axes marker
 /// - [`SwizzleReshapeCodecError::MismatchedDecodeIntoArray`] if the `encoded`
 ///   array's shape does not match the shape that swizzling and reshaping an
 ///   array of the `decoded` array's shape would have produced
 pub fn undo_swizzle_reshape_into<T: Copy>(
     encoded: ArrayView<T, IxDyn>,
     mut decoded: ArrayViewMut<T, IxDyn>,
-    axes: &[Axis],
+    axes: &[AxisGroup],
 ) -> Result<(), SwizzleReshapeCodecError> {
     let (permutation, new_shape) = validate_into_axes_shape(&decoded, axes)?;
 
@@ -332,21 +357,20 @@ pub fn undo_swizzle_reshape_into<T: Copy>(
     Ok(())
 }
 
+#[allow(clippy::too_many_lines)]
 fn validate_into_axes_shape<T, S: Data<Elem = T>>(
     array: &ArrayBase<S, IxDyn>,
-    axes: &[Axis],
+    axes: &[AxisGroup],
 ) -> Result<(Vec<usize>, Vec<usize>), SwizzleReshapeCodecError> {
-    let mut new_axes = vec![0_usize; array.ndim()];
-    let mut new_shape = vec![0_usize; axes.len()];
     let mut axis_counts = vec![0_usize; array.ndim()];
+
+    let mut has_rest = false;
 
     for axis in axes {
         match axis {
-            Axis::Single(index) => {
+            AxisGroup::Single(Axis::Index(index)) => {
                 if let Some(c) = axis_counts.get_mut(*index) {
                     *c += 1;
-                    new_axes.push(*index);
-                    new_shape.push(array.len_of(ndarray::Axis(*index)));
                 } else {
                     return Err(SwizzleReshapeCodecError::InvalidAxisIndex {
                         index: *index,
@@ -354,30 +378,94 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
                     });
                 }
             }
-            Axis::Merged(axes) => {
-                let mut new_len = 1;
-                for index in axes {
-                    if let Some(c) = axis_counts.get_mut(*index) {
-                        *c += 1;
-                        new_axes.push(*index);
-                        new_len *= array.len_of(ndarray::Axis(*index));
-                    } else {
-                        return Err(SwizzleReshapeCodecError::InvalidAxisIndex {
-                            index: *index,
-                            ndim: array.ndim(),
-                        });
+            AxisGroup::Single(Axis::Rest(Rest)) => {
+                if std::mem::replace(&mut has_rest, true) {
+                    return Err(SwizzleReshapeCodecError::MultipleRestAxes);
+                }
+            }
+            AxisGroup::Merged(axes) => {
+                for axis in axes {
+                    match axis {
+                        Axis::Index(index) => {
+                            if let Some(c) = axis_counts.get_mut(*index) {
+                                *c += 1;
+                            } else {
+                                return Err(SwizzleReshapeCodecError::InvalidAxisIndex {
+                                    index: *index,
+                                    ndim: array.ndim(),
+                                });
+                            }
+                        }
+                        Axis::Rest(Rest) => {
+                            if std::mem::replace(&mut has_rest, true) {
+                                return Err(SwizzleReshapeCodecError::MultipleRestAxes);
+                            }
+                        }
                     }
                 }
-                new_shape.push(new_len);
             }
         }
     }
 
-    if !axis_counts.into_iter().all(|c| c == 1) {
+    if !axis_counts
+        .iter()
+        .all(|c| if has_rest { *c <= 1 } else { *c == 1 })
+    {
         return Err(SwizzleReshapeCodecError::InvalidAxisPermutation {
             axes: axes.to_vec(),
             ndim: array.ndim(),
         });
+    }
+
+    let mut new_axes = vec![0_usize; array.ndim()];
+    let mut new_shape = vec![0_usize; axes.len()];
+
+    for axis in axes {
+        match axis {
+            AxisGroup::Single(Axis::Index(index)) => {
+                new_axes.push(*index);
+                new_shape.push(array.len_of(ndarray::Axis(*index)));
+            }
+            AxisGroup::Single(Axis::Rest(Rest)) => {
+                let mut new_len = 1;
+                let mut any_rest = false;
+                for (index, count) in axis_counts.iter().enumerate() {
+                    if *count == 0 {
+                        any_rest = true;
+                        new_axes.push(index);
+                        new_len *= array.len_of(ndarray::Axis(index));
+                    }
+                }
+                if any_rest {
+                    new_shape.push(new_len);
+                }
+            }
+            AxisGroup::Merged(axes) => {
+                let mut new_len = 1;
+                let mut any_axis = false;
+                for axis in axes {
+                    match axis {
+                        Axis::Index(index) => {
+                            any_axis = true;
+                            new_axes.push(*index);
+                            new_len *= array.len_of(ndarray::Axis(*index));
+                        }
+                        Axis::Rest(Rest) => {
+                            for (index, count) in axis_counts.iter().enumerate() {
+                                if *count == 0 {
+                                    any_axis = true;
+                                    new_axes.push(index);
+                                    new_len *= array.len_of(ndarray::Axis(index));
+                                }
+                            }
+                        }
+                    }
+                }
+                if any_axis {
+                    new_shape.push(new_len);
+                }
+            }
+        }
     }
 
     Ok((new_axes, new_shape))
@@ -450,20 +538,68 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Multiple<T> {
     }
 }
 
-impl JsonSchema for Multiple<usize> {
+impl JsonSchema for Multiple<Axis> {
     fn schema_name() -> Cow<'static, str> {
-        Cow::Borrowed("MultipleUsize")
+        Cow::Borrowed("MultipleAxes")
     }
 
     fn schema_id() -> Cow<'static, str> {
-        Cow::Borrowed(concat!(module_path!(), "::", "Multiple<usize>"))
+        Cow::Borrowed(concat!(module_path!(), "::", "Multiple<Axis>"))
     }
 
     fn json_schema(gen: &mut SchemaGenerator) -> Schema {
-        let mut schema = Vec::<usize>::json_schema(gen);
+        let mut schema = Vec::<Axis>::json_schema(gen);
         schema
             .ensure_object()
             .insert(String::from("minItems"), 2.into());
         schema
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+/// Marker to signify all remaining (not explicitly named) axes
+pub struct Rest;
+
+impl Serialize for Rest {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_map(Some(0))?.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for Rest {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct RestVisitor;
+
+        impl<'de> Visitor<'de> for RestVisitor {
+            type Value = Rest;
+
+            fn expecting(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+                fmt.write_str("an empty map")
+            }
+
+            fn visit_map<A: MapAccess<'de>>(self, _map: A) -> Result<Self::Value, A::Error> {
+                Ok(Rest)
+            }
+        }
+
+        deserializer.deserialize_map(RestVisitor)
+    }
+}
+
+impl JsonSchema for Rest {
+    fn schema_name() -> Cow<'static, str> {
+        Cow::Borrowed("Rest")
+    }
+
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Borrowed(concat!(module_path!(), "::", "Rest"))
+    }
+
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false,
+        })
     }
 }

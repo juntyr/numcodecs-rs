@@ -58,14 +58,20 @@ pub struct RandomProjectionCodec {
 
 /// Method with which the reduced dimensionality `K` is selected
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "reduction", rename_all = "snake_case")]
 pub enum RandomProjectionReduction {
-    /// Maximum distortion rate, as defined by the Johnson-Lindenstrauss lemma.
-    ///
-    /// The reduced dimensionality `K` is derived from `epsilon`.
-    Epsilon(OpenClosedUnit<f64>),
-    /// Reduced dimensionality `K` to which the data is projected.
-    ReducedDimensionality(NonZeroUsize),
+    /// The reduced dimensionality `K` is derived from `epsilon`, as defined by
+    /// the Johnson-Lindenstrauss lemma.
+    JohnsonLindenstrauss {
+        /// Maximum distortion rate
+        epsilon: OpenClosedUnit<f64>,
+    },
+    /// The reduced dimensionality `K`, to which the data is projected, is given
+    /// explicitly.
+    Explicit {
+        /// Reduced dimensionality
+        k: NonZeroUsize,
+    },
 }
 
 /// Projection kind that is used to generate the random projection matrix
@@ -103,7 +109,7 @@ pub enum RandomProjectionKind {
         ///       mining (KDD '06)*. Association for Computing Machinery, New
         ///       York, NY, USA, 287–296. Available from:
         ///       [doi:10.1145/1150402.1150436](https://doi.org/10.1145/1150402.1150436).
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         density: Option<OpenClosedUnit<f64>>,
     },
 }
@@ -258,8 +264,10 @@ pub fn project_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     let (n, d) = data.dim();
 
     let k = match reduction {
-        RandomProjectionReduction::Epsilon(epsilon) => johnson_lindenstrauss_min_k(n, *epsilon),
-        RandomProjectionReduction::ReducedDimensionality(k) => k.get(),
+        RandomProjectionReduction::JohnsonLindenstrauss { epsilon } => {
+            johnson_lindenstrauss_min_k(n, *epsilon)
+        }
+        RandomProjectionReduction::Explicit { k } => k.get(),
     };
 
     let mut projected = Array::<T, Ix2>::from_elem((n, k + 1), T::ZERO);
@@ -991,7 +999,7 @@ mod tests {
         let projected = project_with_projection(
             data.view(),
             seed,
-            &RandomProjectionReduction::Epsilon(epsilon),
+            &RandomProjectionReduction::JohnsonLindenstrauss { epsilon },
             projection,
         )
         .expect("projecting must not fail");
