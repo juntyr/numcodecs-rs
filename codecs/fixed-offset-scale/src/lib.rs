@@ -6,14 +6,14 @@
 //! [MSRV]: https://img.shields.io/badge/MSRV-1.76.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
-//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-log
-//! [crates.io]: https://crates.io/crates/numcodecs-log
+//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-fixed-offset-scale
+//! [crates.io]: https://crates.io/crates/numcodecs-fixed-offset-scale
 //!
-//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-log
-//! [docs.rs]: https://docs.rs/numcodecs-log/
+//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-fixed-offset-scale
+//! [docs.rs]: https://docs.rs/numcodecs-fixed-offset-scale/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_log
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_fixed_offset_scale
 //!
 //! `(x-o) * s` codec implementation for the [`numcodecs`] API.
 
