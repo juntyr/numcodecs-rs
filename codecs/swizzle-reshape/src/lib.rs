@@ -357,7 +357,6 @@ pub fn undo_swizzle_reshape_into<T: Copy>(
     Ok(())
 }
 
-#[allow(clippy::too_many_lines)]
 fn validate_into_axes_shape<T, S: Data<Elem = T>>(
     array: &ArrayBase<S, IxDyn>,
     axes: &[AxisGroup],
@@ -427,17 +426,11 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
                 new_shape.push(array.len_of(ndarray::Axis(*index)));
             }
             AxisGroup::Single(Axis::Rest(Rest)) => {
-                let mut new_len = 1;
-                let mut any_rest = false;
                 for (index, count) in axis_counts.iter().enumerate() {
                     if *count == 0 {
-                        any_rest = true;
                         new_axes.push(index);
-                        new_len *= array.len_of(ndarray::Axis(index));
+                        new_shape.push(array.len_of(ndarray::Axis(index)));
                     }
-                }
-                if any_rest {
-                    new_shape.push(new_len);
                 }
             }
             AxisGroup::Merged(axes) => {
