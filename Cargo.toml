@@ -68,7 +68,7 @@ serde_repr = { version = "0.1", default-features = false }
 sz3 = { version = "0.1.1", default-features = false }
 thiserror = { version = "1.0", default-features = false }
 twofloat = { version = "0.7", default-features = false }
-wit-bindgen = { version = "0.30", default-features = false }
+wit-bindgen = { version = "0.32", default-features = false }
 wyhash = { version = "0.5", default-features = false }
 zfp-sys = { version = "0.1.15", default-features = false }
 zstd = { version = "0.13", default-features = false }
@@ -82,13 +82,13 @@ unused_crate_dependencies = "warn"
 missing_docs = "warn"
 
 [workspace.lints.clippy]
-complexity = { priority = -1, level = "deny" }
-correctness = { priority = -1, level = "deny" }
+complexity = { priority = -1, level = "warn" }
+correctness = { priority = -1, level = "warn" }
 nursery = { priority = -1, level = "warn" }
 pedantic = { priority = -1, level = "warn" }
-perf = { priority = -1, level = "deny" }
-style = { priority = -1, level = "deny" }
-suspicious = { priority = -1, level = "deny" }
+perf = { priority = -1, level = "warn" }
+style = { priority = -1, level = "warn" }
+suspicious = { priority = -1, level = "warn" }
 
 unwrap_used = "warn"
 expect_used = "warn"

@@ -139,13 +139,6 @@ impl Codec for Sz3Codec {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        if !matches!(
-            encoded.dtype(),
-            AnyArrayDType::I32 | AnyArrayDType::I64 | AnyArrayDType::F32 | AnyArrayDType::F64
-        ) {
-            return Err(Sz3CodecError::UnsupportedDtype(encoded.dtype()));
-        }
-
         let decoded_in = self.decode(encoded.cow())?;
 
         Ok(decoded.assign(&decoded_in)?)
