@@ -7,7 +7,7 @@ repository = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 
-description = "random projection codec implementation for the numcodecs API"
+description = "Random Projection codec implementation for the numcodecs API"
 readme = "README.md"
 categories = ["compression", "encoding"]
 keywords = ["random", "projection", "numcodecs", "compression", "encoding"]
