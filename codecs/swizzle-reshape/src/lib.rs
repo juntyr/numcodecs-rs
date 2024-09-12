@@ -337,14 +337,12 @@ pub fn undo_swizzle_reshape_into<T: Copy>(
         });
     }
 
-    let mut permuted_shape = decoded.shape().to_vec();
+    let mut permuted_shape_indices = decoded.shape().iter().enumerate().collect::<Vec<_>>();
     #[allow(clippy::indexing_slicing)] // all indices have been validated
-    permuted_shape.sort_by_key(|i| permutation[*i]);
+    permuted_shape_indices.sort_by_key(|(i, _s)| permutation[*i]);
 
-    #[allow(clippy::from_iter_instead_of_collect)]
-    let mut inverse_permutation = Vec::from_iter(0..permutation.len());
-    #[allow(clippy::indexing_slicing)] // all indices have been validated
-    inverse_permutation.sort_by_key(|i| permutation[*i]);
+    let (inverse_permutation, permuted_shape): (Vec<_>, Vec<_>) =
+        permuted_shape_indices.into_iter().unzip();
 
     #[allow(clippy::expect_used)] // only panics on an implementation bug
     let unshaped = encoded
