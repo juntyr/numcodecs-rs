@@ -406,8 +406,8 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
         });
     }
 
-    let mut new_axes = vec![0_usize; array.ndim()];
-    let mut new_shape = vec![0_usize; axes.len()];
+    let mut new_axes = Vec::with_capacity(array.len());
+    let mut new_shape = Vec::with_capacity(axes.len());
 
     for axis in axes {
         match axis {
@@ -490,5 +490,233 @@ impl JsonSchema for Rest {
             "properties": {},
             "additionalProperties": false,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use ndarray::array;
+
+    use super::*;
+
+    #[test]
+    fn identity() {
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[AxisGroup::AllRest(Rest)],
+            &[2, 2, 2],
+        );
+
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+                AxisGroup::AllRest(Rest),
+            ],
+            &[2, 2, 2],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::AllRest(Rest),
+                AxisGroup::Group(vec![Axis::Index(2)]),
+            ],
+            &[2, 2, 2],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::AllRest(Rest),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+                AxisGroup::Group(vec![Axis::Index(2)]),
+            ],
+            &[2, 2, 2],
+        );
+
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+                AxisGroup::Group(vec![Axis::MergedRest(Rest)]),
+            ],
+            &[2, 2, 2],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::Group(vec![Axis::MergedRest(Rest)]),
+                AxisGroup::Group(vec![Axis::Index(2)]),
+            ],
+            &[2, 2, 2],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::MergedRest(Rest)]),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+                AxisGroup::Group(vec![Axis::Index(2)]),
+            ],
+            &[2, 2, 2],
+        );
+    }
+
+    #[test]
+    fn swizzle() {
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+                AxisGroup::AllRest(Rest),
+            ],
+            &[2, 2, 2],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(2)]),
+                AxisGroup::AllRest(Rest),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+            ],
+            &[2, 2, 2],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::AllRest(Rest),
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+            ],
+            &[2, 2, 2],
+        );
+
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+                AxisGroup::Group(vec![Axis::MergedRest(Rest)]),
+            ],
+            &[2, 2, 2],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(2)]),
+                AxisGroup::Group(vec![Axis::MergedRest(Rest)]),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+            ],
+            &[2, 2, 2],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::MergedRest(Rest)]),
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+            ],
+            &[2, 2, 2],
+        );
+    }
+
+    #[test]
+    fn collapse() {
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[AxisGroup::Group(vec![Axis::MergedRest(Rest)])],
+            &[8],
+        );
+
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[AxisGroup::Group(vec![
+                Axis::Index(0),
+                Axis::Index(1),
+                Axis::Index(2),
+            ])],
+            &[8],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[AxisGroup::Group(vec![
+                Axis::Index(2),
+                Axis::Index(1),
+                Axis::Index(0),
+            ])],
+            &[8],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[AxisGroup::Group(vec![
+                Axis::Index(1),
+                Axis::MergedRest(Rest),
+            ])],
+            &[8],
+        );
+
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(0), Axis::Index(1)]),
+                AxisGroup::AllRest(Rest),
+            ],
+            &[4, 2],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(2)]),
+                AxisGroup::Group(vec![Axis::Index(1), Axis::Index(0)]),
+            ],
+            &[2, 4],
+        );
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(1), Axis::MergedRest(Rest)]),
+                AxisGroup::Group(vec![Axis::Index(0), Axis::Index(2)]),
+            ],
+            &[2, 4],
+        );
+    }
+
+    #[test]
+    fn extend() {
+        roundtrip(
+            array![[[1, 2], [3, 4]], [[5, 6], [7, 8]]].into_dyn(),
+            &[
+                AxisGroup::Group(vec![]),
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::Group(vec![]),
+                AxisGroup::AllRest(Rest),
+                AxisGroup::Group(vec![]),
+                AxisGroup::Group(vec![Axis::Index(2)]),
+                AxisGroup::Group(vec![]),
+            ],
+            &[1, 2, 1, 2, 1, 2, 1],
+        );
+    }
+
+    fn roundtrip(data: Array<i32, IxDyn>, axes: &[AxisGroup], swizzle_shape: &[usize]) {
+        let swizzled = swizzle_reshape(data.view(), axes).expect("swizzle should not fail");
+
+        assert_eq!(swizzled.shape(), swizzle_shape);
+
+        let mut unswizzled = Array::zeros(data.shape());
+        undo_swizzle_reshape_into(swizzled.view(), unswizzled.view_mut(), axes)
+            .expect("unswizzle into should not fail");
+
+        assert_eq!(data, unswizzled);
+
+        if !axes.iter().any(|a| matches!(a, AxisGroup::Group(a) if a.len() != 1 || a.iter().any(|a| matches!(a, Axis::MergedRest(Rest))))) {
+            let unswizzled = undo_swizzle_reshape(swizzled.view(), axes).expect("unswizzle should not fail");
+            assert_eq!(data, unswizzled);
+        } else {
+            undo_swizzle_reshape(swizzled.view(), axes).expect_err("unswizzle should fail");
+        }
     }
 }
