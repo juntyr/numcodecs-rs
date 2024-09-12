@@ -20,10 +20,7 @@
 
 use std::{
     borrow::Cow,
-    collections::VecDeque,
     fmt::{self, Debug},
-    iter::{Chain, Once},
-    slice::Iter,
 };
 
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, IxDyn};
@@ -59,10 +56,10 @@ pub struct SwizzleReshapeCodec {
 #[serde(deny_unknown_fields)]
 /// An axis group, potentially from a merged combination of multiple input axes
 pub enum AxisGroup {
-    /// A single axis
-    Single(Axis),
-    /// A merged combination of multiple input axes
-    Merged(Multiple<Axis>),
+    /// A merged combination of zero, one, or multiple input axes
+    Group(Vec<Axis>),
+    /// All remaining axes, each in a separate single-axis group
+    AllRest(Rest),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
@@ -72,8 +69,8 @@ pub enum AxisGroup {
 pub enum Axis {
     /// A single axis, as determined by its index
     Index(usize),
-    /// All remaining axes
-    Rest(Rest),
+    /// All remaining axes, combined into one
+    MergedRest(Rest),
 }
 
 impl Codec for SwizzleReshapeCodec {
@@ -286,7 +283,10 @@ pub fn undo_swizzle_reshape<T: Copy, S: Data<Elem = T>>(
     encoded: ArrayBase<S, IxDyn>,
     axes: &[AxisGroup],
 ) -> Result<Array<T, IxDyn>, SwizzleReshapeCodecError> {
-    if !axes.iter().all(|axis| matches!(axis, AxisGroup::Single(_))) {
+    if !axes.iter().all(|axis| match axis {
+        AxisGroup::Group(axes) => matches!(axes.as_slice(), [Axis::Index(_)]),
+        AxisGroup::AllRest(Rest) => true,
+    }) {
         return Err(SwizzleReshapeCodecError::CannotDecodeMergedAxes);
     }
 
@@ -367,22 +367,7 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
 
     for axis in axes {
         match axis {
-            AxisGroup::Single(Axis::Index(index)) => {
-                if let Some(c) = axis_counts.get_mut(*index) {
-                    *c += 1;
-                } else {
-                    return Err(SwizzleReshapeCodecError::InvalidAxisIndex {
-                        index: *index,
-                        ndim: array.ndim(),
-                    });
-                }
-            }
-            AxisGroup::Single(Axis::Rest(Rest)) => {
-                if std::mem::replace(&mut has_rest, true) {
-                    return Err(SwizzleReshapeCodecError::MultipleRestAxes);
-                }
-            }
-            AxisGroup::Merged(axes) => {
+            AxisGroup::Group(axes) => {
                 for axis in axes {
                     match axis {
                         Axis::Index(index) => {
@@ -395,12 +380,17 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
                                 });
                             }
                         }
-                        Axis::Rest(Rest) => {
+                        Axis::MergedRest(Rest) => {
                             if std::mem::replace(&mut has_rest, true) {
                                 return Err(SwizzleReshapeCodecError::MultipleRestAxes);
                             }
                         }
                     }
+                }
+            }
+            AxisGroup::AllRest(Rest) => {
+                if std::mem::replace(&mut has_rest, true) {
+                    return Err(SwizzleReshapeCodecError::MultipleRestAxes);
                 }
             }
         }
@@ -421,32 +411,17 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
 
     for axis in axes {
         match axis {
-            AxisGroup::Single(Axis::Index(index)) => {
-                new_axes.push(*index);
-                new_shape.push(array.len_of(ndarray::Axis(*index)));
-            }
-            AxisGroup::Single(Axis::Rest(Rest)) => {
-                for (index, count) in axis_counts.iter().enumerate() {
-                    if *count == 0 {
-                        new_axes.push(index);
-                        new_shape.push(array.len_of(ndarray::Axis(index)));
-                    }
-                }
-            }
-            AxisGroup::Merged(axes) => {
+            AxisGroup::Group(axes) => {
                 let mut new_len = 1;
-                let mut any_axis = false;
                 for axis in axes {
                     match axis {
                         Axis::Index(index) => {
-                            any_axis = true;
                             new_axes.push(*index);
                             new_len *= array.len_of(ndarray::Axis(*index));
                         }
-                        Axis::Rest(Rest) => {
+                        Axis::MergedRest(Rest) => {
                             for (index, count) in axis_counts.iter().enumerate() {
                                 if *count == 0 {
-                                    any_axis = true;
                                     new_axes.push(index);
                                     new_len *= array.len_of(ndarray::Axis(index));
                                 }
@@ -454,99 +429,20 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
                         }
                     }
                 }
-                if any_axis {
-                    new_shape.push(new_len);
+                new_shape.push(new_len);
+            }
+            AxisGroup::AllRest(Rest) => {
+                for (index, count) in axis_counts.iter().enumerate() {
+                    if *count == 0 {
+                        new_axes.push(index);
+                        new_shape.push(array.len_of(ndarray::Axis(index)));
+                    }
                 }
             }
         }
     }
 
     Ok((new_axes, new_shape))
-}
-
-#[derive(Clone)]
-/// A collection of multiple (≥2) elements
-pub struct Multiple<T> {
-    /// The first element
-    pub first: T,
-    /// The second element
-    pub second: T,
-    /// The remaining tail of elements
-    pub tail: Vec<T>,
-}
-
-impl<T> Multiple<T> {
-    /// Iterate over the elements in the collection
-    pub fn iter(&self) -> <&Self as IntoIterator>::IntoIter {
-        self.into_iter()
-    }
-}
-
-impl<T: fmt::Debug> fmt::Debug for Multiple<T> {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        let mut seq = fmt.debug_list();
-        seq.entry(&self.first);
-        seq.entry(&self.second);
-        seq.entries(&self.tail);
-        seq.finish()
-    }
-}
-
-impl<'a, T> IntoIterator for &'a Multiple<T> {
-    type Item = &'a T;
-
-    type IntoIter = Chain<Chain<Once<&'a T>, Once<&'a T>>, Iter<'a, T>>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        std::iter::once(&self.first)
-            .chain(std::iter::once(&self.second))
-            .chain(&self.tail)
-    }
-}
-
-impl<T: Serialize> Serialize for Multiple<T> {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.collect_seq(self)
-    }
-}
-
-impl<'de, T: Deserialize<'de>> Deserialize<'de> for Multiple<T> {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let mut vec = VecDeque::<T>::deserialize(deserializer)?;
-
-        let len = vec.len();
-
-        let (Some(first), Some(second)) = (vec.pop_front(), vec.pop_front()) else {
-            return Err(serde::de::Error::invalid_length(
-                len,
-                &"a list of at least two elements",
-            ));
-        };
-
-        Ok(Self {
-            first,
-            second,
-            tail: vec.into(),
-        })
-    }
-}
-
-impl JsonSchema for Multiple<Axis> {
-    fn schema_name() -> Cow<'static, str> {
-        Cow::Borrowed("MultipleAxes")
-    }
-
-    fn schema_id() -> Cow<'static, str> {
-        Cow::Borrowed(concat!(module_path!(), "::", "Multiple<Axis>"))
-    }
-
-    fn json_schema(gen: &mut SchemaGenerator) -> Schema {
-        let mut schema = Vec::<Axis>::json_schema(gen);
-        schema
-            .ensure_object()
-            .insert(String::from("minItems"), 2.into());
-        schema
-    }
 }
 
 #[derive(Copy, Clone, Debug)]

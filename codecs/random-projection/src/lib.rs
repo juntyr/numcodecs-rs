@@ -58,7 +58,8 @@ pub struct RandomProjectionCodec {
 
 /// Method with which the reduced dimensionality `K` is selected
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "reduction", rename_all = "snake_case")]
+// FIXME: #[serde(deny_unknown_fields)]
+#[serde(tag = "reduction", rename_all = "kebab-case")]
 pub enum RandomProjectionReduction {
     /// The reduced dimensionality `K` is derived from `epsilon`, as defined by
     /// the Johnson-Lindenstrauss lemma.
@@ -76,7 +77,7 @@ pub enum RandomProjectionReduction {
 
 /// Projection kind that is used to generate the random projection matrix
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+// FIXME: #[serde(deny_unknown_fields)]
 #[serde(tag = "projection", rename_all = "kebab-case")]
 pub enum RandomProjectionKind {
     /// The random projection matrix is dense and its components are sampled
