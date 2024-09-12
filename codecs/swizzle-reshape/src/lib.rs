@@ -47,7 +47,21 @@ use thiserror::Error;
 /// Swizzling axes is always supported since no additional information about the
 /// array's shape is required to reconstruct it.
 pub struct SwizzleReshapeCodec {
-    /// The permutation of the axes that is applied on encoding
+    /// The permutation of the axes that is applied on encoding.
+    ///
+    /// The permutation is given as a list of axis groups, where each group
+    /// corresponds to one encoded output axis that may consist of several
+    /// decoded input axes. For instance, `[[0], [1, 2]]` flattens a three-
+    /// dimensional array into a two-dimensional one by combining the second and
+    /// third axes.
+    ///
+    /// The permutation also allows specifying a special catch-all remaining
+    /// axes marker:
+    /// - `[[0], {}]` moves the second axis to be the first and appends all
+    ///   other axes afterwards, i.e. the encoded array has the same number
+    ///   of axes as the input array
+    /// - `[[0], [{}]]` in contrast collapses all other axes into one, i.e.
+    ///   the encoded array is two-dimensional
     pub axes: Vec<AxisGroup>,
 }
 
@@ -359,17 +373,21 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
     array: &ArrayBase<S, IxDyn>,
     axes: &[AxisGroup],
 ) -> Result<(Vec<usize>, Vec<usize>), SwizzleReshapeCodecError> {
-    let mut axis_counts = vec![0_usize; array.ndim()];
+    // counts of each axis index, used to check for missing or duplicate axes,
+    //  and for knowing which axes are caught by the rest catch-all
+    let mut axis_index_counts = vec![0_usize; array.ndim()];
 
     let mut has_rest = false;
 
-    for axis in axes {
-        match axis {
+    // validate that all axis indices are in bounds and that there is at most
+    //  one catch-all remaining axes marker
+    for group in axes {
+        match group {
             AxisGroup::Group(axes) => {
                 for axis in axes {
                     match axis {
                         Axis::Index(index) => {
-                            if let Some(c) = axis_counts.get_mut(*index) {
+                            if let Some(c) = axis_index_counts.get_mut(*index) {
                                 *c += 1;
                             } else {
                                 return Err(SwizzleReshapeCodecError::InvalidAxisIndex {
@@ -394,7 +412,10 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
         }
     }
 
-    if !axis_counts
+    // check that each axis is mentioned
+    // - exactly once if no catch-all is used
+    // - at most once if a catch-all is used
+    if !axis_index_counts
         .iter()
         .all(|c| if has_rest { *c <= 1 } else { *c == 1 })
     {
@@ -404,43 +425,47 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
         });
     }
 
-    let mut new_axes = Vec::with_capacity(array.len());
-    let mut new_shape = Vec::with_capacity(axes.len());
+    // the permutation to apply to the input axes
+    let mut axis_permutation = Vec::with_capacity(array.len());
+    // the shape of the already permuted and grouped output array
+    let mut grouped_shape = Vec::with_capacity(axes.len());
 
     for axis in axes {
         match axis {
+            // a group merged all of its axes
+            // an empty group adds an additional axis of size 1
             AxisGroup::Group(axes) => {
                 let mut new_len = 1;
                 for axis in axes {
                     match axis {
                         Axis::Index(index) => {
-                            new_axes.push(*index);
+                            axis_permutation.push(*index);
                             new_len *= array.len_of(ndarray::Axis(*index));
                         }
                         Axis::MergedRest(Rest) => {
-                            for (index, count) in axis_counts.iter().enumerate() {
+                            for (index, count) in axis_index_counts.iter().enumerate() {
                                 if *count == 0 {
-                                    new_axes.push(index);
+                                    axis_permutation.push(index);
                                     new_len *= array.len_of(ndarray::Axis(index));
                                 }
                             }
                         }
                     }
                 }
-                new_shape.push(new_len);
+                grouped_shape.push(new_len);
             }
             AxisGroup::AllRest(Rest) => {
-                for (index, count) in axis_counts.iter().enumerate() {
+                for (index, count) in axis_index_counts.iter().enumerate() {
                     if *count == 0 {
-                        new_axes.push(index);
-                        new_shape.push(array.len_of(ndarray::Axis(index)));
+                        axis_permutation.push(index);
+                        grouped_shape.push(array.len_of(ndarray::Axis(index)));
                     }
                 }
             }
         }
     }
 
-    Ok((new_axes, new_shape))
+    Ok((axis_permutation, grouped_shape))
 }
 
 #[derive(Copy, Clone, Debug)]
