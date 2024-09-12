@@ -273,6 +273,8 @@ pub fn project_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
 
     let mut projected = Array::<T, Ix2>::from_elem((n, k + 1), T::ZERO);
 
+    // stash the number of features `d` in an extra column
+    // this is quite inefficient but works for now
     for p in projected.slice_mut(s!(.., k)) {
         *p = T::from_usize(d);
     }
@@ -397,6 +399,8 @@ pub fn reconstruct_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>
         return Err(RandomProjectionCodecError::ProjectedArrayZeroComponents);
     };
 
+    // extract the number of features `d` from the extra column and check that
+    //  it has been preserved consistently across the column
     let ds = projected.slice(s!(.., k));
     let Ok(Some(d)) = ds.fold(Ok(None), |acc, d| match acc {
         Ok(None) => Ok(Some(d.into_usize())),
@@ -406,6 +410,7 @@ pub fn reconstruct_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>
         return Err(RandomProjectionCodecError::CorruptedNumberOfComponents);
     };
 
+    // extract the projected data, excluding the metadata column
     let projected = projected.slice_move(s!(.., ..k));
 
     match projection {
@@ -537,6 +542,8 @@ pub fn reconstruct_into_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimen
         return Err(RandomProjectionCodecError::ProjectedArrayZeroComponents);
     };
 
+    // extract the number of features `d` from the extra column and check that
+    //  it has been preserved consistently across the column
     let ds = projected.slice(s!(.., k));
     let Ok(Some(d)) = ds.fold(Ok(None), |acc, d| match acc {
         Ok(None) => Ok(Some(d.into_usize())),
@@ -553,6 +560,7 @@ pub fn reconstruct_into_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimen
         });
     }
 
+    // extract the projected data, excluding the metadata column
     let projected = projected.slice_move(s!(.., ..k));
 
     match projection {
@@ -682,6 +690,7 @@ pub fn density_or_ping_li_minimum<T: FloatExt>(
     }
 }
 
+/// Sample from `N(0, 1)` at the coordinate `(x, y)` with the random `seed`
 fn gaussian_project<T: FloatExt>(x: usize, y: usize, seed: u64) -> T {
     let (ClosedOpenUnit(u0), OpenClosedUnit(u1)) = T::u01x2(hash_matrix_index(x, y, seed));
 
@@ -695,6 +704,9 @@ fn gaussian_normaliser<T: FloatExt>(k: usize) -> T {
     T::from_usize(k).sqrt().recip()
 }
 
+/// Sample from `{ -1, 0, +1 }` with probabilities
+/// `{ density/2, 1-density, density/2 }` at the coordinate `(x, y)` with the
+/// random `seed`
 fn sparse_project<T: FloatExt>(x: usize, y: usize, density: T, seed: u64) -> T {
     let (ClosedOpenUnit(u0), _u1) = T::u01x2(hash_matrix_index(x, y, seed));
 
