@@ -680,6 +680,12 @@ mod tests {
             ],
             &[2, 4],
         );
+
+        roundtrip(
+            array![[1, 2], [3, 4], [5, 6], [7, 8]].into_dyn(),
+            &[AxisGroup::Group(vec![Axis::MergedRest(Rest)])],
+            &[8],
+        );
     }
 
     #[test]
