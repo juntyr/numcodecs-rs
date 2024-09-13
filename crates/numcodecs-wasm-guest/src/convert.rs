@@ -25,6 +25,23 @@ pub fn from_wit_any_array(array: wit::AnyArray) -> Result<AnyArray, AnyArrayConv
     Ok(array)
 }
 
+pub fn zeros_from_wit_any_array_prototype(prototype: wit::AnyArrayPrototype) -> AnyArray {
+    let shape = u32_as_usize_vec(prototype.shape);
+
+    match prototype.dtype {
+        wit::AnyArrayDtype::U8 => AnyArray::U8(Array::zeros(shape)),
+        wit::AnyArrayDtype::U16 => AnyArray::U16(Array::zeros(shape)),
+        wit::AnyArrayDtype::U32 => AnyArray::U32(Array::zeros(shape)),
+        wit::AnyArrayDtype::U64 => AnyArray::U64(Array::zeros(shape)),
+        wit::AnyArrayDtype::I8 => AnyArray::I8(Array::zeros(shape)),
+        wit::AnyArrayDtype::I16 => AnyArray::I16(Array::zeros(shape)),
+        wit::AnyArrayDtype::I32 => AnyArray::I32(Array::zeros(shape)),
+        wit::AnyArrayDtype::I64 => AnyArray::I64(Array::zeros(shape)),
+        wit::AnyArrayDtype::F32 => AnyArray::F32(Array::zeros(shape)),
+        wit::AnyArrayDtype::F64 => AnyArray::F64(Array::zeros(shape)),
+    }
+}
+
 pub fn into_wit_any_array(array: AnyArray) -> Result<wit::AnyArray, AnyArrayConversionError> {
     fn array_into_standard_layout_vec<T>(array: ArrayD<T>) -> Vec<T> {
         if array.is_standard_layout() {

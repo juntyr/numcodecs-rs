@@ -17,7 +17,8 @@
 //!
 //! `ln(x)` codec implementation for the [`numcodecs`] API.
 
-use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension};
+use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension, Zip};
+use num_traits::{Float, Signed};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -126,14 +127,14 @@ pub enum LogCodecError {
 ///   (negative or zero)
 /// - [`LogCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN)
-pub fn ln<T: Float, S: Data<Elem = T>, D: Dimension>(
+pub fn ln<T: Float + Signed, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
 ) -> Result<Array<T, D>, LogCodecError> {
-    if !data.iter().copied().all(T::is_positive) {
+    if !Zip::from(&data).all(T::is_positive) {
         return Err(LogCodecError::NonPositiveData);
     }
 
-    if !data.iter().copied().all(T::is_finite) {
+    if !Zip::from(&data).all(|x| x.is_finite()) {
         return Err(LogCodecError::NonFiniteData);
     }
 
@@ -153,7 +154,7 @@ pub fn ln<T: Float, S: Data<Elem = T>, D: Dimension>(
 pub fn exp<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
 ) -> Result<Array<T, D>, LogCodecError> {
-    if !data.iter().copied().all(T::is_finite) {
+    if !Zip::from(&data).all(|x| x.is_finite()) {
         return Err(LogCodecError::NonFiniteData);
     }
 
@@ -187,7 +188,7 @@ pub fn exp_into<T: Float, D: Dimension>(
         });
     }
 
-    if !data.iter().copied().all(T::is_finite) {
+    if !Zip::from(&data).all(|x| x.is_finite()) {
         return Err(LogCodecError::NonFiniteData);
     }
 
@@ -197,59 +198,6 @@ pub fn exp_into<T: Float, D: Dimension>(
     }
 
     Ok(())
-}
-
-/// Floating point types.
-pub trait Float: Copy {
-    /// Returns `ln(self)`, the natural logarithm.
-    #[must_use]
-    fn ln(self) -> Self;
-
-    /// Returns `exp(self)`.
-    #[must_use]
-    fn exp(self) -> Self;
-
-    /// Returns `true` if this number is positive.
-    fn is_positive(self) -> bool;
-
-    /// Returns `true` if this number is neither infinite nor NaN.
-    fn is_finite(self) -> bool;
-}
-
-impl Float for f32 {
-    fn ln(self) -> Self {
-        self.ln()
-    }
-
-    fn exp(self) -> Self {
-        self.exp()
-    }
-
-    fn is_positive(self) -> bool {
-        self > 0.0
-    }
-
-    fn is_finite(self) -> bool {
-        self.is_finite()
-    }
-}
-
-impl Float for f64 {
-    fn ln(self) -> Self {
-        self.ln()
-    }
-
-    fn exp(self) -> Self {
-        self.exp()
-    }
-
-    fn is_positive(self) -> bool {
-        self > 0.0
-    }
-
-    fn is_finite(self) -> bool {
-        self.is_finite()
-    }
 }
 
 #[cfg(test)]

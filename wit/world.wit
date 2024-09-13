@@ -1,4 +1,4 @@
-package numcodecs:abc@0.1.0;
+package numcodecs:abc@0.1.1;
 
 world imports {
     import codec;

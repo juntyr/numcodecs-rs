@@ -17,12 +17,10 @@
 //!
 //! Rounding codec implementation for the [`numcodecs`] API.
 
-use std::{
-    borrow::Cow,
-    ops::{Div, Mul},
-};
+use std::borrow::Cow;
 
 use ndarray::{Array, ArrayBase, Data, Dimension};
+use num_traits::Float;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -159,26 +157,4 @@ pub fn round<T: Float, S: Data<Elem = T>, D: Dimension>(
     let mut encoded = data.into_owned();
     encoded.mapv_inplace(|x| (x / precision.0).round() * precision.0);
     encoded
-}
-
-/// Floating point types
-pub trait Float: Copy + Mul<Self, Output = Self> + Div<Self, Output = Self> {
-    #[must_use]
-    /// Returns the nearest integer to `self`. If a value is half-way between
-    /// two integers, round away from 0.0.
-    ///
-    /// This method always returns the precise result.
-    fn round(self) -> Self;
-}
-
-impl Float for f32 {
-    fn round(self) -> Self {
-        Self::round(self)
-    }
-}
-
-impl Float for f64 {
-    fn round(self) -> Self {
-        Self::round(self)
-    }
 }

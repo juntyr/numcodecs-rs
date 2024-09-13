@@ -257,11 +257,36 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
 
     let mut additional = !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
 
+    extend_parameters_from_one_of_schema(schema, &mut parameters, &mut additional);
+
+    // iterate over allOf to handle flattened enums
+    if let Some(Value::Array(all)) = schema.get("allOf") {
+        for variant in all {
+            if let Some(variant) = variant.as_object() {
+                extend_parameters_from_one_of_schema(variant, &mut parameters, &mut additional);
+            }
+        }
+    }
+
+    // sort parameters by name and so that required parameters come first
+    parameters.sort_by_key(|p| (!p.required, p.name));
+
+    Parameters {
+        named: parameters,
+        additional,
+    }
+}
+
+fn extend_parameters_from_one_of_schema<'a>(
+    schema: &'a Map<String, Value>,
+    parameters: &mut Vec<Parameter<'a>>,
+    additional: &mut bool,
+) {
     // iterate over oneOf to handle top-level or flattened enums
     if let Some(Value::Array(variants)) = schema.get("oneOf") {
         // if any variant allows additional parameters, the top-level also
         //  allows additional parameters
-        additional |= !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
+        *additional |= !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
 
         let mut variant_parameters = HashMap::new();
 
@@ -313,14 +338,6 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
                 .into_values()
                 .map(VariantParameter::into_parameter),
         );
-    }
-
-    // sort parameters by name and so that required parameters come first
-    parameters.sort_by_key(|p| (!p.required, p.name));
-
-    Parameters {
-        named: parameters,
-        additional,
     }
 }
 

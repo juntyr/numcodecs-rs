@@ -6,18 +6,19 @@
 //! [MSRV]: https://img.shields.io/badge/MSRV-1.76.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
-//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-log
-//! [crates.io]: https://crates.io/crates/numcodecs-log
+//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-fixed-offset-scale
+//! [crates.io]: https://crates.io/crates/numcodecs-fixed-offset-scale
 //!
-//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-log
-//! [docs.rs]: https://docs.rs/numcodecs-log/
+//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-fixed-offset-scale
+//! [docs.rs]: https://docs.rs/numcodecs-fixed-offset-scale/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_log
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_fixed_offset_scale
 //!
 //! `(x-o) * s` codec implementation for the [`numcodecs`] API.
 
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension};
+use num_traits::Float;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -140,11 +141,10 @@ pub fn scale<T: Float, S: Data<Elem = T>, D: Dimension>(
     offset: T,
     scale: T,
 ) -> Array<T, D> {
-    let negative_offset = offset.negate();
     let inverse_scale = scale.recip();
 
     let mut data = data.into_owned();
-    data.mapv_inplace(|x| x.add_mul(negative_offset, inverse_scale));
+    data.mapv_inplace(|x| (x - offset) * inverse_scale);
 
     data
 }
@@ -156,7 +156,7 @@ pub fn unscale<T: Float, S: Data<Elem = T>, D: Dimension>(
     scale: T,
 ) -> Array<T, D> {
     let mut data = data.into_owned();
-    data.mapv_inplace(|x| x.mul_add(offset, scale));
+    data.mapv_inplace(|x| x.mul_add(scale, offset));
 
     data
 }
@@ -187,65 +187,10 @@ pub fn unscale_into<T: Float, D: Dimension>(
 
     // iteration must occur in synchronised (standard) order
     for (d, o) in data.iter().zip(out.iter_mut()) {
-        *o = (*d).mul_add(offset, scale);
+        *o = (*d).mul_add(scale, offset);
     }
 
     Ok(())
-}
-
-/// Floating point types.
-pub trait Float: Copy {
-    /// Returns `-self`.
-    #[must_use]
-    fn negate(self) -> Self;
-
-    /// Returns the reciprocal (inverse) of a number, `1/self`.
-    #[must_use]
-    fn recip(self) -> Self;
-
-    /// Returns `(self + offset) * scale`.
-    #[must_use]
-    fn add_mul(self, offset: Self, scale: Self) -> Self;
-
-    /// Returns `(self * scale) + offset`.
-    #[must_use]
-    fn mul_add(self, offset: Self, scale: Self) -> Self;
-}
-
-impl Float for f32 {
-    fn negate(self) -> Self {
-        -self
-    }
-
-    fn recip(self) -> Self {
-        self.recip()
-    }
-
-    fn add_mul(self, offset: Self, scale: Self) -> Self {
-        (self + offset) * scale
-    }
-
-    fn mul_add(self, offset: Self, scale: Self) -> Self {
-        self.mul_add(scale, offset)
-    }
-}
-
-impl Float for f64 {
-    fn negate(self) -> Self {
-        -self
-    }
-
-    fn recip(self) -> Self {
-        self.recip()
-    }
-
-    fn add_mul(self, offset: Self, scale: Self) -> Self {
-        (self + offset) * scale
-    }
-
-    fn mul_add(self, offset: Self, scale: Self) -> Self {
-        self.mul_add(scale, offset)
-    }
 }
 
 #[cfg(test)]
@@ -254,7 +199,7 @@ mod tests {
 
     #[test]
     fn identity() {
-        let data = (0..1000).map(|x| x as f64).collect::<Vec<_>>();
+        let data = (0..1000).map(f64::from).collect::<Vec<_>>();
         let data = Array::from_vec(data);
 
         let encoded = scale(data.view(), 0.0, 1.0);
@@ -271,8 +216,8 @@ mod tests {
     }
 
     #[test]
-    fn roundtrip() -> Result<(), FixedOffsetScaleCodecError> {
-        let data = (0..1000).map(|x| x as f64).collect::<Vec<_>>();
+    fn roundtrip() {
+        let data = (0..1000).map(f64::from).collect::<Vec<_>>();
         let data = Array::from_vec(data);
 
         let encoded = scale(data.view(), 512.0, 64.0);
@@ -286,7 +231,5 @@ mod tests {
         for (r, d) in data.iter().zip(decoded.iter()) {
             assert_eq!((*r).to_bits(), (*d).to_bits());
         }
-
-        Ok(())
     }
 }

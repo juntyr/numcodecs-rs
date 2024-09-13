@@ -38,16 +38,18 @@ mod convert;
 #[cfg(target_arch = "wasm32")]
 use crate::{
     bindings::exports::numcodecs::abc::codec as wit,
-    convert::{from_wit_any_array, into_wit_any_array, into_wit_error},
+    convert::{
+        from_wit_any_array, into_wit_any_array, into_wit_error, zeros_from_wit_any_array_prototype,
+    },
 };
 
 #[doc(hidden)]
 #[allow(clippy::missing_safety_doc)]
 pub mod bindings {
     wit_bindgen::generate!({
-        world: "numcodecs:abc/exports@0.1.0",
+        world: "numcodecs:abc/exports@0.1.1",
         with: {
-            "numcodecs:abc/codec@0.1.0": generate,
+            "numcodecs:abc/codec@0.1.1": generate,
         },
         pub_export_macro: true,
     });
@@ -141,6 +143,27 @@ impl<T: StaticCodec> wit::GuestCodec for T {
 
         match <Self as Codec>::decode(self, encoded.into_cow()) {
             Ok(decoded) => match into_wit_any_array(decoded) {
+                Ok(decoded) => Ok(decoded),
+                Err(err) => Err(into_wit_error(err)),
+            },
+            Err(err) => Err(into_wit_error(err)),
+        }
+    }
+
+    fn decode_into(
+        &self,
+        encoded: wit::AnyArray,
+        decoded: wit::AnyArrayPrototype,
+    ) -> Result<wit::AnyArray, wit::Error> {
+        let encoded = match from_wit_any_array(encoded) {
+            Ok(encoded) => encoded,
+            Err(err) => return Err(into_wit_error(err)),
+        };
+
+        let mut decoded = zeros_from_wit_any_array_prototype(decoded);
+
+        match <Self as Codec>::decode_into(self, encoded.view(), decoded.view_mut()) {
+            Ok(()) => match into_wit_any_array(decoded) {
                 Ok(decoded) => Ok(decoded),
                 Err(err) => Err(into_wit_error(err)),
             },

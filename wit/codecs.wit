@@ -1,4 +1,4 @@
-package numcodecs:abc@0.1.0;
+package numcodecs:abc@0.1.1;
 
 interface codec {
     type json = string;
@@ -7,6 +7,12 @@ interface codec {
 
     record any-array {
         data: any-array-data,
+        shape: list<usize>,
+    }
+
+    @since(version = 0.1.1)
+    record any-array-prototype {
+        dtype: any-array-dtype,
         shape: list<usize>,
     }
 
@@ -23,6 +29,20 @@ interface codec {
         %f64(list<f64>),
     }
 
+    @since(version = 0.1.1)
+    enum any-array-dtype {
+        %u8,
+        %u16,
+        %u32,
+        %u64,
+        i8,
+        i16,
+        i32,
+        i64,
+        %f32,
+        %f64,
+    }
+
     record error {
         message: string,
         chain: list<string>,
@@ -30,8 +50,14 @@ interface codec {
 
     resource codec {
         from-config: static func(config: json) -> result<codec, error>;
+
         encode: func(data: any-array) -> result<any-array, error>;
+
         decode: func(encoded: any-array) -> result<any-array, error>;
+
+        @since(version = 0.1.1)
+        decode-into: func(encoded: any-array, decoded: any-array-prototype) -> result<any-array, error>;
+
         get-config: func() -> result<json, error>;
     }
 

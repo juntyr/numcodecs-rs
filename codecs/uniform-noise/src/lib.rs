@@ -20,6 +20,7 @@
 use std::hash::{Hash, Hasher};
 
 use ndarray::{Array, ArrayBase, Data, Dimension};
+use num_traits::Float;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -126,7 +127,7 @@ pub enum UniformNoiseCodecError {
 /// passing in the same input with the same `seed` will produce the same noise
 /// and thus the same output.
 #[must_use]
-pub fn add_uniform_noise<T: Float, S: Data<Elem = T>, D: Dimension>(
+pub fn add_uniform_noise<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     scale: T,
     seed: u64,
@@ -159,36 +160,24 @@ where
 }
 
 /// Floating point types
-pub trait Float: Copy {
+pub trait FloatExt: Float {
     /// -0.5
     const NEG_HALF: Self;
-
-    #[must_use]
-    /// Compute (self * a) + b
-    fn mul_add(self, a: Self, b: Self) -> Self;
 
     /// Hash the binary representation of the floating point value
     fn hash_bits<H: Hasher>(self, hasher: &mut H);
 }
 
-impl Float for f32 {
+impl FloatExt for f32 {
     const NEG_HALF: Self = -0.5;
-
-    fn mul_add(self, a: Self, b: Self) -> Self {
-        Self::mul_add(self, a, b)
-    }
 
     fn hash_bits<H: Hasher>(self, hasher: &mut H) {
         hasher.write_u32(self.to_bits());
     }
 }
 
-impl Float for f64 {
+impl FloatExt for f64 {
     const NEG_HALF: Self = -0.5;
-
-    fn mul_add(self, a: Self, b: Self) -> Self {
-        Self::mul_add(self, a, b)
-    }
 
     fn hash_bits<H: Hasher>(self, hasher: &mut H) {
         hasher.write_u64(self.to_bits());

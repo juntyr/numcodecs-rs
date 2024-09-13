@@ -10,7 +10,7 @@ use pyo3::{exceptions::PyTypeError, intern, prelude::*, types::PyDict};
 use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use ::{
-    convert_case as _, ndarray as _, pythonize as _, serde as _, serde_json as _,
+    convert_case as _, ndarray as _, pyo3_error as _, pythonize as _, serde as _, serde_json as _,
     serde_transcode as _, thiserror as _,
 };
 
@@ -179,7 +179,7 @@ impl StaticCodec for NegateCodec {
 
     type Config<'de> = Self;
 
-    fn from_config<'de>(config: Self::Config<'de>) -> Self {
+    fn from_config(config: Self::Config<'_>) -> Self {
         config
     }
 
