@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["LogCodecError"],"fn":["exp","exp_into","ln"],"struct":["LogCodec"],"trait":["Float"]};
+window.SIDEBAR_ITEMS = {"enum":["LogCodecError"],"fn":["exp","exp_into","ln"],"struct":["LogCodec"]};

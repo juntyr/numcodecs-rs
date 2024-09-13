@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["LinearQuantizeBins","LinearQuantizeCodecError","LinearQuantizeDType"],"fn":["quantize","reconstruct","reconstruct_into"],"struct":["LinearQuantizeCodec","LinearQuantizeHeaderError"],"trait":["Float","Unsigned"]};
+window.SIDEBAR_ITEMS = {"enum":["LinearQuantizeBins","LinearQuantizeCodecError","LinearQuantizeDType"],"fn":["quantize","reconstruct","reconstruct_into"],"struct":["LinearQuantizeCodec","LinearQuantizeHeaderError"],"trait":["Unsigned"]};

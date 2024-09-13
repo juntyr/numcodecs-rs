@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["UniformNoiseCodecError"],"fn":["add_uniform_noise"],"struct":["UniformNoiseCodec"],"trait":["Float"]};
+window.SIDEBAR_ITEMS = {"enum":["UniformNoiseCodecError"],"fn":["add_uniform_noise"],"struct":["UniformNoiseCodec"],"trait":["FloatExt"]};

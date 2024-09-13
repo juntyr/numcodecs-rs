@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FixedOffsetScaleCodecError"],"fn":["scale","unscale","unscale_into"],"struct":["FixedOffsetScaleCodec"],"trait":["Float"]};
+window.SIDEBAR_ITEMS = {"enum":["FixedOffsetScaleCodecError"],"fn":["scale","unscale","unscale_into"],"struct":["FixedOffsetScaleCodec"]};

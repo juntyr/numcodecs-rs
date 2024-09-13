@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Axis","AxisGroup","SwizzleReshapeCodecError"],"fn":["swizzle_reshape","undo_swizzle_reshape","undo_swizzle_reshape_into"],"struct":["Rest","SwizzleReshapeCodec"]};
