@@ -10,6 +10,7 @@ members = [
     "codecs/identity",
     "codecs/linear-quantize",
     "codecs/log",
+    "codecs/pca",
     "codecs/random-projection",
     "codecs/reinterpret",
     "codecs/round",
@@ -40,6 +41,8 @@ numcodecs-fixed-offset-scale = { version = "0.1", path = "codecs/fixed-offset-sc
 numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
 numcodecs-linear-quantize = { version = "0.1", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.2", path = "codecs/log", default-features = false }
+numcodecs-pca = { version = "0.1", path = "codecs/pca", default-features = false }
+numcodecs-random-projection = { version = "0.1", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.1", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.1", path = "codecs/round", default-features = false }
 numcodecs-swizzle-reshape = { version = "0.1", path = "codecs/swizzle-reshape", default-features = false }
@@ -53,8 +56,10 @@ numcodecs-zstd = { version = "0.1", path = "codecs/zstd", default-features = fal
 convert_case = { version = "0.6", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
 miniz_oxide = { version = "0.8", default-features = false }
+nalgebra = { version = "0.30", default-features = false } # keep in sync with nshare
 ndarray = { version = "0.15", default-features = false } # keep in sync with numpy
 ndarray-rand = { version = "0.14", default-features = false }
+nshare = { version = "0.9", default-features = false } # keep in sync with ndarray
 numpy = { version = "0.21", default-features = false }
 num-traits = { version = "0.2", default-features = false }
 postcard = { version = "1.0", default-features = false }
