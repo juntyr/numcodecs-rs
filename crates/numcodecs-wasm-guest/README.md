@@ -17,7 +17,7 @@
 
 # numcodecs-wasm-guest
 
-wasm32-wasi guest-side bindings for the [`numcodecs`] API, which allows you to export one [`StaticCodec`] from a WASM component.
+wasm32 guest-side bindings for the [`numcodecs`] API, which allows you to export one [`StaticCodec`] from a WASM component.
 
 [`numcodecs`]: https://docs.rs/numcodecs/0.1/numcodecs/
 [`StaticCodec`]: https://docs.rs/numcodecs/latest/numcodecs/trait.StaticCodec.html

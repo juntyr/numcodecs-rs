@@ -32,7 +32,7 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
-          target: wasm32-wasi
+          target: wasm32-wasip1
           override: true
 
       - name: Install power tools
@@ -43,7 +43,7 @@ jobs:
           cargo hack check --all \
             --feature-powerset --keep-going
 
-      - name: Check the powerset on wasm32-wasi
+      - name: Check the powerset on wasm32-wasip1
         run: |
           cargo hack check --all \
             --exclude numcodecs-python \
@@ -51,7 +51,7 @@ jobs:
             --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
-            --target wasm32-wasi 
+            --target wasm32-wasip1
 
   test:
     name: Test Suite
@@ -71,7 +71,7 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
-          target: wasm32-wasi
+          target: wasm32-wasip1
           override: true
 
       - name: Set up Python
@@ -127,7 +127,7 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
-          target: wasm32-wasi
+          target: wasm32-wasip1
           components: clippy
           override: true
 
@@ -148,7 +148,7 @@ jobs:
             --feature-powerset --keep-going \
             -- -D warnings -A unknown-lints
       
-      - name: Check the code style powerset on wasm32-wasi
+      - name: Check the code style powerset on wasm32-wasip1
         if: ${{ matrix.rust == 'stable' }}
         run: |
           cargo hack clippy --all \
@@ -157,10 +157,10 @@ jobs:
             --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
-            --target wasm32-wasi \
+            --target wasm32-wasip1 \
             -- -D warnings
       
-      - name: Check the code style powerset on wasm32-wasi
+      - name: Check the code style powerset on wasm32-wasip1
         if: ${{ matrix.rust != 'stable' }}
         run: |
           cargo hack clippy --all \
@@ -169,5 +169,5 @@ jobs:
             --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
-            --target wasm32-wasi \
+            --target wasm32-wasip1 \
             -- -D warnings -A unknown-lints

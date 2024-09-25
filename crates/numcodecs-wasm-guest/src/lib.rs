@@ -15,8 +15,8 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_wasm_guest
 //!
-//! wasm32-wasi guest-side bindings for the [`numcodecs`] API, which allows you
-//! to export one [`StaticCodec`] from a WASM component.
+//! wasm32 guest-side bindings for the [`numcodecs`] API, which allows you to
+//! export one [`StaticCodec`] from a WASM component.
 
 // Required in docs and the [`export_codec`] macro
 #[doc(hidden)]
