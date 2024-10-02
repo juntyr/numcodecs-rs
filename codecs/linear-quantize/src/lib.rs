@@ -96,7 +96,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ ..=8 => AnyArray::U8(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f32::from(u8::MAX >> (8 - bits));
-                        let x = (x * scale_for_bits::<f32>(bits) + 0.5).clamp(0.0, max);
+                        let x = x.mul_add(scale_for_bits::<f32>(bits), 0.5).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -108,7 +108,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ 9..=16 => AnyArray::U16(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f32::from(u16::MAX >> (16 - bits));
-                        let x = (x * scale_for_bits::<f32>(bits) + 0.5).clamp(0.0, max);
+                        let x = x.mul_add(scale_for_bits::<f32>(bits), 0.5).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -121,7 +121,9 @@ impl Codec for LinearQuantizeCodec {
                     Array1::from_vec(quantize(data, |x| {
                         // we need to use f64 here to have sufficient precision
                         let max = f64::from(u32::MAX >> (32 - bits));
-                        let x = (f64::from(x) * scale_for_bits::<f64>(bits) + 0.5).clamp(0.0, max);
+                        let x = f64::from(x)
+                            .mul_add(scale_for_bits::<f64>(bits), 0.5)
+                            .clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -151,7 +153,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ ..=8 => AnyArray::U8(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f64::from(u8::MAX >> (8 - bits));
-                        let x = (x * scale_for_bits::<f64>(bits) + 0.5).clamp(0.0, max);
+                        let x = x.mul_add(scale_for_bits::<f64>(bits), 0.5).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -163,7 +165,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ 9..=16 => AnyArray::U16(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f64::from(u16::MAX >> (16 - bits));
-                        let x = (x * scale_for_bits::<f64>(bits) + 0.5).clamp(0.0, max);
+                        let x = x.mul_add(scale_for_bits::<f64>(bits), 0.5).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
@@ -175,7 +177,7 @@ impl Codec for LinearQuantizeCodec {
                 bits @ 17..=32 => AnyArray::U32(
                     Array1::from_vec(quantize(data, |x| {
                         let max = f64::from(u32::MAX >> (32 - bits));
-                        let x = (x * scale_for_bits::<f64>(bits) + 0.5).clamp(0.0, max);
+                        let x = x.mul_add(scale_for_bits::<f64>(bits), 0.5).clamp(0.0, max);
                         #[allow(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
