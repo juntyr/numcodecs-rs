@@ -178,7 +178,10 @@
 <a href="#177" id="177">177</a>
 <a href="#178" id="178">178</a>
 <a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -197,6 +200,9 @@
 //!
 //! wasm32 guest-side bindings for the [`numcodecs`] API, which allows you to
 //! export one [`StaticCodec`] from a WASM component.
+
+</span><span class="comment">// hashbrown 0.14 (wasmparser) and 0.15 (indexmap)
+</span><span class="attr">#![allow(clippy::multiple_crate_versions)]
 
 </span><span class="comment">// Required in docs and the [`export_codec`] macro
 </span><span class="attr">#[doc(hidden)]
