@@ -830,7 +830,9 @@
 <a href="#829" id="829">829</a>
 <a href="#830" id="830">830</a>
 <a href="#831" id="831">831</a>
-<a href="#832" id="832">832</a></pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::multiple_crate_versions)] </span><span class="comment">// FIXME: twofloat -&gt; hexf -&gt; syn 1.0
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a></pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::multiple_crate_versions)] </span><span class="comment">// FIXME: twofloat -&gt; hexf -&gt; syn 1.0
 
 </span><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
@@ -919,16 +921,16 @@
 }
 
 <span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#42-47">LinearQuantizeCodec</a> {
-    <span class="kw">type </span>Error = <a href="#409-476">LinearQuantizeCodecError</a>;
+    <span class="kw">type </span>Error = <a href="#411-478">LinearQuantizeCodecError</a>;
 
     <span class="attr">#[allow(clippy::too_many_lines)]
     </span><span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>encoded = <span class="kw">match </span>(<span class="kw-2">&amp;</span><a href="#93">data</a>, <a class="self" href="#93">self</a>.dtype) {
             (AnyCowArray::F32(data), <a href="#55">LinearQuantizeDType::F32</a>) =&gt; <span class="kw">match </span><a class="self" href="#93">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
                 bits @ ..=<span class="number">8 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#493-544">quantize</a>(<a href="#95">data</a>, |x| {
+                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#495-546">quantize</a>(<a href="#95">data</a>, |x| {
                         <span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(u8::MAX &gt;&gt; (<span class="number">8 </span>- <a href="#96">bits</a>));
-                        <span class="kw">let </span>x = (<a href="#97">x</a> * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a href="#96">bits</a>) + <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#98">max</a>);
+                        <span class="kw">let </span>x = <a href="#97">x</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.mul_add">mul_add</a>(scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a href="#96">bits</a>), <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#98">max</a>);
                         <span class="attr">#[allow(unsafe_code)]
                         </span><span class="comment">// Safety: x is clamped beforehand
                         </span><span class="kw">unsafe </span>{
@@ -938,9 +940,9 @@
                     .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
                 ),
                 bits @ <span class="number">9</span>..=<span class="number">16 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArray::U16</a>(
-                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#493-544">quantize</a>(<a href="#95">data</a>, |x| {
+                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#495-546">quantize</a>(<a href="#95">data</a>, |x| {
                         <span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(u16::MAX &gt;&gt; (<span class="number">16 </span>- <a href="#108">bits</a>));
-                        <span class="kw">let </span>x = (<a href="#109">x</a> * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a href="#108">bits</a>) + <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#110">max</a>);
+                        <span class="kw">let </span>x = <a href="#109">x</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.mul_add">mul_add</a>(scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a href="#108">bits</a>), <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#110">max</a>);
                         <span class="attr">#[allow(unsafe_code)]
                         </span><span class="comment">// Safety: x is clamped beforehand
                         </span><span class="kw">unsafe </span>{
@@ -950,10 +952,12 @@
                     .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
                 ),
                 bits @ <span class="number">17</span>..=<span class="number">32 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(
-                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#493-544">quantize</a>(<a href="#95">data</a>, |x| {
+                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#495-546">quantize</a>(<a href="#95">data</a>, |x| {
                         <span class="comment">// we need to use f64 here to have sufficient precision
                         </span><span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(u32::MAX &gt;&gt; (<span class="number">32 </span>- <a href="#120">bits</a>));
-                        <span class="kw">let </span>x = (<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#121">x</a>) * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#120">bits</a>) + <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#123">max</a>);
+                        <span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#121">x</a>)
+                            .<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.mul_add">mul_add</a>(scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#120">bits</a>), <span class="number">0.5</span>)
+                            .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#123">max</a>);
                         <span class="attr">#[allow(unsafe_code)]
                         </span><span class="comment">// Safety: x is clamped beforehand
                         </span><span class="kw">unsafe </span>{
@@ -963,17 +967,17 @@
                     .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
                 ),
                 bits @ <span class="number">33</span>.. =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(
-                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#493-544">quantize</a>(<a href="#95">data</a>, |x| {
+                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#495-546">quantize</a>(<a href="#95">data</a>, |x| {
                         <span class="comment">// we need to use TwoFloat here to have sufficient precision
-                        </span><span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(u64::MAX &gt;&gt; (<span class="number">64 </span>- <a href="#133">bits</a>));
-                        <span class="kw">let </span>x = (<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#134">x</a>) * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#133">bits</a>)
+                        </span><span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(u64::MAX &gt;&gt; (<span class="number">64 </span>- <a href="#135">bits</a>));
+                        <span class="kw">let </span>x = (<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#136">x</a>) * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#135">bits</a>)
                             + <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<span class="number">0.5</span>))
                         .max(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<span class="number">0.0</span>))
-                        .min(<a href="#136">max</a>);
+                        .min(<a href="#138">max</a>);
                         <span class="attr">#[allow(unsafe_code)]
                         </span><span class="comment">// Safety: x is clamped beforehand
                         </span><span class="kw">unsafe </span>{
-                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#tymethod.try_from">u64::try_from</a>(<a href="#137">x</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap_unchecked">unwrap_unchecked</a>()
+                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#tymethod.try_from">u64::try_from</a>(<a href="#139">x</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap_unchecked">unwrap_unchecked</a>()
                         }
                     })<span class="question-mark">?</span>)
                     .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
@@ -981,62 +985,62 @@
             },
             (AnyCowArray::F64(data), <a href="#57">LinearQuantizeDType::F64</a>) =&gt; <span class="kw">match </span><a class="self" href="#93">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
                 bits @ ..=<span class="number">8 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#493-544">quantize</a>(<a href="#150">data</a>, |x| {
-                        <span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(u8::MAX &gt;&gt; (<span class="number">8 </span>- <a href="#151">bits</a>));
-                        <span class="kw">let </span>x = (<a href="#152">x</a> * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#151">bits</a>) + <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#153">max</a>);
+                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#495-546">quantize</a>(<a href="#152">data</a>, |x| {
+                        <span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(u8::MAX &gt;&gt; (<span class="number">8 </span>- <a href="#153">bits</a>));
+                        <span class="kw">let </span>x = <a href="#154">x</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.mul_add">mul_add</a>(scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#153">bits</a>), <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#155">max</a>);
                         <span class="attr">#[allow(unsafe_code)]
                         </span><span class="comment">// Safety: x is clamped beforehand
                         </span><span class="kw">unsafe </span>{
-                            <a href="#154">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_int_unchecked">to_int_unchecked</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;()
+                            <a href="#156">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_int_unchecked">to_int_unchecked</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;()
                         }
                     })<span class="question-mark">?</span>)
                     .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
                 ),
                 bits @ <span class="number">9</span>..=<span class="number">16 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArray::U16</a>(
-                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#493-544">quantize</a>(<a href="#150">data</a>, |x| {
-                        <span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(u16::MAX &gt;&gt; (<span class="number">16 </span>- <a href="#163">bits</a>));
-                        <span class="kw">let </span>x = (<a href="#164">x</a> * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#163">bits</a>) + <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#165">max</a>);
+                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#495-546">quantize</a>(<a href="#152">data</a>, |x| {
+                        <span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(u16::MAX &gt;&gt; (<span class="number">16 </span>- <a href="#165">bits</a>));
+                        <span class="kw">let </span>x = <a href="#166">x</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.mul_add">mul_add</a>(scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#165">bits</a>), <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#167">max</a>);
                         <span class="attr">#[allow(unsafe_code)]
                         </span><span class="comment">// Safety: x is clamped beforehand
                         </span><span class="kw">unsafe </span>{
-                            <a href="#166">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_int_unchecked">to_int_unchecked</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;()
+                            <a href="#168">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_int_unchecked">to_int_unchecked</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;()
                         }
                     })<span class="question-mark">?</span>)
                     .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
                 ),
                 bits @ <span class="number">17</span>..=<span class="number">32 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(
-                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#493-544">quantize</a>(<a href="#150">data</a>, |x| {
-                        <span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(u32::MAX &gt;&gt; (<span class="number">32 </span>- <a href="#175">bits</a>));
-                        <span class="kw">let </span>x = (<a href="#176">x</a> * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#175">bits</a>) + <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#177">max</a>);
+                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#495-546">quantize</a>(<a href="#152">data</a>, |x| {
+                        <span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(u32::MAX &gt;&gt; (<span class="number">32 </span>- <a href="#177">bits</a>));
+                        <span class="kw">let </span>x = <a href="#178">x</a>.<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.mul_add">mul_add</a>(scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#177">bits</a>), <span class="number">0.5</span>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.clamp">clamp</a>(<span class="number">0.0</span>, <a href="#179">max</a>);
                         <span class="attr">#[allow(unsafe_code)]
                         </span><span class="comment">// Safety: x is clamped beforehand
                         </span><span class="kw">unsafe </span>{
-                            <a href="#178">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_int_unchecked">to_int_unchecked</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;()
+                            <a href="#180">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_int_unchecked">to_int_unchecked</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;()
                         }
                     })<span class="question-mark">?</span>)
                     .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
                 ),
                 bits @ <span class="number">33</span>.. =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(
-                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#493-544">quantize</a>(<a href="#150">data</a>, |x| {
+                    <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array1::from_vec</a>(<a href="#495-546">quantize</a>(<a href="#152">data</a>, |x| {
                         <span class="comment">// we need to use TwoFloat here to have sufficient precision
-                        </span><span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(u64::MAX &gt;&gt; (<span class="number">64 </span>- <a href="#187">bits</a>));
-                        <span class="kw">let </span>x = (<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#188">x</a>) * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#187">bits</a>)
+                        </span><span class="kw">let </span>max = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(u64::MAX &gt;&gt; (<span class="number">64 </span>- <a href="#189">bits</a>));
+                        <span class="kw">let </span>x = (<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#190">x</a>) * scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a href="#189">bits</a>)
                             + <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<span class="number">0.5</span>))
                         .max(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<span class="number">0.0</span>))
-                        .min(<a href="#190">max</a>);
+                        .min(<a href="#192">max</a>);
                         <span class="attr">#[allow(unsafe_code)]
                         </span><span class="comment">// Safety: x is clamped beforehand
                         </span><span class="kw">unsafe </span>{
-                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#tymethod.try_from">u64::try_from</a>(<a href="#191">x</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap_unchecked">unwrap_unchecked</a>()
+                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#tymethod.try_from">u64::try_from</a>(<a href="#193">x</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap_unchecked">unwrap_unchecked</a>()
                         }
                     })<span class="question-mark">?</span>)
                     .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
                 ),
             },
             (data, dtype) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#413-418">LinearQuantizeCodecError::MismatchedEncodeDType</a> {
-                    configured: <a href="#204">dtype</a>,
-                    provided: <a href="#204">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#415-420">LinearQuantizeCodecError::MismatchedEncodeDType</a> {
+                    configured: <a href="#206">dtype</a>,
+                    provided: <a href="#206">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
                 });
             }
         };
@@ -1049,76 +1053,76 @@
         </span><span class="kw">fn </span>as_standard_order&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
             array: <span class="kw-2">&amp;</span>ArrayBase&lt;S, D&gt;,
         ) -&gt; Cow&lt;[T]&gt; {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = <a href="#218">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
-                <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#220">data</a>)
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = <a href="#220">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
+                <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#222">data</a>)
             } <span class="kw">else </span>{
-                <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#218">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>())
+                <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#220">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>())
             }
         }
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#432-435">LinearQuantizeCodecError::EncodedDataNotOneDimensional</a> {
-                shape: <a href="#215">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#434-437">LinearQuantizeCodecError::EncodedDataNotOneDimensional</a> {
+                shape: <a href="#217">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             });
         }
 
-        <span class="kw">let </span>decoded = <span class="kw">match </span>(<span class="kw-2">&amp;</span><a href="#215">encoded</a>, <a class="self" href="#215">self</a>.dtype) {
+        <span class="kw">let </span>decoded = <span class="kw">match </span>(<span class="kw-2">&amp;</span><a href="#217">encoded</a>, <a class="self" href="#217">self</a>.dtype) {
             (AnyCowArray::U8(encoded), <a href="#55">LinearQuantizeDType::F32</a>) =&gt; {
-                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#554-580">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#217-225">as_standard_order</a>(<a href="#234">encoded</a>), |x| {
-                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#235">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a class="self" href="#215">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#556-582">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#219-227">as_standard_order</a>(<a href="#236">encoded</a>), |x| {
+                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#237">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a class="self" href="#217">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                 })<span class="question-mark">?</span>)
             }
             (AnyCowArray::U16(encoded), <a href="#55">LinearQuantizeDType::F32</a>) =&gt; {
-                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#554-580">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#217-225">as_standard_order</a>(<a href="#239">encoded</a>), |x| {
-                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#240">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a class="self" href="#215">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#556-582">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#219-227">as_standard_order</a>(<a href="#241">encoded</a>), |x| {
+                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#242">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a class="self" href="#217">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                 })<span class="question-mark">?</span>)
             }
             (AnyCowArray::U32(encoded), <a href="#55">LinearQuantizeDType::F32</a>) =&gt; {
-                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#554-580">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#217-225">as_standard_order</a>(<a href="#244">encoded</a>), |x| {
+                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#556-582">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#219-227">as_standard_order</a>(<a href="#246">encoded</a>), |x| {
                     <span class="comment">// we need to use f64 here to have sufficient precision
-                    </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#245">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#215">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
+                    </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#247">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#217">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
                     <span class="attr">#[allow(clippy::cast_possible_truncation)]
-                    </span><span class="kw">let </span>x = <a href="#247">x</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>;
-                    <a href="#249">x</a>
+                    </span><span class="kw">let </span>x = <a href="#249">x</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>;
+                    <a href="#251">x</a>
                 })<span class="question-mark">?</span>)
             }
             (AnyCowArray::U64(encoded), <a href="#55">LinearQuantizeDType::F32</a>) =&gt; {
-                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#554-580">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#217-225">as_standard_order</a>(<a href="#253">encoded</a>), |x| {
+                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#556-582">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#219-227">as_standard_order</a>(<a href="#255">encoded</a>), |x| {
                     <span class="comment">// we need to use TwoFloat here to have sufficient precision
-                    </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#254">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#215">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
-                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#256">x</a>)
+                    </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#256">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#217">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
+                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#258">x</a>)
                 })<span class="question-mark">?</span>)
             }
             (AnyCowArray::U8(encoded), <a href="#57">LinearQuantizeDType::F64</a>) =&gt; {
-                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#554-580">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#217-225">as_standard_order</a>(<a href="#260">encoded</a>), |x| {
-                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#261">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#215">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#556-582">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#219-227">as_standard_order</a>(<a href="#262">encoded</a>), |x| {
+                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#263">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#217">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                 })<span class="question-mark">?</span>)
             }
             (AnyCowArray::U16(encoded), <a href="#57">LinearQuantizeDType::F64</a>) =&gt; {
-                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#554-580">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#217-225">as_standard_order</a>(<a href="#265">encoded</a>), |x| {
-                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#266">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#215">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#556-582">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#219-227">as_standard_order</a>(<a href="#267">encoded</a>), |x| {
+                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#268">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#217">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                 })<span class="question-mark">?</span>)
             }
             (AnyCowArray::U32(encoded), <a href="#57">LinearQuantizeDType::F64</a>) =&gt; {
-                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#554-580">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#217-225">as_standard_order</a>(<a href="#270">encoded</a>), |x| {
-                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#271">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#215">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#556-582">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#219-227">as_standard_order</a>(<a href="#272">encoded</a>), |x| {
+                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#273">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#217">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                 })<span class="question-mark">?</span>)
             }
             (AnyCowArray::U64(encoded), <a href="#57">LinearQuantizeDType::F64</a>) =&gt; {
-                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#554-580">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#217-225">as_standard_order</a>(<a href="#275">encoded</a>), |x| {
+                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#556-582">reconstruct</a>(<span class="kw-2">&amp;</span><a href="#219-227">as_standard_order</a>(<a href="#277">encoded</a>), |x| {
                     <span class="comment">// we need to use TwoFloat here to have sufficient precision
-                    </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#276">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#215">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
-                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#278">x</a>)
+                    </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#278">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#217">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
+                    <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#280">x</a>)
                 })<span class="question-mark">?</span>)
             }
             (encoded, _dtype) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#454-457">LinearQuantizeCodecError::InvalidEncodedDType</a> {
-                    dtype: <a href="#282">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#456-459">LinearQuantizeCodecError::InvalidEncodedDType</a> {
+                    dtype: <a href="#284">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
                 })
             }
         };
 
-        <span class="prelude-val">Ok</span>(<a href="#233">decoded</a>)
+        <span class="prelude-val">Ok</span>(<a href="#235">decoded</a>)
     }
 
     <span class="kw">fn </span>decode_into(
@@ -1130,90 +1134,90 @@
             array: <span class="kw-2">&amp;</span>ArrayBase&lt;S, D&gt;,
         ) -&gt; Cow&lt;[T]&gt; {
             <span class="attr">#[allow(clippy::option_if_let_else)]
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(data) = <a href="#298">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
-                <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#301">data</a>)
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(data) = <a href="#300">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
+                <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#303">data</a>)
             } <span class="kw">else </span>{
-                <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#298">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>())
+                <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#300">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>())
             }
         }
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#432-435">LinearQuantizeCodecError::EncodedDataNotOneDimensional</a> {
-                shape: <a href="#294">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#434-437">LinearQuantizeCodecError::EncodedDataNotOneDimensional</a> {
+                shape: <a href="#296">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             });
         }
 
-        <span class="kw">match </span>(<a href="#295">decoded</a>, <a class="self" href="#293">self</a>.dtype) {
+        <span class="kw">match </span>(<a href="#297">decoded</a>, <a class="self" href="#295">self</a>.dtype) {
             (AnyArrayViewMut::F32(decoded), <a href="#55">LinearQuantizeDType::F32</a>) =&gt; {
-                <span class="kw">match </span><span class="kw-2">&amp;</span><a href="#294">encoded</a> {
+                <span class="kw">match </span><span class="kw-2">&amp;</span><a href="#296">encoded</a> {
                     AnyArrayView::U8(encoded) =&gt; {
-                        <a href="#593-625">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#297-306">as_standard_order</a>(<a href="#317">encoded</a>), <a href="#315">decoded</a>, |x| {
-                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#318">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a class="self" href="#293">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                        <a href="#595-627">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#299-308">as_standard_order</a>(<a href="#319">encoded</a>), <a href="#317">decoded</a>, |x| {
+                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#320">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a class="self" href="#295">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                         })
                     }
                     AnyArrayView::U16(encoded) =&gt; {
-                        <a href="#593-625">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#297-306">as_standard_order</a>(<a href="#322">encoded</a>), <a href="#315">decoded</a>, |x| {
-                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#323">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a class="self" href="#293">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                        <a href="#595-627">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#299-308">as_standard_order</a>(<a href="#324">encoded</a>), <a href="#317">decoded</a>, |x| {
+                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#325">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(<a class="self" href="#295">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                         })
                     }
                     AnyArrayView::U32(encoded) =&gt; {
-                        <a href="#593-625">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#297-306">as_standard_order</a>(<a href="#327">encoded</a>), <a href="#315">decoded</a>, |x| {
+                        <a href="#595-627">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#299-308">as_standard_order</a>(<a href="#329">encoded</a>), <a href="#317">decoded</a>, |x| {
                             <span class="comment">// we need to use f64 here to have sufficient precision
-                            </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#328">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#293">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
+                            </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#330">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#295">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
                             <span class="attr">#[allow(clippy::cast_possible_truncation)]
-                            </span><span class="kw">let </span>x = <a href="#330">x</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>;
-                            <a href="#332">x</a>
+                            </span><span class="kw">let </span>x = <a href="#332">x</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>;
+                            <a href="#334">x</a>
                         })
                     }
                     AnyArrayView::U64(encoded) =&gt; {
-                        <a href="#593-625">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#297-306">as_standard_order</a>(<a href="#336">encoded</a>), <a href="#315">decoded</a>, |x| {
+                        <a href="#595-627">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#299-308">as_standard_order</a>(<a href="#338">encoded</a>), <a href="#317">decoded</a>, |x| {
                             <span class="comment">// we need to use TwoFloat here to have sufficient precision
-                            </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#337">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#293">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
-                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#339">x</a>)
+                            </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#339">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#295">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
+                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f32::from</a>(<a href="#341">x</a>)
                         })
                     }
                     encoded =&gt; {
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#454-457">LinearQuantizeCodecError::InvalidEncodedDType</a> {
-                            dtype: <a href="#343">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#456-459">LinearQuantizeCodecError::InvalidEncodedDType</a> {
+                            dtype: <a href="#345">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
                         })
                     }
                 }
             }
             (AnyArrayViewMut::F64(decoded), <a href="#57">LinearQuantizeDType::F64</a>) =&gt; {
-                <span class="kw">match </span><span class="kw-2">&amp;</span><a href="#294">encoded</a> {
+                <span class="kw">match </span><span class="kw-2">&amp;</span><a href="#296">encoded</a> {
                     AnyArrayView::U8(encoded) =&gt; {
-                        <a href="#593-625">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#297-306">as_standard_order</a>(<a href="#352">encoded</a>), <a href="#350">decoded</a>, |x| {
-                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#353">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#293">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                        <a href="#595-627">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#299-308">as_standard_order</a>(<a href="#354">encoded</a>), <a href="#352">decoded</a>, |x| {
+                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#355">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#295">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                         })
                     }
                     AnyArrayView::U16(encoded) =&gt; {
-                        <a href="#593-625">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#297-306">as_standard_order</a>(<a href="#357">encoded</a>), <a href="#350">decoded</a>, |x| {
-                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#358">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#293">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                        <a href="#595-627">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#299-308">as_standard_order</a>(<a href="#359">encoded</a>), <a href="#352">decoded</a>, |x| {
+                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#360">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#295">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                         })
                     }
                     AnyArrayView::U32(encoded) =&gt; {
-                        <a href="#593-625">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#297-306">as_standard_order</a>(<a href="#362">encoded</a>), <a href="#350">decoded</a>, |x| {
-                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#363">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#293">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
+                        <a href="#595-627">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#299-308">as_standard_order</a>(<a href="#364">encoded</a>), <a href="#352">decoded</a>, |x| {
+                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#365">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#295">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>)
                         })
                     }
                     AnyArrayView::U64(encoded) =&gt; {
-                        <a href="#593-625">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#297-306">as_standard_order</a>(<a href="#367">encoded</a>), <a href="#350">decoded</a>, |x| {
+                        <a href="#595-627">reconstruct_into</a>(<span class="kw-2">&amp;</span><a href="#299-308">as_standard_order</a>(<a href="#369">encoded</a>), <a href="#352">decoded</a>, |x| {
                             <span class="comment">// we need to use TwoFloat here to have sufficient precision
-                            </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#368">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#293">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
-                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#370">x</a>)
+                            </span><span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">TwoFloat::from</a>(<a href="#370">x</a>) / scale_for_bits::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(<a class="self" href="#295">self</a>.bits <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
+                            <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">f64::from</a>(<a href="#372">x</a>)
                         })
                     }
                     encoded =&gt; {
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#454-457">LinearQuantizeCodecError::InvalidEncodedDType</a> {
-                            dtype: <a href="#374">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#456-459">LinearQuantizeCodecError::InvalidEncodedDType</a> {
+                            dtype: <a href="#376">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
                         })
                     }
                 }
             }
             (decoded, dtype) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#461-466">LinearQuantizeCodecError::MismatchedDecodeIntoDtype</a> {
-                    configured: <a href="#381">dtype</a>,
-                    provided: <a href="#381">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#463-468">LinearQuantizeCodecError::MismatchedDecodeIntoDtype</a> {
+                    configured: <a href="#383">dtype</a>,
+                    provided: <a href="#383">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
                 })
             }
         }<span class="question-mark">?</span>;
@@ -1228,17 +1232,17 @@
     <span class="kw">type </span>Config&lt;<span class="lifetime">'de</span>&gt; = <span class="self">Self</span>;
 
     <span class="kw">fn </span>from_config(config: <span class="self">Self</span>::Config&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self </span>{
-        <a href="#398">config</a>
+        <a href="#400">config</a>
     }
 
     <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StaticCodecConfig&lt;<span class="self">Self</span>&gt; {
-        <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#402">self</a>)
+        <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#404">self</a>)
     }
 }
 
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="doccomment">/// Errors that may occur when applying the [`LinearQuantizeCodec`].
-</span><span class="kw">pub enum </span><a href="#409-476">LinearQuantizeCodecError</a> {
+</span><span class="kw">pub enum </span><a href="#411-478">LinearQuantizeCodecError</a> {
     <span class="doccomment">/// [`LinearQuantizeCodec`] cannot encode the provided dtype which differs
     /// from the configured dtype
     </span><span class="attr">#[error(<span class="string">"LinearQuantize cannot encode the provided dtype {provided} which differs from the configured dtype {configured}"</span>)]
@@ -1256,7 +1260,7 @@
     </span><span class="attr">#[error(<span class="string">"LinearQuantize failed to encode the header"</span>)]
     </span>HeaderEncodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: <a href="#481">LinearQuantizeHeaderError</a>,
+        </span>source: <a href="#483">LinearQuantizeHeaderError</a>,
     },
     <span class="doccomment">/// [`LinearQuantizeCodec`] can only decode one-dimensional arrays but
     /// received an array of a different shape
@@ -1269,7 +1273,7 @@
     </span><span class="attr">#[error(<span class="string">"LinearQuantize failed to decode the header"</span>)]
     </span>HeaderDecodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: <a href="#481">LinearQuantizeHeaderError</a>,
+        </span>source: <a href="#483">LinearQuantizeHeaderError</a>,
     },
     <span class="doccomment">/// [`LinearQuantizeCodec`] decoded an invalid array shape header which does
     /// not fit the decoded data
@@ -1310,7 +1314,7 @@
 <span class="attr">#[derive(Debug, Error)]
 #[error(transparent)]
 </span><span class="doccomment">/// Opaque error for when encoding or decoding the header fails
-</span><span class="kw">pub struct </span><a href="#481">LinearQuantizeHeaderError</a>(postcard::Error);
+</span><span class="kw">pub struct </span><a href="#483">LinearQuantizeHeaderError</a>(postcard::Error);
 
 <span class="doccomment">/// Linear-quantize the elements in the `data` array using the `quantize`
 /// closure.
@@ -1324,55 +1328,55 @@
 ///   failed
 </span><span class="kw">pub fn </span><a href="../../numcodecs_linear_quantize/fn.quantize.html">quantize</a>&lt;
     T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a> + <a href="https://docs.rs/num-traits/0.2/num_traits/identities/trait.ConstZero.html">ConstZero</a> + <a href="https://docs.rs/num-traits/0.2/num_traits/identities/trait.ConstOne.html">ConstOne</a> + <a href="https://docs.rs/serde/1.0.210/serde/ser/trait.Serialize.html">Serialize</a>,
-    Q: <a href="#633-636">Unsigned</a>,
+    Q: <a href="#635-638">Unsigned</a>,
     S: Data&lt;Elem = T&gt;,
     D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>,
 &gt;(
     data: <span class="kw-2">&amp;</span>ArrayBase&lt;S, D&gt;,
     quantize: <span class="kw">impl </span>Fn(T) -&gt; Q,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Q&gt;, <a href="#409-476">LinearQuantizeCodecError</a>&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Q&gt;, <a href="#411-478">LinearQuantizeCodecError</a>&gt; {
     <span class="kw">if </span>!Zip::from(data).all(|x| x.is_finite()) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#422">LinearQuantizeCodecError::NonFiniteData</a>);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#424">LinearQuantizeCodecError::NonFiniteData</a>);
     }
 
-    <span class="kw">let </span>(minimum, maximum) = <a href="#499">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.first">first</a>().<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map_or">map_or</a>((T::ZERO, T::ONE), |first| {
+    <span class="kw">let </span>(minimum, maximum) = <a href="#501">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.first">first</a>().<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map_or">map_or</a>((T::ZERO, T::ONE), |first| {
         (
-            <a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.from">Zip::from</a>(<a href="#499">data</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.fold">fold</a>(<span class="kw-2">*</span><a href="#506">first</a>, |a, b| <a href="#508">a</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.min">min</a>(<span class="kw-2">*</span><a href="#508">b</a>)),
-            <a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.from">Zip::from</a>(<a href="#499">data</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.fold">fold</a>(<span class="kw-2">*</span><a href="#506">first</a>, |a, b| <a href="#509">a</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.max">max</a>(<span class="kw-2">*</span><a href="#509">b</a>)),
+            <a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.from">Zip::from</a>(<a href="#501">data</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.fold">fold</a>(<span class="kw-2">*</span><a href="#508">first</a>, |a, b| <a href="#510">a</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.min">min</a>(<span class="kw-2">*</span><a href="#510">b</a>)),
+            <a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.from">Zip::from</a>(<a href="#501">data</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.fold">fold</a>(<span class="kw-2">*</span><a href="#508">first</a>, |a, b| <a href="#511">a</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.max">max</a>(<span class="kw-2">*</span><a href="#511">b</a>)),
         )
     });
 
     <span class="kw">let </span>header = postcard::to_extend(
-        <span class="kw-2">&amp;</span><a href="#655-660">CompressionHeader</a> {
-            shape: <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#499">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>()),
-            <a href="#506">minimum</a>,
-            <a href="#506">maximum</a>,
+        <span class="kw-2">&amp;</span><a href="#657-662">CompressionHeader</a> {
+            shape: <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#501">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>()),
+            <a href="#508">minimum</a>,
+            <a href="#508">maximum</a>,
         },
         <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>(),
     )
-    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#425-428">LinearQuantizeCodecError::HeaderEncodeFailed</a> {
-        source: <a href="#481">LinearQuantizeHeaderError</a>(<a href="#521">err</a>),
+    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#427-430">LinearQuantizeCodecError::HeaderEncodeFailed</a> {
+        source: <a href="#483">LinearQuantizeHeaderError</a>(<a href="#523">err</a>),
     })<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>encoded: Vec&lt;Q&gt; =
-        <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[Q::ZERO; (<a href="#513">header</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>() + std::mem::size_of::&lt;Q&gt;() - <span class="number">1</span>) / std::mem::size_of::&lt;Q&gt;()];
+        <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[Q::ZERO; (<a href="#515">header</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>() + std::mem::size_of::&lt;Q&gt;() - <span class="number">1</span>) / std::mem::size_of::&lt;Q&gt;()];
     <span class="attr">#[allow(unsafe_code)]
     </span><span class="comment">// Safety: encoded is at least header.len() bytes long and propely aligned for Q
     </span><span class="kw">unsafe </span>{
-        <a href="https://doc.rust-lang.org/nightly/core/intrinsics/fn.copy_nonoverlapping.html">std::ptr::copy_nonoverlapping</a>(<a href="#513">header</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_ptr">as_ptr</a>(), <a href="#525">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_mut_ptr">as_mut_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.mut_ptr.html#method.cast">cast</a>(), <a href="#513">header</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>());
+        <a href="https://doc.rust-lang.org/nightly/core/intrinsics/fn.copy_nonoverlapping.html">std::ptr::copy_nonoverlapping</a>(<a href="#515">header</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_ptr">as_ptr</a>(), <a href="#527">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_mut_ptr">as_mut_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.mut_ptr.html#method.cast">cast</a>(), <a href="#515">header</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>());
     }
-    <a href="#525">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.reserve">reserve</a>(<a href="#499">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>());
+    <a href="#527">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.reserve">reserve</a>(<a href="#501">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>());
 
     <span class="kw">if </span>maximum == minimum {
-        <a href="#525">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.resize">resize</a>(<a href="#525">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>() + <a href="#499">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>(), <a href="#500">quantize</a>(T::ZERO));
+        <a href="#527">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.resize">resize</a>(<a href="#527">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>() + <a href="#501">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>(), <a href="#502">quantize</a>(T::ZERO));
     } <span class="kw">else </span>{
-        <a href="#525">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.Extend.html#tymethod.extend">extend</a>(
-            <a href="#499">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>()
-                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|x| <a href="#500">quantize</a>((<span class="kw-2">*</span><a href="#539">x</a> - <a href="#506">minimum</a>) / (<a href="#506">maximum</a> - <a href="#506">minimum</a>))),
+        <a href="#527">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.Extend.html#tymethod.extend">extend</a>(
+            <a href="#501">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>()
+                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|x| <a href="#502">quantize</a>((<span class="kw-2">*</span><a href="#541">x</a> - <a href="#508">minimum</a>) / (<a href="#508">maximum</a> - <a href="#508">minimum</a>))),
         );
     }
 
-    <span class="prelude-val">Ok</span>(<a href="#525">encoded</a>)
+    <span class="prelude-val">Ok</span>(<a href="#527">encoded</a>)
 }
 
 <span class="doccomment">/// Reconstruct the linear-quantized `encoded` array using the `floatify`
@@ -1383,32 +1387,32 @@
 /// Errors with
 /// - [`LinearQuantizeCodecError::HeaderDecodeFailed`] if decoding the header
 ///   failed
-</span><span class="kw">pub fn </span><a href="../../numcodecs_linear_quantize/fn.reconstruct.html">reconstruct</a>&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a> + <a href="https://docs.rs/serde/1.0.210/serde/de/trait.DeserializeOwned.html">DeserializeOwned</a>, Q: <a href="#633-636">Unsigned</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_linear_quantize/fn.reconstruct.html">reconstruct</a>&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a> + <a href="https://docs.rs/serde/1.0.210/serde/de/trait.DeserializeOwned.html">DeserializeOwned</a>, Q: <a href="#635-638">Unsigned</a>&gt;(
     encoded: <span class="kw-2">&amp;</span>[Q],
     floatify: <span class="kw">impl </span>Fn(Q) -&gt; T,
-) -&gt; <span class="prelude-ty">Result</span>&lt;ArrayD&lt;T&gt;, <a href="#409-476">LinearQuantizeCodecError</a>&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;ArrayD&lt;T&gt;, <a href="#411-478">LinearQuantizeCodecError</a>&gt; {
     <span class="attr">#[allow(unsafe_code)]
     </span><span class="comment">// Safety: data is data.len()*size_of::&lt;Q&gt; bytes long and propely aligned for Q
     </span><span class="kw">let </span>(header, remaining) = postcard::take_from_bytes::&lt;CompressionHeader&lt;T&gt;&gt;(<span class="kw">unsafe </span>{
-        <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_raw_parts.html">std::slice::from_raw_parts</a>(<a href="#555">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast">cast</a>(), <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">std::mem::size_of_val</a>(<a href="#555">encoded</a>))
+        <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_raw_parts.html">std::slice::from_raw_parts</a>(<a href="#557">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast">cast</a>(), <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">std::mem::size_of_val</a>(<a href="#557">encoded</a>))
     })
-    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#438-441">LinearQuantizeCodecError::HeaderDecodeFailed</a> {
-        source: <a href="#481">LinearQuantizeHeaderError</a>(<a href="#563">err</a>),
+    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#440-443">LinearQuantizeCodecError::HeaderDecodeFailed</a> {
+        source: <a href="#483">LinearQuantizeHeaderError</a>(<a href="#565">err</a>),
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>encoded = <a href="#555">encoded</a>
-        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.get">get</a>(<a href="#555">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - (<a href="#560">remaining</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / std::mem::size_of::&lt;Q&gt;())..)
+    <span class="kw">let </span>encoded = <a href="#557">encoded</a>
+        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.get">get</a>(<a href="#557">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - (<a href="#562">remaining</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / std::mem::size_of::&lt;Q&gt;())..)
         .<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.unwrap_or">unwrap_or</a>(<span class="kw-2">&amp;</span>[]);
 
-    <span class="kw">let </span>decoded = <a href="#567">encoded</a>
+    <span class="kw">let </span>decoded = <a href="#569">encoded</a>
         .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
-        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|x| <a href="#560">header</a>.minimum + (<a href="#556">floatify</a>(<span class="kw-2">*</span><a href="#573">x</a>) * (<a href="#560">header</a>.maximum - <a href="#560">header</a>.minimum)))
-        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|x| <a href="#574">x</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.clamp">clamp</a>(<a href="#560">header</a>.minimum, <a href="#560">header</a>.maximum))
+        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|x| <a href="#562">header</a>.minimum + (<a href="#558">floatify</a>(<span class="kw-2">*</span><a href="#575">x</a>) * (<a href="#562">header</a>.maximum - <a href="#562">header</a>.minimum)))
+        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|x| <a href="#576">x</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.clamp">clamp</a>(<a href="#562">header</a>.minimum, <a href="#562">header</a>.maximum))
         .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>();
 
-    <span class="kw">let </span>decoded = <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#560">header</a>.shape, <a href="#571">decoded</a>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>decoded = <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#562">header</a>.shape, <a href="#573">decoded</a>)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<a href="#577">decoded</a>)
+    <span class="prelude-val">Ok</span>(<a href="#579">decoded</a>)
 }
 
 <span class="attr">#[allow(clippy::needless_pass_by_value)]
@@ -1422,28 +1426,28 @@
 ///   failed
 /// - [`LinearQuantizeCodecError::MismatchedDecodeIntoShape`] if the `decoded`
 ///   array is of the wrong shape
-</span><span class="kw">pub fn </span><a href="../../numcodecs_linear_quantize/fn.reconstruct_into.html">reconstruct_into</a>&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a> + <a href="https://docs.rs/serde/1.0.210/serde/de/trait.DeserializeOwned.html">DeserializeOwned</a>, Q: <a href="#633-636">Unsigned</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_linear_quantize/fn.reconstruct_into.html">reconstruct_into</a>&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a> + <a href="https://docs.rs/serde/1.0.210/serde/de/trait.DeserializeOwned.html">DeserializeOwned</a>, Q: <a href="#635-638">Unsigned</a>&gt;(
     encoded: <span class="kw-2">&amp;</span>[Q],
     <span class="kw-2">mut </span>decoded: ArrayViewMutD&lt;T&gt;,
     floatify: <span class="kw">impl </span>Fn(Q) -&gt; T,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#409-476">LinearQuantizeCodecError</a>&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#411-478">LinearQuantizeCodecError</a>&gt; {
     <span class="attr">#[allow(unsafe_code)]
     </span><span class="comment">// Safety: data is data.len()*size_of::&lt;Q&gt; bytes long and propely aligned for Q
     </span><span class="kw">let </span>(header, remaining) = postcard::take_from_bytes::&lt;CompressionHeader&lt;T&gt;&gt;(<span class="kw">unsafe </span>{
-        <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_raw_parts.html">std::slice::from_raw_parts</a>(<a href="#594">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast">cast</a>(), <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">std::mem::size_of_val</a>(<a href="#594">encoded</a>))
+        <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_raw_parts.html">std::slice::from_raw_parts</a>(<a href="#596">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast">cast</a>(), <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">std::mem::size_of_val</a>(<a href="#596">encoded</a>))
     })
-    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#438-441">LinearQuantizeCodecError::HeaderDecodeFailed</a> {
-        source: <a href="#481">LinearQuantizeHeaderError</a>(<a href="#603">err</a>),
+    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#440-443">LinearQuantizeCodecError::HeaderDecodeFailed</a> {
+        source: <a href="#483">LinearQuantizeHeaderError</a>(<a href="#605">err</a>),
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>encoded = <a href="#594">encoded</a>
-        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.get">get</a>(<a href="#594">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - (<a href="#600">remaining</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / std::mem::size_of::&lt;Q&gt;())..)
+    <span class="kw">let </span>encoded = <a href="#596">encoded</a>
+        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.get">get</a>(<a href="#596">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - (<a href="#602">remaining</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / std::mem::size_of::&lt;Q&gt;())..)
         .<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.unwrap_or">unwrap_or</a>(<span class="kw-2">&amp;</span>[]);
 
     <span class="kw">if </span>decoded.shape() != <span class="kw-2">&amp;*</span>header.shape {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#470-475">LinearQuantizeCodecError::MismatchedDecodeIntoShape</a> {
-            decoded: <a href="#600">header</a>.shape.<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#method.into_owned">into_owned</a>(),
-            provided: <a href="#595">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#472-477">LinearQuantizeCodecError::MismatchedDecodeIntoShape</a> {
+            decoded: <a href="#602">header</a>.shape.<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#method.into_owned">into_owned</a>(),
+            provided: <a href="#597">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
         });
     }
 
@@ -1458,7 +1462,7 @@
 
 <span class="doccomment">/// Returns `exp2(bits) - 1.0`
 </span><span class="kw">fn </span>scale_for_bits&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a> + From&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; + <a href="https://docs.rs/num-traits/0.2/num_traits/identities/trait.ConstOne.html">ConstOne</a>&gt;(bits: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; T {
-    &lt;T <span class="kw">as </span>From&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;::from(<a href="#628">bits</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.exp2">exp2</a>() - T::ONE
+    &lt;T <span class="kw">as </span>From&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;::from(<a href="#630">bits</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.exp2">exp2</a>() - T::ONE
 }
 
 <span class="doccomment">/// Unsigned binary types.
@@ -1467,19 +1471,19 @@
     </span><span class="kw">const </span>ZERO: <span class="self">Self</span>;
 }
 
-<span class="kw">impl </span><a href="#633-636">Unsigned</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<span class="kw">impl </span><a href="#635-638">Unsigned</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
     <span class="kw">const </span>ZERO: <span class="self">Self </span>= <span class="number">0</span>;
 }
 
-<span class="kw">impl </span><a href="#633-636">Unsigned</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> {
+<span class="kw">impl </span><a href="#635-638">Unsigned</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> {
     <span class="kw">const </span>ZERO: <span class="self">Self </span>= <span class="number">0</span>;
 }
 
-<span class="kw">impl </span><a href="#633-636">Unsigned</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
+<span class="kw">impl </span><a href="#635-638">Unsigned</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
     <span class="kw">const </span>ZERO: <span class="self">Self </span>= <span class="number">0</span>;
 }
 
-<span class="kw">impl </span><a href="#633-636">Unsigned</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+<span class="kw">impl </span><a href="#635-638">Unsigned</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
     <span class="kw">const </span>ZERO: <span class="self">Self </span>= <span class="number">0</span>;
 }
 
