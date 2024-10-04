@@ -29,10 +29,10 @@ use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-/// Log codec which calculates `c = ln(1)` on encoding and `d = exp(c)` on
+/// Log codec which calculates `c = ln(x)` on encoding and `d = exp(c)` on
 /// decoding.
 ///
-/// The codec only supports positive floating point numbers.
+/// The codec only supports finite positive floating point numbers.
 pub struct LogCodec {
     // empty
 }

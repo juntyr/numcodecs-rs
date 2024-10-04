@@ -5,6 +5,7 @@ members = [
     "crates/numcodecs-python",
     "crates/numcodecs-wasm-guest",
 
+    "codecs/asinh",
     "codecs/bit-round",
     "codecs/fixed-offset-scale",
     "codecs/identity",
@@ -35,6 +36,7 @@ numcodecs-python = { version = "0.2", path = "crates/numcodecs-python", default-
 numcodecs-wasm-guest = { version = "0.1", path = "crates/numcodecs-wasm-guest", default-features = false }
 
 # workspace-internal codecs crates
+numcodecs-asinh = { version = "0.1", path = "codecs/asinh", default-features = false }
 numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
 numcodecs-fixed-offset-scale = { version = "0.1", path = "codecs/fixed-offset-scale", default-features = false }
 numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
