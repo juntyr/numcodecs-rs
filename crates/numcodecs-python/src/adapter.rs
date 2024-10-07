@@ -310,7 +310,12 @@ impl PyCodecAdapter {
         view_mut: &mut AnyArrayViewMut,
         array_like: Bound<PyAny>,
     ) -> Result<(), PyErr> {
-        fn shape_checked_assign<T: Copy + Element, S2: DataMut<Elem = T>, D1: Dimension, D2: Dimension>(
+        fn shape_checked_assign<
+            T: Copy + Element,
+            S2: DataMut<Elem = T>,
+            D1: Dimension,
+            D2: Dimension,
+        >(
             src: &Bound<PyArray<T, D1>>,
             dst: &mut ArrayBase<S2, D2>,
         ) -> Result<(), PyErr> {
@@ -417,10 +422,7 @@ impl DynCodec for PyCodecAdapter {
                 .get_config()
                 .map_err(serde::ser::Error::custom)?;
 
-            transcode(
-                &mut Depythonizer::from_object(config.as_any()),
-                serializer,
-            )
+            transcode(&mut Depythonizer::from_object(config.as_any()), serializer)
         })
     }
 }
