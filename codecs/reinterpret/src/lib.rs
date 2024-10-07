@@ -394,7 +394,7 @@ pub fn reinterpret_array<T: Copy, U, S: Data<Elem = T>, D: Dimension>(
     reinterpret: impl Fn(T) -> U,
 ) -> Array<U, D> {
     let array = array.into_owned();
-    let (shape, data) = (array.raw_dim(), array.into_raw_vec());
+    let (shape, data) = (array.raw_dim(), array.into_raw_vec_and_offset().0);
 
     let data = data.into_iter().map(reinterpret).collect();
 

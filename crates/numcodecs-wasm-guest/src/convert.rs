@@ -45,7 +45,7 @@ pub fn zeros_from_wit_any_array_prototype(prototype: wit::AnyArrayPrototype) -> 
 pub fn into_wit_any_array(array: AnyArray) -> Result<wit::AnyArray, AnyArrayConversionError> {
     fn array_into_standard_layout_vec<T>(array: ArrayD<T>) -> Vec<T> {
         if array.is_standard_layout() {
-            array.into_raw_vec()
+            array.into_raw_vec_and_offset().0
         } else {
             array.into_iter().collect()
         }

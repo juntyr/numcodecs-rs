@@ -79,12 +79,6 @@ impl DerefToPyAny for PyCodecClass {}
 
 #[doc(hidden)]
 #[allow(unsafe_code)]
-unsafe impl PyNativeType for PyCodecClass {
-    type AsRefSource = Self;
-}
-
-#[doc(hidden)]
-#[allow(unsafe_code)]
 unsafe impl PyTypeInfo for PyCodecClass {
     const MODULE: Option<&'static str> = Some("numcodecs.abc");
     const NAME: &'static str = "Codec";
