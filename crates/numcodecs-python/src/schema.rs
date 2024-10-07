@@ -4,7 +4,7 @@ use std::{
 };
 
 use pyo3::{intern, prelude::*, sync::GILOnceCell};
-use pythonize::{depythonize_bound, PythonizeError};
+use pythonize::{depythonize, PythonizeError};
 use schemars::Schema;
 use serde_json::{Map, Value};
 use thiserror::Error;
@@ -32,7 +32,7 @@ pub fn schema_from_codec_class(
     class: &Bound<PyCodecClass>,
 ) -> Result<Schema, SchemaError> {
     if let Ok(schema) = class.getattr(intern!(py, RustCodec::SCHEMA_ATTRIBUTE)) {
-        return depythonize_bound(schema)
+        return depythonize(&schema)
             .map_err(|err| SchemaError::InvalidCachedJsonSchema { source: err });
     }
 
@@ -83,7 +83,7 @@ pub fn schema_from_codec_class(
                     if default.eq(empty_parameter)? {
                         required.push(Value::String(name.clone()));
                     } else {
-                        let default = depythonize_bound(default).map_err(|err| {
+                        let default = depythonize(&default).map_err(|err| {
                             SchemaError::InvalidParameterDefault {
                                 name: name.clone(),
                                 source: err,

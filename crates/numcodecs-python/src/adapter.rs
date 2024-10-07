@@ -47,7 +47,7 @@ impl PyCodecAdapter {
     ) -> Result<Self, D::Error> {
         Python::with_gil(|py| {
             let config = transcode(config, Pythonizer::new(py))?;
-            let config: Bound<PyDict> = config.extract(py)?;
+            let config: Bound<PyDict> = config.extract()?;
 
             let codec = PyCodecRegistry::get_codec(config.as_borrowed())?;
 
@@ -310,7 +310,7 @@ impl PyCodecAdapter {
         view_mut: &mut AnyArrayViewMut,
         array_like: Bound<PyAny>,
     ) -> Result<(), PyErr> {
-        fn shape_checked_assign<T: Element, S2: DataMut<Elem = T>, D1: Dimension, D2: Dimension>(
+        fn shape_checked_assign<T: Copy + Element, S2: DataMut<Elem = T>, D1: Dimension, D2: Dimension>(
             src: &Bound<PyArray<T, D1>>,
             dst: &mut ArrayBase<S2, D2>,
         ) -> Result<(), PyErr> {
@@ -418,7 +418,7 @@ impl DynCodec for PyCodecAdapter {
                 .map_err(serde::ser::Error::custom)?;
 
             transcode(
-                &mut Depythonizer::from_object_bound(config.into_any()),
+                &mut Depythonizer::from_object(config.as_any()),
                 serializer,
             )
         })
@@ -509,7 +509,7 @@ impl DynCodecType for PyCodecClassAdapter {
         Python::with_gil(|py| {
             let config =
                 transcode(config, Pythonizer::new(py)).map_err(serde::de::Error::custom)?;
-            let config: Bound<PyDict> = config.extract(py).map_err(serde::de::Error::custom)?;
+            let config: Bound<PyDict> = config.extract().map_err(serde::de::Error::custom)?;
 
             let codec = self
                 .class
