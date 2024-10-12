@@ -66,7 +66,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
                 ),
                 (
                     intern!(py, RustCodec::SCHEMA_ATTRIBUTE),
-                    pythonize(py, &codec_config_schema)?.into_bound(py),
+                    pythonize(py, &codec_config_schema)?,
                 ),
                 (
                     intern!(py, "__init__"),
@@ -139,7 +139,7 @@ impl<T: DynCodec> AnyCodec for T {
     }
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {
-        <T as DynCodec>::get_config(self, Pythonizer::new(py))?.extract(py)
+        <T as DynCodec>::get_config(self, Pythonizer::new(py))?.extract()
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -163,7 +163,7 @@ impl<T: DynCodecType> AnyCodecType for T {
     ) -> Result<Box<dyn 'static + Send + Sync + AnyCodec>, PyErr> {
         match <T as DynCodecType>::codec_from_config(
             self,
-            &mut Depythonizer::from_object_bound(config.into_any()),
+            &mut Depythonizer::from_object(config.as_any()),
         ) {
             Ok(codec) => Ok(Box::new(codec)),
             Err(err) => Err(err.into()),
@@ -240,6 +240,7 @@ impl RustCodec {
         )
     }
 
+    #[pyo3(signature = (buf, out=None))]
     fn decode<'py>(
         &self,
         py: Python<'py>,
@@ -280,7 +281,7 @@ impl RustCodec {
         let config = this.get_config(py)?;
         let py_this: Py<PyAny> = this.into_py(py);
 
-        let mut repr = py_this.bind(py).get_type().name()?.into_owned();
+        let mut repr = py_this.bind(py).get_type().name()?.to_cow()?.into_owned();
         repr.push('(');
 
         let mut first = true;

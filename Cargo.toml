@@ -31,40 +31,41 @@ rust-version = "1.76"
 
 [workspace.dependencies]
 # workspace-internal numcodecs crates
-numcodecs = { version = "0.1", path = "crates/numcodecs", default-features = false }
-numcodecs-python = { version = "0.2", path = "crates/numcodecs-python", default-features = false }
-numcodecs-wasm-guest = { version = "0.1", path = "crates/numcodecs-wasm-guest", default-features = false }
+numcodecs = { version = "0.2", path = "crates/numcodecs", default-features = false }
+numcodecs-python = { version = "0.3", path = "crates/numcodecs-python", default-features = false }
+numcodecs-wasm-guest = { version = "0.2", path = "crates/numcodecs-wasm-guest", default-features = false }
 
 # workspace-internal codecs crates
-numcodecs-asinh = { version = "0.1", path = "codecs/asinh", default-features = false }
-numcodecs-bit-round = { version = "0.1", path = "codecs/bit-round", default-features = false }
-numcodecs-fixed-offset-scale = { version = "0.1", path = "codecs/fixed-offset-scale", default-features = false }
-numcodecs-identity = { version = "0.1", path = "codecs/identity", default-features = false }
-numcodecs-linear-quantize = { version = "0.2", path = "codecs/linear-quantize", default-features = false }
-numcodecs-log = { version = "0.2", path = "codecs/log", default-features = false }
-numcodecs-reinterpret = { version = "0.1", path = "codecs/reinterpret", default-features = false }
-numcodecs-round = { version = "0.1", path = "codecs/round", default-features = false }
-numcodecs-swizzle-reshape = { version = "0.1", path = "codecs/swizzle-reshape", default-features = false }
-numcodecs-sz3 = { version = "0.1", path = "codecs/sz3", default-features = false }
-numcodecs-uniform-noise = { version = "0.1", path = "codecs/uniform-noise", default-features = false }
-numcodecs-zfp = { version = "0.1", path = "codecs/zfp", default-features = false }
-numcodecs-zlib = { version = "0.1", path = "codecs/zlib", default-features = false }
-numcodecs-zstd = { version = "0.1", path = "codecs/zstd", default-features = false }
+numcodecs-asinh = { version = "0.2", path = "codecs/asinh", default-features = false }
+numcodecs-bit-round = { version = "0.2", path = "codecs/bit-round", default-features = false }
+numcodecs-fixed-offset-scale = { version = "0.2", path = "codecs/fixed-offset-scale", default-features = false }
+numcodecs-identity = { version = "0.2", path = "codecs/identity", default-features = false }
+numcodecs-linear-quantize = { version = "0.3", path = "codecs/linear-quantize", default-features = false }
+numcodecs-log = { version = "0.3", path = "codecs/log", default-features = false }
+numcodecs-random-projection = { version = "0.2", path = "codecs/random-projection", default-features = false }
+numcodecs-reinterpret = { version = "0.2", path = "codecs/reinterpret", default-features = false }
+numcodecs-round = { version = "0.2", path = "codecs/round", default-features = false }
+numcodecs-swizzle-reshape = { version = "0.2", path = "codecs/swizzle-reshape", default-features = false }
+numcodecs-sz3 = { version = "0.2", path = "codecs/sz3", default-features = false }
+numcodecs-uniform-noise = { version = "0.2", path = "codecs/uniform-noise", default-features = false }
+numcodecs-zfp = { version = "0.2", path = "codecs/zfp", default-features = false }
+numcodecs-zlib = { version = "0.2", path = "codecs/zlib", default-features = false }
+numcodecs-zstd = { version = "0.2", path = "codecs/zstd", default-features = false }
 
 # crates.io third-party dependencies
 convert_case = { version = "0.6", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
 miniz_oxide = { version = "0.8", default-features = false }
-ndarray = { version = "0.15", default-features = false } # keep in sync with numpy
-ndarray-rand = { version = "0.14", default-features = false }
-numpy = { version = "0.21", default-features = false }
+ndarray = { version = "0.16", default-features = false } # keep in sync with numpy
+ndarray-rand = { version = "0.15", default-features = false }
+numpy = { version = "0.22", default-features = false }
 num-traits = { version = "0.2", default-features = false }
 postcard = { version = "1.0", default-features = false }
-pyo3 = { version = "0.21", default-features = false }
-pyo3-error = { version = "0.1", default-features = false }
-pythonize = { version = "0.21", default-features = false }
+pyo3 = { version = "0.22", default-features = false }
+pyo3-error = { version = "0.2", default-features = false }
+pythonize = { version = "0.22", default-features = false }
 rand = { version = "0.8", default-features = false }
-schemars = { version = "=1.0.0-alpha.9", default-features = false }
+schemars = { version = "=1.0.0-alpha.15", default-features = false }
 serde = { version = "1.0", default-features = false }
 serde-transcode = { version = "1.1", default-features = false }
 serde_json = { version = "1.0", default-features = false }
@@ -72,7 +73,7 @@ serde_repr = { version = "0.1", default-features = false }
 sz3 = { version = "0.1.1", default-features = false }
 thiserror = { version = "1.0", default-features = false }
 twofloat = { version = "0.7", default-features = false }
-wit-bindgen = { version = "0.32", default-features = false }
+wit-bindgen = { version = "0.34", default-features = false }
 wyhash = { version = "0.5", default-features = false }
 zfp-sys = { version = "0.1.15", default-features = false }
 zstd = { version = "0.13", default-features = false }

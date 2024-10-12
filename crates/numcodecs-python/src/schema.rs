@@ -4,7 +4,7 @@ use std::{
 };
 
 use pyo3::{intern, prelude::*, sync::GILOnceCell};
-use pythonize::{depythonize_bound, PythonizeError};
+use pythonize::{depythonize, PythonizeError};
 use schemars::Schema;
 use serde_json::{Map, Value};
 use thiserror::Error;
@@ -32,7 +32,7 @@ pub fn schema_from_codec_class(
     class: &Bound<PyCodecClass>,
 ) -> Result<Schema, SchemaError> {
     if let Ok(schema) = class.getattr(intern!(py, RustCodec::SCHEMA_ATTRIBUTE)) {
-        return depythonize_bound(schema)
+        return depythonize(&schema)
             .map_err(|err| SchemaError::InvalidCachedJsonSchema { source: err });
     }
 
@@ -83,7 +83,7 @@ pub fn schema_from_codec_class(
                     if default.eq(empty_parameter)? {
                         required.push(Value::String(name.clone()));
                     } else {
-                        let default = depythonize_bound(default).map_err(|err| {
+                        let default = depythonize(&default).map_err(|err| {
                             SchemaError::InvalidParameterDefault {
                                 name: name.clone(),
                                 source: err,
@@ -255,7 +255,7 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
         }
     }
 
-    let mut additional = !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
+    let mut additional = false;
 
     extend_parameters_from_one_of_schema(schema, &mut parameters, &mut additional);
 
@@ -271,6 +271,15 @@ fn parameters_from_schema(schema: &Schema) -> Parameters {
     // sort parameters by name and so that required parameters come first
     parameters.sort_by_key(|p| (!p.required, p.name));
 
+    additional = match (
+        schema.get("additionalProperties"),
+        schema.get("unevaluatedProperties"),
+    ) {
+        (Some(Value::Bool(false)), None) => additional,
+        (None | Some(Value::Bool(false)), Some(Value::Bool(false))) => false,
+        _ => true,
+    };
+
     Parameters {
         named: parameters,
         additional,
@@ -284,13 +293,24 @@ fn extend_parameters_from_one_of_schema<'a>(
 ) {
     // iterate over oneOf to handle top-level or flattened enums
     if let Some(Value::Array(variants)) = schema.get("oneOf") {
-        // if any variant allows additional parameters, the top-level also
-        //  allows additional parameters
-        *additional |= !matches!(schema.get("additionalProperties"), Some(Value::Bool(false)));
-
         let mut variant_parameters = HashMap::new();
 
         for (generation, schema) in variants.iter().enumerate() {
+            // if any variant allows additional parameters, the top-level also
+            //  allows additional parameters
+            #[allow(clippy::unnested_or_patterns)]
+            if let Some(schema) = schema.as_object() {
+                *additional |= !matches!(
+                    (
+                        schema.get("additionalProperties"),
+                        schema.get("unevaluatedProperties")
+                    ),
+                    (Some(Value::Bool(false)), None)
+                        | (None, Some(Value::Bool(false)))
+                        | (Some(Value::Bool(false)), Some(Value::Bool(false)))
+                );
+            }
+
             let required = match schema.get("required") {
                 Some(Value::Array(required)) => &**required,
                 _ => &[],
@@ -510,6 +530,14 @@ mod tests {
     use schemars::{schema_for, JsonSchema};
 
     use super::*;
+
+    #[test]
+    fn schema() {
+        assert_eq!(
+            format!("{}", schema_for!(MyCodec).to_value()),
+            r#"{"type":"object","properties":{"param":{"type":["integer","null"],"format":"int32","description":"An optional integer value."}},"unevaluatedProperties":false,"oneOf":[{"type":"object","description":"Mode a.","properties":{"value":{"type":"boolean","description":"A boolean value."},"common":{"type":"string","description":"A common string value."},"mode":{"type":"string","const":"A"}},"required":["mode","value","common"]},{"type":"object","description":"Mode b.","properties":{"common":{"type":"string","description":"A common string value."},"mode":{"type":"string","const":"B"}},"required":["mode","common"]}],"description":"A codec that does something on encoding and decoding.","title":"MyCodec","$schema":"https://json-schema.org/draft/2020-12/schema"}"#
+        );
+    }
 
     #[test]
     fn docs() {
