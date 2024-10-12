@@ -42,6 +42,7 @@ numcodecs-fixed-offset-scale = { version = "0.2", path = "codecs/fixed-offset-sc
 numcodecs-identity = { version = "0.2", path = "codecs/identity", default-features = false }
 numcodecs-linear-quantize = { version = "0.3", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.3", path = "codecs/log", default-features = false }
+numcodecs-random-projection = { version = "0.2", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.2", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.2", path = "codecs/round", default-features = false }
 numcodecs-swizzle-reshape = { version = "0.2", path = "codecs/swizzle-reshape", default-features = false }
@@ -57,7 +58,7 @@ format_serde_error = { version = "0.3", default-features = false }
 miniz_oxide = { version = "0.8", default-features = false }
 ndarray = { version = "0.16", default-features = false } # keep in sync with numpy
 ndarray-rand = { version = "0.15", default-features = false }
-numpy = { git = "https://github.com/PyO3/rust-numpy.git", rev = "505a79c", version = "0.21", default-features = false }
+numpy = { version = "0.22", default-features = false }
 num-traits = { version = "0.2", default-features = false }
 postcard = { version = "1.0", default-features = false }
 pyo3 = { version = "0.22", default-features = false }
@@ -72,7 +73,7 @@ serde_repr = { version = "0.1", default-features = false }
 sz3 = { version = "0.1.1", default-features = false }
 thiserror = { version = "1.0", default-features = false }
 twofloat = { version = "0.7", default-features = false }
-wit-bindgen = { version = "0.33", default-features = false }
+wit-bindgen = { version = "0.34", default-features = false }
 wyhash = { version = "0.5", default-features = false }
 zfp-sys = { version = "0.1.15", default-features = false }
 zstd = { version = "0.13", default-features = false }
