@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/schema.rs`."><title>schema.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d5c83a227aeda803.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (9ff5fc4ff 2024-10-03)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_python/</div>schema.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/schema.rs`."><title>schema.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (1bc403daa 2024-10-11)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_python/</div>schema.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -572,13 +572,41 @@
 <a href="#571" id="571">571</a>
 <a href="#572" id="572">572</a>
 <a href="#573" id="573">573</a>
-<a href="#574" id="574">574</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::{
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">borrow::Cow</a>,
     collections::{<a href="https://doc.rust-lang.org/nightly/std/collections/hash/map/enum.Entry.html">hash_map::Entry</a>, <a href="https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html">HashMap</a>},
 };
 
 <span class="kw">use </span>pyo3::{<a href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern</a>, <a href="https://docs.rs/pyo3/0.21/pyo3/prelude/index.html">prelude</a>::<span class="kw-2">*</span>, <a href="https://docs.rs/pyo3/0.21/pyo3/sync/struct.GILOnceCell.html">sync::GILOnceCell</a>};
-<span class="kw">use </span>pythonize::{depythonize_bound, PythonizeError};
+<span class="kw">use </span>pythonize::{depythonize, PythonizeError};
 <span class="kw">use </span>schemars::Schema;
 <span class="kw">use </span>serde_json::{<a href="https://docs.rs/serde_json/1.0.128/serde_json/map/struct.Map.html">Map</a>, <a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html">Value</a>};
 <span class="kw">use </span>thiserror::Error;
@@ -604,10 +632,10 @@
 <span class="kw">pub fn </span>schema_from_codec_class(
     py: <a href="https://docs.rs/pyo3/0.21/pyo3/marker/struct.Python.html">Python</a>,
     class: <span class="kw-2">&amp;</span>Bound&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Schema, <a href="#345-364">SchemaError</a>&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;Schema, <a href="#365-384">SchemaError</a>&gt; {
     <span class="kw">if let </span><span class="prelude-val">Ok</span>(schema) = <a href="#32">class</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, RustCodec::SCHEMA_ATTRIBUTE)) {
-        <span class="kw">return </span>depythonize_bound(<a href="#34">schema</a>)
-            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#347">SchemaError::InvalidCachedJsonSchema</a> { source: <a href="#36">err</a> });
+        <span class="kw">return </span>depythonize(<span class="kw-2">&amp;</span><a href="#34">schema</a>)
+            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#367">SchemaError::InvalidCachedJsonSchema</a> { source: <a href="#36">err</a> });
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>schema = <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Schema::default</a>();
@@ -657,7 +685,7 @@
                     <span class="kw">if </span>default.eq(empty_parameter)<span class="question-mark">? </span>{
                         required.push(Value::String(name.clone()));
                     } <span class="kw">else </span>{
-                        <span class="kw">let </span>default = depythonize_bound(default).map_err(|err| {
+                        <span class="kw">let </span>default = depythonize(<span class="kw-2">&amp;</span>default).map_err(|err| {
                             SchemaError::InvalidParameterDefault {
                                 name: name.clone(),
                                 source: err,
@@ -684,7 +712,7 @@
             <span class="kw">if </span>!doc.is_none() {
                 <span class="kw">let </span>doc: <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a> = <a href="#109">doc</a>
                     .<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()
-                    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#361">SchemaError::InvalidClassDocs</a> { source: <a href="#113">err</a> })<span class="question-mark">?</span>;
+                    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#381">SchemaError::InvalidClassDocs</a> { source: <a href="#113">err</a> })<span class="question-mark">?</span>;
                 <a href="#42">schema</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/map/struct.Map.html#method.insert">insert</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">String::from</a>(<span class="string">"description"</span>), <a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.String">Value::String</a>(<a href="#111">doc</a>));
             }
         }
@@ -692,7 +720,7 @@
         <span class="kw">let </span>name = <a href="#32">class</a>
             .<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.21/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"__name__"</span>))
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.and_then">and_then</a>(|name| <a href="#120">name</a>.<a href="https://docs.rs/pyo3/0.21/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>())
-            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#363">SchemaError::InvalidClassName</a> { source: <a href="#121">err</a> })<span class="question-mark">?</span>;
+            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#383">SchemaError::InvalidClassName</a> { source: <a href="#121">err</a> })<span class="question-mark">?</span>;
         <a href="#42">schema</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/map/struct.Map.html#method.insert">insert</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">String::from</a>(<span class="string">"title"</span>), <a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.String">Value::String</a>(<a href="#118">name</a>));
 
         <a href="#42">schema</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/map/struct.Map.html#method.insert">insert</a>(
@@ -705,7 +733,7 @@
 }
 
 <span class="kw">pub fn </span>docs_from_schema(schema: <span class="kw-2">&amp;</span>Schema, codec_id: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <span class="prelude-ty">Option</span>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a>&gt; {
-    <span class="kw">let </span>parameters = <a href="#226-278">parameters_from_schema</a>(<a href="#133">schema</a>);
+    <span class="kw">let </span>parameters = <a href="#226-287">parameters_from_schema</a>(<a href="#133">schema</a>);
     <span class="kw">let </span>schema = <a href="#133">schema</a>.as_object()<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>docs = <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.new">String::new</a>();
@@ -772,7 +800,7 @@
 }
 
 <span class="kw">pub fn </span>signature_from_schema(schema: <span class="kw-2">&amp;</span>Schema) -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a> {
-    <span class="kw">let </span>parameters = <a href="#226-278">parameters_from_schema</a>(<a href="#200">schema</a>);
+    <span class="kw">let </span>parameters = <a href="#226-287">parameters_from_schema</a>(<a href="#200">schema</a>);
 
     <span class="kw">let </span><span class="kw-2">mut </span>signature = <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.new">String::new</a>();
     <a href="#203">signature</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.push_str">push_str</a>(<span class="string">"self"</span>);
@@ -797,10 +825,10 @@
 }
 
 <span class="attr">#[allow(clippy::too_many_lines)] </span><span class="comment">// FIXME
-</span><span class="kw">fn </span>parameters_from_schema(schema: <span class="kw-2">&amp;</span>Schema) -&gt; <a href="#366-369">Parameters</a> {
+</span><span class="kw">fn </span>parameters_from_schema(schema: <span class="kw-2">&amp;</span>Schema) -&gt; <a href="#386-389">Parameters</a> {
     <span class="comment">// schema = true means that any parameters are allowed
     </span><span class="kw">if </span>schema.as_bool() == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
-        <span class="kw">return </span><a href="#366-369">Parameters</a> {
+        <span class="kw">return </span><a href="#386-389">Parameters</a> {
             named: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>(),
             additional: <span class="bool-val">true</span>,
         };
@@ -809,7 +837,7 @@
     <span class="comment">// schema = false means that no config is valid
     // we approximate that by saying that no parameters are allowed
     </span><span class="kw">let </span><span class="prelude-val">Some</span>(schema) = <a href="#226">schema</a>.as_object() <span class="kw">else </span>{
-        <span class="kw">return </span><a href="#366-369">Parameters</a> {
+        <span class="kw">return </span><a href="#386-389">Parameters</a> {
             named: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>(),
             additional: <span class="bool-val">false</span>,
         };
@@ -829,9 +857,9 @@
         }
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>additional = !<a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(schema.get(<span class="string">"additionalProperties"</span>), <span class="prelude-val">Some</span>(Value::Bool(<span class="bool-val">false</span>)));
+    <span class="kw">let </span><span class="kw-2">mut </span>additional = <span class="bool-val">false</span>;
 
-    <a href="#280-342">extend_parameters_from_one_of_schema</a>(<a href="#237">schema</a>, <span class="kw-2">&amp;mut </span><a href="#244">parameters</a>, <span class="kw-2">&amp;mut </span><a href="#258">additional</a>);
+    <a href="#289-362">extend_parameters_from_one_of_schema</a>(<a href="#237">schema</a>, <span class="kw-2">&amp;mut </span><a href="#244">parameters</a>, <span class="kw-2">&amp;mut </span><a href="#258">additional</a>);
 
     <span class="comment">// iterate over allOf to handle flattened enums
     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.Array">Value::Array</a>(all)) = <a href="#237">schema</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/map/struct.Map.html#method.get">get</a>(<span class="string">"allOf"</span>) {
@@ -845,7 +873,16 @@
     <span class="comment">// sort parameters by name and so that required parameters come first
     </span><a href="#244">parameters</a>.<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.sort_by_key">sort_by_key</a>(|p| (!<a href="#272">p</a>.required, <a href="#272">p</a>.name));
 
-    <a href="#366-369">Parameters</a> {
+    <a href="#258">additional</a> = <span class="kw">match </span>(
+        <a href="#237">schema</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/map/struct.Map.html#method.get">get</a>(<span class="string">"additionalProperties"</span>),
+        <a href="#237">schema</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/map/struct.Map.html#method.get">get</a>(<span class="string">"unevaluatedProperties"</span>),
+    ) {
+        (<span class="prelude-val">Some</span>(<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.Bool">Value::Bool</a>(<span class="bool-val">false</span>)), <span class="prelude-val">None</span>) =&gt; <a href="#258">additional</a>,
+        (<span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.Bool">Value::Bool</a>(<span class="bool-val">false</span>)), <span class="prelude-val">Some</span>(<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.Bool">Value::Bool</a>(<span class="bool-val">false</span>))) =&gt; <span class="bool-val">false</span>,
+        <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
+    };
+
+    <a href="#386-389">Parameters</a> {
         named: <a href="#244">parameters</a>,
         <a href="#258">additional</a>,
     }
@@ -857,14 +894,25 @@
     additional: <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
 ) {
     <span class="comment">// iterate over oneOf to handle top-level or flattened enums
-    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.Array">Value::Array</a>(variants)) = <a href="#281">schema</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/map/struct.Map.html#method.get">get</a>(<span class="string">"oneOf"</span>) {
-        <span class="comment">// if any variant allows additional parameters, the top-level also
-        //  allows additional parameters
-        </span><span class="kw-2">*</span><a href="#283">additional</a> |= !<a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(schema.get(<span class="string">"additionalProperties"</span>), <span class="prelude-val">Some</span>(Value::Bool(<span class="bool-val">false</span>)));
-
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.Array">Value::Array</a>(variants)) = <a href="#290">schema</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/map/struct.Map.html#method.get">get</a>(<span class="string">"oneOf"</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>variant_parameters = <a href="https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html#method.new">HashMap::new</a>();
 
         <span class="kw">for </span>(generation, schema) <span class="kw">in </span>variants.iter().enumerate() {
+            <span class="comment">// if any variant allows additional parameters, the top-level also
+            //  allows additional parameters
+            </span><span class="attr">#[allow(clippy::unnested_or_patterns)]
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(schema) = schema.as_object() {
+                <span class="kw-2">*</span>additional |= !<span class="macro">matches!</span>(
+                    (
+                        schema.get(<span class="string">"additionalProperties"</span>),
+                        schema.get(<span class="string">"unevaluatedProperties"</span>)
+                    ),
+                    (<span class="prelude-val">Some</span>(Value::Bool(<span class="bool-val">false</span>)), <span class="prelude-val">None</span>)
+                        | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(Value::Bool(<span class="bool-val">false</span>)))
+                        | (<span class="prelude-val">Some</span>(Value::Bool(<span class="bool-val">false</span>)), <span class="prelude-val">Some</span>(Value::Bool(<span class="bool-val">false</span>)))
+                );
+            }
+
             <span class="kw">let </span>required = <span class="kw">match </span>schema.get(<span class="string">"required"</span>) {
                 <span class="prelude-val">Some</span>(Value::Array(required)) =&gt; <span class="kw-2">&amp;**</span>required,
                 <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>[],
@@ -907,8 +955,8 @@
         }
 
         <span class="comment">// merge the variant parameters into the top-level parameters
-        </span><a href="#282">parameters</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.Extend.html#tymethod.extend">extend</a>(
-            <a href="#291">variant_parameters</a>
+        </span><a href="#291">parameters</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.Extend.html#tymethod.extend">extend</a>(
+            <a href="#296">variant_parameters</a>
                 .<a href="https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html#method.into_values">into_values</a>()
                 .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(VariantParameter::into_parameter),
         );
@@ -916,7 +964,7 @@
 }
 
 <span class="attr">#[derive(Debug, Error)]
-</span><span class="kw">pub enum </span><a href="#345-364">SchemaError</a> {
+</span><span class="kw">pub enum </span><a href="#365-384">SchemaError</a> {
     <span class="attr">#[error(<span class="string">"codec class' cached config schema is invalid"</span>)]
     </span>InvalidCachedJsonSchema { source: PythonizeError },
     <span class="attr">#[error(<span class="string">"extracting the codec signature failed"</span>)]
@@ -953,13 +1001,13 @@
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, parameter: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html">Value</a>, required: <span class="kw-2">&amp;</span>[<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html">Value</a>]) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            <a href="#380">name</a>,
-            required: <a href="#380">required</a>
+            <a href="#400">name</a>,
+            required: <a href="#400">required</a>
                 .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
                 .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.any">any</a>(|r| <a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(r, Value::String(n) <span class="kw">if </span>n == name)),
-            default: <a href="#380">parameter</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"default"</span>),
-            docs: <span class="kw">match </span><a href="#380">parameter</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"description"</span>) {
-                <span class="prelude-val">Some</span>(<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.String">Value::String</a>(docs)) =&gt; <span class="prelude-val">Some</span>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#388">docs</a>)),
+            default: <a href="#400">parameter</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"default"</span>),
+            docs: <span class="kw">match </span><a href="#400">parameter</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"description"</span>) {
+                <span class="prelude-val">Some</span>(<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#variant.String">Value::String</a>(docs)) =&gt; <span class="prelude-val">Some</span>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#408">docs</a>)),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
             },
         }
@@ -982,25 +1030,25 @@
         required: <span class="kw-2">&amp;</span>[<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html">Value</a>],
         variant_docs: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;,
     ) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>r#const = <a href="#407">parameter</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"const"</span>);
+        <span class="kw">let </span>r#const = <a href="#427">parameter</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"const"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>parameter = <a href="#380-392">Parameter::new</a>(<a href="#406">name</a>, <a href="#407">parameter</a>, <a href="#408">required</a>);
-        <a href="#413">parameter</a>.required &amp;= <a href="#405">generation</a> == <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>parameter = <a href="#400-412">Parameter::new</a>(<a href="#426">name</a>, <a href="#427">parameter</a>, <a href="#428">required</a>);
+        <a href="#433">parameter</a>.required &amp;= <a href="#425">generation</a> == <span class="number">0</span>;
 
-        <span class="kw">let </span>tag_docs = <span class="kw">match </span><a href="#411">r#const</a> {
+        <span class="kw">let </span>tag_docs = <span class="kw">match </span><a href="#431">r#const</a> {
             <span class="comment">// a tag parameter must be introduced in the first generation
-            </span><span class="prelude-val">Some</span>(r#const) <span class="kw">if </span><a href="#405">generation</a> == <span class="number">0 </span>=&gt; {
+            </span><span class="prelude-val">Some</span>(r#const) <span class="kw">if </span><a href="#425">generation</a> == <span class="number">0 </span>=&gt; {
                 <span class="attr">#[allow(clippy::or_fun_call)]
-                </span><span class="kw">let </span>docs = <a href="#413">parameter</a>.docs.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.take">take</a>().<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.or">or</a>(<a href="#409">variant_docs</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>));
+                </span><span class="kw">let </span>docs = <a href="#433">parameter</a>.docs.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.take">take</a>().<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.or">or</a>(<a href="#429">variant_docs</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>));
                 <span class="prelude-val">Some</span>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[(r#const, docs)])
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         };
 
         <span class="self">Self </span>{
-            <a href="#405">generation</a>,
-            <a href="#413">parameter</a>,
-            <a href="#416">tag_docs</a>,
+            <a href="#425">generation</a>,
+            <a href="#433">parameter</a>,
+            <a href="#436">tag_docs</a>,
         }
     }
 
@@ -1012,37 +1060,37 @@
         required: <span class="kw-2">&amp;</span>[<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html">Value</a>],
         variant_docs: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;,
     ) {
-        <a class="self" href="#434">self</a>.generation = <a href="#435">generation</a>;
+        <a class="self" href="#454">self</a>.generation = <a href="#455">generation</a>;
 
-        <span class="kw">let </span>r#const = <a href="#437">parameter</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"const"</span>);
+        <span class="kw">let </span>r#const = <a href="#457">parameter</a>.<a href="https://docs.rs/serde_json/1.0.128/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"const"</span>);
 
-        <span class="kw">let </span>parameter = <a href="#380-392">Parameter::new</a>(<a href="#436">name</a>, <a href="#437">parameter</a>, <a href="#438">required</a>);
+        <span class="kw">let </span>parameter = <a href="#400-412">Parameter::new</a>(<a href="#456">name</a>, <a href="#457">parameter</a>, <a href="#458">required</a>);
 
-        <a class="self" href="#434">self</a>.parameter.required &amp;= <a href="#445">parameter</a>.required;
+        <a class="self" href="#454">self</a>.parameter.required &amp;= <a href="#465">parameter</a>.required;
         <span class="kw">if </span><span class="self">self</span>.parameter.default != parameter.default {
-            <a class="self" href="#434">self</a>.parameter.default = <span class="prelude-val">None</span>;
+            <a class="self" href="#454">self</a>.parameter.default = <span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(tag_docs) = <span class="kw-2">&amp;mut </span><a class="self" href="#434">self</a>.tag_docs {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(tag_docs) = <span class="kw-2">&amp;mut </span><a class="self" href="#454">self</a>.tag_docs {
             <span class="comment">// we're building docs for a tag-like parameter
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(r#const) = <a href="#443">r#const</a> {
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(r#const) = <a href="#463">r#const</a> {
                 <span class="attr">#[allow(clippy::or_fun_call)]
-                </span><a href="#452">tag_docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.push">push</a>((<a href="#454">r#const</a>, <a href="#445">parameter</a>.docs.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.or">or</a>(<a href="#439">variant_docs</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>))));
+                </span><a href="#472">tag_docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.push">push</a>((<a href="#474">r#const</a>, <a href="#465">parameter</a>.docs.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.or">or</a>(<a href="#459">variant_docs</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>))));
             } <span class="kw">else </span>{
                 <span class="comment">// mixing tag and non-tag parameter =&gt; no docs
-                </span><a class="self" href="#434">self</a>.tag_docs = <span class="prelude-val">None</span>;
-                <a class="self" href="#434">self</a>.parameter.docs = <span class="prelude-val">None</span>;
+                </span><a class="self" href="#454">self</a>.tag_docs = <span class="prelude-val">None</span>;
+                <a class="self" href="#454">self</a>.parameter.docs = <span class="prelude-val">None</span>;
             }
         } <span class="kw">else </span>{
             <span class="comment">// we're building docs for a normal parameter
             </span><span class="kw">if </span>r#const.is_none() {
                 <span class="comment">// we only accept always matching docs for normal parameters
                 </span><span class="kw">if </span><span class="self">self</span>.parameter.docs != parameter.docs {
-                    <a class="self" href="#434">self</a>.parameter.docs = <span class="prelude-val">None</span>;
+                    <a class="self" href="#454">self</a>.parameter.docs = <span class="prelude-val">None</span>;
                 }
             } <span class="kw">else </span>{
                 <span class="comment">// mixing tag and non-tag parameter =&gt; no docs
-                </span><a class="self" href="#434">self</a>.tag_docs = <span class="prelude-val">None</span>;
+                </span><a class="self" href="#454">self</a>.tag_docs = <span class="prelude-val">None</span>;
             }
         }
     }
@@ -1050,14 +1098,14 @@
     <span class="kw">pub fn </span>update_generation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, generation: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) {
         <span class="kw">if </span><span class="self">self</span>.generation &lt; generation {
             <span class="comment">// required and tag parameters must appear in all generations
-            </span><a class="self" href="#476">self</a>.parameter.required = <span class="bool-val">false</span>;
-            <a class="self" href="#476">self</a>.tag_docs = <span class="prelude-val">None</span>;
+            </span><a class="self" href="#496">self</a>.parameter.required = <span class="bool-val">false</span>;
+            <a class="self" href="#496">self</a>.tag_docs = <span class="prelude-val">None</span>;
         }
     }
 
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>into_parameter(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Parameter&lt;<span class="lifetime">'a</span>&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(tag_docs) = <a class="self" href="#485">self</a>.tag_docs {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(tag_docs) = <a class="self" href="#505">self</a>.tag_docs {
             <span class="kw">let </span><span class="kw-2">mut </span>docs = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">String::from</a>(<span class="string">"\n"</span>);
 
             <span class="kw">for </span>(tag, tag_docs) <span class="kw">in </span>tag_docs {
@@ -1070,12 +1118,12 @@
                 docs.push(<span class="string">'\n'</span>);
             }
 
-            <a href="#487">docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.truncate">truncate</a>(<a href="#487">docs</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.trim_end">trim_end</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.len">len</a>());
+            <a href="#507">docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.truncate">truncate</a>(<a href="#507">docs</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.trim_end">trim_end</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.len">len</a>());
 
-            <a class="self" href="#485">self</a>.parameter.docs = <span class="prelude-val">Some</span>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#487">docs</a>));
+            <a class="self" href="#505">self</a>.parameter.docs = <span class="prelude-val">Some</span>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#507">docs</a>));
         }
 
-        <a class="self" href="#485">self</a>.parameter
+        <a class="self" href="#505">self</a>.parameter
     }
 }
 
@@ -1084,6 +1132,14 @@
     <span class="kw">use </span>schemars::{schema_for, JsonSchema};
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>schema() {
+        <span class="macro">assert_eq!</span>(
+            <span class="macro">format!</span>(<span class="string">"{}"</span>, <span class="macro">schema_for!</span>(MyCodec).to_value()),
+            <span class="string">r#"{"type":"object","properties":{"param":{"type":["integer","null"],"format":"int32","description":"An optional integer value."}},"unevaluatedProperties":false,"oneOf":[{"type":"object","description":"Mode a.","properties":{"value":{"type":"boolean","description":"A boolean value."},"common":{"type":"string","description":"A common string value."},"mode":{"type":"string","const":"A"}},"required":["mode","value","common"]},{"type":"object","description":"Mode b.","properties":{"common":{"type":"string","description":"A common string value."},"mode":{"type":"string","const":"B"}},"required":["mode","common"]}],"description":"A codec that does something on encoding and decoding.","title":"MyCodec","$schema":"https://json-schema.org/draft/2020-12/schema"}"#
+        </span>);
+    }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>docs() {
