@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/ffi.rs`."><title>ffi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (1bc403daa 2024-10-11)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_zfp/</div>ffi.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/ffi.rs`."><title>ffi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (6b9676b45 2024-10-12)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_zfp/</div>ffi.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -396,7 +396,7 @@
 </span><span class="kw">use </span>std::{<a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">marker::PhantomData</a>, <a href="https://doc.rust-lang.org/nightly/core/mem/manually_drop/struct.ManuallyDrop.html">mem::ManuallyDrop</a>};
 
 <span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>};
-<span class="kw">use </span>numcodecs::{<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>};
+<span class="kw">use </span>numcodecs::{<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="../../numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="../../numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="../../numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>};
 
 <span class="kw">use crate</span>::{<a href="lib.rs.html#173-230">ZfpCodecError</a>, <a href="lib.rs.html#43-88">ZfpCompressionMode</a>};
 
@@ -672,12 +672,12 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ZfpDecompressionStreamWithHeader&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">pub fn </span>decompress(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
+    <span class="kw">pub fn </span>decompress(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
         <span class="kw">let </span>dtype = <span class="kw">match unsafe </span>{ (<span class="kw-2">*</span><a class="self" href="#282">self</a>.field).type_ } {
-            zfp_sys::zfp_type_zfp_type_int32 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I32">AnyArrayDType::I32</a>,
-            zfp_sys::zfp_type_zfp_type_int64 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a>,
-            zfp_sys::zfp_type_zfp_type_float =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F32">AnyArrayDType::F32</a>,
-            zfp_sys::zfp_type_zfp_type_double =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F64">AnyArrayDType::F64</a>,
+            zfp_sys::zfp_type_zfp_type_int32 =&gt; <a href="../../numcodecs/array/enum.AnyArrayDType.html#variant.I32">AnyArrayDType::I32</a>,
+            zfp_sys::zfp_type_zfp_type_int64 =&gt; <a href="../../numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a>,
+            zfp_sys::zfp_type_zfp_type_float =&gt; <a href="../../numcodecs/array/enum.AnyArrayDType.html#variant.F32">AnyArrayDType::F32</a>,
+            zfp_sys::zfp_type_zfp_type_double =&gt; <a href="../../numcodecs/array/enum.AnyArrayDType.html#variant.F64">AnyArrayDType::F64</a>,
             dtype =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#226">ZfpCodecError::DecodeUnknownDtype</a>(<a href="#288">dtype</a>)),
         };
 
@@ -691,7 +691,7 @@
         .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.filter">filter</a>(|s| <span class="kw-2">*</span><a href="#298">s</a> &gt; <span class="number">0</span>)
         .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;&gt;();
 
-        <span class="kw">let </span>(decompressed, result) = <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.with_zeros_bytes">AnyArray::with_zeros_bytes</a>(<a href="#283">dtype</a>, <span class="kw-2">&amp;</span><a href="#291">shape</a>, |bytes| {
+        <span class="kw">let </span>(decompressed, result) = <a href="../../numcodecs/array/enum.AnyArrayBase.html#method.with_zeros_bytes">AnyArray::with_zeros_bytes</a>(<a href="#283">dtype</a>, <span class="kw-2">&amp;</span><a href="#291">shape</a>, |bytes| {
             <span class="kw">unsafe </span>{
                 zfp_sys::zfp_field_set_pointer(<a class="self" href="#282">self</a>.field, <a href="#301">bytes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_mut_ptr">as_mut_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.mut_ptr.html#method.cast">cast</a>());
             }
@@ -706,20 +706,20 @@
         <a href="#301">result</a>.<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map">map</a>(|()| <a href="#301">decompressed</a>)
     }
 
-    <span class="kw">pub fn </span>decompress_into(<span class="self">self</span>, <span class="kw-2">mut </span>decompressed: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
+    <span class="kw">pub fn </span>decompress_into(<span class="self">self</span>, <span class="kw-2">mut </span>decompressed: <a href="../../numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
         <span class="kw">let </span>dtype = <span class="kw">match unsafe </span>{ (<span class="kw-2">*</span><a class="self" href="#316">self</a>.field).type_ } {
-            zfp_sys::zfp_type_zfp_type_int32 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I32">AnyArrayDType::I32</a>,
-            zfp_sys::zfp_type_zfp_type_int64 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a>,
-            zfp_sys::zfp_type_zfp_type_float =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F32">AnyArrayDType::F32</a>,
-            zfp_sys::zfp_type_zfp_type_double =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F64">AnyArrayDType::F64</a>,
+            zfp_sys::zfp_type_zfp_type_int32 =&gt; <a href="../../numcodecs/array/enum.AnyArrayDType.html#variant.I32">AnyArrayDType::I32</a>,
+            zfp_sys::zfp_type_zfp_type_int64 =&gt; <a href="../../numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a>,
+            zfp_sys::zfp_type_zfp_type_float =&gt; <a href="../../numcodecs/array/enum.AnyArrayDType.html#variant.F32">AnyArrayDType::F32</a>,
+            zfp_sys::zfp_type_zfp_type_double =&gt; <a href="../../numcodecs/array/enum.AnyArrayDType.html#variant.F64">AnyArrayDType::F64</a>,
             dtype =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#226">ZfpCodecError::DecodeUnknownDtype</a>(<a href="#322">dtype</a>)),
         };
 
         <span class="kw">if </span>decompressed.dtype() != dtype {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#219-223">ZfpCodecError::MismatchedDecodeIntoArray</a> {
-                source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
+                source: <a href="../../numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
                     src: <a href="#317">dtype</a>,
-                    dst: <a href="#316">decompressed</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+                    dst: <a href="#316">decompressed</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
                 },
             });
         }
@@ -736,14 +736,14 @@
 
         <span class="kw">if </span>decompressed.shape() != shape {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#219-223">ZfpCodecError::MismatchedDecodeIntoArray</a> {
-                source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
+                source: <a href="../../numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
                     src: <a href="#334">shape</a>,
-                    dst: <a href="#316">decompressed</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+                    dst: <a href="#316">decompressed</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
                 },
             });
         }
 
-        <a href="#316">decompressed</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.with_bytes_mut">with_bytes_mut</a>(|bytes| {
+        <a href="#316">decompressed</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.with_bytes_mut">with_bytes_mut</a>(|bytes| {
             <span class="kw">unsafe </span>{
                 zfp_sys::zfp_field_set_pointer(<a class="self" href="#316">self</a>.field, <a href="#353">bytes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_mut_ptr">as_mut_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.mut_ptr.html#method.cast">cast</a>());
             }
