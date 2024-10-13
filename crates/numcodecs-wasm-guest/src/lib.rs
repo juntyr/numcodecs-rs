@@ -84,7 +84,9 @@ macro_rules! export_codec {
         const _: () = {
             type Codec = $codec;
 
-            $crate::bindings::export!(Codec with_types_in $crate::bindings);
+            $crate::bindings::export!(
+                Codec with_types_in $crate::bindings
+            );
         };
 
         const _: () = {
