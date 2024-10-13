@@ -87,7 +87,7 @@ macro_rules! export_codec {
             $crate::bindings::export!(Codec with_types_in $crate::bindings);
         };
 
-        const _: () {
+        const _: () = {
             const fn can_only_export_static_codec<T: $crate::numcodecs::StaticCodec>() {}
 
             can_only_export_static_codec::<$codec>()
