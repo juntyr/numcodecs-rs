@@ -80,16 +80,15 @@ pub mod bindings {
 /// ```
 macro_rules! export_codec {
     ($codec:ty) => {
-        type Codec = $codec;
-
         const _: () = {
-            const fn can_only_export_static_codec<T: $crate::numcodecs::StaticCodec>() {}
+            type Codec = $codec;
 
+            #[cfg(target_arch = "wasm32")]
+            $crate::bindings::export!(Codec with_types_in $crate::bindings);
+
+            const fn can_only_export_static_codec<T: $crate::numcodecs::StaticCodec>() {}
             can_only_export_static_codec::<Codec>()
         };
-
-        #[cfg(target_arch = "wasm32")]
-        $crate::bindings::export!(Codec with_types_in $crate::bindings);
     };
 }
 
