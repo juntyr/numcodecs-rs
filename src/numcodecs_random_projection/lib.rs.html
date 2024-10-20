@@ -1885,12 +1885,12 @@
             ((<a href="#846">hash</a> &gt;&gt; <span class="number">32</span>) &amp; <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u64::from</a>(u32::MAX)) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
         );
 
-        <span class="comment">// http://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval [0.0, 1.0)
+        <span class="comment">// https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval [0.0, 1.0)
         // the hash is shifted to only cover the mantissa
         </span><span class="attr">#[allow(clippy::cast_precision_loss)]
         </span><span class="kw">let </span>u0 = <a href="#755">ClosedOpenUnit</a>(((<a href="#848">high</a> &gt;&gt; <span class="number">8</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3380_0000_u32</span>)); <span class="comment">// 0x1.0p-24
 
-        // http://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval (0.0, 1.0]
+        // https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval (0.0, 1.0]
         // the hash is shifted to only cover the mantissa
         </span><span class="attr">#[allow(clippy::cast_precision_loss)]
         </span><span class="kw">let </span>u1 = <a href="#760">OpenClosedUnit</a>((((<a href="#848">low</a> &gt;&gt; <span class="number">8</span>) + <span class="number">1</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3380_0000_u32</span>)); <span class="comment">// 0x1.0p-24
@@ -1918,7 +1918,7 @@
     }
 
     <span class="kw">fn </span>u01x2(hash: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; (ClosedOpenUnit&lt;<span class="self">Self</span>&gt;, OpenClosedUnit&lt;<span class="self">Self</span>&gt;) {
-        <span class="comment">// http://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval [0.0, 1.0)
+        <span class="comment">// https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval [0.0, 1.0)
         // the hash is shifted to only cover the mantissa
         </span><span class="attr">#[allow(clippy::cast_precision_loss)]
         </span><span class="kw">let </span>u0 =
@@ -1926,7 +1926,7 @@
 
         </span><span class="kw">let </span>hash = <a href="#730-750">seahash_diffuse</a>(<a href="#885">hash</a> + <span class="number">1</span>);
 
-        <span class="comment">// http://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval (0.0, 1.0]
+        <span class="comment">// https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval (0.0, 1.0]
         // the hash is shifted to only cover the mantissa
         </span><span class="attr">#[allow(clippy::cast_precision_loss)]
         </span><span class="kw">let </span>u1 = <a href="#760">OpenClosedUnit</a>(
