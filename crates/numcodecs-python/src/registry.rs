@@ -36,7 +36,7 @@ impl PyCodecRegistry {
 
     /// Register a codec class.
     ///
-    /// If the `codec_id` is provided, it is used insted of
+    /// If the `codec_id` is provided, it is used instead of
     /// [`PyCodecClassMethods::codec_id`].
     ///
     /// This function maintains a mapping from codec identifiers to codec
