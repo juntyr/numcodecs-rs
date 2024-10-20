@@ -850,12 +850,12 @@ impl FloatExt for f32 {
             ((hash >> 32) & u64::from(u32::MAX)) as u32,
         );
 
-        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval [0.0, 1.0)
+        // https://prng.di.unimi.it -> Generating uniform doubles in the unit interval [0.0, 1.0)
         // the hash is shifted to only cover the mantissa
         #[allow(clippy::cast_precision_loss)]
         let u0 = ClosedOpenUnit(((high >> 8) as Self) * Self::from_bits(0x3380_0000_u32)); // 0x1.0p-24
 
-        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
+        // https://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
         // the hash is shifted to only cover the mantissa
         #[allow(clippy::cast_precision_loss)]
         let u1 = OpenClosedUnit((((low >> 8) + 1) as Self) * Self::from_bits(0x3380_0000_u32)); // 0x1.0p-24
@@ -883,7 +883,7 @@ impl FloatExt for f64 {
     }
 
     fn u01x2(hash: u64) -> (ClosedOpenUnit<Self>, OpenClosedUnit<Self>) {
-        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval [0.0, 1.0)
+        // https://prng.di.unimi.it -> Generating uniform doubles in the unit interval [0.0, 1.0)
         // the hash is shifted to only cover the mantissa
         #[allow(clippy::cast_precision_loss)]
         let u0 =
@@ -891,7 +891,7 @@ impl FloatExt for f64 {
 
         let hash = seahash_diffuse(hash + 1);
 
-        // http://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
+        // https://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
         // the hash is shifted to only cover the mantissa
         #[allow(clippy::cast_precision_loss)]
         let u1 = OpenClosedUnit(
