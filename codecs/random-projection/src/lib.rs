@@ -367,7 +367,9 @@ pub fn project_into<T: FloatExt, S: Data<Elem = T>>(
 }
 
 /// Applies the (approximate) inverse of random projection to the `projected`
-/// array to reconstruct the input data with the given `seed` and `projection`
+/// array.
+///
+/// The input data is reconstructed with the given `seed` and `projection`
 /// kind and returns the resulting reconstructed array.
 ///
 /// # Errors
