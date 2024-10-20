@@ -1033,7 +1033,9 @@
 <a href="#1032" id="1032">1032</a>
 <a href="#1033" id="1033">1033</a>
 <a href="#1034" id="1034">1034</a>
-<a href="#1035" id="1035">1035</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -1172,10 +1174,10 @@
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#137">encoded</a> {
             AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(
-                <a href="#384-433">reconstruct_with_projection</a>(<a href="#139">encoded</a>, <a class="self" href="#137">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#137">self</a>.projection)<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
+                <a href="#386-435">reconstruct_with_projection</a>(<a href="#139">encoded</a>, <a class="self" href="#137">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#137">self</a>.projection)<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
             AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(
-                <a href="#384-433">reconstruct_with_projection</a>(<a href="#142">encoded</a>, <a class="self" href="#137">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#137">self</a>.projection)<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
+                <a href="#386-435">reconstruct_with_projection</a>(<a href="#142">encoded</a>, <a class="self" href="#137">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#137">self</a>.projection)<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
             encoded =&gt; <span class="prelude-val">Err</span>(<a href="#197">RandomProjectionCodecError::UnsupportedDtype</a>(
                 <a href="#145">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
@@ -1190,10 +1192,10 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>(<a href="#153">encoded</a>, <a href="#154">decoded</a>) {
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
-                <a href="#518-583">reconstruct_into_with_projection</a>(<a href="#157">encoded</a>, <a href="#157">decoded</a>, <a class="self" href="#152">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#152">self</a>.projection)
+                <a href="#520-585">reconstruct_into_with_projection</a>(<a href="#157">encoded</a>, <a href="#157">decoded</a>, <a class="self" href="#152">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#152">self</a>.projection)
             }
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) =&gt; {
-                <a href="#518-583">reconstruct_into_with_projection</a>(<a href="#160">encoded</a>, <a href="#160">decoded</a>, <a class="self" href="#152">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#152">self</a>.projection)
+                <a href="#520-585">reconstruct_into_with_projection</a>(<a href="#160">encoded</a>, <a href="#160">decoded</a>, <a class="self" href="#152">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#152">self</a>.projection)
             }
             (encoded @ (AnyArrayView::F32(<span class="kw">_</span>) | AnyArrayView::F64(<span class="kw">_</span>)), decoded) =&gt; {
                 <span class="prelude-val">Err</span>(<a href="#237-241">RandomProjectionCodecError::MismatchedDecodeIntoArray</a> {
@@ -1287,7 +1289,7 @@
 ///   a two-dimensional matrix
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the input `data` or
 ///   projected output contains non-finite data
-</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.project_with_projection.html">project_with_projection</a>&lt;T: <a href="#802-825">FloatExt</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.project_with_projection.html">project_with_projection</a>&lt;T: <a href="#804-827">FloatExt</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: ArrayBase&lt;S, D&gt;,
     seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
     reduction: <span class="kw-2">&amp;</span><a href="#63-76">RandomProjectionReduction</a>,
@@ -1301,7 +1303,7 @@
 
     <span class="kw">let </span>k = <span class="kw">match </span><a href="#258">reduction</a> {
         <a href="#66-69">RandomProjectionReduction::JohnsonLindenstrauss</a> { epsilon } =&gt; {
-            <a href="#660-671">johnson_lindenstrauss_min_k</a>(<a href="#265">n</a>, <span class="kw-2">*</span><a href="#268">epsilon</a>)
+            <a href="#662-673">johnson_lindenstrauss_min_k</a>(<a href="#265">n</a>, <span class="kw-2">*</span><a href="#268">epsilon</a>)
         }
         <a href="#72-75">RandomProjectionReduction::Explicit</a> { k } =&gt; <a href="#271">k</a>.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>(),
     };
@@ -1318,16 +1320,16 @@
         <a href="#85">RandomProjectionKind::Gaussian</a> =&gt; <a href="#318-367">project_into</a>(
             <a href="#261">data</a>,
             <a href="#274">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice_mut">slice_mut</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., ..k)),
-            |x, y| <a href="#694-701">gaussian_project</a>(<a href="#286">x</a>, <a href="#286">y</a>, <a href="#257">seed</a>),
-            <a href="#703-705">gaussian_normaliser</a>(<a href="#267">k</a>),
+            |x, y| <a href="#696-703">gaussian_project</a>(<a href="#286">x</a>, <a href="#286">y</a>, <a href="#257">seed</a>),
+            <a href="#705-707">gaussian_normaliser</a>(<a href="#267">k</a>),
         ),
         <a href="#94-115">RandomProjectionKind::Sparse</a> { density } =&gt; {
-            <span class="kw">let </span>density = <a href="#683-691">density_or_ping_li_minimum</a>(<span class="kw-2">*</span><a href="#289">density</a>, <a href="#265">d</a>);
+            <span class="kw">let </span>density = <a href="#685-693">density_or_ping_li_minimum</a>(<span class="kw-2">*</span><a href="#289">density</a>, <a href="#265">d</a>);
             <a href="#318-367">project_into</a>(
                 <a href="#261">data</a>,
                 <a href="#274">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice_mut">slice_mut</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., ..k)),
-                |x, y| <a href="#710-720">sparse_project</a>(<a href="#294">x</a>, <a href="#294">y</a>, <a href="#290">density</a>, <a href="#257">seed</a>),
-                <a href="#722-724">sparse_normaliser</a>(<a href="#267">k</a>, <a href="#290">density</a>),
+                |x, y| <a href="#712-722">sparse_project</a>(<a href="#294">x</a>, <a href="#294">y</a>, <a href="#290">density</a>, <a href="#257">seed</a>),
+                <a href="#724-726">sparse_normaliser</a>(<a href="#267">k</a>, <a href="#290">density</a>),
             )
         }
     }<span class="question-mark">?</span>;
@@ -1350,7 +1352,7 @@
 ///   of samples
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the input `data` or
 ///   projected output contains non-finite data
-</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.project_into.html">project_into</a>&lt;T: <a href="#802-825">FloatExt</a>, S: Data&lt;Elem = T&gt;&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.project_into.html">project_into</a>&lt;T: <a href="#804-827">FloatExt</a>, S: Data&lt;Elem = T&gt;&gt;(
     data: ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;,
     <span class="kw-2">mut </span>projected: ArrayViewMut&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;,
     projection: <span class="kw">impl </span>Fn(<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; T,
@@ -1402,7 +1404,9 @@
 }
 
 <span class="doccomment">/// Applies the (approximate) inverse of random projection to the `projected`
-/// array to reconstruct the input data with the given `seed` and `projection`
+/// array.
+///
+/// The input data is reconstructed with the given `seed` and `projection`
 /// kind and returns the resulting reconstructed array.
 ///
 /// # Errors
@@ -1416,52 +1420,52 @@
 ///   `projected` array's dimensionality metadata is corrupted
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the `projected` array or
 ///   the reconstructed output contains non-finite data
-</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.reconstruct_with_projection.html">reconstruct_with_projection</a>&lt;T: <a href="#802-825">FloatExt</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.reconstruct_with_projection.html">reconstruct_with_projection</a>&lt;T: <a href="#804-827">FloatExt</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     projected: ArrayBase&lt;S, D&gt;,
     seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
     projection: <span class="kw-2">&amp;</span><a href="#82-116">RandomProjectionKind</a>,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;, <a href="#194-242">RandomProjectionCodecError</a>&gt; {
-    <span class="kw">let </span>projected = <a href="#385">projected</a>
+    <span class="kw">let </span>projected = <a href="#387">projected</a>
         .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dimensionality">into_dimensionality</a>()
-        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#200-204">RandomProjectionCodecError::NonMatrixData</a> { source: <a href="#391">err</a> })<span class="question-mark">?</span>;
+        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#200-204">RandomProjectionCodecError::NonMatrixData</a> { source: <a href="#393">err</a> })<span class="question-mark">?</span>;
 
     <span class="kw">if </span>projected.is_empty() {
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(<a href="#389">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_owned">to_owned</a>());
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<a href="#391">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_owned">to_owned</a>());
     }
 
-    <span class="kw">let </span>(_n, k): (<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) = <a href="#389">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
-    <span class="kw">let </span><span class="prelude-val">Some</span>(k) = <a href="#397">k</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<span class="number">1</span>) <span class="kw">else </span>{
+    <span class="kw">let </span>(_n, k): (<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) = <a href="#391">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
+    <span class="kw">let </span><span class="prelude-val">Some</span>(k) = <a href="#399">k</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<span class="number">1</span>) <span class="kw">else </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#221">RandomProjectionCodecError::ProjectedArrayZeroComponents</a>);
     };
 
     <span class="comment">// extract the number of features `d` from the extra column and check that
     //  it has been preserved consistently across the column
-    </span><span class="kw">let </span>ds = <a href="#389">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice">slice</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., k));
-    <span class="kw">let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d)) = <a href="#404">ds</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.fold">fold</a>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), |acc, d| <span class="kw">match </span><a href="#405">acc</a> {
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#405">d</a>.<a href="#818">into_usize</a>())),
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d2)) <span class="kw">if </span><a href="#407">d2</a> == <a href="#405">d</a>.<a href="#818">into_usize</a>() =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#407">d2</a>)),
+    </span><span class="kw">let </span>ds = <a href="#391">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice">slice</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., k));
+    <span class="kw">let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d)) = <a href="#406">ds</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.fold">fold</a>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), |acc, d| <span class="kw">match </span><a href="#407">acc</a> {
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#407">d</a>.<a href="#820">into_usize</a>())),
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d2)) <span class="kw">if </span><a href="#409">d2</a> == <a href="#407">d</a>.<a href="#820">into_usize</a>() =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#409">d2</a>)),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(()),
     }) <span class="kw">else </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#225">RandomProjectionCodecError::CorruptedNumberOfComponents</a>);
     };
 
     <span class="comment">// extract the projected data, excluding the metadata column
-    </span><span class="kw">let </span>projected = <a href="#389">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice_move">slice_move</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., ..k));
+    </span><span class="kw">let </span>projected = <a href="#391">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice_move">slice_move</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., ..k));
 
-    <span class="kw">match </span><a href="#387">projection</a> {
-        <a href="#85">RandomProjectionKind::Gaussian</a> =&gt; <a href="#448-495">reconstruct</a>(
-            <a href="#414">projected</a>,
-            <a href="#405">d</a>,
-            |x, y| <a href="#694-701">gaussian_project</a>(<a href="#420">x</a>, <a href="#420">y</a>, <a href="#386">seed</a>),
-            <a href="#703-705">gaussian_normaliser</a>(<a href="#398">k</a>),
+    <span class="kw">match </span><a href="#389">projection</a> {
+        <a href="#85">RandomProjectionKind::Gaussian</a> =&gt; <a href="#450-497">reconstruct</a>(
+            <a href="#416">projected</a>,
+            <a href="#407">d</a>,
+            |x, y| <a href="#696-703">gaussian_project</a>(<a href="#422">x</a>, <a href="#422">y</a>, <a href="#388">seed</a>),
+            <a href="#705-707">gaussian_normaliser</a>(<a href="#400">k</a>),
         ),
         <a href="#94-115">RandomProjectionKind::Sparse</a> { density } =&gt; {
-            <span class="kw">let </span>density = <a href="#683-691">density_or_ping_li_minimum</a>(<span class="kw-2">*</span><a href="#423">density</a>, <a href="#405">d</a>);
-            <a href="#448-495">reconstruct</a>(
-                <a href="#414">projected</a>,
-                <a href="#405">d</a>,
-                |x, y| <a href="#710-720">sparse_project</a>(<a href="#428">x</a>, <a href="#428">y</a>, <a href="#424">density</a>, <a href="#386">seed</a>),
-                <a href="#722-724">sparse_normaliser</a>(<a href="#398">k</a>, <a href="#424">density</a>),
+            <span class="kw">let </span>density = <a href="#685-693">density_or_ping_li_minimum</a>(<span class="kw-2">*</span><a href="#425">density</a>, <a href="#407">d</a>);
+            <a href="#450-497">reconstruct</a>(
+                <a href="#416">projected</a>,
+                <a href="#407">d</a>,
+                |x, y| <a href="#712-722">sparse_project</a>(<a href="#430">x</a>, <a href="#430">y</a>, <a href="#426">density</a>, <a href="#388">seed</a>),
+                <a href="#724-726">sparse_normaliser</a>(<a href="#400">k</a>, <a href="#426">density</a>),
             )
         }
     }
@@ -1480,21 +1484,21 @@
 /// Errors with
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the `projected` array or
 ///   the reconstructed output contains non-finite data
-</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.reconstruct.html">reconstruct</a>&lt;T: <a href="#802-825">FloatExt</a>, S: Data&lt;Elem = T&gt;&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.reconstruct.html">reconstruct</a>&lt;T: <a href="#804-827">FloatExt</a>, S: Data&lt;Elem = T&gt;&gt;(
     projected: ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;,
     d: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
     projection: <span class="kw">impl </span>Fn(<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; T,
     normalizer: T,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;, <a href="#194-242">RandomProjectionCodecError</a>&gt; {
     <span class="kw">if </span>projected.is_empty() {
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(<a href="#449">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_owned">to_owned</a>());
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<a href="#451">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_owned">to_owned</a>());
     }
 
-    <span class="kw">let </span>(n, k) = <a href="#449">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
+    <span class="kw">let </span>(n, k) = <a href="#451">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
 
-    <span class="kw">let </span><span class="kw-2">mut </span>reconstructed = Array::&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;::from_elem((<a href="#458">n</a>, <a href="#450">d</a>), T::ZERO);
+    <span class="kw">let </span><span class="kw-2">mut </span>reconstructed = Array::&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;::from_elem((<a href="#460">n</a>, <a href="#452">d</a>), T::ZERO);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>skip_projection_row = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.with_capacity">Vec::with_capacity</a>(<a href="#458">k</a>);
+    <span class="kw">let </span><span class="kw-2">mut </span>skip_projection_row = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.with_capacity">Vec::with_capacity</a>(<a href="#460">k</a>);
 
     <span class="kw">for </span>(l, reconstructed_l) <span class="kw">in </span>reconstructed.columns_mut().into_iter().enumerate() {
         <span class="comment">// materialize one row of the projection matrix transpose
@@ -1526,7 +1530,7 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#208">RandomProjectionCodecError::NonFiniteData</a>);
     }
 
-    <span class="prelude-val">Ok</span>(<a href="#460">reconstructed</a>)
+    <span class="prelude-val">Ok</span>(<a href="#462">reconstructed</a>)
 }
 
 <span class="doccomment">/// Applies the (approximate) inverse of random projection to the `projected`
@@ -1550,39 +1554,39 @@
 ///   array's dimensionality metadata
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the `projected` array or
 ///   the reconstructed output contains non-finite data
-</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.reconstruct_into_with_projection.html">reconstruct_into_with_projection</a>&lt;T: <a href="#802-825">FloatExt</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.reconstruct_into_with_projection.html">reconstruct_into_with_projection</a>&lt;T: <a href="#804-827">FloatExt</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     projected: ArrayBase&lt;S, D&gt;,
     reconstructed: ArrayViewMut&lt;T, D&gt;,
     seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
     projection: <span class="kw-2">&amp;</span><a href="#82-116">RandomProjectionKind</a>,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#194-242">RandomProjectionCodecError</a>&gt; {
-    <span class="kw">let </span>projected: ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt; = <a href="#519">projected</a>
+    <span class="kw">let </span>projected: ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt; = <a href="#521">projected</a>
         .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dimensionality">into_dimensionality</a>()
-        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#200-204">RandomProjectionCodecError::NonMatrixData</a> { source: <a href="#526">err</a> })<span class="question-mark">?</span>;
-    <span class="kw">let </span>reconstructed: ArrayViewMut&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt; = <a href="#520">reconstructed</a>
+        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#200-204">RandomProjectionCodecError::NonMatrixData</a> { source: <a href="#528">err</a> })<span class="question-mark">?</span>;
+    <span class="kw">let </span>reconstructed: ArrayViewMut&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt; = <a href="#522">reconstructed</a>
         .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dimensionality">into_dimensionality</a>()
-        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#200-204">RandomProjectionCodecError::NonMatrixData</a> { source: <a href="#529">err</a> })<span class="question-mark">?</span>;
+        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#200-204">RandomProjectionCodecError::NonMatrixData</a> { source: <a href="#531">err</a> })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(n, k) = <a href="#524">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
-    <span class="kw">let </span>(n2, d2) = <a href="#527">reconstructed</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
+    <span class="kw">let </span>(n, k) = <a href="#526">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
+    <span class="kw">let </span>(n2, d2) = <a href="#529">reconstructed</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
 
     <span class="kw">if </span>n2 != n {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#212-217">RandomProjectionCodecError::NumberOfSamplesMismatch</a> {
-            input: <a href="#531">n</a>,
-            output: <a href="#532">n2</a>,
+            input: <a href="#533">n</a>,
+            output: <a href="#534">n2</a>,
         });
     }
 
-    <span class="kw">let </span><span class="prelude-val">Some</span>(k) = <a href="#531">k</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<span class="number">1</span>) <span class="kw">else </span>{
+    <span class="kw">let </span><span class="prelude-val">Some</span>(k) = <a href="#533">k</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<span class="number">1</span>) <span class="kw">else </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#221">RandomProjectionCodecError::ProjectedArrayZeroComponents</a>);
     };
 
     <span class="comment">// extract the number of features `d` from the extra column and check that
     //  it has been preserved consistently across the column
-    </span><span class="kw">let </span>ds = <a href="#524">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice">slice</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., k));
-    <span class="kw">let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d)) = <a href="#547">ds</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.fold">fold</a>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), |acc, d| <span class="kw">match </span><a href="#548">acc</a> {
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#548">d</a>.<a href="#818">into_usize</a>())),
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d2)) <span class="kw">if </span><a href="#550">d2</a> == <a href="#548">d</a>.<a href="#818">into_usize</a>() =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#550">d2</a>)),
+    </span><span class="kw">let </span>ds = <a href="#526">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice">slice</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., k));
+    <span class="kw">let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d)) = <a href="#549">ds</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.fold">fold</a>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), |acc, d| <span class="kw">match </span><a href="#550">acc</a> {
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#550">d</a>.<a href="#820">into_usize</a>())),
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d2)) <span class="kw">if </span><a href="#552">d2</a> == <a href="#550">d</a>.<a href="#820">into_usize</a>() =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#552">d2</a>)),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(()),
     }) <span class="kw">else </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#225">RandomProjectionCodecError::CorruptedNumberOfComponents</a>);
@@ -1590,28 +1594,28 @@
 
     <span class="kw">if </span>d2 != d {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#229-234">RandomProjectionCodecError::NumberOfFeaturesMismatch</a> {
-            metadata: <a href="#548">d</a>,
-            output: <a href="#532">d2</a>,
+            metadata: <a href="#550">d</a>,
+            output: <a href="#534">d2</a>,
         });
     }
 
     <span class="comment">// extract the projected data, excluding the metadata column
-    </span><span class="kw">let </span>projected = <a href="#524">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice_move">slice_move</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., ..k));
+    </span><span class="kw">let </span>projected = <a href="#526">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice_move">slice_move</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., ..k));
 
-    <span class="kw">match </span><a href="#522">projection</a> {
-        <a href="#85">RandomProjectionKind::Gaussian</a> =&gt; <a href="#600-649">reconstruct_into</a>(
-            <a href="#564">projected</a>,
-            <a href="#527">reconstructed</a>,
-            |x, y| <a href="#694-701">gaussian_project</a>(<a href="#570">x</a>, <a href="#570">y</a>, <a href="#521">seed</a>),
-            <a href="#703-705">gaussian_normaliser</a>(<a href="#541">k</a>),
+    <span class="kw">match </span><a href="#524">projection</a> {
+        <a href="#85">RandomProjectionKind::Gaussian</a> =&gt; <a href="#602-651">reconstruct_into</a>(
+            <a href="#566">projected</a>,
+            <a href="#529">reconstructed</a>,
+            |x, y| <a href="#696-703">gaussian_project</a>(<a href="#572">x</a>, <a href="#572">y</a>, <a href="#523">seed</a>),
+            <a href="#705-707">gaussian_normaliser</a>(<a href="#543">k</a>),
         ),
         <a href="#94-115">RandomProjectionKind::Sparse</a> { density } =&gt; {
-            <span class="kw">let </span>density = <a href="#683-691">density_or_ping_li_minimum</a>(<span class="kw-2">*</span><a href="#573">density</a>, <a href="#548">d</a>);
-            <a href="#600-649">reconstruct_into</a>(
-                <a href="#564">projected</a>,
-                <a href="#527">reconstructed</a>,
-                |x, y| <a href="#710-720">sparse_project</a>(<a href="#578">x</a>, <a href="#578">y</a>, <a href="#574">density</a>, <a href="#521">seed</a>),
-                <a href="#722-724">sparse_normaliser</a>(<a href="#541">k</a>, <a href="#574">density</a>),
+            <span class="kw">let </span>density = <a href="#685-693">density_or_ping_li_minimum</a>(<span class="kw-2">*</span><a href="#575">density</a>, <a href="#550">d</a>);
+            <a href="#602-651">reconstruct_into</a>(
+                <a href="#566">projected</a>,
+                <a href="#529">reconstructed</a>,
+                |x, y| <a href="#712-722">sparse_project</a>(<a href="#580">x</a>, <a href="#580">y</a>, <a href="#576">density</a>, <a href="#523">seed</a>),
+                <a href="#724-726">sparse_normaliser</a>(<a href="#543">k</a>, <a href="#576">density</a>),
             )
         }
     }
@@ -1632,23 +1636,23 @@
 ///   the `reconstructed` array
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the `projected` array or
 ///   the reconstructed output contains non-finite data
-</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.reconstruct_into.html">reconstruct_into</a>&lt;T: <a href="#802-825">FloatExt</a>, S: Data&lt;Elem = T&gt;&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.reconstruct_into.html">reconstruct_into</a>&lt;T: <a href="#804-827">FloatExt</a>, S: Data&lt;Elem = T&gt;&gt;(
     projected: ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;,
     <span class="kw-2">mut </span>reconstructed: ArrayViewMut&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;,
     projection: <span class="kw">impl </span>Fn(<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; T,
     normalizer: T,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#194-242">RandomProjectionCodecError</a>&gt; {
-    <span class="kw">let </span>(n, k) = <a href="#601">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
-    <span class="kw">let </span>(n2, _d) = <a href="#602">reconstructed</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
+    <span class="kw">let </span>(n, k) = <a href="#603">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
+    <span class="kw">let </span>(n2, _d) = <a href="#604">reconstructed</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
 
     <span class="kw">if </span>n2 != n {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#212-217">RandomProjectionCodecError::NumberOfSamplesMismatch</a> {
-            input: <a href="#606">n</a>,
-            output: <a href="#607">n2</a>,
+            input: <a href="#608">n</a>,
+            output: <a href="#609">n2</a>,
         });
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>skip_projection_row = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.with_capacity">Vec::with_capacity</a>(<a href="#606">k</a>);
+    <span class="kw">let </span><span class="kw-2">mut </span>skip_projection_row = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.with_capacity">Vec::with_capacity</a>(<a href="#608">k</a>);
 
     <span class="kw">for </span>(l, reconstructed_l) <span class="kw">in </span>reconstructed.columns_mut().into_iter().enumerate() {
         <span class="comment">// materialize one row of the projection matrix transpose
@@ -1694,15 +1698,15 @@
 </span><span class="attr">#[must_use]
 </span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.johnson_lindenstrauss_min_k.html">johnson_lindenstrauss_min_k</a>(
     n_samples: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
-    <a href="#760">OpenClosedUnit</a>(epsilon): OpenClosedUnit&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;,
+    <a href="#762">OpenClosedUnit</a>(epsilon): OpenClosedUnit&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;,
 ) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
     <span class="attr">#[allow(clippy::suboptimal_flops)]
-    </span><span class="kw">let </span>denominator = (<a href="#662">epsilon</a> * <a href="#662">epsilon</a> * <span class="number">0.5</span>) - (<a href="#662">epsilon</a> * <a href="#662">epsilon</a> * <a href="#662">epsilon</a> / <span class="number">3.0</span>);
+    </span><span class="kw">let </span>denominator = (<a href="#664">epsilon</a> * <a href="#664">epsilon</a> * <span class="number">0.5</span>) - (<a href="#664">epsilon</a> * <a href="#664">epsilon</a> * <a href="#664">epsilon</a> / <span class="number">3.0</span>);
     <span class="attr">#[allow(clippy::cast_precision_loss)]
-    </span><span class="kw">let </span>min_k = (<a href="#661">n_samples</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>).<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.ln">ln</a>() * <span class="number">4.0 </span>/ <a href="#665">denominator</a>;
+    </span><span class="kw">let </span>min_k = (<a href="#663">n_samples</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>).<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.ln">ln</a>() * <span class="number">4.0 </span>/ <a href="#667">denominator</a>;
     <span class="attr">#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-    </span><span class="kw">let </span>min_k = <a href="#667">min_k</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
-    <a href="#669">min_k</a>
+    </span><span class="kw">let </span>min_k = <a href="#669">min_k</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
+    <a href="#671">min_k</a>
 }
 
 <span class="doccomment">/// Extract the provided `density` if it is `Some(_)`, or compute the minimum
@@ -1715,35 +1719,35 @@
 ///       York, NY, USA, 287–296. Available from:
 ///       [doi:10.1145/1150402.1150436](https://doi.org/10.1145/1150402.1150436).
 </span><span class="attr">#[must_use]
-</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.density_or_ping_li_minimum.html">density_or_ping_li_minimum</a>&lt;T: <a href="#802-825">FloatExt</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_random_projection/fn.density_or_ping_li_minimum.html">density_or_ping_li_minimum</a>&lt;T: <a href="#804-827">FloatExt</a>&gt;(
     density: <span class="prelude-ty">Option</span>&lt;OpenClosedUnit&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;&gt;,
     d: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
 ) -&gt; T {
-    <span class="kw">match </span><a href="#684">density</a> {
-        <span class="prelude-val">Some</span>(<a href="#760">OpenClosedUnit</a>(density)) =&gt; <a href="#810">T::from_f64</a>(<a href="#688">density</a>),
-        <span class="prelude-val">None </span>=&gt; <a href="#814">T::from_usize</a>(<a href="#685">d</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>().<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.recip">recip</a>(),
+    <span class="kw">match </span><a href="#686">density</a> {
+        <span class="prelude-val">Some</span>(<a href="#762">OpenClosedUnit</a>(density)) =&gt; <a href="#812">T::from_f64</a>(<a href="#690">density</a>),
+        <span class="prelude-val">None </span>=&gt; <a href="#816">T::from_usize</a>(<a href="#687">d</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>().<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.recip">recip</a>(),
     }
 }
 
 <span class="doccomment">/// Sample from `N(0, 1)` at the coordinate `(x, y)` with the random `seed`
-</span><span class="kw">fn </span>gaussian_project&lt;T: <a href="#802-825">FloatExt</a>&gt;(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; T {
-    <span class="kw">let </span>(<a href="#755">ClosedOpenUnit</a>(u0), <a href="#760">OpenClosedUnit</a>(u1)) = <a href="#824">T::u01x2</a>(<a href="#726-728">hash_matrix_index</a>(<a href="#694">x</a>, <a href="#694">y</a>, <a href="#694">seed</a>));
+</span><span class="kw">fn </span>gaussian_project&lt;T: <a href="#804-827">FloatExt</a>&gt;(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; T {
+    <span class="kw">let </span>(<a href="#757">ClosedOpenUnit</a>(u0), <a href="#762">OpenClosedUnit</a>(u1)) = <a href="#826">T::u01x2</a>(<a href="#728-730">hash_matrix_index</a>(<a href="#696">x</a>, <a href="#696">y</a>, <a href="#696">seed</a>));
 
-    <span class="kw">let </span>theta = -<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.FloatConst.html#tymethod.TAU">T::TAU</a>() * <a href="#695">u0</a>;
-    <span class="kw">let </span>r = (-T::TWO * <a href="#695">u1</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.ln">ln</a>()).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>();
+    <span class="kw">let </span>theta = -<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.FloatConst.html#tymethod.TAU">T::TAU</a>() * <a href="#697">u0</a>;
+    <span class="kw">let </span>r = (-T::TWO * <a href="#697">u1</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.ln">ln</a>()).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>();
 
-    <a href="#698">r</a> * <a href="#697">theta</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sin">sin</a>()
+    <a href="#700">r</a> * <a href="#699">theta</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sin">sin</a>()
 }
 
-<span class="kw">fn </span>gaussian_normaliser&lt;T: <a href="#802-825">FloatExt</a>&gt;(k: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; T {
-    <a href="#814">T::from_usize</a>(<a href="#703">k</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>().<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.recip">recip</a>()
+<span class="kw">fn </span>gaussian_normaliser&lt;T: <a href="#804-827">FloatExt</a>&gt;(k: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; T {
+    <a href="#816">T::from_usize</a>(<a href="#705">k</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>().<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.recip">recip</a>()
 }
 
 <span class="doccomment">/// Sample from `{ -1, 0, +1 }` with probabilities
 /// `{ density/2, 1-density, density/2 }` at the coordinate `(x, y)` with the
 /// random `seed`
-</span><span class="kw">fn </span>sparse_project&lt;T: <a href="#802-825">FloatExt</a>&gt;(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, density: T, seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; T {
-    <span class="kw">let </span>(<a href="#755">ClosedOpenUnit</a>(u0), _u1) = <a href="#824">T::u01x2</a>(<a href="#726-728">hash_matrix_index</a>(<a href="#710">x</a>, <a href="#710">y</a>, <a href="#710">seed</a>));
+</span><span class="kw">fn </span>sparse_project&lt;T: <a href="#804-827">FloatExt</a>&gt;(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, density: T, seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; T {
+    <span class="kw">let </span>(<a href="#757">ClosedOpenUnit</a>(u0), _u1) = <a href="#826">T::u01x2</a>(<a href="#728-730">hash_matrix_index</a>(<a href="#712">x</a>, <a href="#712">y</a>, <a href="#712">seed</a>));
 
     <span class="kw">if </span>u0 &lt; (density * T::HALF) {
         -T::ONE
@@ -1754,12 +1758,12 @@
     }
 }
 
-<span class="kw">fn </span>sparse_normaliser&lt;T: <a href="#802-825">FloatExt</a>&gt;(k: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, density: T) -&gt; T {
-    (<a href="#814">T::from_usize</a>(<a href="#722">k</a>) * <a href="#722">density</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.recip">recip</a>().<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>()
+<span class="kw">fn </span>sparse_normaliser&lt;T: <a href="#804-827">FloatExt</a>&gt;(k: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, density: T) -&gt; T {
+    (<a href="#816">T::from_usize</a>(<a href="#724">k</a>) * <a href="#724">density</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.recip">recip</a>().<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>()
 }
 
 <span class="kw">const fn </span>hash_matrix_index(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
-    <a href="#730-750">seahash_diffuse</a>(<a href="#730-750">seahash_diffuse</a>(<a href="#726">x</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) ^ <a href="#726">seed</a> ^ (<a href="#726">y</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>))
+    <a href="#732-752">seahash_diffuse</a>(<a href="#732-752">seahash_diffuse</a>(<a href="#728">x</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) ^ <a href="#728">seed</a> ^ (<a href="#728">y</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>))
 }
 
 <span class="kw">const fn </span>seahash_diffuse(<span class="kw-2">mut </span>x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
@@ -1772,43 +1776,43 @@
     // that changing those flips the lower bits, which scatters upwards because
     // of the multiplication.
 
-    </span><a href="#730">x</a> = <a href="#730">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_mul">wrapping_mul</a>(<span class="number">0x6eed_0e9d_a4d9_4a4f</span>);
+    </span><a href="#732">x</a> = <a href="#732">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_mul">wrapping_mul</a>(<span class="number">0x6eed_0e9d_a4d9_4a4f</span>);
 
-    <span class="kw">let </span>a = <a href="#730">x</a> &gt;&gt; <span class="number">32</span>;
-    <span class="kw">let </span>b = <a href="#730">x</a> &gt;&gt; <span class="number">60</span>;
+    <span class="kw">let </span>a = <a href="#732">x</a> &gt;&gt; <span class="number">32</span>;
+    <span class="kw">let </span>b = <a href="#732">x</a> &gt;&gt; <span class="number">60</span>;
 
-    <a href="#730">x</a> ^= <a href="#742">a</a> &gt;&gt; <a href="#743">b</a>;
+    <a href="#732">x</a> ^= <a href="#744">a</a> &gt;&gt; <a href="#745">b</a>;
 
-    <a href="#730">x</a> = <a href="#730">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_mul">wrapping_mul</a>(<span class="number">0x6eed_0e9d_a4d9_4a4f</span>);
+    <a href="#732">x</a> = <a href="#732">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_mul">wrapping_mul</a>(<span class="number">0x6eed_0e9d_a4d9_4a4f</span>);
 
-    <a href="#730">x</a>
+    <a href="#732">x</a>
 }
 
 <span class="attr">#[allow(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 </span><span class="doccomment">/// Floating point number in [0.0, 1.0)
-</span><span class="kw">pub struct </span><a href="../../numcodecs_random_projection/struct.ClosedOpenUnit.html">ClosedOpenUnit</a>&lt;T: <a href="#802-825">FloatExt</a>&gt;(T);
+</span><span class="kw">pub struct </span><a href="../../numcodecs_random_projection/struct.ClosedOpenUnit.html">ClosedOpenUnit</a>&lt;T: <a href="#804-827">FloatExt</a>&gt;(T);
 
 <span class="attr">#[allow(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 </span><span class="doccomment">/// Floating point number in (0.0, 1.0]
-</span><span class="kw">pub struct </span><a href="../../numcodecs_random_projection/struct.OpenClosedUnit.html">OpenClosedUnit</a>&lt;T: <a href="#802-825">FloatExt</a>&gt;(T);
+</span><span class="kw">pub struct </span><a href="../../numcodecs_random_projection/struct.OpenClosedUnit.html">OpenClosedUnit</a>&lt;T: <a href="#804-827">FloatExt</a>&gt;(T);
 
 <span class="kw">impl </span><a href="https://docs.rs/serde/1.0.210/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span>OpenClosedUnit&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
     <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.210/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        <a href="#763">serializer</a>.<a href="https://docs.rs/serde/1.0.210/serde/ser/trait.Serializer.html#tymethod.serialize_f64">serialize_f64</a>(<a class="self" href="#763">self</a>.<span class="number">0</span>)
+        <a href="#765">serializer</a>.<a href="https://docs.rs/serde/1.0.210/serde/ser/trait.Serializer.html#tymethod.serialize_f64">serialize_f64</a>(<a class="self" href="#765">self</a>.<span class="number">0</span>)
     }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>OpenClosedUnit&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
     <span class="kw">fn </span>deserialize&lt;D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        <span class="kw">let </span>x = <a href="https://docs.rs/serde/1.0.210/serde/de/trait.Deserialize.html#tymethod.deserialize">f64::deserialize</a>(<a href="#769">deserializer</a>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>x = <a href="https://docs.rs/serde/1.0.210/serde/de/trait.Deserialize.html#tymethod.deserialize">f64::deserialize</a>(<a href="#771">deserializer</a>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>x &gt; <span class="number">0.0 </span>&amp;&amp; x &lt;= <span class="number">1.0 </span>{
-            <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<a href="#770">x</a>))
+            <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<a href="#772">x</a>))
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(<a href="https://docs.rs/serde/1.0.210/serde/de/trait.Error.html#tymethod.invalid_value">serde::de::Error::invalid_value</a>(
-                <a href="https://docs.rs/serde/1.0.210/serde/de/enum.Unexpected.html#variant.Float">serde::de::Unexpected::Float</a>(<a href="#770">x</a>),
+                <a href="https://docs.rs/serde/1.0.210/serde/de/enum.Unexpected.html#variant.Float">serde::de::Unexpected::Float</a>(<a href="#772">x</a>),
                 <span class="kw-2">&amp;</span><span class="string">"a value in (0.0, 1.0]"</span>,
             ))
         }
@@ -1859,62 +1863,62 @@
     </span><span class="kw">fn </span>u01x2(hash: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; (ClosedOpenUnit&lt;<span class="self">Self</span>&gt;, OpenClosedUnit&lt;<span class="self">Self</span>&gt;);
 }
 
-<span class="kw">impl </span><a href="#802-825">FloatExt</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
+<span class="kw">impl </span><a href="#804-827">FloatExt</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
     <span class="kw">const </span>HALF: <span class="self">Self </span>= <span class="number">0.5</span>;
     <span class="kw">const </span>TWO: <span class="self">Self </span>= <span class="number">2.0</span>;
 
     <span class="attr">#[allow(clippy::cast_possible_truncation)]
     </span><span class="kw">fn </span>from_f64(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>) -&gt; <span class="self">Self </span>{
-        <a href="#832">x</a> <span class="kw">as </span><span class="self">Self
+        <a href="#834">x</a> <span class="kw">as </span><span class="self">Self
     </span>}
 
     <span class="attr">#[allow(clippy::cast_precision_loss)]
     </span><span class="kw">fn </span>from_usize(n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="self">Self </span>{
-        <a href="#837">n</a> <span class="kw">as </span><span class="self">Self
+        <a href="#839">n</a> <span class="kw">as </span><span class="self">Self
     </span>}
 
     <span class="attr">#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     </span><span class="kw">fn </span>into_usize(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
-        <span class="self"><a href="#842">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>
+        <span class="self"><a href="#844">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>
     }
 
     <span class="kw">fn </span>u01x2(hash: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; (ClosedOpenUnit&lt;<span class="self">Self</span>&gt;, OpenClosedUnit&lt;<span class="self">Self</span>&gt;) {
         <span class="attr">#[allow(clippy::cast_possible_truncation)] </span><span class="comment">// split u64 into (u32, u32)
         </span><span class="kw">let </span>(low, high) = (
-            (<a href="#846">hash</a> &amp; <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u64::from</a>(u32::MAX)) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
-            ((<a href="#846">hash</a> &gt;&gt; <span class="number">32</span>) &amp; <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u64::from</a>(u32::MAX)) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
+            (<a href="#848">hash</a> &amp; <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u64::from</a>(u32::MAX)) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
+            ((<a href="#848">hash</a> &gt;&gt; <span class="number">32</span>) &amp; <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u64::from</a>(u32::MAX)) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
         );
 
         <span class="comment">// https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval [0.0, 1.0)
         // the hash is shifted to only cover the mantissa
         </span><span class="attr">#[allow(clippy::cast_precision_loss)]
-        </span><span class="kw">let </span>u0 = <a href="#755">ClosedOpenUnit</a>(((<a href="#848">high</a> &gt;&gt; <span class="number">8</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3380_0000_u32</span>)); <span class="comment">// 0x1.0p-24
+        </span><span class="kw">let </span>u0 = <a href="#757">ClosedOpenUnit</a>(((<a href="#850">high</a> &gt;&gt; <span class="number">8</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3380_0000_u32</span>)); <span class="comment">// 0x1.0p-24
 
         // https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval (0.0, 1.0]
         // the hash is shifted to only cover the mantissa
         </span><span class="attr">#[allow(clippy::cast_precision_loss)]
-        </span><span class="kw">let </span>u1 = <a href="#760">OpenClosedUnit</a>((((<a href="#848">low</a> &gt;&gt; <span class="number">8</span>) + <span class="number">1</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3380_0000_u32</span>)); <span class="comment">// 0x1.0p-24
+        </span><span class="kw">let </span>u1 = <a href="#762">OpenClosedUnit</a>((((<a href="#850">low</a> &gt;&gt; <span class="number">8</span>) + <span class="number">1</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3380_0000_u32</span>)); <span class="comment">// 0x1.0p-24
 
-        </span>(<a href="#856">u0</a>, <a href="#861">u1</a>)
+        </span>(<a href="#858">u0</a>, <a href="#863">u1</a>)
     }
 }
 
-<span class="kw">impl </span><a href="#802-825">FloatExt</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
+<span class="kw">impl </span><a href="#804-827">FloatExt</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
     <span class="kw">const </span>HALF: <span class="self">Self </span>= <span class="number">0.5</span>;
     <span class="kw">const </span>TWO: <span class="self">Self </span>= <span class="number">2.0</span>;
 
     <span class="kw">fn </span>from_f64(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>) -&gt; <span class="self">Self </span>{
-        <a href="#871">x</a>
+        <a href="#873">x</a>
     }
 
     <span class="attr">#[allow(clippy::cast_precision_loss)]
     </span><span class="kw">fn </span>from_usize(n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="self">Self </span>{
-        <a href="#876">n</a> <span class="kw">as </span><span class="self">Self
+        <a href="#878">n</a> <span class="kw">as </span><span class="self">Self
     </span>}
 
     <span class="attr">#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     </span><span class="kw">fn </span>into_usize(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
-        <span class="self"><a href="#881">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>
+        <span class="self"><a href="#883">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>
     }
 
     <span class="kw">fn </span>u01x2(hash: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; (ClosedOpenUnit&lt;<span class="self">Self</span>&gt;, OpenClosedUnit&lt;<span class="self">Self</span>&gt;) {
@@ -1922,18 +1926,18 @@
         // the hash is shifted to only cover the mantissa
         </span><span class="attr">#[allow(clippy::cast_precision_loss)]
         </span><span class="kw">let </span>u0 =
-            <a href="#755">ClosedOpenUnit</a>(((<a href="#885">hash</a> &gt;&gt; <span class="number">11</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3CA0_0000_0000_0000_u64</span>)); <span class="comment">// 0x1.0p-53
+            <a href="#757">ClosedOpenUnit</a>(((<a href="#887">hash</a> &gt;&gt; <span class="number">11</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3CA0_0000_0000_0000_u64</span>)); <span class="comment">// 0x1.0p-53
 
-        </span><span class="kw">let </span>hash = <a href="#730-750">seahash_diffuse</a>(<a href="#885">hash</a> + <span class="number">1</span>);
+        </span><span class="kw">let </span>hash = <a href="#732-752">seahash_diffuse</a>(<a href="#887">hash</a> + <span class="number">1</span>);
 
         <span class="comment">// https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval (0.0, 1.0]
         // the hash is shifted to only cover the mantissa
         </span><span class="attr">#[allow(clippy::cast_precision_loss)]
-        </span><span class="kw">let </span>u1 = <a href="#760">OpenClosedUnit</a>(
-            (((<a href="#892">hash</a> &gt;&gt; <span class="number">11</span>) + <span class="number">1</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3CA0_0000_0000_0000_u64</span>),
+        </span><span class="kw">let </span>u1 = <a href="#762">OpenClosedUnit</a>(
+            (((<a href="#894">hash</a> &gt;&gt; <span class="number">11</span>) + <span class="number">1</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3CA0_0000_0000_0000_u64</span>),
         ); <span class="comment">// 0x1.0p-53
 
-        </span>(<a href="#889">u0</a>, <a href="#897">u1</a>)
+        </span>(<a href="#891">u0</a>, <a href="#899">u1</a>)
     }
 }
 
