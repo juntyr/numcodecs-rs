@@ -175,7 +175,7 @@ impl<T: StaticCodec> DynCodecType for StaticCodecType<T> {
 pub struct StaticCodecConfig<'a, T: StaticCodec> {
     #[serde(default)]
     id: StaticCodecId<T>,
-    /// The configration parameters
+    /// The configuration parameters
     #[serde(flatten)]
     #[serde(borrow)]
     pub config: T::Config<'a>,

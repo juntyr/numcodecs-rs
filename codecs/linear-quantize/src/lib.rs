@@ -527,7 +527,7 @@ pub fn quantize<
     let mut encoded: Vec<Q> =
         vec![Q::ZERO; (header.len() + std::mem::size_of::<Q>() - 1) / std::mem::size_of::<Q>()];
     #[allow(unsafe_code)]
-    // Safety: encoded is at least header.len() bytes long and propely aligned for Q
+    // Safety: encoded is at least header.len() bytes long and properly aligned for Q
     unsafe {
         std::ptr::copy_nonoverlapping(header.as_ptr(), encoded.as_mut_ptr().cast(), header.len());
     }
@@ -558,7 +558,7 @@ pub fn reconstruct<T: Float + DeserializeOwned, Q: Unsigned>(
     floatify: impl Fn(Q) -> T,
 ) -> Result<ArrayD<T>, LinearQuantizeCodecError> {
     #[allow(unsafe_code)]
-    // Safety: data is data.len()*size_of::<Q> bytes long and propely aligned for Q
+    // Safety: data is data.len()*size_of::<Q> bytes long and properly aligned for Q
     let (header, remaining) = postcard::take_from_bytes::<CompressionHeader<T>>(unsafe {
         std::slice::from_raw_parts(encoded.as_ptr().cast(), std::mem::size_of_val(encoded))
     })
@@ -598,7 +598,7 @@ pub fn reconstruct_into<T: Float + DeserializeOwned, Q: Unsigned>(
     floatify: impl Fn(Q) -> T,
 ) -> Result<(), LinearQuantizeCodecError> {
     #[allow(unsafe_code)]
-    // Safety: data is data.len()*size_of::<Q> bytes long and propely aligned for Q
+    // Safety: data is data.len()*size_of::<Q> bytes long and properly aligned for Q
     let (header, remaining) = postcard::take_from_bytes::<CompressionHeader<T>>(unsafe {
         std::slice::from_raw_parts(encoded.as_ptr().cast(), std::mem::size_of_val(encoded))
     })

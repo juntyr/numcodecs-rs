@@ -368,7 +368,7 @@ where
         }
     }
 
-    /// Perform an elementwise assigment to `self` from `src`.
+    /// Perform an elementwise assignment to `self` from `src`.
     ///
     /// # Errors
     ///
