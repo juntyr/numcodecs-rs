@@ -211,21 +211,21 @@ jobs:
         if: ${{ matrix.lock != 'Cargo.lock' }}
 
       - name: Check the code style powerset
-        if: ${{ matrix.rust == 'stable' }}
+        if: ${{ matrix.rust == 'stable' && matrix.lock == 'Cargo.lock' }}
         run: |
           cargo hack clippy --all \
             --feature-powerset --keep-going \
             -- -D warnings
       
       - name: Check the code style powerset
-        if: ${{ matrix.rust != 'stable' }}
+        if: ${{ matrix.rust != 'stable' || matrix.lock != 'Cargo.lock' }}
         run: |
           cargo hack clippy --all \
             --feature-powerset --keep-going \
             -- -D warnings -A unknown-lints
       
       - name: Check the code style powerset on ${{ matrix.wasm32-wasip1 }}
-        if: ${{ matrix.rust == 'stable' }}
+        if: ${{ matrix.rust == 'stable' && matrix.lock == 'Cargo.lock' }}
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
@@ -237,7 +237,7 @@ jobs:
             -- -D warnings
       
       - name: Check the code style powerset on ${{ matrix.wasm32-wasip1 }}
-        if: ${{ matrix.rust != 'stable' }}
+        if: ${{ matrix.rust != 'stable' || matrix.lock != 'Cargo.lock' }}
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
