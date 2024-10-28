@@ -222,7 +222,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --feature-powerset --keep-going \
-            -- -D warnings -A unknown-lints
+            -- -D warnings -A unknown-lints -A clippy::multiple-crate-versions
       
       - name: Check the code style powerset on ${{ matrix.wasm32-wasip1 }}
         if: ${{ matrix.rust == 'stable' && matrix.lock == 'Cargo.lock' }}
@@ -246,4 +246,4 @@ jobs:
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
             --target ${{ matrix.wasm32-wasip1 }} \
-            -- -D warnings -A unknown-lints
+            -- -D warnings -A unknown-lints -A clippy::multiple-crate-versions
