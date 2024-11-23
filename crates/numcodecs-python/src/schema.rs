@@ -17,7 +17,7 @@ macro_rules! once {
             static ONCE: GILOnceCell<Py<PyAny>> = GILOnceCell::new();
             Ok(ONCE.get_or_try_init(py, || -> Result<Py<PyAny>, PyErr> {
                 Ok(py
-                    .import_bound(intern!(py, $module))?
+                    .import(intern!(py, $module))?
                     $(.getattr(intern!(py, $path))?)*
                     .unbind())
             })?.bind(py))
@@ -58,7 +58,7 @@ pub fn schema_from_codec_class(
                 .call1((&init,))?
                 .getattr(intern!(py, "parameters"))?
                 .call_method0(intern!(py, "items"))?
-                .iter()?
+                .try_iter()?
                 .enumerate()
             {
                 let (name, param): (String, Bound<PyAny>) = param?.extract()?;

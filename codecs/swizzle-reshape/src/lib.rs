@@ -266,12 +266,11 @@ pub fn swizzle_reshape<T: Copy, S: Data<Elem = T>>(
     let (permutation, new_shape) = validate_into_axes_shape(&data, axes)?;
 
     let swizzled = data.permuted_axes(permutation);
-    // TODO: use into_shape_clone for ndarray >=0.16
     #[allow(clippy::expect_used)] // only panics on an implementation bug
     let reshaped = swizzled
-        .to_shape(new_shape)
-        .expect("new encoding shape should have the correct number of elements")
-        .into_owned();
+        .into_owned()
+        .into_shape_clone(new_shape)
+        .expect("new encoding shape should have the correct number of elements");
 
     Ok(reshaped)
 }

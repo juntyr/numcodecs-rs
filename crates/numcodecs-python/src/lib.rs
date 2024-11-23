@@ -29,6 +29,7 @@ mod codec_class;
 mod export;
 mod registry;
 mod schema;
+mod utils;
 
 pub use adapter::{PyCodecAdapter, PyCodecClassAdapter};
 pub use codec::{PyCodec, PyCodecMethods};

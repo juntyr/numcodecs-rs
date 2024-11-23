@@ -1,4 +1,4 @@
-use pyo3::{intern, prelude::*, sync::GILOnceCell, types::PyDict};
+use pyo3::{prelude::*, sync::GILOnceCell, types::PyDict};
 
 #[allow(unused_imports)] // FIXME: use expect, only used in docs
 use crate::PyCodecClassMethods;
@@ -24,14 +24,9 @@ impl PyCodecRegistry {
 
         let py = config.py();
 
-        let get_codec = GET_CODEC.get_or_try_init(py, || -> Result<_, PyErr> {
-            Ok(py
-                .import_bound(intern!(py, "numcodecs.registry"))?
-                .getattr(intern!(py, "get_codec"))?
-                .unbind())
-        })?;
+        let get_codec = GET_CODEC.import(py, "numcodecs.registry", "get_codec")?;
 
-        get_codec.call1(py, (config,))?.extract(py)
+        get_codec.call1((config,))?.extract()
     }
 
     /// Register a codec class.
@@ -54,14 +49,9 @@ impl PyCodecRegistry {
 
         let py = class.py();
 
-        let register_codec = REGISTER_CODEC.get_or_try_init(py, || -> Result<_, PyErr> {
-            Ok(py
-                .import_bound(intern!(py, "numcodecs.registry"))?
-                .getattr(intern!(py, "register_codec"))?
-                .unbind())
-        })?;
+        let register_codec = REGISTER_CODEC.import(py, "numcodecs.registry", "register_codec")?;
 
-        register_codec.call1(py, (class, codec_id))?;
+        register_codec.call1((class, codec_id))?;
 
         Ok(())
     }
