@@ -61,7 +61,7 @@ ndarray-rand = { version = "0.15", default-features = false }
 numpy = { version = "0.23.0-dev", default-features = false, git = "https://github.com/PyO3/rust-numpy.git", rev = "b34bc29" }
 num-traits = { version = "0.2.19", default-features = false }
 postcard = { version = "1.0.8", default-features = false }
-pyo3 = { version = "0.23", default-features = false }
+pyo3 = { version = "0.23.1", default-features = false }
 pyo3-error = { version = "0.3", default-features = false }
 pythonize = { version = "0.23", default-features = false }
 rand = { version = "0.8", default-features = false }
