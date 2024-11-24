@@ -279,7 +279,8 @@ impl RustCodec {
 
     fn __repr__(this: PyRef<Self>, py: Python) -> Result<String, PyErr> {
         let config = this.get_config(py)?;
-        let Ok(py_this) = this.into_pyobject(py);
+        // FIXME: let Ok(..) is sufficient with MSRV 1.82
+        let py_this = this.into_pyobject(py)?;
 
         let mut repr = py_this.get_type().name()?.to_cow()?.into_owned();
         repr.push('(');
