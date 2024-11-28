@@ -8,6 +8,7 @@ members = [
     "codecs/asinh",
     "codecs/bit-round",
     "codecs/fixed-offset-scale",
+    "codecs/fourier-network",
     "codecs/identity",
     "codecs/linear-quantize",
     "codecs/log",
@@ -39,6 +40,7 @@ numcodecs-wasm-guest = { version = "0.2", path = "crates/numcodecs-wasm-guest", 
 numcodecs-asinh = { version = "0.2", path = "codecs/asinh", default-features = false }
 numcodecs-bit-round = { version = "0.2", path = "codecs/bit-round", default-features = false }
 numcodecs-fixed-offset-scale = { version = "0.2", path = "codecs/fixed-offset-scale", default-features = false }
+numcodecs-fourier-network = { version = "0.1", path = "codecs/fourier-network", default-features = false }
 numcodecs-identity = { version = "0.2", path = "codecs/identity", default-features = false }
 numcodecs-linear-quantize = { version = "0.3", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.3", path = "codecs/log", default-features = false }
@@ -53,8 +55,12 @@ numcodecs-zlib = { version = "0.2", path = "codecs/zlib", default-features = fal
 numcodecs-zstd = { version = "0.2", path = "codecs/zstd", default-features = false }
 
 # crates.io third-party dependencies
+candle-core = { version = "0.8", default-features = false }
+candle-nn = { version = "0.8", default-features = false }
 convert_case = { version = "0.6", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
+log = { version = "0.4", default-features = false }
+simple_logger = { version = "5.0", default-features = false }
 miniz_oxide = { version = "0.8", default-features = false }
 ndarray = { version = "0.16", default-features = false } # keep in sync with numpy
 ndarray-rand = { version = "0.15", default-features = false }
