@@ -17,7 +17,10 @@
 //!
 //! Fourier feature neural network codec implementation for the [`numcodecs`] API.
 
-#![allow(clippy::multiple_crate_versions)] // bitflags
+#![allow(clippy::multiple_crate_versions)]
+// bitflags
+// FIXME: # FIXME: libc 2.1.166 fails on WASI: https://github.com/rust-lang/libc/pull/4157
+#![allow(unused_crate_dependencies)]
 
 use std::{borrow::Cow, num::NonZeroUsize};
 

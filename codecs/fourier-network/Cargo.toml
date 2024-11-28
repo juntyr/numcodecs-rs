@@ -17,6 +17,8 @@ keywords = ["fourier", "network", "numcodecs", "compression", "encoding"]
 [dependencies]
 candle-core = { workspace = true }
 candle-nn = { workspace = true }
+# FIXME: libc 2.1.166 fails on WASI: https://github.com/rust-lang/libc/pull/4157
+libc = { workspace = true }
 log = { workspace = true }
 ndarray = { workspace = true, features = ["std"] }
 numcodecs = { workspace = true }
