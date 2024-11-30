@@ -54,7 +54,7 @@ impl<'a, T: ZfpCompressible> ZfpField<'a, T> {
     }
 }
 
-impl<'a, T: ZfpCompressible> Drop for ZfpField<'a, T> {
+impl<T: ZfpCompressible> Drop for ZfpField<'_, T> {
     fn drop(&mut self) {
         unsafe { zfp_sys::zfp_field_free(self.field) };
     }
@@ -180,7 +180,7 @@ impl<'a, T: ZfpCompressible> ZfpCompressionStreamWithBitstream<'a, T> {
     }
 }
 
-impl<'a, T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstream<'a, T> {
+impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstream<'_, T> {
     fn drop(&mut self) {
         unsafe { zfp_sys::zfp_field_free(self.field) };
         unsafe { zfp_sys::zfp_stream_close(self.stream) };
@@ -196,7 +196,7 @@ pub struct ZfpCompressionStreamWithBitstreamWithHeader<'a, T: ZfpCompressible> {
     _marker: PhantomData<&'a T>,
 }
 
-impl<'a, T: ZfpCompressible> ZfpCompressionStreamWithBitstreamWithHeader<'a, T> {
+impl<T: ZfpCompressible> ZfpCompressionStreamWithBitstreamWithHeader<'_, T> {
     pub fn compress(mut self) -> Result<Vec<u8>, ZfpCodecError> {
         let compressed_size = unsafe { zfp_sys::zfp_compress(self.stream, self.field) };
 
@@ -211,7 +211,7 @@ impl<'a, T: ZfpCompressible> ZfpCompressionStreamWithBitstreamWithHeader<'a, T> 
     }
 }
 
-impl<'a, T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstreamWithHeader<'a, T> {
+impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstreamWithHeader<'_, T> {
     fn drop(&mut self) {
         unsafe { zfp_sys::zfp_field_free(self.field) };
         unsafe { zfp_sys::zfp_stream_close(self.stream) };
@@ -264,7 +264,7 @@ impl<'a> ZfpDecompressionStream<'a> {
     }
 }
 
-impl<'a> Drop for ZfpDecompressionStream<'a> {
+impl Drop for ZfpDecompressionStream<'_> {
     fn drop(&mut self) {
         unsafe { zfp_sys::zfp_stream_close(self.stream) };
         unsafe { zfp_sys::stream_close(self.bitstream) };
@@ -278,7 +278,7 @@ pub struct ZfpDecompressionStreamWithHeader<'a> {
     _data: &'a [u8],
 }
 
-impl<'a> ZfpDecompressionStreamWithHeader<'a> {
+impl ZfpDecompressionStreamWithHeader<'_> {
     pub fn decompress(self) -> Result<AnyArray, ZfpCodecError> {
         let dtype = match unsafe { (*self.field).type_ } {
             zfp_sys::zfp_type_zfp_type_int32 => AnyArrayDType::I32,
@@ -364,7 +364,7 @@ impl<'a> ZfpDecompressionStreamWithHeader<'a> {
     }
 }
 
-impl<'a> Drop for ZfpDecompressionStreamWithHeader<'a> {
+impl Drop for ZfpDecompressionStreamWithHeader<'_> {
     fn drop(&mut self) {
         unsafe { zfp_sys::zfp_field_free(self.field) };
         unsafe { zfp_sys::zfp_stream_close(self.stream) };

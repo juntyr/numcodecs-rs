@@ -113,7 +113,7 @@ impl<'py> PyCodecMethods<'py> for Bound<'py, PyCodec> {
     }
 }
 
-impl<'py> Sealed for Bound<'py, PyCodec> {}
+impl Sealed for Bound<'_, PyCodec> {}
 
 #[doc(hidden)]
 impl DerefToPyAny for PyCodec {}

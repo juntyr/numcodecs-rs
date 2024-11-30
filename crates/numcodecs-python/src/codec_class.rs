@@ -72,7 +72,7 @@ impl<'py> PyCodecClassMethods<'py> for Bound<'py, PyCodecClass> {
     }
 }
 
-impl<'py> Sealed for Bound<'py, PyCodecClass> {}
+impl Sealed for Bound<'_, PyCodecClass> {}
 
 #[doc(hidden)]
 impl DerefToPyAny for PyCodecClass {}
