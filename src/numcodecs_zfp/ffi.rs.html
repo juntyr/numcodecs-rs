@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/ffi.rs`."><title>ffi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_zfp/</div>ffi.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/ffi.rs`."><title>ffi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d10a6823f 2024-11-29)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_zfp/</div>ffi.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -403,12 +403,12 @@
 <span class="kw">pub struct </span>ZfpField&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; {
     field: <span class="kw-2">*mut </span>zfp_sys::zfp_field,
     dims: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
-    _marker: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
+    _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; ZfpField&lt;<span class="lifetime">'a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="#10-14">ZfpField</a>&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="attr">#[allow(clippy::needless_pass_by_value)]
-    </span><span class="kw">pub fn </span>new&lt;D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(data: ArrayView&lt;<span class="lifetime">'a</span>, T, D&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
+    </span><span class="kw">pub fn </span>new&lt;D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(data: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>&lt;<span class="lifetime">'a</span>, T, D&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
         <span class="kw">let </span>pointer: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">std::ffi::c_void</a> = <a href="#18">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_ptr">as_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast">cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">std::ffi::c_void</a>&gt;().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast_mut">cast_mut</a>();
 
         <span class="kw">let </span>(field, dims) = <span class="kw">match </span>(<a href="#18">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>(), <a href="#18">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.strides">strides</a>()) {
@@ -442,12 +442,12 @@
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             <a href="#21">field</a>,
             <a href="#21">dims</a>,
-            _marker: PhantomData::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
+            _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
         })
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span>ZfpField&lt;<span class="lifetime">'a</span>, T&gt; {
+<span class="kw">impl</span>&lt;T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span><a href="#10-14">ZfpField</a>&lt;<span class="lifetime">'_</span>, T&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ zfp_sys::zfp_field_free(<a class="self" href="#58">self</a>.field) };
     }
@@ -455,15 +455,15 @@
 
 <span class="kw">pub struct </span>ZfpCompressionStream&lt;T: <a href="#375-377">ZfpCompressible</a>&gt; {
     stream: <span class="kw-2">*mut </span>zfp_sys::zfp_stream,
-    _marker: PhantomData&lt;T&gt;,
+    _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>&lt;T&gt;,
 }
 
-<span class="kw">impl</span>&lt;T: <a href="#375-377">ZfpCompressible</a>&gt; ZfpCompressionStream&lt;T&gt; {
-    <span class="kw">pub fn </span>new(field: <span class="kw-2">&amp;</span>ZfpField&lt;T&gt;, mode: <span class="kw-2">&amp;</span><a href="lib.rs.html#43-88">ZfpCompressionMode</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
+<span class="kw">impl</span>&lt;T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="#63-66">ZfpCompressionStream</a>&lt;T&gt; {
+    <span class="kw">pub fn </span>new(field: <span class="kw-2">&amp;</span><a href="#10-14">ZfpField</a>&lt;T&gt;, mode: <span class="kw-2">&amp;</span><a href="lib.rs.html#43-88">ZfpCompressionMode</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
         <span class="kw">let </span>stream = <span class="kw">unsafe </span>{ zfp_sys::zfp_stream_open(<a href="https://doc.rust-lang.org/nightly/core/ptr/fn.null_mut.html">std::ptr::null_mut</a>()) };
         <span class="kw">let </span>stream = <span class="self">Self </span>{
             <a href="#70">stream</a>,
-            _marker: PhantomData::&lt;T&gt;,
+            _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>::&lt;T&gt;,
         };
 
         <span class="kw">match </span><a href="#69">mode</a> {
@@ -514,8 +514,8 @@
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>with_bitstream&lt;<span class="lifetime">'a</span>&gt;(
         <span class="self">self</span>,
-        field: ZfpField&lt;<span class="lifetime">'a</span>, T&gt;,
-    ) -&gt; ZfpCompressionStreamWithBitstream&lt;<span class="lifetime">'a</span>, T&gt; {
+        field: <a href="#10-14">ZfpField</a>&lt;<span class="lifetime">'a</span>, T&gt;,
+    ) -&gt; <a href="#153-159">ZfpCompressionStreamWithBitstream</a>&lt;<span class="lifetime">'a</span>, T&gt; {
         <span class="kw">let </span>this = <a href="https://doc.rust-lang.org/nightly/core/mem/manually_drop/struct.ManuallyDrop.html#method.new">ManuallyDrop::new</a>(<a class="self" href="#123">self</a>);
         <span class="kw">let </span>field = <a href="https://doc.rust-lang.org/nightly/core/mem/manually_drop/struct.ManuallyDrop.html#method.new">ManuallyDrop::new</a>(<a href="#124">field</a>);
 
@@ -532,12 +532,12 @@
             <a href="#132">bitstream</a>,
             field: <a href="#127">field</a>.field,
             <a href="#130">buffer</a>,
-            _marker: PhantomData::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
+            _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span>ZfpCompressionStream&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span><a href="#63-66">ZfpCompressionStream</a>&lt;T&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ zfp_sys::zfp_stream_close(<a class="self" href="#148">self</a>.stream) };
     }
@@ -547,14 +547,14 @@
     stream: <span class="kw-2">*mut </span>zfp_sys::zfp_stream,
     bitstream: <span class="kw-2">*mut </span>zfp_sys::bitstream,
     field: <span class="kw-2">*mut </span>zfp_sys::zfp_field,
-    buffer: Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;,
-    _marker: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
+    buffer: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;,
+    _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; ZfpCompressionStreamWithBitstream&lt;<span class="lifetime">'a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="#153-159">ZfpCompressionStreamWithBitstream</a>&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">pub fn </span>write_full_header(
         <span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;ZfpCompressionStreamWithBitstreamWithHeader&lt;<span class="lifetime">'a</span>, T&gt;, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="#191-197">ZfpCompressionStreamWithBitstreamWithHeader</a>&lt;<span class="lifetime">'a</span>, T&gt;, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
         <span class="kw">if unsafe </span>{ zfp_sys::zfp_write_header(<span class="self">self</span>.stream, <span class="self">self</span>.field, zfp_sys::ZFP_HEADER_FULL) }
             == <span class="number">0
         </span>{
@@ -568,12 +568,12 @@
             bitstream: <a href="#171">this</a>.bitstream,
             field: <a href="#171">this</a>.field,
             buffer: <a href="https://doc.rust-lang.org/nightly/core/mem/fn.take.html">std::mem::take</a>(<span class="kw-2">&amp;mut </span><a href="#171">this</a>.buffer),
-            _marker: PhantomData::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
+            _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
         })
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span>ZfpCompressionStreamWithBitstream&lt;<span class="lifetime">'a</span>, T&gt; {
+<span class="kw">impl</span>&lt;T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span><a href="#153-159">ZfpCompressionStreamWithBitstream</a>&lt;<span class="lifetime">'_</span>, T&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ zfp_sys::zfp_field_free(<a class="self" href="#184">self</a>.field) };
         <span class="kw">unsafe </span>{ zfp_sys::zfp_stream_close(<a class="self" href="#184">self</a>.stream) };
@@ -585,12 +585,12 @@
     stream: <span class="kw-2">*mut </span>zfp_sys::zfp_stream,
     bitstream: <span class="kw-2">*mut </span>zfp_sys::bitstream,
     field: <span class="kw-2">*mut </span>zfp_sys::zfp_field,
-    buffer: Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;,
-    _marker: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
+    buffer: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;,
+    _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; ZfpCompressionStreamWithBitstreamWithHeader&lt;<span class="lifetime">'a</span>, T&gt; {
-    <span class="kw">pub fn </span>compress(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
+<span class="kw">impl</span>&lt;T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="#191-197">ZfpCompressionStreamWithBitstreamWithHeader</a>&lt;<span class="lifetime">'_</span>, T&gt; {
+    <span class="kw">pub fn </span>compress(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
         <span class="kw">let </span>compressed_size = <span class="kw">unsafe </span>{ zfp_sys::zfp_compress(<a class="self" href="#200">self</a>.stream, <a class="self" href="#200">self</a>.field) };
 
         <span class="kw">if </span>compressed_size == <span class="number">0 </span>{
@@ -604,7 +604,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span>ZfpCompressionStreamWithBitstreamWithHeader&lt;<span class="lifetime">'a</span>, T&gt; {
+<span class="kw">impl</span>&lt;T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span><a href="#191-197">ZfpCompressionStreamWithBitstreamWithHeader</a>&lt;<span class="lifetime">'_</span>, T&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ zfp_sys::zfp_field_free(<a class="self" href="#215">self</a>.field) };
         <span class="kw">unsafe </span>{ zfp_sys::zfp_stream_close(<a class="self" href="#215">self</a>.stream) };
@@ -618,7 +618,7 @@
     data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ZfpDecompressionStream&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <a href="#222-226">ZfpDecompressionStream</a>&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>new(data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>bitstream = <span class="kw">unsafe </span>{
@@ -637,7 +637,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>read_full_header(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ZfpDecompressionStreamWithHeader&lt;<span class="lifetime">'a</span>&gt;, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
+    <span class="kw">pub fn </span>read_full_header(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="#274-279">ZfpDecompressionStreamWithHeader</a>&lt;<span class="lifetime">'a</span>&gt;, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
         <span class="kw">let </span>this = <a href="https://doc.rust-lang.org/nightly/core/mem/manually_drop/struct.ManuallyDrop.html#method.new">ManuallyDrop::new</a>(<a class="self" href="#247">self</a>);
 
         <span class="kw">let </span>field = <span class="kw">unsafe </span>{ zfp_sys::zfp_field_alloc() };
@@ -657,7 +657,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span>ZfpDecompressionStream&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span><a href="#222-226">ZfpDecompressionStream</a>&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ zfp_sys::zfp_stream_close(<a class="self" href="#268">self</a>.stream) };
         <span class="kw">unsafe </span>{ zfp_sys::stream_close(<a class="self" href="#268">self</a>.bitstream) };
@@ -671,8 +671,8 @@
     _data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ZfpDecompressionStreamWithHeader&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">pub fn </span>decompress(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
+<span class="kw">impl </span><a href="#274-279">ZfpDecompressionStreamWithHeader</a>&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">pub fn </span>decompress(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
         <span class="kw">let </span>dtype = <span class="kw">match unsafe </span>{ (<span class="kw-2">*</span><a class="self" href="#282">self</a>.field).type_ } {
             zfp_sys::zfp_type_zfp_type_int32 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I32">AnyArrayDType::I32</a>,
             zfp_sys::zfp_type_zfp_type_int64 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a>,
@@ -689,7 +689,7 @@
         ]
         .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>()
         .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.filter">filter</a>(|s| <span class="kw-2">*</span><a href="#298">s</a> &gt; <span class="number">0</span>)
-        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;&gt;();
+        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;&gt;();
 
         <span class="kw">let </span>(decompressed, result) = <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.with_zeros_bytes">AnyArray::with_zeros_bytes</a>(<a href="#283">dtype</a>, <span class="kw-2">&amp;</span><a href="#291">shape</a>, |bytes| {
             <span class="kw">unsafe </span>{
@@ -706,7 +706,7 @@
         <a href="#301">result</a>.<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map">map</a>(|()| <a href="#301">decompressed</a>)
     }
 
-    <span class="kw">pub fn </span>decompress_into(<span class="self">self</span>, <span class="kw-2">mut </span>decompressed: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
+    <span class="kw">pub fn </span>decompress_into(<span class="self">self</span>, <span class="kw-2">mut </span>decompressed: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="lib.rs.html#173-230">ZfpCodecError</a>&gt; {
         <span class="kw">let </span>dtype = <span class="kw">match unsafe </span>{ (<span class="kw-2">*</span><a class="self" href="#316">self</a>.field).type_ } {
             zfp_sys::zfp_type_zfp_type_int32 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I32">AnyArrayDType::I32</a>,
             zfp_sys::zfp_type_zfp_type_int64 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a>,
@@ -732,7 +732,7 @@
         ]
         .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>()
         .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.filter">filter</a>(|s| <span class="kw-2">*</span><a href="#341">s</a> &gt; <span class="number">0</span>)
-        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;&gt;();
+        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;&gt;();
 
         <span class="kw">if </span>decompressed.shape() != shape {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#219-223">ZfpCodecError::MismatchedDecodeIntoArray</a> {
@@ -757,7 +757,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span>ZfpDecompressionStreamWithHeader&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html">Drop</a> <span class="kw">for </span><a href="#274-279">ZfpDecompressionStreamWithHeader</a>&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ zfp_sys::zfp_field_free(<a class="self" href="#368">self</a>.field) };
         <span class="kw">unsafe </span>{ zfp_sys::zfp_stream_close(<a class="self" href="#368">self</a>.stream) };

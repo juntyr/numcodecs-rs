@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/sz3/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_sz3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_sz3/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/sz3/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_sz3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d10a6823f 2024-11-29)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_sz3/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -525,7 +525,7 @@
     <a href="../../numcodecs/codec/trait.Codec.html">Codec</a>, <a href="../../numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>, <a href="../../numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>,
 };
 <span class="kw">use </span>schemars::JsonSchema;
-<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Serialize.html">Serialize</a>};
+<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Serialize.html">Serialize</a>};
 <span class="kw">use </span>thiserror::Error;
 
 <span class="comment">// Only included to explicitly enable the `no_wasm_shim` feature for
@@ -600,7 +600,7 @@
 <span class="kw">impl </span><a href="../../numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#38-41">Sz3Codec</a> {
     <span class="kw">type </span>Error = <a href="#164-225">Sz3CodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#103">data</a> {
             AnyCowArray::I32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
                 <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#247-334">compress</a>(<a href="#105">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#103">self</a>.error)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
@@ -618,7 +618,7 @@
         }
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>AnyCowArray::U8(encoded) = <a href="#121">encoded</a> <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#193-196">Sz3CodecError::EncodedDataNotBytes</a> {
                 dtype: <a href="#121">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
@@ -638,7 +638,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         encoded: <a href="../../numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
         <span class="kw-2">mut </span>decoded: <a href="../../numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>decoded_in = <a class="self" href="#138">self</a>.<a href="../../numcodecs/codec/trait.Codec.html#tymethod.decode">decode</a>(<a href="#139">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.cow">cow</a>())<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<a href="#140">decoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#142">decoded_in</a>)<span class="question-mark">?</span>)
@@ -654,7 +654,7 @@
         <a href="#153">config</a>
     }
 
-    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StaticCodecConfig&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;<span class="self">Self</span>&gt; {
         <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#157">self</a>)
     }
 }
@@ -677,7 +677,7 @@
         <span class="doccomment">/// Opaque source error
         </span>source: <a href="#235">Sz3CodingError</a>,
         <span class="doccomment">/// The invalid shape of the encoded array
-        </span>shape: Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
+        </span>shape: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
     },
     <span class="doccomment">/// [`Sz3Codec`] failed to encode the data
     </span><span class="attr">#[error(<span class="string">"Sz3 failed to encode the data"</span>)]
@@ -699,7 +699,7 @@
     </span><span class="attr">#[error(<span class="string">"Sz3 can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"</span>)]
     </span>EncodedDataNotOneDimensional {
         <span class="doccomment">/// The unexpected shape of the encoded array
-        </span>shape: Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
+        </span>shape: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
     },
     <span class="doccomment">/// [`Sz3Codec`] failed to decode the header
     </span><span class="attr">#[error(<span class="string">"Sz3 failed to decode the header"</span>)]
@@ -744,10 +744,10 @@
 /// - [`Sz3CodecError::HeaderEncodeFailed`] if encoding the header failed
 /// - [`Sz3CodecError::InvalidEncodeShape`] if the array shape is invalid
 /// - [`Sz3CodecError::Sz3EncodeFailed`] if encoding failed with an opaque error
-</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.compress.html">compress</a>&lt;T: <a href="#391-394">Sz3Element</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
-    data: ArrayBase&lt;S, D&gt;,
+</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.compress.html">compress</a>&lt;T: <a href="#391-394">Sz3Element</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+    data: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
     bound: <span class="kw-2">&amp;</span><a href="#47-98">Sz3ErrorBound</a>,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#164-225">Sz3CodecError</a>&gt; {
+) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#164-225">Sz3CodecError</a>&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>encoded = postcard::to_extend(
         <span class="kw-2">&amp;</span><a href="#413-417">CompressionHeader</a> {
             dtype: &lt;T <span class="kw">as </span>Sz3Element&gt;::DTYPE,
@@ -839,7 +839,7 @@
 ///
 /// Errors with
 /// - [`Sz3CodecError::HeaderDecodeFailed`] if decoding the header failed
-</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#164-225">Sz3CodecError</a>&gt; {
+</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#164-225">Sz3CodecError</a>&gt; {
     <span class="kw">let </span>(header, data) =
         postcard::take_from_bytes::&lt;<a href="#413-417">CompressionHeader</a>&gt;(<a href="#342">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
             <a href="#206-209">Sz3CodecError::HeaderDecodeFailed</a> {
@@ -913,7 +913,7 @@
 </span><span class="kw">struct </span>CompressionHeader&lt;<span class="lifetime">'a</span>&gt; {
     dtype: <a href="#422-431">Sz3DType</a>,
     <span class="attr">#[serde(borrow)]
-    </span>shape: Cow&lt;<span class="lifetime">'a</span>, [<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>]&gt;,
+    </span>shape: <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, [<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>]&gt;,
 }
 
 <span class="doccomment">/// Dtypes that SZ3 can compress and decompress

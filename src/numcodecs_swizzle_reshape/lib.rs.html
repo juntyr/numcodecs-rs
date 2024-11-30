@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/swizzle-reshape/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_swizzle_reshape" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_swizzle_reshape/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/swizzle-reshape/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_swizzle_reshape" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d10a6823f 2024-11-29)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_swizzle_reshape/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -748,8 +748,7 @@
 <a href="#747" id="747">747</a>
 <a href="#748" id="748">748</a>
 <a href="#749" id="749">749</a>
-<a href="#750" id="750">750</a>
-<a href="#751" id="751">751</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+<a href="#750" id="750">750</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -781,9 +780,9 @@
 };
 <span class="kw">use </span>schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 <span class="kw">use </span>serde::{
-    de::{<a href="https://docs.rs/serde/1.0.213/serde/de/trait.MapAccess.html">MapAccess</a>, <a href="https://docs.rs/serde/1.0.213/serde/de/trait.Visitor.html">Visitor</a>},
-    <a href="https://docs.rs/serde/1.0.213/serde/ser/trait.SerializeMap.html">ser::SerializeMap</a>,
-    <a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.213/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.213/serde/ser/trait.Serializer.html">Serializer</a>,
+    de::{<a href="https://docs.rs/serde/1.0.215/serde/de/trait.MapAccess.html">MapAccess</a>, <a href="https://docs.rs/serde/1.0.215/serde/de/trait.Visitor.html">Visitor</a>},
+    <a href="https://docs.rs/serde/1.0.215/serde/ser/trait.SerializeMap.html">ser::SerializeMap</a>,
+    <a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.215/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.215/serde/ser/trait.Serializer.html">Serializer</a>,
 };
 <span class="kw">use </span>thiserror::Error;
 
@@ -813,7 +812,7 @@
     ///   of axes as the input array
     /// - `[[0], [{}]]` in contrast collapses all other axes into one, i.e.
     ///   the encoded array is two-dimensional
-    </span><span class="kw">pub </span>axes: Vec&lt;<a href="#72-77">AxisGroup</a>&gt;,
+    </span><span class="kw">pub </span>axes: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="#72-77">AxisGroup</a>&gt;,
 }
 
 <span class="attr">#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
@@ -822,9 +821,9 @@
 </span><span class="doccomment">/// An axis group, potentially from a merged combination of multiple input axes
 </span><span class="kw">pub enum </span><a href="../../numcodecs_swizzle_reshape/enum.AxisGroup.html">AxisGroup</a> {
     <span class="doccomment">/// A merged combination of zero, one, or multiple input axes
-    </span>Group(Vec&lt;<a href="#83-88">Axis</a>&gt;),
+    </span>Group(<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="#83-88">Axis</a>&gt;),
     <span class="doccomment">/// All remaining axes, each in a separate single-axis group
-    </span>AllRest(<a href="#473">Rest</a>),
+    </span>AllRest(<a href="#472">Rest</a>),
 }
 
 <span class="attr">#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
@@ -835,59 +834,59 @@
     <span class="doccomment">/// A single axis, as determined by its index
     </span>Index(<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>),
     <span class="doccomment">/// All remaining axes, combined into one
-    </span>MergedRest(<a href="#473">Rest</a>),
+    </span>MergedRest(<a href="#472">Rest</a>),
 }
 
 <span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#49-66">SwizzleReshapeCodec</a> {
     <span class="kw">type </span>Error = <a href="#210-248">SwizzleReshapeCodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#93">data</a> {
-            AnyCowArray::U8(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#95">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
-            AnyCowArray::U16(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArray::U16</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#96">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
-            AnyCowArray::U32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#97">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
-            AnyCowArray::U64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#98">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
-            AnyCowArray::I8(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyArray::I8</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#99">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
-            AnyCowArray::I16(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArray::I16</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#100">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
-            AnyCowArray::I32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#101">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
-            AnyCowArray::I64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#102">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
-            AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#103">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
-            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#262-277">swizzle_reshape</a>(<a href="#104">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::U8(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#95">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::U16(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArray::U16</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#96">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::U32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#97">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::U64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#98">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::I8(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyArray::I8</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#99">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::I16(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArray::I16</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#100">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::I32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#101">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::I64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#102">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#103">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
+            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#262-276">swizzle_reshape</a>(<a href="#104">data</a>, <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.axes)<span class="question-mark">?</span>)),
             data =&gt; <span class="prelude-val">Err</span>(<a href="#213">SwizzleReshapeCodecError::UnsupportedDtype</a>(<a href="#105">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#109">encoded</a> {
             AnyCowArray::U8(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#111">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#111">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             AnyCowArray::U16(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArray::U16</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#114">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArray::U16</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#114">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             AnyCowArray::U32(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#117">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#117">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             AnyCowArray::U64(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#120">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#120">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             AnyCowArray::I8(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyArray::I8</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#123">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyArray::I8</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#123">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             AnyCowArray::I16(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArray::I16</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#126">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArray::I16</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#126">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             AnyCowArray::I32(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#129">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#129">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             AnyCowArray::I64(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#132">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#132">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             AnyCowArray::F32(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#135">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#135">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             AnyCowArray::F64(encoded) =&gt; {
-                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#296-319">undo_swizzle_reshape</a>(<a href="#138">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
+                <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#295-318">undo_swizzle_reshape</a>(<a href="#138">encoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.axes)<span class="question-mark">?</span>))
             }
             encoded =&gt; <span class="prelude-val">Err</span>(<a href="#213">SwizzleReshapeCodecError::UnsupportedDtype</a>(<a href="#141">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
@@ -897,37 +896,37 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
         decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>(<a href="#147">encoded</a>, <a href="#148">decoded</a>) {
             (AnyArrayView::U8(encoded), AnyArrayViewMut::U8(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#151">encoded</a>, <a href="#151">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#151">encoded</a>, <a href="#151">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (AnyArrayView::U16(encoded), AnyArrayViewMut::U16(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#154">encoded</a>, <a href="#154">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#154">encoded</a>, <a href="#154">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (AnyArrayView::U32(encoded), AnyArrayViewMut::U32(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#157">encoded</a>, <a href="#157">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#157">encoded</a>, <a href="#157">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (AnyArrayView::U64(encoded), AnyArrayViewMut::U64(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#160">encoded</a>, <a href="#160">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#160">encoded</a>, <a href="#160">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (AnyArrayView::I8(encoded), AnyArrayViewMut::I8(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#163">encoded</a>, <a href="#163">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#163">encoded</a>, <a href="#163">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (AnyArrayView::I16(encoded), AnyArrayViewMut::I16(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#166">encoded</a>, <a href="#166">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#166">encoded</a>, <a href="#166">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (AnyArrayView::I32(encoded), AnyArrayViewMut::I32(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#169">encoded</a>, <a href="#169">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#169">encoded</a>, <a href="#169">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (AnyArrayView::I64(encoded), AnyArrayViewMut::I64(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#172">encoded</a>, <a href="#172">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#172">encoded</a>, <a href="#172">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#175">encoded</a>, <a href="#175">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#175">encoded</a>, <a href="#175">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) =&gt; {
-                <a href="#338-370">undo_swizzle_reshape_into</a>(<a href="#178">encoded</a>, <a href="#178">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
+                <a href="#337-369">undo_swizzle_reshape_into</a>(<a href="#178">encoded</a>, <a href="#178">decoded</a>, <span class="kw-2">&amp;</span><a class="self" href="#146">self</a>.axes)
             }
             (encoded, decoded) <span class="kw">if </span><a href="#181">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>() != <a href="#181">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>() =&gt; {
                 <span class="prelude-val">Err</span>(<a href="#243-247">SwizzleReshapeCodecError::MismatchedDecodeIntoArray</a> {
@@ -951,7 +950,7 @@
         <a href="#199">config</a>
     }
 
-    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StaticCodecConfig&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;<span class="self">Self</span>&gt; {
         <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#203">self</a>)
     }
 }
@@ -981,7 +980,7 @@
     </span><span class="attr">#[error(<span class="string">"SwizzleReshape can only encode or decode with an axis permutation {axes:?} that contains every axis of an array with {ndim} dimensions index exactly once"</span>)]
     </span>InvalidAxisPermutation {
         <span class="doccomment">/// The invalid permutation of axes
-        </span>axes: Vec&lt;<a href="#72-77">AxisGroup</a>&gt;,
+        </span>axes: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="#72-77">AxisGroup</a>&gt;,
         <span class="doccomment">/// The number of dimensions of the array
         </span>ndim: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
     },
@@ -1010,21 +1009,20 @@
 ///   permutation does not contain every axis index exactly once
 /// - [`SwizzleReshapeCodecError::MultipleRestAxes`] if the `axes` permutation
 ///   contains more than one [`Rest`]-axes marker
-</span><span class="kw">pub fn </span><a href="../../numcodecs_swizzle_reshape/fn.swizzle_reshape.html">swizzle_reshape</a>&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: Data&lt;Elem = T&gt;&gt;(
-    data: ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
+</span><span class="kw">pub fn </span><a href="../../numcodecs_swizzle_reshape/fn.swizzle_reshape.html">swizzle_reshape</a>&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;&gt;(
+    data: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
     axes: <span class="kw-2">&amp;</span>[<a href="#72-77">AxisGroup</a>],
-) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;, <a href="#210-248">SwizzleReshapeCodecError</a>&gt; {
-    <span class="kw">let </span>(permutation, new_shape) = <a href="#372-469">validate_into_axes_shape</a>(<span class="kw-2">&amp;</span><a href="#263">data</a>, <a href="#264">axes</a>)<span class="question-mark">?</span>;
+) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;, <a href="#210-248">SwizzleReshapeCodecError</a>&gt; {
+    <span class="kw">let </span>(permutation, new_shape) = <a href="#371-468">validate_into_axes_shape</a>(<span class="kw-2">&amp;</span><a href="#263">data</a>, <a href="#264">axes</a>)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>swizzled = <a href="#263">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.permuted_axes">permuted_axes</a>(<a href="#266">permutation</a>);
-    <span class="comment">// TODO: use into_shape_clone for ndarray &gt;=0.16
-    </span><span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// only panics on an implementation bug
+    <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// only panics on an implementation bug
     </span><span class="kw">let </span>reshaped = <a href="#268">swizzled</a>
-        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_shape">to_shape</a>(<a href="#266">new_shape</a>)
-        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.expect">expect</a>(<span class="string">"new encoding shape should have the correct number of elements"</span>)
-        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
+        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>()
+        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_shape_clone">into_shape_clone</a>(<a href="#266">new_shape</a>)
+        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.expect">expect</a>(<span class="string">"new encoding shape should have the correct number of elements"</span>);
 
-    <span class="prelude-val">Ok</span>(<a href="#271">reshaped</a>)
+    <span class="prelude-val">Ok</span>(<a href="#270">reshaped</a>)
 }
 
 <span class="doccomment">/// Reverts the swizzle and reshape of the `encoded` array with the `axes` and
@@ -1044,10 +1042,10 @@
 ///   permutation does not contain every axis index exactly once
 /// - [`SwizzleReshapeCodecError::MultipleRestAxes`] if the `axes` permutation
 ///   contains more than one [`Rest`]-axes marker
-</span><span class="kw">pub fn </span><a href="../../numcodecs_swizzle_reshape/fn.undo_swizzle_reshape.html">undo_swizzle_reshape</a>&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: Data&lt;Elem = T&gt;&gt;(
-    encoded: ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
+</span><span class="kw">pub fn </span><a href="../../numcodecs_swizzle_reshape/fn.undo_swizzle_reshape.html">undo_swizzle_reshape</a>&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;&gt;(
+    encoded: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
     axes: <span class="kw-2">&amp;</span>[<a href="#72-77">AxisGroup</a>],
-) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;, <a href="#210-248">SwizzleReshapeCodecError</a>&gt; {
+) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;, <a href="#210-248">SwizzleReshapeCodecError</a>&gt; {
     <span class="kw">if </span>!axes.iter().all(|axis| <span class="kw">match </span>axis {
         AxisGroup::Group(axes) =&gt; <span class="macro">matches!</span>(axes.as_slice(), [Axis::Index(<span class="kw">_</span>)]),
         AxisGroup::AllRest(Rest) =&gt; <span class="bool-val">true</span>,
@@ -1055,18 +1053,18 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#217">SwizzleReshapeCodecError::CannotDecodeMergedAxes</a>);
     }
 
-    <span class="kw">let </span>(permutation, _shape) = <a href="#372-469">validate_into_axes_shape</a>(<span class="kw-2">&amp;</span><a href="#297">encoded</a>, <a href="#298">axes</a>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(permutation, _shape) = <a href="#371-468">validate_into_axes_shape</a>(<span class="kw-2">&amp;</span><a href="#296">encoded</a>, <a href="#297">axes</a>)<span class="question-mark">?</span>;
 
     <span class="attr">#[allow(clippy::from_iter_instead_of_collect)]
-    </span><span class="kw">let </span><span class="kw-2">mut </span>inverse_permutation = <a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.FromIterator.html#tymethod.from_iter">Vec::from_iter</a>(<span class="number">0</span>..<a href="#307">permutation</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>());
+    </span><span class="kw">let </span><span class="kw-2">mut </span>inverse_permutation = <a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.FromIterator.html#tymethod.from_iter">Vec::from_iter</a>(<span class="number">0</span>..<a href="#306">permutation</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>());
     <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// all indices have been validated
-    </span><a href="#310">inverse_permutation</a>.<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.sort_by_key">sort_by_key</a>(|i| <a href="#307">permutation</a>[<span class="kw-2">*</span><a href="#312">i</a>]);
+    </span><a href="#309">inverse_permutation</a>.<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.sort_by_key">sort_by_key</a>(|i| <a href="#306">permutation</a>[<span class="kw-2">*</span><a href="#311">i</a>]);
 
     <span class="comment">// since no axes were merged, no reshape is needed
-    </span><span class="kw">let </span>unshaped = <a href="#297">encoded</a>;
-    <span class="kw">let </span>unswizzled = <a href="#315">unshaped</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.permuted_axes">permuted_axes</a>(<a href="#310">inverse_permutation</a>);
+    </span><span class="kw">let </span>unshaped = <a href="#296">encoded</a>;
+    <span class="kw">let </span>unswizzled = <a href="#314">unshaped</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.permuted_axes">permuted_axes</a>(<a href="#309">inverse_permutation</a>);
 
-    <span class="prelude-val">Ok</span>(<a href="#316">unswizzled</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())
+    <span class="prelude-val">Ok</span>(<a href="#315">unswizzled</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())
 }
 
 <span class="attr">#[allow(clippy::missing_panics_doc)]
@@ -1087,46 +1085,46 @@
 ///   array's shape does not match the shape that swizzling and reshaping an
 ///   array of the `decoded` array's shape would have produced
 </span><span class="kw">pub fn </span><a href="../../numcodecs_swizzle_reshape/fn.undo_swizzle_reshape_into.html">undo_swizzle_reshape_into</a>&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>&gt;(
-    encoded: ArrayView&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
-    <span class="kw-2">mut </span>decoded: ArrayViewMut&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
+    encoded: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
+    <span class="kw-2">mut </span>decoded: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayViewMut.html">ArrayViewMut</a>&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
     axes: <span class="kw-2">&amp;</span>[<a href="#72-77">AxisGroup</a>],
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#210-248">SwizzleReshapeCodecError</a>&gt; {
-    <span class="kw">let </span>(permutation, new_shape) = <a href="#372-469">validate_into_axes_shape</a>(<span class="kw-2">&amp;</span><a href="#340">decoded</a>, <a href="#341">axes</a>)<span class="question-mark">?</span>;
+) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#210-248">SwizzleReshapeCodecError</a>&gt; {
+    <span class="kw">let </span>(permutation, new_shape) = <a href="#371-468">validate_into_axes_shape</a>(<span class="kw-2">&amp;</span><a href="#339">decoded</a>, <a href="#340">axes</a>)<span class="question-mark">?</span>;
 
     <span class="kw">if </span>encoded.shape() != new_shape {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#243-247">SwizzleReshapeCodecError::MismatchedDecodeIntoArray</a> {
             source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
-                src: <a href="#339">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
-                dst: <a href="#343">new_shape</a>,
+                src: <a href="#338">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+                dst: <a href="#342">new_shape</a>,
             },
         });
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>permuted_shape_indices = <a href="#340">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.enumerate">enumerate</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">let </span><span class="kw-2">mut </span>permuted_shape_indices = <a href="#339">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.enumerate">enumerate</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
     <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// all indices have been validated
-    </span><a href="#354">permuted_shape_indices</a>.<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.sort_by_key">sort_by_key</a>(|(i, _s)| <a href="#343">permutation</a>[<span class="kw-2">*</span><a href="#356">i</a>]);
+    </span><a href="#353">permuted_shape_indices</a>.<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.sort_by_key">sort_by_key</a>(|(i, _s)| <a href="#342">permutation</a>[<span class="kw-2">*</span><a href="#355">i</a>]);
 
-    <span class="kw">let </span>(inverse_permutation, permuted_shape): (Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;) =
-        <a href="#354">permuted_shape_indices</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.unzip">unzip</a>();
+    <span class="kw">let </span>(inverse_permutation, permuted_shape): (<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;) =
+        <a href="#353">permuted_shape_indices</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.unzip">unzip</a>();
 
     <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// only panics on an implementation bug
-    </span><span class="kw">let </span>unshaped = <a href="#339">encoded</a>
-        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_shape">to_shape</a>(<a href="#358">permuted_shape</a>)
+    </span><span class="kw">let </span>unshaped = <a href="#338">encoded</a>
+        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_shape">to_shape</a>(<a href="#357">permuted_shape</a>)
         .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.expect">expect</a>(<span class="string">"new decoding shape should have the correct number of elements"</span>);
-    <span class="kw">let </span>unswizzled = <a href="#362">unshaped</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.permuted_axes">permuted_axes</a>(<a href="#358">inverse_permutation</a>);
+    <span class="kw">let </span>unswizzled = <a href="#361">unshaped</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.permuted_axes">permuted_axes</a>(<a href="#357">inverse_permutation</a>);
 
-    <a href="#340">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#365">unswizzled</a>);
+    <a href="#339">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#364">unswizzled</a>);
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn </span>validate_into_axes_shape&lt;T, S: Data&lt;Elem = T&gt;&gt;(
-    array: <span class="kw-2">&amp;</span>ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
+<span class="kw">fn </span>validate_into_axes_shape&lt;T, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;&gt;(
+    array: <span class="kw-2">&amp;</span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
     axes: <span class="kw-2">&amp;</span>[<a href="#72-77">AxisGroup</a>],
-) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;, Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;), <a href="#210-248">SwizzleReshapeCodecError</a>&gt; {
+) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;), <a href="#210-248">SwizzleReshapeCodecError</a>&gt; {
     <span class="comment">// counts of each axis index, used to check for missing or duplicate axes,
     //  and for knowing which axes are caught by the rest catch-all
-    </span><span class="kw">let </span><span class="kw-2">mut </span>axis_index_counts = <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[<span class="number">0_usize</span>; <a href="#373">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.ndim">ndim</a>()];
+    </span><span class="kw">let </span><span class="kw-2">mut </span>axis_index_counts = <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[<span class="number">0_usize</span>; <a href="#372">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.ndim">ndim</a>()];
 
     <span class="kw">let </span><span class="kw-2">mut </span>has_rest = <span class="bool-val">false</span>;
 
@@ -1171,15 +1169,15 @@
         .all(|c| <span class="kw">if </span>has_rest { <span class="kw-2">*</span>c &lt;= <span class="number">1 </span>} <span class="kw">else </span>{ <span class="kw-2">*</span>c == <span class="number">1 </span>})
     {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#231-236">SwizzleReshapeCodecError::InvalidAxisPermutation</a> {
-            axes: <a href="#374">axes</a>.<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
-            ndim: <a href="#373">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.ndim">ndim</a>(),
+            axes: <a href="#373">axes</a>.<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+            ndim: <a href="#372">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.ndim">ndim</a>(),
         });
     }
 
     <span class="comment">// the permutation to apply to the input axes
-    </span><span class="kw">let </span><span class="kw-2">mut </span>axis_permutation = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.with_capacity">Vec::with_capacity</a>(<a href="#373">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>());
+    </span><span class="kw">let </span><span class="kw-2">mut </span>axis_permutation = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.with_capacity">Vec::with_capacity</a>(<a href="#372">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>());
     <span class="comment">// the shape of the already permuted and grouped output array
-    </span><span class="kw">let </span><span class="kw-2">mut </span>grouped_shape = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.with_capacity">Vec::with_capacity</a>(<a href="#374">axes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
+    </span><span class="kw">let </span><span class="kw-2">mut </span>grouped_shape = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.with_capacity">Vec::with_capacity</a>(<a href="#373">axes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
 
     <span class="kw">for </span>axis <span class="kw">in </span>axes {
         <span class="kw">match </span>axis {
@@ -1216,45 +1214,45 @@
         }
     }
 
-    <span class="prelude-val">Ok</span>((<a href="#429">axis_permutation</a>, <a href="#431">grouped_shape</a>))
+    <span class="prelude-val">Ok</span>((<a href="#428">axis_permutation</a>, <a href="#430">grouped_shape</a>))
 }
 
 <span class="attr">#[derive(Copy, Clone, Debug)]
 </span><span class="doccomment">/// Marker to signify all remaining (not explicitly named) axes
 </span><span class="kw">pub struct </span><a href="../../numcodecs_swizzle_reshape/struct.Rest.html">Rest</a>;
 
-<span class="kw">impl </span><a href="https://docs.rs/serde/1.0.213/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#473">Rest</a> {
-    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.213/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        <a href="#476">serializer</a>.<a href="https://docs.rs/serde/1.0.213/serde/ser/trait.Serializer.html#tymethod.serialize_map">serialize_map</a>(<span class="prelude-val">Some</span>(<span class="number">0</span>))<span class="question-mark">?</span>.<a href="https://docs.rs/serde/1.0.213/serde/ser/trait.SerializeMap.html#tymethod.end">end</a>()
+<span class="kw">impl </span><a href="https://docs.rs/serde/1.0.215/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#472">Rest</a> {
+    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.215/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
+        <a href="#475">serializer</a>.<a href="https://docs.rs/serde/1.0.215/serde/ser/trait.Serializer.html#tymethod.serialize_map">serialize_map</a>(<span class="prelude-val">Some</span>(<span class="number">0</span>))<span class="question-mark">?</span>.<a href="https://docs.rs/serde/1.0.215/serde/ser/trait.SerializeMap.html#tymethod.end">end</a>()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#473">Rest</a> {
-    <span class="kw">fn </span>deserialize&lt;D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; <a href="https://docs.rs/serde/1.0.215/serde/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#472">Rest</a> {
+    <span class="kw">fn </span>deserialize&lt;D: <a href="https://docs.rs/serde/1.0.215/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, D::Error&gt; {
         <span class="kw">struct </span>RestVisitor;
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#483">RestVisitor</a> {
-            <span class="kw">type </span>Value = <a href="#473">Rest</a>;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; <a href="https://docs.rs/serde/1.0.215/serde/de/trait.Visitor.html">Visitor</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#482">RestVisitor</a> {
+            <span class="kw">type </span>Value = <a href="#472">Rest</a>;
 
             <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html">fmt::Formatter</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html">fmt::Result</a> {
-                <a href="#488">fmt</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.write_str">write_str</a>(<span class="string">"an empty map"</span>)
+                <a href="#487">fmt</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.write_str">write_str</a>(<span class="string">"an empty map"</span>)
             }
 
-            <span class="kw">fn </span>visit_map&lt;A: MapAccess&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, _map: A) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, A::Error&gt; {
-                <span class="prelude-val">Ok</span>(<a href="#473">Rest</a>)
+            <span class="kw">fn </span>visit_map&lt;A: <a href="https://docs.rs/serde/1.0.215/serde/de/trait.MapAccess.html">MapAccess</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, _map: A) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>::Value, A::Error&gt; {
+                <span class="prelude-val">Ok</span>(<a href="#472">Rest</a>)
             }
         }
 
-        <a href="#482">deserializer</a>.<a href="https://docs.rs/serde/1.0.213/serde/de/trait.Deserializer.html#tymethod.deserialize_map">deserialize_map</a>(<a href="#483">RestVisitor</a>)
+        <a href="#481">deserializer</a>.<a href="https://docs.rs/serde/1.0.215/serde/de/trait.Deserializer.html#tymethod.deserialize_map">deserialize_map</a>(<a href="#482">RestVisitor</a>)
     }
 }
 
-<span class="kw">impl </span>JsonSchema <span class="kw">for </span><a href="#473">Rest</a> {
-    <span class="kw">fn </span>schema_name() -&gt; Cow&lt;<span class="lifetime">'static</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
+<span class="kw">impl </span>JsonSchema <span class="kw">for </span><a href="#472">Rest</a> {
+    <span class="kw">fn </span>schema_name() -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'static</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
         <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<span class="string">"Rest"</span>)
     }
 
-    <span class="kw">fn </span>schema_id() -&gt; Cow&lt;<span class="lifetime">'static</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
+    <span class="kw">fn </span>schema_id() -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'static</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
         <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.concat.html">concat!</a>(<span class="macro">module_path!</span>(), <span class="string">"::"</span>, <span class="string">"Rest"</span>))
     }
 

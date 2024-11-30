@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/reinterpret/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_reinterpret" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_reinterpret/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/reinterpret/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_reinterpret" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d10a6823f 2024-11-29)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_reinterpret/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -474,7 +474,7 @@
     <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/trait.ArrayDType.html">ArrayDType</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>,
 };
 <span class="kw">use </span>schemars::JsonSchema;
-<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.213/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.213/serde/ser/trait.Serializer.html">Serializer</a>};
+<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.215/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.215/serde/ser/trait.Serializer.html">Serializer</a>};
 <span class="kw">use </span>thiserror::Error;
 
 <span class="attr">#[derive(Clone, JsonSchema)]
@@ -504,7 +504,7 @@
     </span><span class="kw">pub fn </span>try_new(
         encode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
         decode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <a href="#342-387">ReinterpretCodecError</a>&gt; {
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="#342-387">ReinterpretCodecError</a>&gt; {
         <span class="attr">#[allow(clippy::match_same_arms)]
         </span><span class="kw">match </span>(<a href="#55">decode_dtype</a>, <a href="#54">encode_dtype</a>) {
             <span class="comment">// performing no conversion always works
@@ -562,7 +562,7 @@
 <span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
     <span class="kw">type </span>Error = <a href="#342-387">ReinterpretCodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">if </span>data.dtype() != <span class="self">self</span>.decode_dtype {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#355-360">ReinterpretCodecError::MismatchedEncodeDType</a> {
                 configured: <a class="self" href="#114">self</a>.decode_dtype,
@@ -615,7 +615,7 @@
         <span class="prelude-val">Ok</span>(<a href="#122">encoded</a>)
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">if </span>encoded.dtype() != <span class="self">self</span>.encode_dtype {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#364-369">ReinterpretCodecError::MismatchedDecodeDType</a> {
                 configured: <a class="self" href="#167">self</a>.encode_dtype,
@@ -679,7 +679,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
         <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">if </span>encoded.dtype() != <span class="self">self</span>.encode_dtype {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#364-369">ReinterpretCodecError::MismatchedDecodeDType</a> {
                 configured: <a class="self" href="#228">self</a>.encode_dtype,
@@ -758,26 +758,26 @@
         <a href="#306">config</a>
     }
 
-    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StaticCodecConfig&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;<span class="self">Self</span>&gt; {
         <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#310">self</a>)
     }
 }
 
-<span class="kw">impl </span><a href="https://docs.rs/serde/1.0.213/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
-    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.213/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+<span class="kw">impl </span><a href="https://docs.rs/serde/1.0.215/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
+    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.215/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
         <a href="#335-338">ReinterpretCodecConfig</a> {
             encode_dtype: <a class="self" href="#316">self</a>.encode_dtype,
             decode_dtype: <a class="self" href="#316">self</a>.decode_dtype,
         }
-        .<a href="https://docs.rs/serde/1.0.213/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#316">serializer</a>)
+        .<a href="https://docs.rs/serde/1.0.215/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#316">serializer</a>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
-    <span class="kw">fn </span>deserialize&lt;D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        <span class="kw">let </span>config = <a href="https://docs.rs/serde/1.0.213/serde/de/trait.Deserialize.html#tymethod.deserialize">ReinterpretCodecConfig::deserialize</a>(<a href="#326">deserializer</a>)<span class="question-mark">?</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; <a href="https://docs.rs/serde/1.0.215/serde/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
+    <span class="kw">fn </span>deserialize&lt;D: <a href="https://docs.rs/serde/1.0.215/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, D::Error&gt; {
+        <span class="kw">let </span>config = <a href="https://docs.rs/serde/1.0.215/serde/de/trait.Deserialize.html#tymethod.deserialize">ReinterpretCodecConfig::deserialize</a>(<a href="#326">deserializer</a>)<span class="question-mark">?</span>;
 
-        <a href="#53-79"><span class="self">Self</span>::try_new</a>(<a href="#327">config</a>.encode_dtype, <a href="#327">config</a>.decode_dtype).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.213/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)
+        <a href="#53-79"><span class="self">Self</span>::try_new</a>(<a href="#327">config</a>.encode_dtype, <a href="#327">config</a>.decode_dtype).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.215/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)
     }
 }
 
@@ -824,7 +824,7 @@
     </span>)]
     </span>InvalidEncodedShape {
         <span class="doccomment">/// Shape of the encoded array
-        </span>shape: Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
+        </span>shape: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
         <span class="doccomment">/// Dtype of the array into which the encoded data is to be decoded
         </span>dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
     },
@@ -840,10 +840,10 @@
 <span class="doccomment">/// Reinterpret the data elements of the `array` using the provided `reinterpret`
 /// closure. The shape of the data is preserved.
 </span><span class="attr">#[inline]
-</span><span class="kw">pub fn </span><a href="../../numcodecs_reinterpret/fn.reinterpret_array.html">reinterpret_array</a>&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, U, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
-    array: ArrayBase&lt;S, D&gt;,
-    reinterpret: <span class="kw">impl </span>Fn(T) -&gt; U,
-) -&gt; Array&lt;U, D&gt; {
+</span><span class="kw">pub fn </span><a href="../../numcodecs_reinterpret/fn.reinterpret_array.html">reinterpret_array</a>&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, U, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+    array: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
+    reinterpret: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.Fn.html">Fn</a>(T) -&gt; U,
+) -&gt; <a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;U, D&gt; {
     <span class="kw">let </span>array = <a href="#393">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
     <span class="kw">let </span>(shape, data) = (<a href="#396">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.raw_dim">raw_dim</a>(), <a href="#396">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_raw_vec_and_offset">into_raw_vec_and_offset</a>().<span class="number">0</span>);
 
@@ -868,12 +868,12 @@
 ///   `encoded` array's shape
 </span><span class="attr">#[inline]
 </span><span class="kw">pub fn </span><a href="../../numcodecs_reinterpret/fn.reinterpret_array_into.html">reinterpret_array_into</a>&lt;<span class="lifetime">'a</span>, T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, U: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/trait.ArrayDType.html">ArrayDType</a>, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
-    encoded: ArrayView&lt;T, D&gt;,
-    reinterpret: <span class="kw">impl </span>Fn(T) -&gt; U,
-    <span class="kw-2">mut </span>decoded: AnyArrayViewMut&lt;<span class="lifetime">'a</span>&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#342-387">ReinterpretCodecError</a>&gt;
+    encoded: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>&lt;T, D&gt;,
+    reinterpret: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.Fn.html">Fn</a>(T) -&gt; U,
+    <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>&lt;<span class="lifetime">'a</span>&gt;,
+) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#342-387">ReinterpretCodecError</a>&gt;
 <span class="kw">where
-    </span>U::RawData&lt;ViewRepr&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>()&gt;&gt;: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.DataMut.html">DataMut</a>,
+    </span>U::RawData&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ViewRepr.html">ViewRepr</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>()&gt;&gt;: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.DataMut.html">DataMut</a>,
 {
     <span class="kw">let </span><span class="prelude-val">Some</span>(decoded) = <a href="#422">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_typed_mut">as_typed_mut</a>::&lt;U&gt;() <span class="kw">else </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#382-386">ReinterpretCodecError::MismatchedDecodeIntoArray</a> {

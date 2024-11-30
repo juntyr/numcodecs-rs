@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/array.rs`."><title>array.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs/</div>array.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/array.rs`."><title>array.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d10a6823f 2024-11-29)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs/</div>array.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -795,37 +795,37 @@
     <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataClone.html">RawDataClone</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ViewRepr.html">ViewRepr</a>,
 };
 <span class="kw">use </span>schemars::JsonSchema;
-<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Serialize.html">Serialize</a>};
+<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Serialize.html">Serialize</a>};
 <span class="kw">use </span>thiserror::Error;
 
 <span class="doccomment">/// An array where the data has shared ownership and is copy-on-write.
-</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyArcArray.html">AnyArcArray</a> = AnyArrayBase&lt;OwnedArcRepr&lt;()&gt;&gt;;
+</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyArcArray.html">AnyArcArray</a> = <a href="#25-36">AnyArrayBase</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/struct.OwnedArcRepr.html">OwnedArcRepr</a>&lt;()&gt;&gt;;
 <span class="doccomment">/// An array that owns its data uniquely.
-</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyArray.html">AnyArray</a> = AnyArrayBase&lt;OwnedRepr&lt;()&gt;&gt;;
+</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyArray.html">AnyArray</a> = <a href="#25-36">AnyArrayBase</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/data_repr/struct.OwnedRepr.html">OwnedRepr</a>&lt;()&gt;&gt;;
 <span class="doccomment">/// A read-only array view.
-</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyArrayView.html">AnyArrayView</a>&lt;<span class="lifetime">'a</span>&gt; = AnyArrayBase&lt;ViewRepr&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;&gt;;
+</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyArrayView.html">AnyArrayView</a>&lt;<span class="lifetime">'a</span>&gt; = <a href="#25-36">AnyArrayBase</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ViewRepr.html">ViewRepr</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;&gt;;
 <span class="doccomment">/// A read-write array view.
-</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyArrayViewMut.html">AnyArrayViewMut</a>&lt;<span class="lifetime">'a</span>&gt; = AnyArrayBase&lt;ViewRepr&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>()&gt;&gt;;
+</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyArrayViewMut.html">AnyArrayViewMut</a>&lt;<span class="lifetime">'a</span>&gt; = <a href="#25-36">AnyArrayBase</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ViewRepr.html">ViewRepr</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>()&gt;&gt;;
 <span class="doccomment">/// An array with copy-on-write behavior.
-</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyCowArray.html">AnyCowArray</a>&lt;<span class="lifetime">'a</span>&gt; = AnyArrayBase&lt;CowRepr&lt;<span class="lifetime">'a</span>, ()&gt;&gt;;
+</span><span class="kw">pub type </span><a href="../../numcodecs/type.AnyCowArray.html">AnyCowArray</a>&lt;<span class="lifetime">'a</span>&gt; = <a href="#25-36">AnyArrayBase</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/enum.CowRepr.html">CowRepr</a>&lt;<span class="lifetime">'a</span>, ()&gt;&gt;;
 
 <span class="doccomment">/// Numeric n-dimensional arrays with dynamic shapes.
 </span><span class="attr">#[non_exhaustive]
 #[allow(missing_docs)]
 </span><span class="kw">pub enum </span><a href="../../numcodecs/enum.AnyArrayBase.html">AnyArrayBase</a>&lt;T: <a href="#606-617">AnyRawData</a>&gt; {
-    U8(ArrayBase&lt;T::U8, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
-    U16(ArrayBase&lt;T::U16, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
-    U32(ArrayBase&lt;T::U32, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
-    U64(ArrayBase&lt;T::U64, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
-    I8(ArrayBase&lt;T::I8, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
-    I16(ArrayBase&lt;T::I16, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
-    I32(ArrayBase&lt;T::I32, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
-    I64(ArrayBase&lt;T::I64, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
-    F32(ArrayBase&lt;T::F32, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
-    F64(ArrayBase&lt;T::F64, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    U8(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::U8, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    U16(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::U16, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    U32(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::U32, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    U64(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::U64, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    I8(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::I8, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    I16(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::I16, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    I32(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::I32, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    I64(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::I64, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    F32(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::F32, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
+    F64(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;T::F64, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;),
 }
 
-<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; AnyArrayBase&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; <a href="#25-36">AnyArrayBase</a>&lt;T&gt; {
     <span class="doccomment">/// Returns the total number of elements in the array.
     </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
         <span class="kw">match </span><span class="self"><a href="#40">self</a> </span>{
@@ -909,7 +909,7 @@
     <span class="attr">#[must_use]
     </span><span class="doccomment">/// Returns the `U`-typed array in `Some(_)` iff the dtype of `U` matches
     /// the dtype of this array. Returns `None` otherwise.
-    </span><span class="kw">pub const fn </span>as_typed&lt;U: <a href="#743-749">ArrayDType</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ArrayBase&lt;U::RawData&lt;T&gt;, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;&gt; {
+    </span><span class="kw">pub const fn </span>as_typed&lt;U: <a href="#743-749">ArrayDType</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;U::RawData&lt;T&gt;, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;&gt; {
         <span class="attr">#[allow(unsafe_code)]
         </span><span class="comment">// Safety: the match ensures that a is of the required type,
         //         but cannot express that in the type system directly
@@ -931,7 +931,7 @@
     <span class="attr">#[must_use]
     </span><span class="doccomment">/// Returns the `U`-typed array in `Some(_)` iff the dtype of `U` matches
     /// the dtype of this array. Returns `None` otherwise.
-    </span><span class="kw">pub fn </span>as_typed_mut&lt;U: <a href="#743-749">ArrayDType</a>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ArrayBase&lt;U::RawData&lt;T&gt;, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_typed_mut&lt;U: <a href="#743-749">ArrayDType</a>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;mut </span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;U::RawData&lt;T&gt;, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;&gt; {
         <span class="attr">#[allow(unsafe_code)]
         </span><span class="comment">// Safety: the match ensures that a is of the required type,
         //         but cannot express that in the type system directly
@@ -951,7 +951,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; <a href="#25-36">AnyArrayBase</a>&lt;T&gt;
 <span class="kw">where
     </span>T::U8: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>,
     T::U16: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>,
@@ -1024,8 +1024,8 @@
     /// elements, a view of the data is returned without cloning.
     ///
     /// Otherwise, the data is cloned and put into standard order first.
-    </span><span class="kw">pub fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; {
-        <span class="kw">fn </span>array_into_bytes&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: Data&lt;Elem = T&gt;&gt;(x: <span class="kw-2">&amp;</span>ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;) -&gt; Cow&lt;[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; {
+    </span><span class="kw">pub fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; {
+        <span class="kw">fn </span>array_into_bytes&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;&gt;(x: <span class="kw-2">&amp;</span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;) -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; {
             <span class="attr">#[allow(clippy::option_if_let_else)]
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(x) = <a href="#238">x</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
                 <span class="attr">#[allow(unsafe_code)]
@@ -1036,7 +1036,7 @@
                     <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_raw_parts.html">std::slice::from_raw_parts</a>(<a href="#240">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast">cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;(), <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">std::mem::size_of_val</a>(<a href="#240">x</a>))
                 })
             } <span class="kw">else </span>{
-                <span class="kw">let </span>x = <a href="#238">x</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;Vec&lt;T&gt;&gt;();
+                <span class="kw">let </span>x = <a href="#238">x</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;T&gt;&gt;();
                 <span class="kw">let </span><span class="kw-2">mut </span>x = <a href="https://doc.rust-lang.org/nightly/core/mem/manually_drop/struct.ManuallyDrop.html#method.new">ManuallyDrop::new</a>(<a href="#249">x</a>);
                 <span class="kw">let </span>(ptr, len, capacity) = (<a href="#250">x</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_mut_ptr">as_mut_ptr</a>(), <a href="#250">x</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>(), <a href="#250">x</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.capacity">capacity</a>());
                 <span class="attr">#[allow(unsafe_code)]
@@ -1047,8 +1047,8 @@
                 </span><span class="kw">let </span>x = <span class="kw">unsafe </span>{
                     <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.from_raw_parts">Vec::from_raw_parts</a>(
                         <a href="#251">ptr</a>.<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.mut_ptr.html#method.cast">cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;(),
-                        <a href="#251">len</a> * std::mem::size_of::&lt;T&gt;(),
-                        <a href="#251">capacity</a> * std::mem::size_of::&lt;T&gt;(),
+                        <a href="#251">len</a> * <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;T&gt;(),
+                        <a href="#251">capacity</a> * <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;T&gt;(),
                     )
                 };
                 <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#257">x</a>)
@@ -1070,7 +1070,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; <a href="#25-36">AnyArrayBase</a>&lt;T&gt;
 <span class="kw">where
     </span>T::U8: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.DataMut.html">DataMut</a>,
     T::U16: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.DataMut.html">DataMut</a>,
@@ -1109,10 +1109,10 @@
     ///
     /// Otherwise, the data is cloned and put into standard order first, and
     /// later copied back into the array.
-    </span><span class="kw">pub fn </span>with_bytes_mut&lt;O&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; O) -&gt; O {
-        <span class="kw">fn </span>array_with_bytes_mut&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: DataMut&lt;Elem = T&gt;, O&gt;(
-            x: <span class="kw-2">&amp;mut </span>ArrayBase&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
-            with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; O,
+    </span><span class="kw">pub fn </span>with_bytes_mut&lt;O&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, with: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html">FnOnce</a>(<span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; O) -&gt; O {
+        <span class="kw">fn </span>array_with_bytes_mut&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.DataMut.html">DataMut</a>&lt;Elem = T&gt;, O&gt;(
+            x: <span class="kw-2">&amp;mut </span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;,
+            with: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html">FnOnce</a>(<span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; O,
         ) -&gt; O {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = <a href="#324">x</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice_mut">as_slice_mut</a>() {
                 <span class="attr">#[allow(unsafe_code)]
@@ -1126,7 +1126,7 @@
                     )
                 })
             } <span class="kw">else </span>{
-                <span class="kw">let </span><span class="kw-2">mut </span>x_vec: Vec&lt;T&gt; = <a href="#324">x</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|x| <span class="kw-2">*</span><a href="#339">x</a>).<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;Vec&lt;T&gt;&gt;();
+                <span class="kw">let </span><span class="kw-2">mut </span>x_vec: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;T&gt; = <a href="#324">x</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|x| <span class="kw-2">*</span><a href="#339">x</a>).<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;T&gt;&gt;();
 
                 <span class="attr">#[allow(unsafe_code)]
                 </span><span class="comment">// Safety: casting to a byte slice is only safe since this
@@ -1169,8 +1169,8 @@
     ///   `src` do not match
     </span><span class="kw">pub fn </span>assign&lt;U: <a href="#606-617">AnyRawData</a>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        src: <span class="kw-2">&amp;</span>AnyArrayBase&lt;U&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#773-790">AnyArrayAssignError</a>&gt;
+        src: <span class="kw-2">&amp;</span><a href="#25-36">AnyArrayBase</a>&lt;U&gt;,
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#773-790">AnyArrayAssignError</a>&gt;
     <span class="kw">where
         </span>U::U8: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>,
         U::U16: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>,
@@ -1185,14 +1185,14 @@
     {
         <span class="kw">fn </span>shape_checked_assign&lt;
             T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>,
-            S1: Data&lt;Elem = T&gt;,
-            S2: DataMut&lt;Elem = T&gt;,
+            S1: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;,
+            S2: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.DataMut.html">DataMut</a>&lt;Elem = T&gt;,
             D1: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>,
             D2: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>,
         &gt;(
-            src: <span class="kw-2">&amp;</span>ArrayBase&lt;S1, D1&gt;,
-            dst: <span class="kw-2">&amp;mut </span>ArrayBase&lt;S2, D2&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <a href="#773-790">AnyArrayAssignError</a>&gt; {
+            src: <span class="kw-2">&amp;</span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S1, D1&gt;,
+            dst: <span class="kw-2">&amp;mut </span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S2, D2&gt;,
+        ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#773-790">AnyArrayAssignError</a>&gt; {
             <span class="attr">#[allow(clippy::unit_arg)]
             </span><span class="kw">if </span>src.shape() == dst.shape() {
                 <span class="prelude-val">Ok</span>(<a href="#404">dst</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.assign">assign</a>(<a href="#403">src</a>))
@@ -1250,9 +1250,9 @@
     </span><span class="kw">pub fn </span>with_zeros_bytes&lt;T&gt;(
         dtype: <a href="#660-681">AnyArrayDType</a>,
         shape: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>],
-        with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; T,
+        with: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html">FnOnce</a>(<span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; T,
     ) -&gt; (<span class="self">Self</span>, T) {
-        <span class="kw">fn </span>standard_array_as_bytes_mut&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>&gt;(x: <span class="kw-2">&amp;mut </span>ArrayD&lt;T&gt;) -&gt; <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] {
+        <span class="kw">fn </span>standard_array_as_bytes_mut&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>&gt;(x: <span class="kw-2">&amp;mut </span><a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.ArrayD.html">ArrayD</a>&lt;T&gt;) -&gt; <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] {
             <span class="attr">#[allow(unsafe_code)]
             </span><span class="comment">// Safety: casting to a byte slice is only safe since this
             //         private helper function is only called for plain-
@@ -1262,7 +1262,7 @@
             </span><span class="kw">unsafe </span>{
                 <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_raw_parts_mut.html">std::slice::from_raw_parts_mut</a>(
                     <a href="#465">x</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_mut_ptr">as_mut_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.mut_ptr.html#method.cast">cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;(),
-                    <a href="#465">x</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>() * std::mem::size_of::&lt;T&gt;(),
+                    <a href="#465">x</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>() * <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;T&gt;(),
                 )
             }
         }
@@ -1287,7 +1287,7 @@
 
     <span class="attr">#[must_use]
     </span><span class="doccomment">/// Returns an owned copy-on-write array.
-    </span><span class="kw">pub fn </span>into_cow(<span class="self">self</span>) -&gt; AnyCowArray&lt;<span class="lifetime">'static</span>&gt; {
+    </span><span class="kw">pub fn </span>into_cow(<span class="self">self</span>) -&gt; <a href="#20">AnyCowArray</a>&lt;<span class="lifetime">'static</span>&gt; {
         <span class="kw">match </span><span class="self"><a href="#500">self</a> </span>{
             <span class="self">Self</span>::U8(array) =&gt; <a href="#26">AnyCowArray::U8</a>(<a href="#502">array</a>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>()),
             <span class="self">Self</span>::U16(array) =&gt; <a href="#27">AnyCowArray::U16</a>(<a href="#503">array</a>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>()),
@@ -1303,7 +1303,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html">Clone</a> <span class="kw">for </span>AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html">Clone</a> <span class="kw">for </span><a href="#25-36">AnyArrayBase</a>&lt;T&gt;
 <span class="kw">where
     </span>T::U8: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataClone.html">RawDataClone</a>,
     T::U16: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataClone.html">RawDataClone</a>,
@@ -1332,7 +1332,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span>AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="#25-36">AnyArrayBase</a>&lt;T&gt;
 <span class="kw">where
     </span>T::U8: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>,
     T::U16: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>,
@@ -1361,7 +1361,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html">PartialEq</a> <span class="kw">for </span>AnyArrayBase&lt;T&gt;
+<span class="kw">impl</span>&lt;T: <a href="#606-617">AnyRawData</a>&gt; <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html">PartialEq</a> <span class="kw">for </span><a href="#25-36">AnyArrayBase</a>&lt;T&gt;
 <span class="kw">where
     </span>T::U8: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>,
     T::U16: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>,
@@ -1394,29 +1394,29 @@
 <span class="doccomment">/// Array-representation support for all dtypes included in [`AnyArrayBase`].
 </span><span class="attr">#[allow(missing_docs)]
 </span><span class="kw">pub trait </span><a href="../../numcodecs/trait.AnyRawData.html">AnyRawData</a> {
-    <span class="kw">type </span>U8: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;;
-    <span class="kw">type </span>U16: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;;
-    <span class="kw">type </span>U32: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;;
-    <span class="kw">type </span>U64: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;;
-    <span class="kw">type </span>I8: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;;
-    <span class="kw">type </span>I16: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;;
-    <span class="kw">type </span>I32: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;;
-    <span class="kw">type </span>I64: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;;
-    <span class="kw">type </span>F32: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;;
-    <span class="kw">type </span>F64: RawData&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;;
+    <span class="kw">type </span>U8: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;;
+    <span class="kw">type </span>U16: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;;
+    <span class="kw">type </span>U32: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;;
+    <span class="kw">type </span>U64: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;;
+    <span class="kw">type </span>I8: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;;
+    <span class="kw">type </span>I16: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;;
+    <span class="kw">type </span>I32: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;;
+    <span class="kw">type </span>I64: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;;
+    <span class="kw">type </span>F32: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;;
+    <span class="kw">type </span>F64: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;;
 }
 
 <span class="kw">impl</span>&lt;
-        T: RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;
-            + RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;
-            + RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;
-            + RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;
-            + RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;
-            + RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;
-            + RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;
-            + RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;
-            + RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;
-            + RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;,
+        T: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;
+            + <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;
+            + <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;
+            + <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;
+            + <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;
+            + <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;
+            + <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;
+            + <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;
+            + <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;
+            + <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawDataSubst.html">RawDataSubst</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;,
     &gt; <a href="#606-617">AnyRawData</a> <span class="kw">for </span>T
 {
     <span class="kw">type </span>U8 = &lt;T <span class="kw">as </span>RawDataSubst&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;::Output;
@@ -1498,16 +1498,16 @@
     </span><span class="doccomment">/// Returns the size of the dtype in bytes.
     </span><span class="kw">pub const fn </span>size(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
         <span class="kw">match </span><span class="self"><a href="#709">self</a> </span>{
-            <span class="self">Self</span>::U8 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;(),
-            <span class="self">Self</span>::U16 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;(),
-            <span class="self">Self</span>::U32 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;(),
-            <span class="self">Self</span>::U64 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;(),
-            <span class="self">Self</span>::I8 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;(),
-            <span class="self">Self</span>::I16 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;(),
-            <span class="self">Self</span>::I32 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;(),
-            <span class="self">Self</span>::I64 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;(),
-            <span class="self">Self</span>::F32 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(),
-            <span class="self">Self</span>::F64 =&gt; std::mem::size_of::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(),
+            <span class="self">Self</span>::U8 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;(),
+            <span class="self">Self</span>::U16 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;(),
+            <span class="self">Self</span>::U32 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;(),
+            <span class="self">Self</span>::U64 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;(),
+            <span class="self">Self</span>::I8 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;(),
+            <span class="self">Self</span>::I16 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;(),
+            <span class="self">Self</span>::I32 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;(),
+            <span class="self">Self</span>::I64 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;(),
+            <span class="self">Self</span>::F32 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;(),
+            <span class="self">Self</span>::F64 =&gt; <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">std::mem::size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;(),
         }
     }
 }
@@ -1535,7 +1535,7 @@
     </span><span class="kw">const </span>DTYPE: <a href="#660-681">AnyArrayDType</a>;
 
     <span class="doccomment">/// Representation for an [`ArrayBase`] containing this type
-    </span><span class="kw">type </span>RawData&lt;T: <a href="#606-617">AnyRawData</a>&gt;: RawData&lt;Elem = <span class="self">Self</span>&gt;;
+    </span><span class="kw">type </span>RawData&lt;T: <a href="#606-617">AnyRawData</a>&gt;: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.RawData.html">RawData</a>&lt;Elem = <span class="self">Self</span>&gt;;
 }
 
 <span class="macro">macro_rules!</span> array_dtype {
@@ -1573,9 +1573,9 @@
     </span><span class="attr">#[error(<span class="string">"cannot assign from array of shape {src:?} to one of shape {dst:?}"</span>)]
     </span>ShapeMismatch {
         <span class="doccomment">/// Shape of the `src` array from which the data is copied
-        </span>src: Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
+        </span>src: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
         <span class="doccomment">/// Shape of the `dst` array into which the data is copied
-        </span>dst: Vec&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
+        </span>dst: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
     },
 }
 </code></pre></div></section></main></body></html>

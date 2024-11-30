@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/bit-round/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_bit_round" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_bit_round/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/bit-round/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_bit_round" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d10a6823f 2024-11-29)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_bit_round/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -389,7 +389,7 @@
     <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>,
 };
 <span class="kw">use </span>schemars::JsonSchema;
-<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde_derive/1.0.213/serde_derive/derive.Serialize.html">Serialize</a>};
+<span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde_derive/1.0.215/serde_derive/derive.Serialize.html">Serialize</a>};
 <span class="kw">use </span>thiserror::Error;
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize, JsonSchema)]
@@ -416,7 +416,7 @@
 <span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#40-48">BitRoundCodec</a> {
     <span class="kw">type </span>Error = <a href="#98-117">BitRoundCodecError</a>;
 
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#53">data</a> {
             AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#129-168">bit_round</a>(<a href="#55">data</a>, <a class="self" href="#53">self</a>.keepbits)<span class="question-mark">?</span>)),
             AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#129-168">bit_round</a>(<a href="#56">data</a>, <a class="self" href="#53">self</a>.keepbits)<span class="question-mark">?</span>)),
@@ -424,7 +424,7 @@
         }
     }
 
-    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#61">encoded</a> {
             AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#63">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
             AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#64">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
@@ -436,7 +436,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
         <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.dtype(), AnyArrayDType::F32 | AnyArrayDType::F64) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#101">BitRoundCodecError::UnsupportedDtype</a>(<a href="#71">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>()));
         }
@@ -454,7 +454,7 @@
         <a href="#87">config</a>
     }
 
-    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StaticCodecConfig&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;<span class="self">Self</span>&gt; {
         <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#91">self</a>)
     }
 }
@@ -492,10 +492,10 @@
 ///
 /// Errors with [`BitRoundCodecError::ExcessiveKeepBits`] if `keepbits` exceeds
 /// [`T::MANITSSA_BITS`][`Float::MANITSSA_BITS`].
-</span><span class="kw">pub fn </span><a href="../../numcodecs_bit_round/fn.bit_round.html">bit_round</a>&lt;T: <a href="#171-195">Float</a>, S: Data&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
-    data: ArrayBase&lt;S, D&gt;,
+</span><span class="kw">pub fn </span><a href="../../numcodecs_bit_round/fn.bit_round.html">bit_round</a>&lt;T: <a href="#171-195">Float</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+    data: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
     keepbits: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Array&lt;T, D&gt;, <a href="#98-117">BitRoundCodecError</a>&gt; {
+) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;T, D&gt;, <a href="#98-117">BitRoundCodecError</a>&gt; {
     <span class="kw">if </span>u32::from(keepbits) &gt; T::MANITSSA_BITS {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#104-109">BitRoundCodecError::ExcessiveKeepBits</a> {
             <a href="#131">keepbits</a>,
@@ -547,12 +547,12 @@
 
     <span class="doccomment">/// Binary representation of this type
     </span><span class="kw">type </span>Binary: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>
-        + std::ops::Not&lt;Output = <span class="self">Self</span>::Binary&gt;
-        + std::ops::Shr&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, Output = <span class="self">Self</span>::Binary&gt;
-        + std::ops::Add&lt;<span class="self">Self</span>::Binary, Output = <span class="self">Self</span>::Binary&gt;
-        + std::ops::AddAssign&lt;<span class="self">Self</span>::Binary&gt;
-        + std::ops::BitAnd&lt;<span class="self">Self</span>::Binary, Output = <span class="self">Self</span>::Binary&gt;
-        + std::ops::BitAndAssign&lt;<span class="self">Self</span>::Binary&gt;;
+        + <a href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.Not.html">std::ops::Not</a>&lt;Output = <span class="self">Self</span>::Binary&gt;
+        + <a href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.Shr.html">std::ops::Shr</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, Output = <span class="self">Self</span>::Binary&gt;
+        + <a href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Add.html">std::ops::Add</a>&lt;<span class="self">Self</span>::Binary, Output = <span class="self">Self</span>::Binary&gt;
+        + <a href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.AddAssign.html">std::ops::AddAssign</a>&lt;<span class="self">Self</span>::Binary&gt;
+        + <a href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.BitAnd.html">std::ops::BitAnd</a>&lt;<span class="self">Self</span>::Binary, Output = <span class="self">Self</span>::Binary&gt;
+        + <a href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.BitAndAssign.html">std::ops::BitAndAssign</a>&lt;<span class="self">Self</span>::Binary&gt;;
 
     <span class="doccomment">/// Bit-cast the floating point value to its binary representation
     </span><span class="kw">fn </span>to_binary(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Binary;
