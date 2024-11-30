@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs-zfp"
-version = "0.2.1"
+version = "0.3.0"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
@@ -20,7 +20,7 @@ numcodecs = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
-zfp-sys = { workspace = true, features = ["static"] }
+zfp-sys = { workspace = true, features = ["static", "round-tight-error"] }
 
 [lints]
 workspace = true

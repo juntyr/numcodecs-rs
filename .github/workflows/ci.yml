@@ -52,10 +52,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.76", stable, nightly]
+        rust: ["1.77", stable, nightly]
         lock: ["Cargo.lock", "Cargo.lock.min"]
         include:
-          - rust: "1.76"
+          - rust: "1.77"
             wasm32-wasip1: wasm32-wasi
           - rust: stable
             wasm32-wasip1: wasm32-wasip1
@@ -108,7 +108,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.76", stable, nightly]
+        rust: ["1.77", stable, nightly]
         lock: ["Cargo.lock", "Cargo.lock.min"]
         python: ["3.10", "3.11", "3.12"]
     runs-on: ${{ matrix.os }}
@@ -175,10 +175,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.76", stable]
+        rust: ["1.77", stable]
         lock: ["Cargo.lock", "Cargo.lock.min"]
         include:
-          - rust: "1.76"
+          - rust: "1.77"
             wasm32-wasip1: wasm32-wasi
           - rust: stable
             wasm32-wasip1: wasm32-wasip1
