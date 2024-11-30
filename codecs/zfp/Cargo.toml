@@ -1,11 +1,11 @@
 [package]
 name = "numcodecs-zfp"
-version = "0.3.0-nightly.rounding"
+version = "0.3.0"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
-rust-version = "1.77"
+rust-version = { workspace = true }
 
 description = "ZFP codec implementation for the numcodecs API"
 readme = "README.md"
