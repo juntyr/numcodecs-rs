@@ -1,12 +1,11 @@
-use std::any::Any;
+use std::{any::Any, ffi::CString};
 
 use ndarray::{ArrayViewD, ArrayViewMutD, CowArray};
 use numcodecs::{
     AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec, DynCodecType,
 };
 use numpy::{
-    IxDyn, PyArray, PyArrayDescrMethods, PyArrayDyn, PyArrayMethods, PyUntypedArray,
-    PyUntypedArrayMethods,
+    IxDyn, PyArray, PyArrayDescrMethods, PyArrayDyn, PyArrayMethods, PyUntypedArrayMethods,
 };
 use pyo3::{
     exceptions::PyTypeError,
@@ -20,6 +19,7 @@ use pythonize::{pythonize, Depythonizer, Pythonizer};
 
 use crate::{
     schema::{docs_from_schema, signature_from_schema},
+    utils::numpy_asarray,
     PyCodec, PyCodecClass, PyCodecClassAdapter, PyCodecRegistry,
 };
 
@@ -46,15 +46,15 @@ pub fn export_codec_class<'py, T: DynCodecType>(
             let codec_config_schema = ty.codec_config_schema();
 
             let codec_class_bases = (
-                RustCodec::type_object_bound(py),
-                PyCodec::type_object_bound(py),
+                RustCodec::type_object(py),
+                PyCodec::type_object(py),
             );
 
             let codec_class_namespace = [
                 (intern!(py, "__module__"), module.name()?.into_any()),
                 (
                     intern!(py, "__doc__"),
-                    docs_from_schema(&codec_config_schema, &codec_id).to_object(py).into_bound(py),
+                    docs_from_schema(&codec_config_schema, &codec_id).into_pyobject(py)?,
                 ),
                 (
                     intern!(py, RustCodec::TYPE_ATTRIBUTE),
@@ -62,7 +62,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
                 ),
                 (
                     intern!(py, "codec_id"),
-                    PyString::new_bound(py, &codec_id).into_any(),
+                    PyString::new(py, &codec_id).into_any(),
                 ),
                 (
                     intern!(py, RustCodec::SCHEMA_ATTRIBUTE),
@@ -70,15 +70,15 @@ pub fn export_codec_class<'py, T: DynCodecType>(
                 ),
                 (
                     intern!(py, "__init__"),
-                    py.eval_bound(&format!(
+                    py.eval(&CString::new(format!(
                         "lambda {}: None",
                         signature_from_schema(&codec_config_schema),
-                    ), None, None)?,
+                    ))?, None, None)?,
                 ),
             ]
-            .into_py_dict_bound(py);
+            .into_py_dict(py)?;
 
-            PyType::type_object_bound(py)
+            PyType::type_object(py)
                 .call1((&codec_class_name, codec_class_bases, codec_class_namespace))?
                 .extract()?
         };
@@ -218,7 +218,7 @@ impl RustCodec {
 
         let codec = ty
             .ty
-            .codec_from_config(kwargs.unwrap_or_else(|| PyDict::new_bound(py)))?;
+            .codec_from_config(kwargs.unwrap_or_else(|| PyDict::new(py)))?;
 
         Ok(Self {
             cls_module,
@@ -279,9 +279,10 @@ impl RustCodec {
 
     fn __repr__(this: PyRef<Self>, py: Python) -> Result<String, PyErr> {
         let config = this.get_config(py)?;
-        let py_this: Py<PyAny> = this.into_py(py);
+        // FIXME: let Ok(..) is sufficient with MSRV 1.82
+        let py_this = this.into_pyobject(py)?;
 
-        let mut repr = py_this.bind(py).get_type().name()?.to_cow()?.into_owned();
+        let mut repr = py_this.get_type().name()?.to_cow()?.into_owned();
         repr.push('(');
 
         let mut first = true;
@@ -364,50 +365,46 @@ impl RustCodec {
             with(readonly_data.as_array().into())
         }
 
-        let as_array = py
-            .import_bound(intern!(py, "numpy"))?
-            .getattr(intern!(py, "asarray"))?;
-
-        let data: Bound<PyUntypedArray> = as_array.call1((buf,))?.extract()?;
+        let data = numpy_asarray(py, buf)?;
         let dtype = data.dtype();
 
-        if dtype.is_equiv_to(&numpy::dtype_bound::<u8>(py)) {
+        if dtype.is_equiv_to(&numpy::dtype::<u8>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<u8>>()?.into(), |a| {
                 with(AnyCowArray::U8(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<u16>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<u16>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<u16>>()?.into(), |a| {
                 with(AnyCowArray::U16(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<u32>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<u32>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<u32>>()?.into(), |a| {
                 with(AnyCowArray::U32(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<u64>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<u64>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<u64>>()?.into(), |a| {
                 with(AnyCowArray::U64(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i8>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i8>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<i8>>()?.into(), |a| {
                 with(AnyCowArray::I8(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i16>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i16>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<i16>>()?.into(), |a| {
                 with(AnyCowArray::I16(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i32>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i32>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<i32>>()?.into(), |a| {
                 with(AnyCowArray::I32(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i64>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i64>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<i64>>()?.into(), |a| {
                 with(AnyCowArray::I64(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<f32>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<f32>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<f32>>()?.into(), |a| {
                 with(AnyCowArray::F32(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<f64>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<f64>(py)) {
             with_pyarraylike_as_cow_inner(data.downcast::<PyArrayDyn<f64>>()?.into(), |a| {
                 with(AnyCowArray::F64(a))
             })
@@ -432,50 +429,46 @@ impl RustCodec {
             with(readonly_data.as_array())
         }
 
-        let as_array = py
-            .import_bound(intern!(py, "numpy"))?
-            .getattr(intern!(py, "asarray"))?;
-
-        let data: Bound<PyUntypedArray> = as_array.call1((buf,))?.extract()?;
+        let data = numpy_asarray(py, buf)?;
         let dtype = data.dtype();
 
-        if dtype.is_equiv_to(&numpy::dtype_bound::<u8>(py)) {
+        if dtype.is_equiv_to(&numpy::dtype::<u8>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<u8>>()?.into(), |a| {
                 with(AnyArrayView::U8(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<u16>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<u16>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<u16>>()?.into(), |a| {
                 with(AnyArrayView::U16(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<u32>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<u32>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<u32>>()?.into(), |a| {
                 with(AnyArrayView::U32(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<u64>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<u64>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<u64>>()?.into(), |a| {
                 with(AnyArrayView::U64(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i8>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i8>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<i8>>()?.into(), |a| {
                 with(AnyArrayView::I8(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i16>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i16>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<i16>>()?.into(), |a| {
                 with(AnyArrayView::I16(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i32>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i32>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<i32>>()?.into(), |a| {
                 with(AnyArrayView::I32(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i64>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i64>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<i64>>()?.into(), |a| {
                 with(AnyArrayView::I64(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<f32>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<f32>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<f32>>()?.into(), |a| {
                 with(AnyArrayView::F32(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<f64>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<f64>(py)) {
             with_pyarraylike_as_view_inner(data.downcast::<PyArrayDyn<f64>>()?.into(), |a| {
                 with(AnyArrayView::F64(a))
             })
@@ -500,50 +493,46 @@ impl RustCodec {
             with(readwrite_data.as_array_mut())
         }
 
-        let as_array = py
-            .import_bound(intern!(py, "numpy"))?
-            .getattr(intern!(py, "asarray"))?;
-
-        let data: Bound<PyUntypedArray> = as_array.call1((buf,))?.extract()?;
+        let data = numpy_asarray(py, buf)?;
         let dtype = data.dtype();
 
-        if dtype.is_equiv_to(&numpy::dtype_bound::<u8>(py)) {
+        if dtype.is_equiv_to(&numpy::dtype::<u8>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<u8>>()?.into(), |a| {
                 with(AnyArrayViewMut::U8(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<u16>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<u16>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<u16>>()?.into(), |a| {
                 with(AnyArrayViewMut::U16(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<u32>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<u32>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<u32>>()?.into(), |a| {
                 with(AnyArrayViewMut::U32(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<u64>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<u64>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<u64>>()?.into(), |a| {
                 with(AnyArrayViewMut::U64(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i8>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i8>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<i8>>()?.into(), |a| {
                 with(AnyArrayViewMut::I8(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i16>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i16>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<i16>>()?.into(), |a| {
                 with(AnyArrayViewMut::I16(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i32>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i32>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<i32>>()?.into(), |a| {
                 with(AnyArrayViewMut::I32(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<i64>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<i64>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<i64>>()?.into(), |a| {
                 with(AnyArrayViewMut::I64(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<f32>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<f32>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<f32>>()?.into(), |a| {
                 with(AnyArrayViewMut::F32(a))
             })
-        } else if dtype.is_equiv_to(&numpy::dtype_bound::<f64>(py)) {
+        } else if dtype.is_equiv_to(&numpy::dtype::<f64>(py)) {
             with_pyarraylike_as_view_mut_inner(data.downcast::<PyArrayDyn<f64>>()?.into(), |a| {
                 with(AnyArrayViewMut::F64(a))
             })
@@ -560,16 +549,16 @@ impl RustCodec {
         class_method: &str,
     ) -> Result<Bound<'py, PyAny>, PyErr> {
         match array {
-            AnyArray::U8(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::U16(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::U32(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::U64(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::I8(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::I16(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::I32(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::I64(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::F32(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
-            AnyArray::F64(a) => Ok(PyArray::from_owned_array_bound(py, a).into_any()),
+            AnyArray::U8(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
+            AnyArray::U16(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
+            AnyArray::U32(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
+            AnyArray::U64(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
+            AnyArray::I8(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
+            AnyArray::I16(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
+            AnyArray::I32(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
+            AnyArray::I64(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
+            AnyArray::F32(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
+            AnyArray::F64(a) => Ok(PyArray::from_owned_array(py, a).into_any()),
             array => Err(PyTypeError::new_err(format!(
                 "{class_method} returned unsupported dtype `{}`",
                 array.dtype(),

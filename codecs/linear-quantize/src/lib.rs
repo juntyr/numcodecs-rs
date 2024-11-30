@@ -524,8 +524,7 @@ pub fn quantize<
         source: LinearQuantizeHeaderError(err),
     })?;
 
-    let mut encoded: Vec<Q> =
-        vec![Q::ZERO; (header.len() + std::mem::size_of::<Q>() - 1) / std::mem::size_of::<Q>()];
+    let mut encoded: Vec<Q> = vec![Q::ZERO; header.len().div_ceil(std::mem::size_of::<Q>())];
     #[allow(unsafe_code)]
     // Safety: encoded is at least header.len() bytes long and properly aligned for Q
     unsafe {

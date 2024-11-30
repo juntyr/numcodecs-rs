@@ -10,11 +10,11 @@ use ::{
 fn collect_schemas() -> Result<(), PyErr> {
     Python::with_gil(|py| {
         let registry = py
-            .import_bound(intern!(py, "numcodecs"))?
+            .import(intern!(py, "numcodecs"))?
             .getattr(intern!(py, "registry"))?
             .getattr(intern!(py, "codec_registry"))?;
 
-        for codec in registry.call_method0(intern!(py, "items"))?.iter()? {
+        for codec in registry.call_method0(intern!(py, "items"))?.try_iter()? {
             let (codec_id, codec_class): (String, Bound<PyCodecClass>) = codec?.extract()?;
 
             let codec_ty = PyCodecClassAdapter::from_codec_class(codec_class)?;

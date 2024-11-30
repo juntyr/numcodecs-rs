@@ -32,7 +32,7 @@ rust-version = "1.76"
 [workspace.dependencies]
 # workspace-internal numcodecs crates
 numcodecs = { version = "0.2", path = "crates/numcodecs", default-features = false }
-numcodecs-python = { version = "0.3", path = "crates/numcodecs-python", default-features = false }
+numcodecs-python = { version = "0.4", path = "crates/numcodecs-python", default-features = false }
 numcodecs-wasm-guest = { version = "0.2", path = "crates/numcodecs-wasm-guest", default-features = false }
 
 # workspace-internal codecs crates
@@ -58,12 +58,12 @@ format_serde_error = { version = "0.3", default-features = false }
 miniz_oxide = { version = "0.8", default-features = false }
 ndarray = { version = "0.16", default-features = false } # keep in sync with numpy
 ndarray-rand = { version = "0.15", default-features = false }
-numpy = { version = "0.22", default-features = false }
+numpy = { version = "0.23", default-features = false }
 num-traits = { version = "0.2.19", default-features = false }
 postcard = { version = "1.0.8", default-features = false }
-pyo3 = { version = "0.22", default-features = false }
-pyo3-error = { version = "0.2", default-features = false }
-pythonize = { version = "0.22", default-features = false }
+pyo3 = { version = "0.23.1", default-features = false }
+pyo3-error = { version = "0.3", default-features = false }
+pythonize = { version = "0.23", default-features = false }
 rand = { version = "0.8", default-features = false }
 schemars = { version = "=1.0.0-alpha.15", default-features = false }
 serde = { version = "1.0.194", default-features = false }
@@ -75,7 +75,7 @@ thiserror = { version = "1.0.61", default-features = false }
 twofloat = { version = "0.7", default-features = false }
 wit-bindgen = { version = "0.34", default-features = false }
 wyhash = { version = "0.5", default-features = false }
-zfp-sys = { version = "0.1.15", default-features = false }
+zfp-sys = { version = "0.1.15", default-features = false } # v0.2.0 requires MSRV 1.77
 zstd = { version = "0.13", default-features = false }
 zstd-sys = { version = "2.0.12", default-features = false }
 

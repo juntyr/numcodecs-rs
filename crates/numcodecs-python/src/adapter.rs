@@ -5,7 +5,7 @@ use numcodecs::{
     AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec,
     DynCodecType,
 };
-use numpy::{Element, PyArray, PyArrayDyn, PyArrayMethods, PyUntypedArray, PyUntypedArrayMethods};
+use numpy::{Element, PyArray, PyArrayDyn, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::{
     exceptions::{PyTypeError, PyValueError},
     intern,
@@ -20,6 +20,7 @@ use serde_transcode::transcode;
 use crate::{
     export::{RustCodec, RustCodecType},
     schema::schema_from_codec_class,
+    utils::numpy_asarray,
     PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
 };
 
@@ -143,7 +144,7 @@ impl Codec for PyCodecAdapter {
             self.with_any_array_view_as_ndarray(py, &data.view(), |data| {
                 let encoded = self.codec.bind(py).encode(data.as_borrowed())?;
 
-                Self::any_array_from_ndarray_like(py, encoded)
+                Self::any_array_from_ndarray_like(py, encoded.as_borrowed())
             })
         })
     }
@@ -153,7 +154,7 @@ impl Codec for PyCodecAdapter {
             self.with_any_array_view_as_ndarray(py, &encoded.view(), |encoded| {
                 let decoded = self.codec.bind(py).decode(encoded.as_borrowed(), None)?;
 
-                Self::any_array_from_ndarray_like(py, decoded)
+                Self::any_array_from_ndarray_like(py, decoded.as_borrowed())
             })
         })
     }
@@ -185,7 +186,11 @@ impl Codec for PyCodecAdapter {
             };
 
             // Otherwise, we force-copy the output into the decoded array
-            Self::copy_into_any_array_view_mut_from_ndarray_like(py, &mut decoded, decoded_out)
+            Self::copy_into_any_array_view_mut_from_ndarray_like(
+                py,
+                &mut decoded,
+                decoded_out.as_borrowed(),
+            )
         })
     }
 }
@@ -202,16 +207,16 @@ impl PyCodecAdapter {
         #[allow(unsafe_code)] // FIXME: we trust Python code to not store this array
         let ndarray = unsafe {
             match &view {
-                AnyArrayBase::U8(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::U16(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::U32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::U64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::I8(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::I16(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::I32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::I64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::F32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::F64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::U8(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::U16(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::U32(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::U64(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::I8(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::I16(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::I32(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::I64(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::F32(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::F64(v) => PyArray::borrow_from_array(v, this).into_any(),
                 _ => {
                     return Err(PyTypeError::new_err(format!(
                         "unsupported type {} of read-only array view",
@@ -225,7 +230,7 @@ impl PyCodecAdapter {
         ndarray.call_method(
             intern!(py, "setflags"),
             (),
-            Some(&[(intern!(py, "write"), false)].into_py_dict_bound(py)),
+            Some(&[(intern!(py, "write"), false)].into_py_dict(py)?),
         )?;
         let view = ndarray.call_method0(intern!(py, "view"))?;
 
@@ -243,16 +248,16 @@ impl PyCodecAdapter {
         #[allow(unsafe_code)] // FIXME: we trust Python code to not store this array
         let ndarray = unsafe {
             match &view_mut {
-                AnyArrayBase::U8(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::U16(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::U32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::U64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::I8(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::I16(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::I32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::I64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::F32(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
-                AnyArrayBase::F64(v) => PyArray::borrow_from_array_bound(v, this).into_any(),
+                AnyArrayBase::U8(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::U16(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::U32(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::U64(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::I8(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::I16(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::I32(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::I64(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::F32(v) => PyArray::borrow_from_array(v, this).into_any(),
+                AnyArrayBase::F64(v) => PyArray::borrow_from_array(v, this).into_any(),
                 _ => {
                     return Err(PyTypeError::new_err(format!(
                         "unsupported type {} of read-only array view",
@@ -267,13 +272,9 @@ impl PyCodecAdapter {
 
     fn any_array_from_ndarray_like(
         py: Python,
-        array_like: Bound<PyAny>,
+        array_like: Borrowed<PyAny>,
     ) -> Result<AnyArray, PyErr> {
-        let ndarray: Bound<PyUntypedArray> = py
-            .import_bound(intern!(py, "numpy"))?
-            .getattr(intern!(py, "asarray"))?
-            .call1((array_like,))?
-            .extract()?;
+        let ndarray = numpy_asarray(py, array_like)?;
 
         let array = if let Ok(e) = ndarray.downcast::<PyArrayDyn<u8>>() {
             AnyArrayBase::U8(e.try_readonly()?.to_owned_array())
@@ -308,7 +309,7 @@ impl PyCodecAdapter {
     fn copy_into_any_array_view_mut_from_ndarray_like(
         py: Python,
         view_mut: &mut AnyArrayViewMut,
-        array_like: Bound<PyAny>,
+        array_like: Borrowed<PyAny>,
     ) -> Result<(), PyErr> {
         fn shape_checked_assign<
             T: Copy + Element,
@@ -331,11 +332,7 @@ impl PyCodecAdapter {
             }
         }
 
-        let ndarray: Bound<PyUntypedArray> = py
-            .import_bound(intern!(py, "numpy"))?
-            .getattr(intern!(py, "asarray"))?
-            .call1((array_like,))?
-            .extract()?;
+        let ndarray = numpy_asarray(py, array_like)?;
 
         #[allow(clippy::unit_arg)]
         if let Ok(d) = ndarray.downcast::<PyArrayDyn<u8>>() {

@@ -72,7 +72,7 @@ impl<'py> PyCodecClassMethods<'py> for Bound<'py, PyCodecClass> {
     }
 }
 
-impl<'py> Sealed for Bound<'py, PyCodecClass> {}
+impl Sealed for Bound<'_, PyCodecClass> {}
 
 #[doc(hidden)]
 impl DerefToPyAny for PyCodecClass {}
@@ -89,7 +89,7 @@ unsafe impl PyTypeInfo for PyCodecClass {
     }
 
     #[inline]
-    fn is_type_of_bound(object: &Bound<'_, PyAny>) -> bool {
+    fn is_type_of(object: &Bound<'_, PyAny>) -> bool {
         let Ok(ty) = object.downcast::<PyType>() else {
             return false;
         };
@@ -98,7 +98,7 @@ unsafe impl PyTypeInfo for PyCodecClass {
     }
 
     #[inline]
-    fn is_exact_type_of_bound(object: &Bound<'_, PyAny>) -> bool {
+    fn is_exact_type_of(object: &Bound<'_, PyAny>) -> bool {
         object.as_ptr() == PyCodec::type_object_raw(object.py()).cast()
     }
 }

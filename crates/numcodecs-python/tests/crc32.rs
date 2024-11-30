@@ -12,7 +12,7 @@ use ::{
 #[test]
 fn python_api() -> Result<(), PyErr> {
     Python::with_gil(|py| {
-        let config = PyDict::new_bound(py);
+        let config = PyDict::new(py);
         config.set_item("id", "crc32")?;
 
         // create a codec using registry lookup
@@ -29,7 +29,7 @@ fn python_api() -> Result<(), PyErr> {
         assert_eq!(codec.class().codec_id()?, "crc32");
 
         // create a codec using the class
-        let codec = class.codec_from_config(PyDict::new_bound(py).as_borrowed())?;
+        let codec = class.codec_from_config(PyDict::new(py).as_borrowed())?;
 
         // check the codec's config
         let config = codec.get_config()?;
@@ -45,14 +45,10 @@ fn python_api() -> Result<(), PyErr> {
 
         // encode and decode data with the codec
         let data = &[1_u8, 2, 3, 4];
-        let encoded = codec.encode(
-            numpy::PyArray1::from_slice_bound(py, data)
-                .as_any()
-                .as_borrowed(),
-        )?;
+        let encoded = codec.encode(numpy::PyArray1::from_slice(py, data).as_any().as_borrowed())?;
         let decoded = codec.decode(encoded.as_borrowed(), None)?;
         // decode into an output
-        let decoded_out = numpy::PyArray1::<u8>::zeros_bound(py, (4,), false);
+        let decoded_out = numpy::PyArray1::<u8>::zeros(py, (4,), false);
         codec.decode(
             encoded.as_borrowed(),
             Some(decoded_out.as_any().as_borrowed()),

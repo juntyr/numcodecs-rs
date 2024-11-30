@@ -17,14 +17,14 @@ use ::{
 #[test]
 fn export() -> Result<(), PyErr> {
     Python::with_gil(|py| {
-        let module = PyModule::new_bound(py, "codecs")?;
+        let module = PyModule::new(py, "codecs")?;
         export_codec_class(
             py,
             StaticCodecType::<NegateCodec>::of(),
             module.as_borrowed(),
         )?;
 
-        let config = PyDict::new_bound(py);
+        let config = PyDict::new(py);
         config.set_item("id", "negate")?;
 
         // create a codec using registry lookup
@@ -45,14 +45,10 @@ fn export() -> Result<(), PyErr> {
 
         // encode and decode data with the codec
         let data = &[1.0_f64, 2.0, 3.0, 4.0];
-        let encoded = codec.encode(
-            numpy::PyArray1::from_slice_bound(py, data)
-                .as_any()
-                .as_borrowed(),
-        )?;
+        let encoded = codec.encode(numpy::PyArray1::from_slice(py, data).as_any().as_borrowed())?;
         let decoded = codec.decode(encoded.as_borrowed(), None)?;
         // decode into an output
-        let decoded_out = numpy::PyArray1::<f64>::zeros_bound(py, (4,), false);
+        let decoded_out = numpy::PyArray1::<f64>::zeros(py, (4,), false);
         codec.decode(
             encoded.as_borrowed(),
             Some(decoded_out.as_any().as_borrowed()),
@@ -73,7 +69,7 @@ fn export() -> Result<(), PyErr> {
 #[test]
 fn schema() -> Result<(), PyErr> {
     Python::with_gil(|py| {
-        let module = PyModule::new_bound(py, "codecs")?;
+        let module = PyModule::new(py, "codecs")?;
         let class = export_codec_class(
             py,
             StaticCodecType::<NegateCodec>::of(),
@@ -100,7 +96,7 @@ This codec does *not* take any parameters."
         assert_eq!(
             format!(
                 "{}",
-                py.import_bound(intern!(py, "inspect"))?
+                py.import(intern!(py, "inspect"))?
                     .getattr(intern!(py, "signature"))?
                     .call1((class.getattr(intern!(py, "__init__"))?,))?
             ),
@@ -114,7 +110,7 @@ This codec does *not* take any parameters."
 #[test]
 fn downcast() -> Result<(), PyErr> {
     Python::with_gil(|py| {
-        let module = PyModule::new_bound(py, "codecs")?;
+        let module = PyModule::new(py, "codecs")?;
         let class = export_codec_class(
             py,
             StaticCodecType::<NegateCodec>::of(),
@@ -126,7 +122,7 @@ fn downcast() -> Result<(), PyErr> {
                 .is_some()
         );
 
-        let codec = class.codec_from_config(PyDict::new_bound(py).as_borrowed())?;
+        let codec = class.codec_from_config(PyDict::new(py).as_borrowed())?;
 
         assert!(PyCodecAdapter::with_downcast(&codec, |_: &NegateCodec| ()).is_some());
 

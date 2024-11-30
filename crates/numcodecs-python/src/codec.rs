@@ -91,7 +91,7 @@ impl<'py> PyCodecMethods<'py> for Bound<'py, PyCodec> {
         self.as_any().call_method(
             intern!(py, "decode"),
             (buf,),
-            Some(&[(intern!(py, "out"), out)].into_py_dict_bound(py)),
+            Some(&[(intern!(py, "out"), out)].into_py_dict(py)?),
         )
     }
 
@@ -113,7 +113,7 @@ impl<'py> PyCodecMethods<'py> for Bound<'py, PyCodec> {
     }
 }
 
-impl<'py> Sealed for Bound<'py, PyCodec> {}
+impl Sealed for Bound<'_, PyCodec> {}
 
 #[doc(hidden)]
 impl DerefToPyAny for PyCodec {}
@@ -128,14 +128,11 @@ unsafe impl PyTypeInfo for PyCodec {
     fn type_object_raw(py: Python) -> *mut PyTypeObject {
         static CODEC_TYPE: GILOnceCell<Py<PyType>> = GILOnceCell::new();
 
-        let ty = CODEC_TYPE.get_or_try_init(py, || {
-            py.import_bound(intern!(py, "numcodecs.abc"))?
-                .getattr(intern!(py, "Codec"))?
-                .extract()
-        });
+        let ty = CODEC_TYPE.import(py, "numcodecs.abc", "Codec");
+
         #[allow(clippy::expect_used)]
         let ty = ty.expect("failed to access the `numpy.abc.Codec` type object");
 
-        ty.bind(py).as_type_ptr()
+        ty.as_type_ptr()
     }
 }
