@@ -508,6 +508,7 @@ fn fourier_mapping(xs: &Tensor, b_t: &Tensor) -> Result<Tensor, CandleError> {
     Tensor::cat(&[xs_proj.sin()?, xs_proj.cos()?], D::Minus1)
 }
 
+#[allow(clippy::similar_names)] // bnX_Y and lnX_Y
 fn make_model<T: FloatExt>(
     num_blocks: NonZeroUsize,
     fourier_features: NonZeroUsize,
