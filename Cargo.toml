@@ -59,8 +59,6 @@ candle-core = { version = "0.8", default-features = false }
 candle-nn = { version = "0.8", default-features = false }
 convert_case = { version = "0.6", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
-# FIXME: libc 2.1.166 fails on WASI: https://github.com/rust-lang/libc/pull/4157
-libc = { version = ">=0.2.143,<0.2.166", default-features = false }
 log = { version = "0.4.17", default-features = false }
 simple_logger = { version = "5.0", default-features = false }
 miniz_oxide = { version = "0.8", default-features = false }

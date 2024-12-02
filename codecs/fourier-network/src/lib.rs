@@ -17,16 +17,14 @@
 //!
 //! Fourier feature neural network codec implementation for the [`numcodecs`] API.
 
-#![allow(clippy::multiple_crate_versions)]
-// bitflags
-// FIXME: # FIXME: libc 2.1.166 fails on WASI: https://github.com/rust-lang/libc/pull/4157
-#![allow(unused_crate_dependencies)]
+#![allow(clippy::multiple_crate_versions)] // bitflags
 
 use std::{borrow::Cow, num::NonZeroUsize};
 
 use candle_core::{Device, Error as CandleError, FloatDType, Shape, Tensor, WithDType, D};
 use candle_nn::{
-    linear_b, seq, AdamW, Module, Optimizer, ParamsAdamW, Sequential, VarBuilder, VarMap,
+    batch_norm, linear_b, seq, AdamW, BatchNormConfig, Module, Optimizer, ParamsAdamW, Sequential,
+    VarBuilder, VarMap,
 };
 use ndarray::{Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix1, Order, Zip};
 use num_traits::{ConstOne, ConstZero, Float, FromPrimitive};
@@ -57,6 +55,12 @@ pub struct FourierNetworkCodec {
     learning_rate: Positive<f64>,
     /// The number of iterations for which the network is trained
     training_iterations: usize,
+    /// The optional mini-batch size used during training
+    ///
+    /// Setting the mini-batch size to `None` disables the use of batching,
+    /// i.e. the network is trained using one large batch that includes the
+    /// full data.
+    mini_batch_size: Option<NonZeroUsize>,
 }
 
 impl Codec for FourierNetworkCodec {
@@ -72,6 +76,7 @@ impl Codec for FourierNetworkCodec {
                     self.num_blocks,
                     self.learning_rate,
                     self.training_iterations,
+                    self.mini_batch_size,
                 )?
                 .into_dyn(),
             )),
@@ -83,6 +88,7 @@ impl Codec for FourierNetworkCodec {
                     self.num_blocks,
                     self.learning_rate,
                     self.training_iterations,
+                    self.mini_batch_size,
                 )?
                 .into_dyn(),
             )),
@@ -256,7 +262,8 @@ impl FloatExt for f64 {}
 ///
 /// The neural network consists of `num_blocks` blocks.
 ///
-/// The network is trained for `training_iterations` using the `learning_rate`.
+/// The network is trained for `training_iterations` using the `learning_rate`
+/// and mini-batches of `mini_batch_size` if mini-batching is enabled.
 ///
 /// # Errors
 ///
@@ -272,6 +279,7 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     num_blocks: NonZeroUsize,
     learning_rate: Positive<f64>,
     training_iterations: usize,
+    mini_batch_size: Option<NonZeroUsize>,
 ) -> Result<Array<T, Ix1>, FourierNetworkCodecError> {
     let Some(mean) = data.mean() else {
         return Ok(Array::from_vec(Vec::new()));
@@ -323,6 +331,7 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
         num_blocks,
         learning_rate,
         training_iterations,
+        mini_batch_size,
     )
     .map_err(NeuralNetworkError)?;
 
@@ -375,8 +384,6 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
 ///   the neural network computation
 /// - [`FourierNetworkCodecError::CorruptedEncodedData`] if the encoded data is
 ///   of the wrong length
-/// - [`FourierNetworkCodecError::NonFiniteData`] if the `projected` array or
-///   the reconstructed output contains non-finite data
 pub fn decode_into<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     encoded: ArrayBase<S, Ix1>,
     mut decoded: ArrayViewMut<T, D>,
@@ -471,10 +478,6 @@ pub fn decode_into<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     decoded.assign(&Array::from_shape_vec(decoded.shape(), prediction).unwrap());
     decoded.mapv_inplace(|x| (x * stdv) + mean);
 
-    if !Zip::from(decoded).all(|x| x.is_finite()) {
-        return Err(FourierNetworkCodecError::NonFiniteData);
-    }
-
     Ok(())
 }
 
@@ -509,7 +512,7 @@ fn make_model<T: FloatExt>(
     num_blocks: NonZeroUsize,
     fourier_features: NonZeroUsize,
     varmap: &VarMap,
-    _train: bool, // FIXME
+    train: bool,
 ) -> Result<Sequential, CandleError> {
     let vb = VarBuilder::from_varmap(varmap, T::DTYPE, &Device::Cpu);
 
@@ -524,14 +527,22 @@ fn make_model<T: FloatExt>(
     layers = layers.add(ln1);
 
     for _ in 1..num_blocks.get() {
-        // let bn2_1 = batch_norm(fourier_features.get(), BatchNormConfig::default(), vb.pp("bn2.1"))?;
+        let bn2_1 = batch_norm(
+            fourier_features.get(),
+            BatchNormConfig::default(),
+            vb.pp("bn2.1"),
+        )?;
         let ln2_2 = linear_b(
             fourier_features.get(),
             fourier_features.get(),
             true,
             vb.pp("ln2.2"),
         )?;
-        // let bn2_3 = batch_norm(fourier_features.get(), BatchNormConfig::default(), vb.pp("bn2.3"))?;
+        let bn2_3 = batch_norm(
+            fourier_features.get(),
+            BatchNormConfig::default(),
+            vb.pp("bn2.3"),
+        )?;
         let ln2_4 = linear_b(
             fourier_features.get(),
             fourier_features.get(),
@@ -540,9 +551,10 @@ fn make_model<T: FloatExt>(
         )?;
 
         layers = layers.add_fn(move |xs| {
-            xs /*.apply_t(&bn2_1, train)*/
+            xs.apply_t(&bn2_1, train)?
                 .gelu()?
-                .apply(&ln2_2)? /*.apply_t(&bn2_3, train)?*/
+                .apply(&ln2_2)?
+                .apply_t(&bn2_3, train)?
                 .gelu()?
                 .apply(&ln2_4)
         });
@@ -568,6 +580,7 @@ fn train<T: FloatExt>(
     num_blocks: NonZeroUsize,
     learning_rate: Positive<f64>,
     training_iterations: usize,
+    mini_batch_size: Option<NonZeroUsize>,
 ) -> Result<VarMap, CandleError> {
     let varmap = VarMap::new();
 
@@ -582,9 +595,29 @@ fn train<T: FloatExt>(
     )?;
 
     for i in 0..training_iterations {
-        let predict_ys = model.forward(train_xs)?;
+        let (train_xs, train_ys) = match mini_batch_size {
+            Some(mini_batch_size) => {
+                let shuffle =
+                    Tensor::rand(T::ZERO, T::ONE, train_ys.shape().elem_count(), &Device::Cpu)?;
+                let shuffle_indices = shuffle.arg_sort_last_dim(true)?;
 
-        let loss = predict_ys.sub(train_ys)?.sqr()?.mean_all()? * 0.5;
+                let mini_batch_indices = shuffle_indices.narrow(
+                    0,
+                    0,
+                    mini_batch_size.get().min(train_ys.shape().elem_count()),
+                )?;
+
+                let train_xs_batch = train_xs.index_select(&mini_batch_indices, 0)?;
+                let train_ys_batch = train_ys.index_select(&mini_batch_indices, 0)?;
+
+                (train_xs_batch, train_ys_batch)
+            }
+            None => (train_xs.clone(), train_ys.clone()),
+        };
+
+        let predict_ys = model.forward(&train_xs)?;
+
+        let loss = predict_ys.sub(&train_ys)?.sqr()?.mean_all()? * 0.5;
         let loss = loss?;
 
         opt.backward_step(&loss)?;
@@ -614,6 +647,7 @@ mod tests {
             NonZeroUsize::MIN,
             Positive(1e-4),
             10,
+            None,
         )
         .unwrap();
         assert!(encoded.is_empty());
@@ -638,6 +672,7 @@ mod tests {
             NonZeroUsize::MIN,
             Positive(1e-4),
             10,
+            None,
         )
         .unwrap();
         let mut decoded = Array::<f32, _>::zeros((1, 1, 1, 1));
@@ -661,6 +696,31 @@ mod tests {
             NonZeroUsize::MIN,
             Positive(1e-4),
             10,
+            None,
+        )
+        .unwrap();
+        let mut decoded = Array::<f32, _>::zeros((2, 1, 3));
+        decode_into(
+            encoded,
+            decoded.view_mut(),
+            NonZeroUsize::MIN,
+            NonZeroUsize::MIN,
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn const_batched() {
+        std::mem::drop(simple_logger::init());
+
+        let encoded = encode(
+            Array::<f32, _>::from_elem((2, 1, 3), 42.0),
+            NonZeroUsize::MIN,
+            Positive(1.0),
+            NonZeroUsize::MIN,
+            Positive(1e-4),
+            10,
+            Some(NonZeroUsize::MIN.saturating_add(1)),
         )
         .unwrap();
         let mut decoded = Array::<f32, _>::zeros((2, 1, 3));
@@ -685,17 +745,25 @@ mod tests {
         let learning_rate = Positive(1e-4);
         let training_iterations = 100;
 
-        let mut decoded = Array::zeros(data.shape());
-        let encoded = encode(
-            data,
-            fourier_features,
-            fourier_scale,
-            num_blocks,
-            learning_rate,
-            training_iterations,
-        )
-        .unwrap();
+        for mini_batch_size in [
+            None,                                         // no mini-batching
+            Some(NonZeroUsize::MIN),                      // stochastic
+            Some(NonZeroUsize::MIN.saturating_add(9)),    // mini-batched
+            Some(NonZeroUsize::MIN.saturating_add(1000)), // mini-batched, truncated
+        ] {
+            let mut decoded = Array::zeros(data.shape());
+            let encoded = encode(
+                data.view(),
+                fourier_features,
+                fourier_scale,
+                num_blocks,
+                learning_rate,
+                training_iterations,
+                mini_batch_size,
+            )
+            .unwrap();
 
-        decode_into(encoded, decoded.view_mut(), fourier_features, num_blocks).unwrap();
+            decode_into(encoded, decoded.view_mut(), fourier_features, num_blocks).unwrap();
+        }
     }
 }
