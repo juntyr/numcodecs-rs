@@ -586,7 +586,7 @@
 <span class="kw">use </span>pythonize::{pythonize, Depythonizer, Pythonizer};
 
 <span class="kw">use crate</span>::{
-    schema::{<a href="schema.rs.html#124-189">docs_from_schema</a>, <a href="schema.rs.html#191-214">signature_from_schema</a>},
+    schema::{<a href="schema.rs.html#133-198">docs_from_schema</a>, <a href="schema.rs.html#200-223">signature_from_schema</a>},
     <a href="utils.rs.html#4-13">utils::numpy_asarray</a>,
     <a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>, <a href="adapter.rs.html#428-432">PyCodecClassAdapter</a>, <a href="registry.rs.html#8-10">PyCodecRegistry</a>,
 };
@@ -622,7 +622,7 @@
                 (<a class="macro" href="https://docs.rs/pyo3/0.23/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"__module__"</span>), <a href="#36">module</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/module/trait.PyModuleMethods.html#tymethod.name">name</a>()<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
                 (
                     <a class="macro" href="https://docs.rs/pyo3/0.23/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"__doc__"</span>),
-                    <a href="schema.rs.html#124-189">docs_from_schema</a>(<span class="kw-2">&amp;</span><a href="#46">codec_config_schema</a>, <span class="kw-2">&amp;</span><a href="#38">codec_id</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/conversion/trait.IntoPyObject.html#tymethod.into_pyobject">into_pyobject</a>(<a href="#34">py</a>)<span class="question-mark">?</span>,
+                    <a href="schema.rs.html#133-198">docs_from_schema</a>(<span class="kw-2">&amp;</span><a href="#46">codec_config_schema</a>, <span class="kw-2">&amp;</span><a href="#38">codec_id</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/conversion/trait.IntoPyObject.html#tymethod.into_pyobject">into_pyobject</a>(<a href="#34">py</a>)<span class="question-mark">?</span>,
                 ),
                 (
                     <a class="macro" href="https://docs.rs/pyo3/0.23/pyo3/macro.intern.html">intern!</a>(py, RustCodec::TYPE_ATTRIBUTE),

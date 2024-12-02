@@ -546,7 +546,7 @@
 
 <span class="kw">use crate</span>::{
     export::{<a href="export.rs.html#180-184">RustCodec</a>, <a href="export.rs.html#95-97">RustCodecType</a>},
-    <a href="schema.rs.html#25-122">schema::schema_from_codec_class</a>,
+    <a href="schema.rs.html#30-131">schema::schema_from_codec_class</a>,
     <a href="utils.rs.html#4-13">utils::numpy_asarray</a>,
     <a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>, <a href="codec_class.rs.html#22-44">PyCodecClassMethods</a>, <a href="codec.rs.html#25-75">PyCodecMethods</a>, <a href="registry.rs.html#8-10">PyCodecRegistry</a>,
 };
@@ -592,7 +592,7 @@
     </span><span class="kw">pub fn </span>from_codec(codec: <a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<a href="codec.rs.html#20-22">PyCodec</a>&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
         <span class="kw">let </span>class = <a href="#65">codec</a>.<a href="codec.rs.html#74">class</a>();
         <span class="kw">let </span>codec_id = <a href="#66">class</a>.<a href="codec_class.rs.html#28">codec_id</a>()<span class="question-mark">?</span>;
-        <span class="kw">let </span>codec_config_schema = <a href="schema.rs.html#25-122">schema_from_codec_class</a>(<a href="#66">class</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.py">py</a>(), <span class="kw-2">&amp;</span><a href="#66">class</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
+        <span class="kw">let </span>codec_config_schema = <a href="schema.rs.html#30-131">schema_from_codec_class</a>(<a href="#66">class</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.py">py</a>(), <span class="kw-2">&amp;</span><a href="#66">class</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
             <a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"failed to extract the {codec_id} codec config schema: {err}"
             </span>))
@@ -967,7 +967,7 @@
     </span><span class="kw">pub fn </span>from_codec_class(class: <a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
         <span class="kw">let </span>codec_id = <a href="#440">class</a>.<a href="codec_class.rs.html#28">codec_id</a>()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>codec_config_schema = <a href="schema.rs.html#25-122">schema_from_codec_class</a>(<a href="#440">class</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.py">py</a>(), <span class="kw-2">&amp;</span><a href="#440">class</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
+        <span class="kw">let </span>codec_config_schema = <a href="schema.rs.html#30-131">schema_from_codec_class</a>(<a href="#440">class</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.py">py</a>(), <span class="kw-2">&amp;</span><a href="#440">class</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
             <a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"failed to extract the {codec_id} codec config schema: {err}"
             </span>))
