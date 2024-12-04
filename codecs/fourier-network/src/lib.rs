@@ -269,8 +269,10 @@ pub struct NeuralNetworkError(RecorderError);
 
 /// Floating point types.
 pub trait FloatExt: BurnElement + FloatTrait + FromPrimitive + ConstZero + ConstOne {
+    /// The precision of this floating point type
     type Precision: PrecisionSettings;
 
+    /// Convert a usize to a floating point number
     fn from_usize(x: usize) -> Self;
 }
 
