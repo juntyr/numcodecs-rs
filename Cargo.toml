@@ -55,10 +55,10 @@ numcodecs-zlib = { version = "0.2", path = "codecs/zlib", default-features = fal
 numcodecs-zstd = { version = "0.2", path = "codecs/zstd", default-features = false }
 
 # crates.io third-party dependencies
-candle-core = { version = "0.8", default-features = false }
-candle-nn = { version = "0.8", default-features = false }
+burn = { version = "0.15", default-features = false }
 convert_case = { version = "0.6", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
+itertools = { version = "0.13", default-features = false }
 log = { version = "0.4.17", default-features = false }
 simple_logger = { version = "5.0", default-features = false }
 miniz_oxide = { version = "0.8", default-features = false }

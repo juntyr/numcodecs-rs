@@ -17,17 +17,24 @@
 //!
 //! Fourier feature neural network codec implementation for the [`numcodecs`] API.
 
-#![allow(clippy::multiple_crate_versions)] // bitflags
-
 use std::{borrow::Cow, num::NonZeroUsize};
 
-use candle_core::{Device, Error as CandleError, FloatDType, Shape, Tensor, WithDType, D};
-use candle_nn::{
-    batch_norm, linear_b, seq, AdamW, BatchNormConfig, Module, Optimizer, ParamsAdamW, Sequential,
-    VarBuilder, VarMap,
+use burn::{
+    backend::{ndarray::NdArrayDevice, Autodiff, NdArray},
+    module::Param,
+    nn::loss::Reduction,
+    optim::{AdamConfig, GradientsParams, Optimizer},
+    prelude::*,
+    record::{
+        BinBytesRecorder, DoublePrecisionSettings, FullPrecisionSettings, PrecisionSettings,
+        Recorder, RecorderError,
+    },
+    tensor::{backend::AutodiffBackend, Distribution, Element as BurnElement},
 };
-use ndarray::{Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix1, Order, Zip};
-use num_traits::{ConstOne, ConstZero, Float, FromPrimitive};
+use itertools::Itertools;
+use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension, Ix1, Order, Zip};
+use nn::{loss::MseLoss, BatchNorm, BatchNormConfig, Gelu, Linear, LinearConfig};
+use num_traits::{ConstOne, ConstZero, Float as FloatTrait, FromPrimitive};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -46,21 +53,23 @@ use thiserror::Error;
 /// and by Huang and Hoefler 2020 (<https://arxiv.org/abs/2210.12538>).
 pub struct FourierNetworkCodec {
     /// The number of Fourier features that the data coordinates are projected to
-    fourier_features: NonZeroUsize,
+    pub fourier_features: NonZeroUsize,
     /// The standard deviation of the Fourier features
-    fourier_scale: Positive<f64>,
+    pub fourier_scale: Positive<f64>,
     /// The number of blocks in the network
-    num_blocks: NonZeroUsize,
+    pub num_blocks: NonZeroUsize,
     /// The learning rate for the `AdamW` optimizer
-    learning_rate: Positive<f64>,
+    pub learning_rate: Positive<f64>,
     /// The number of iterations for which the network is trained
-    training_iterations: usize,
+    pub training_iterations: usize,
     /// The optional mini-batch size used during training
     ///
     /// Setting the mini-batch size to `None` disables the use of batching,
     /// i.e. the network is trained using one large batch that includes the
     /// full data.
-    mini_batch_size: Option<NonZeroUsize>,
+    pub mini_batch_size: Option<NonZeroUsize>,
+    /// The seed for the random number generator used during encoding
+    pub seed: u64,
 }
 
 impl Codec for FourierNetworkCodec {
@@ -68,8 +77,9 @@ impl Codec for FourierNetworkCodec {
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
-            AnyCowArray::F32(data) => Ok(AnyArray::F32(
-                encode(
+            AnyCowArray::F32(data) => Ok(AnyArray::U8(
+                encode::<f32, _, _, Autodiff<NdArray<f32>>>(
+                    NdArrayDevice::Cpu,
                     data,
                     self.fourier_features,
                     self.fourier_scale,
@@ -77,11 +87,13 @@ impl Codec for FourierNetworkCodec {
                     self.learning_rate,
                     self.training_iterations,
                     self.mini_batch_size,
+                    self.seed,
                 )?
                 .into_dyn(),
             )),
-            AnyCowArray::F64(data) => Ok(AnyArray::F64(
-                encode(
+            AnyCowArray::F64(data) => Ok(AnyArray::U8(
+                encode::<f64, _, _, Autodiff<NdArray<f64>>>(
+                    NdArrayDevice::Cpu,
                     data,
                     self.fourier_features,
                     self.fourier_scale,
@@ -89,6 +101,7 @@ impl Codec for FourierNetworkCodec {
                     self.learning_rate,
                     self.training_iterations,
                     self.mini_batch_size,
+                    self.seed,
                 )?
                 .into_dyn(),
             )),
@@ -110,23 +123,31 @@ impl Codec for FourierNetworkCodec {
         }
 
         match (encoded, decoded) {
-            (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
+            (AnyArrayView::U8(encoded), AnyArrayViewMut::F32(decoded)) => {
                 #[allow(clippy::option_if_let_else)]
                 match encoded.view().into_dimensionality() {
-                    Ok(encoded) => {
-                        decode_into(encoded, decoded, self.fourier_features, self.num_blocks)
-                    }
+                    Ok(encoded) => decode_into::<f32, _, _, NdArray<f32>>(
+                        NdArrayDevice::Cpu,
+                        encoded,
+                        decoded,
+                        self.fourier_features,
+                        self.num_blocks,
+                    ),
                     Err(_) => Err(FourierNetworkCodecError::EncodedDataNotOneDimensional {
                         shape: encoded.shape().to_vec(),
                     }),
                 }
             }
-            (AnyArrayView::F64(encoded), AnyArrayViewMut::F64(decoded)) => {
+            (AnyArrayView::U8(encoded), AnyArrayViewMut::F64(decoded)) => {
                 #[allow(clippy::option_if_let_else)]
                 match encoded.view().into_dimensionality() {
-                    Ok(encoded) => {
-                        decode_into(encoded, decoded, self.fourier_features, self.num_blocks)
-                    }
+                    Ok(encoded) => decode_into::<f64, _, _, NdArray<f64>>(
+                        NdArrayDevice::Cpu,
+                        encoded,
+                        decoded,
+                        self.fourier_features,
+                        self.num_blocks,
+                    ),
                     Err(_) => Err(FourierNetworkCodecError::EncodedDataNotOneDimensional {
                         shape: encoded.shape().to_vec(),
                     }),
@@ -162,7 +183,7 @@ impl StaticCodec for FourierNetworkCodec {
 #[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 /// Positive floating point number
-pub struct Positive<T: Float>(T);
+pub struct Positive<T: FloatTrait>(T);
 
 impl Serialize for Positive<f64> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
@@ -244,17 +265,31 @@ pub enum FourierNetworkCodecError {
 #[derive(Debug, Error)]
 #[error(transparent)]
 /// Opaque error for when an error occurs in the neural network
-pub struct NeuralNetworkError(CandleError);
+pub struct NeuralNetworkError(RecorderError);
 
 /// Floating point types.
-pub trait FloatExt: FloatDType + Float + FromPrimitive + ConstZero + ConstOne {}
+pub trait FloatExt: BurnElement + FloatTrait + FromPrimitive + ConstZero + ConstOne {
+    type Precision: PrecisionSettings;
 
-impl FloatExt for f32 {}
-impl FloatExt for f64 {}
+    fn from_usize(x: usize) -> Self;
+}
 
-#[allow(clippy::similar_names)] // train_xs and train_ys
-#[allow(clippy::significant_drop_tightening)] // lock while accessing data
-#[allow(clippy::missing_panics_doc)] // only when poisoned
+impl FloatExt for f32 {
+    type Precision = FullPrecisionSettings;
+
+    fn from_usize(x: usize) -> Self {
+        x as Self
+    }
+}
+
+impl FloatExt for f64 {
+    type Precision = DoublePrecisionSettings;
+
+    fn from_usize(x: usize) -> Self {
+        x as Self
+    }
+}
+
 /// Encodes the `data` by training a fourier feature neural network.
 ///
 /// The `fourier_features` are randomly sampled from a normal distribution with
@@ -265,6 +300,8 @@ impl FloatExt for f64 {}
 /// The network is trained for `training_iterations` using the `learning_rate`
 /// and mini-batches of `mini_batch_size` if mini-batching is enabled.
 ///
+/// All random numbers are generated using the provided `seed`.
+///
 /// # Errors
 ///
 /// Errors with
@@ -272,7 +309,8 @@ impl FloatExt for f64 {}
 ///   non-finite (infinite or NaN)
 /// - [`FourierNetworkCodecError::NeuralNetworkError`] if an error occurs during
 ///   the neural network computation
-pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
+pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<FloatElem = T>>(
+    device: B::Device,
     data: ArrayBase<S, D>,
     fourier_features: NonZeroUsize,
     fourier_scale: Positive<f64>,
@@ -280,7 +318,8 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     learning_rate: Positive<f64>,
     training_iterations: usize,
     mini_batch_size: Option<NonZeroUsize>,
-) -> Result<Array<T, Ix1>, FourierNetworkCodecError> {
+    seed: u64,
+) -> Result<Array<u8, Ix1>, FourierNetworkCodecError> {
     let Some(mean) = data.mean() else {
         return Ok(Array::from_vec(Vec::new()));
     };
@@ -291,84 +330,63 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
         return Err(FourierNetworkCodecError::NonFiniteData);
     }
 
-    let b_t = Tensor::randn(
-        T::ZERO,
-        <T as WithDType>::from_f64(fourier_scale.0),
-        (data.ndim(), fourier_features.get()),
-        &Device::Cpu,
-    )
-    .map_err(NeuralNetworkError)?;
+    B::seed(seed);
 
-    let train_xs = fourier_mapping(
-        &stacked_meshgrid::<T>(data.shape())
-            .map_err(NeuralNetworkError)?
-            .reshape(((), data.ndim()))
-            .map_err(NeuralNetworkError)?,
-        &b_t,
-    )
-    .map_err(NeuralNetworkError)?;
+    let b_t = Tensor::<B, 2, Float>::random(
+        [data.ndim(), fourier_features.get()],
+        Distribution::Normal(0.0, fourier_scale.0),
+        &device,
+    );
 
-    let train_ys_shape = Shape::from_dims(data.shape()).extend(&[1]);
+    let train_xs = flat_grid_like(&data, &device);
+    let train_xs = fourier_mapping(train_xs, b_t.clone());
+
+    let train_ys_shape = [data.len(), 1];
     let mut train_ys = data.into_owned();
     train_ys.mapv_inplace(|x| (x - mean) / stdv);
     #[allow(clippy::unwrap_used)] // reshape with one extra new axis cannot fail
     let train_ys = train_ys
-        .into_shape_clone((train_ys_shape.dims(), Order::RowMajor))
+        .into_shape_clone((train_ys_shape, Order::RowMajor))
         .unwrap();
-    let train_ys = Tensor::from_vec(
-        train_ys.into_raw_vec_and_offset().0,
-        train_ys_shape,
-        &Device::Cpu,
-    )
-    .map_err(NeuralNetworkError)?
-    .reshape(((), 1))
-    .map_err(NeuralNetworkError)?;
+    let train_ys = Tensor::from_data(
+        TensorData::new(train_ys.into_raw_vec_and_offset().0, train_ys_shape),
+        &device,
+    );
 
-    let model = train::<T>(
-        &train_xs,
-        &train_ys,
+    let model = train(
+        &device,
+        train_xs,
+        train_ys,
         fourier_features,
         num_blocks,
         learning_rate,
         training_iterations,
         mini_batch_size,
-    )
-    .map_err(NeuralNetworkError)?;
-
-    #[allow(clippy::unwrap_used)] // poisoning is unrecoverable
-    let guard = model.data().lock().unwrap();
-
-    let mut vars = guard
-        .iter()
-        .map(|(k, v)| (k.clone(), v.clone()))
-        .collect::<Vec<_>>();
-    vars.sort_by(|x, y| x.0.cmp(&y.0));
-
-    let mut encoded = Vec::new();
-    for (_, var) in vars {
-        encoded.append(
-            &mut var
-                .flatten_all()
-                .map_err(NeuralNetworkError)?
-                .to_vec1()
-                .map_err(NeuralNetworkError)?,
-        );
-    }
-    encoded.append(
-        &mut b_t
-            .flatten_all()
-            .map_err(NeuralNetworkError)?
-            .to_vec1()
-            .map_err(NeuralNetworkError)?,
     );
-    encoded.push(mean);
-    encoded.push(stdv);
+
+    let extra = ModelExtra {
+        model,
+        b_t: Param::from_tensor(b_t).set_require_grad(false),
+        mean: Param::from_tensor(Tensor::from_data(
+            TensorData::new(vec![mean], vec![1]),
+            &device,
+        ))
+        .set_require_grad(false),
+        stdv: Param::from_tensor(Tensor::from_data(
+            TensorData::new(vec![stdv], vec![1]),
+            &device,
+        ))
+        .set_require_grad(false),
+    };
+
+    let recorder = BinBytesRecorder::<T::Precision>::new();
+    let encoded = recorder
+        .record(extra.into_record(), ())
+        .map_err(NeuralNetworkError)?;
 
     Ok(Array::from_vec(encoded))
 }
 
-#[allow(clippy::significant_drop_tightening)] // lock while accessing data
-#[allow(clippy::missing_panics_doc)] // only when poisoned
 /// Decodes the `encoded` data into the `decoded` output array by making a
 /// prediction using the fourier feature neural network.
 ///
@@ -384,7 +402,8 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
 ///   the neural network computation
 /// - [`FourierNetworkCodecError::CorruptedEncodedData`] if the encoded data is
 ///   of the wrong length
-pub fn decode_into<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
+pub fn decode_into<T: FloatExt, S: Data<Elem = u8>, D: Dimension, B: Backend<FloatElem = T>>(
+    device: B::Device,
     encoded: ArrayBase<S, Ix1>,
     mut decoded: ArrayViewMut<T, D>,
     fourier_features: NonZeroUsize,
@@ -405,231 +424,215 @@ pub fn decode_into<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
 
     let encoded = encoded.into_owned().into_raw_vec_and_offset().0;
 
-    let varmap = VarMap::new();
-    let model = make_model::<T>(num_blocks, fourier_features, &varmap, false)
+    let recorder = BinBytesRecorder::<T::Precision>::new();
+    let record = recorder
+        .load(encoded, &device)
         .map_err(NeuralNetworkError)?;
 
-    let mut i = 0;
-
-    {
-        #[allow(clippy::unwrap_used)] // poisoning is unrecoverable
-        let guard = varmap.data().lock().unwrap();
-
-        let mut vars = guard
-            .iter()
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect::<Vec<_>>();
-        vars.sort_by(|x, y| x.0.cmp(&y.0));
-
-        for (_, var) in vars {
-            var.set(
-                &Tensor::from_slice(
-                    encoded
-                        .get(i..i + var.shape().elem_count())
-                        .ok_or(FourierNetworkCodecError::CorruptedEncodedData)?,
-                    var.shape().dims(),
-                    &Device::Cpu,
-                )
-                .map_err(NeuralNetworkError)?,
-            )
-            .map_err(NeuralNetworkError)?;
-            i += var.shape().elem_count();
-        }
+    let extra = ModelExtra::<B> {
+        model: ModelConfig::new(fourier_features, num_blocks).init(&device),
+        b_t: Param::from_tensor(Tensor::zeros(
+            [decoded.ndim(), fourier_features.get()],
+            &device,
+        ))
+        .set_require_grad(false),
+        mean: Param::from_tensor(Tensor::zeros([1], &device)).set_require_grad(false),
+        stdv: Param::from_tensor(Tensor::ones([1], &device)).set_require_grad(false),
     }
+    .load_record(record);
 
-    let b_t = Tensor::from_slice(
-        encoded
-            .get(i..i + decoded.ndim() * fourier_features.get())
-            .ok_or(FourierNetworkCodecError::CorruptedEncodedData)?,
-        &[decoded.ndim(), fourier_features.get()],
-        &Device::Cpu,
-    )
-    .map_err(NeuralNetworkError)?;
-    i += decoded.ndim() * fourier_features.get();
+    let model = extra.model;
+    let b_t = extra.b_t.into_value();
+    let mean = extra.mean.into_value().into_scalar();
+    let stdv = extra.stdv.into_value().into_scalar();
 
-    let mean = *encoded
-        .get(i)
-        .ok_or(FourierNetworkCodecError::CorruptedEncodedData)?;
-    let stdv = *encoded
-        .get(i + 1)
-        .ok_or(FourierNetworkCodecError::CorruptedEncodedData)?;
+    let test_xs = flat_grid_like(&decoded, &device);
+    let test_xs = fourier_mapping(test_xs, b_t);
 
-    if encoded.len() != (i + 2) {
-        return Err(FourierNetworkCodecError::CorruptedEncodedData);
-    }
-
-    let test_xs = fourier_mapping(
-        &stacked_meshgrid::<T>(decoded.shape())
-            .map_err(NeuralNetworkError)?
-            .reshape(((), decoded.ndim()))
-            .map_err(NeuralNetworkError)?,
-        &b_t,
-    )
-    .map_err(NeuralNetworkError)?;
-
-    let prediction = model.forward(&test_xs).map_err(NeuralNetworkError)?;
-    let prediction = prediction
-        .flatten_all()
-        .map_err(NeuralNetworkError)?
-        .to_vec1()
-        .map_err(NeuralNetworkError)?;
+    let prediction = model.forward(test_xs).into_data();
+    let prediction = prediction.as_slice().unwrap();
 
     #[allow(clippy::unwrap_used)] // prediction shape is flattened
-    decoded.assign(&Array::from_shape_vec(decoded.shape(), prediction).unwrap());
+    decoded.assign(&ArrayView::from_shape(decoded.shape(), prediction).unwrap());
     decoded.mapv_inplace(|x| (x * stdv) + mean);
 
     Ok(())
 }
 
-fn stacked_meshgrid<T: FloatExt>(shape: &[usize]) -> Result<Tensor, CandleError> {
-    let axes = shape
+fn flat_grid_like<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: Backend<FloatElem = T>>(
+    a: &ArrayBase<S, D>,
+    device: &B::Device,
+) -> Tensor<B, 2, Float> {
+    let grid = a
+        .shape()
         .iter()
+        .copied()
         .map(|s| {
-            #[allow(clippy::cast_precision_loss)]
-            Tensor::arange(T::ZERO, <T as WithDType>::from_f64(*s as f64), &Device::Cpu)
-                .and_then(|t| t / (*s as f64))
+            (0..s)
+                .into_iter()
+                .map(move |x| <T as FloatExt>::from_usize(x) / <T as FloatExt>::from_usize(s))
         })
-        .collect::<Result<Vec<_>, _>>()?;
+        .multi_cartesian_product()
+        .flatten()
+        .collect::<Vec<_>>();
 
-    if let [a] = axes.as_slice() {
-        return a.reshape(a.shape().clone().extend(&[1]));
+    Tensor::from_data(TensorData::new(grid, [a.len(), a.ndim()]), device)
+}
+
+fn fourier_mapping<B: Backend>(
+    xs: Tensor<B, 2, Float>,
+    b_t: Tensor<B, 2, Float>,
+) -> Tensor<B, 2, Float> {
+    let xs_proj = xs.mul_scalar(core::f64::consts::TAU).matmul(b_t);
+
+    Tensor::cat(vec![xs_proj.clone().sin(), xs_proj.cos()], 1)
+}
+
+#[derive(Debug, Module)]
+struct Block<B: Backend> {
+    bn2_1: BatchNorm<B, 0>,
+    gu2_2: Gelu,
+    ln2_3: Linear<B>,
+}
+
+impl<B: Backend> Block<B> {
+    fn forward(&self, x: Tensor<B, 2, Float>) -> Tensor<B, 2, Float> {
+        let x = self.bn2_1.forward(x);
+        let x = self.gu2_2.forward(x);
+        let x = self.ln2_3.forward(x);
+        x
     }
-
-    Tensor::stack(
-        Tensor::meshgrid(axes.as_slice(), false)?.as_slice(),
-        D::Minus1,
-    )
 }
 
-fn fourier_mapping(xs: &Tensor, b_t: &Tensor) -> Result<Tensor, CandleError> {
-    let xs_proj =
-        (xs.contiguous()? * core::f64::consts::TAU)?.broadcast_matmul(&b_t.contiguous()?)?;
-
-    Tensor::cat(&[xs_proj.sin()?, xs_proj.cos()?], D::Minus1)
-}
-
-#[allow(clippy::similar_names)] // bnX_Y and lnX_Y
-fn make_model<T: FloatExt>(
-    num_blocks: NonZeroUsize,
+#[derive(Config, Debug)]
+struct BlockConfig {
     fourier_features: NonZeroUsize,
-    varmap: &VarMap,
-    train: bool,
-) -> Result<Sequential, CandleError> {
-    let vb = VarBuilder::from_varmap(varmap, T::DTYPE, &Device::Cpu);
-
-    let mut layers = seq();
-
-    let ln1 = linear_b(
-        fourier_features.get() * 2,
-        fourier_features.get(),
-        true,
-        vb.pp("ln0"),
-    )?;
-    layers = layers.add(ln1);
-
-    for _ in 1..num_blocks.get() {
-        let bn2_1 = batch_norm(
-            fourier_features.get(),
-            BatchNormConfig::default(),
-            vb.pp("bn2.1"),
-        )?;
-        let ln2_2 = linear_b(
-            fourier_features.get(),
-            fourier_features.get(),
-            true,
-            vb.pp("ln2.2"),
-        )?;
-        let bn2_3 = batch_norm(
-            fourier_features.get(),
-            BatchNormConfig::default(),
-            vb.pp("bn2.3"),
-        )?;
-        let ln2_4 = linear_b(
-            fourier_features.get(),
-            fourier_features.get(),
-            true,
-            vb.pp("ln2.4"),
-        )?;
-
-        layers = layers.add_fn(move |xs| {
-            xs.apply_t(&bn2_1, train)?
-                .gelu()?
-                .apply(&ln2_2)?
-                .apply_t(&bn2_3, train)?
-                .gelu()?
-                .apply(&ln2_4)
-        });
-    }
-
-    // let bn3 = batch_norm(fourier_features.get(), BatchNormConfig::default(), vb.pp("bn3"))?;
-    layers = layers.add_fn(move |xs| {
-        xs /*.apply_t(&bn3, false)?*/
-            .gelu()
-    });
-
-    let ln4 = linear_b(fourier_features.get(), 1, true, vb.pp("ln4"))?;
-    layers = layers.add(ln4);
-
-    Ok(layers)
 }
 
-#[allow(clippy::similar_names)]
-fn train<T: FloatExt>(
-    train_xs: &Tensor,
-    train_ys: &Tensor,
+impl BlockConfig {
+    fn init<B: Backend>(&self, device: &B::Device) -> Block<B> {
+        Block {
+            bn2_1: BatchNormConfig::new(self.fourier_features.get()).init(device),
+            gu2_2: Gelu,
+            ln2_3: LinearConfig::new(self.fourier_features.get(), self.fourier_features.get())
+                .init(device),
+        }
+    }
+}
+
+#[derive(Debug, Module)]
+struct Model<B: Backend> {
+    ln1: Linear<B>,
+    bl2: Vec<Block<B>>,
+    bn3: BatchNorm<B, 0>,
+    gu4: Gelu,
+    ln5: Linear<B>,
+}
+
+impl<B: Backend> Model<B> {
+    fn forward(&self, x: Tensor<B, 2, Float>) -> Tensor<B, 2, Float> {
+        let x = self.ln1.forward(x);
+
+        let mut x = x;
+        for block in &self.bl2 {
+            x = block.forward(x);
+        }
+
+        let x = self.bn3.forward(x);
+        let x = self.gu4.forward(x);
+        let x = self.ln5.forward(x);
+
+        x
+    }
+}
+
+#[derive(Config, Debug)]
+struct ModelConfig {
+    fourier_features: NonZeroUsize,
+    num_blocks: NonZeroUsize,
+}
+
+impl ModelConfig {
+    fn init<B: Backend>(&self, device: &B::Device) -> Model<B> {
+        let block = BlockConfig::new(self.fourier_features);
+
+        Model {
+            ln1: LinearConfig::new(self.fourier_features.get() * 2, self.fourier_features.get())
+                .init(device),
+            bl2: (1..self.num_blocks.get())
+                .into_iter()
+                .map(|_| block.init(device))
+                .collect(),
+            bn3: BatchNormConfig::new(self.fourier_features.get()).init(device),
+            gu4: Gelu,
+            ln5: LinearConfig::new(self.fourier_features.get(), 1).init(device),
+        }
+    }
+}
+
+#[derive(Debug, Module)]
+struct ModelExtra<B: Backend> {
+    model: Model<B>,
+    b_t: Param<Tensor<B, 2, Float>>,
+    mean: Param<Tensor<B, 1, Float>>,
+    stdv: Param<Tensor<B, 1, Float>>,
+}
+
+#[derive(Config)]
+struct TrainingConfig {
+    num_epochs: usize,
+    batch_size: usize,
+    seed: u64,
+    learning_rate: f64,
+    model: ModelConfig,
+    optimizer: AdamConfig,
+}
+
+fn train<B: AutodiffBackend>(
+    device: &B::Device,
+    train_xs: Tensor<B, 2, Float>,
+    train_ys: Tensor<B, 2, Float>,
     fourier_features: NonZeroUsize,
     num_blocks: NonZeroUsize,
     learning_rate: Positive<f64>,
     training_iterations: usize,
     mini_batch_size: Option<NonZeroUsize>,
-) -> Result<VarMap, CandleError> {
-    let varmap = VarMap::new();
+) -> Model<B> {
+    // Create the configuration.
+    let config_model = ModelConfig::new(fourier_features, num_blocks);
+    let config_optimizer = AdamConfig::new();
+    let config = TrainingConfig::new(
+        training_iterations,
+        mini_batch_size.map_or(0, NonZeroUsize::get),
+        43,
+        learning_rate.0,
+        config_model,
+        config_optimizer,
+    );
 
-    let model = make_model::<T>(num_blocks, fourier_features, &varmap, true)?;
+    // Create the model and optimizer.
+    let mut model = config.model.init(device);
+    let mut optim = config.optimizer.init();
 
-    let mut opt = AdamW::new(
-        varmap.all_vars(),
-        ParamsAdamW {
-            lr: learning_rate.0,
-            ..Default::default()
-        },
-    )?;
+    // Iterate over our training and validation loop for X epochs.
+    for epoch in 1..config.num_epochs + 1 {
+        let output = model.forward(train_xs.clone());
+        let loss = MseLoss::new().forward(output.clone(), train_ys.clone(), Reduction::Mean);
 
-    for i in 0..training_iterations {
-        let (train_xs, train_ys) = match mini_batch_size {
-            Some(mini_batch_size) => {
-                let shuffle =
-                    Tensor::rand(T::ZERO, T::ONE, train_ys.shape().elem_count(), &Device::Cpu)?;
-                let shuffle_indices = shuffle.arg_sort_last_dim(true)?;
-
-                let mini_batch_indices = shuffle_indices.narrow(
-                    0,
-                    0,
-                    mini_batch_size.get().min(train_ys.shape().elem_count()),
-                )?;
-
-                let train_xs_batch = train_xs.index_select(&mini_batch_indices, 0)?;
-                let train_ys_batch = train_ys.index_select(&mini_batch_indices, 0)?;
-
-                (train_xs_batch, train_ys_batch)
-            }
-            None => (train_xs.clone(), train_ys.clone()),
-        };
-
-        let predict_ys = model.forward(&train_xs)?;
-
-        let loss = predict_ys.sub(&train_ys)?.sqr()?.mean_all()? * 0.5;
-        let loss = loss?;
-
-        opt.backward_step(&loss)?;
+        // Gradients for the current backward pass
+        let grads = loss.backward();
+        // Gradients linked to each parameter of the model.
+        let grads = GradientsParams::from_grads(grads, &model);
+        // Update the model using the optimizer.
+        model = optim.step(config.learning_rate, model, grads);
 
         log::info!(
-            "[{i}/{training_iterations}]: loss={}",
-            loss.to_scalar::<T>()?
+            "[{epoch}/{training_iterations}]: loss={}",
+            loss.into_scalar(),
         );
     }
 
-    Ok(varmap)
+    model
 }
 
 #[cfg(test)]
@@ -641,7 +644,8 @@ mod tests {
     fn empty() {
         std::mem::drop(simple_logger::init());
 
-        let encoded = encode(
+        let encoded = encode::<f32, _, _, Autodiff<NdArray<f32>>>(
+            NdArrayDevice::Cpu,
             Array::<f32, _>::zeros((0,)),
             NonZeroUsize::MIN,
             Positive(1.0),
@@ -649,11 +653,13 @@ mod tests {
             Positive(1e-4),
             10,
             None,
+            42,
         )
         .unwrap();
         assert!(encoded.is_empty());
         let mut decoded = Array::<f32, _>::zeros((0,));
-        decode_into(
+        decode_into::<f32, _, _, NdArray<f32>>(
+            NdArrayDevice::Cpu,
             encoded,
             decoded.view_mut(),
             NonZeroUsize::MIN,
@@ -666,7 +672,8 @@ mod tests {
     fn ones() {
         std::mem::drop(simple_logger::init());
 
-        let encoded = encode(
+        let encoded = encode::<f32, _, _, Autodiff<NdArray<f32>>>(
+            NdArrayDevice::Cpu,
             Array::<f32, _>::zeros((1, 1, 1, 1)),
             NonZeroUsize::MIN,
             Positive(1.0),
@@ -674,10 +681,12 @@ mod tests {
             Positive(1e-4),
             10,
             None,
+            42,
         )
         .unwrap();
         let mut decoded = Array::<f32, _>::zeros((1, 1, 1, 1));
-        decode_into(
+        decode_into::<f32, _, _, NdArray<f32>>(
+            NdArrayDevice::Cpu,
             encoded,
             decoded.view_mut(),
             NonZeroUsize::MIN,
@@ -690,7 +699,8 @@ mod tests {
     fn r#const() {
         std::mem::drop(simple_logger::init());
 
-        let encoded = encode(
+        let encoded = encode::<f32, _, _, Autodiff<NdArray<f32>>>(
+            NdArrayDevice::Cpu,
             Array::<f32, _>::from_elem((2, 1, 3), 42.0),
             NonZeroUsize::MIN,
             Positive(1.0),
@@ -698,10 +708,12 @@ mod tests {
             Positive(1e-4),
             10,
             None,
+            42,
         )
         .unwrap();
         let mut decoded = Array::<f32, _>::zeros((2, 1, 3));
-        decode_into(
+        decode_into::<f32, _, _, NdArray<f32>>(
+            NdArrayDevice::Cpu,
             encoded,
             decoded.view_mut(),
             NonZeroUsize::MIN,
@@ -714,7 +726,8 @@ mod tests {
     fn const_batched() {
         std::mem::drop(simple_logger::init());
 
-        let encoded = encode(
+        let encoded = encode::<f32, _, _, Autodiff<NdArray<f32>>>(
+            NdArrayDevice::Cpu,
             Array::<f32, _>::from_elem((2, 1, 3), 42.0),
             NonZeroUsize::MIN,
             Positive(1.0),
@@ -722,10 +735,12 @@ mod tests {
             Positive(1e-4),
             10,
             Some(NonZeroUsize::MIN.saturating_add(1)),
+            42,
         )
         .unwrap();
         let mut decoded = Array::<f32, _>::zeros((2, 1, 3));
-        decode_into(
+        decode_into::<f32, _, _, NdArray<f32>>(
+            NdArrayDevice::Cpu,
             encoded,
             decoded.view_mut(),
             NonZeroUsize::MIN,
@@ -745,6 +760,7 @@ mod tests {
         let num_blocks = NonZeroUsize::new(2).unwrap();
         let learning_rate = Positive(1e-4);
         let training_iterations = 100;
+        let seed = 42;
 
         for mini_batch_size in [
             None,                                         // no mini-batching
@@ -752,8 +768,9 @@ mod tests {
             Some(NonZeroUsize::MIN.saturating_add(9)),    // mini-batched
             Some(NonZeroUsize::MIN.saturating_add(1000)), // mini-batched, truncated
         ] {
-            let mut decoded = Array::zeros(data.shape());
-            let encoded = encode(
+            let mut decoded = Array::<f64, _>::zeros(data.shape());
+            let encoded = encode::<f64, _, _, Autodiff<NdArray<f64>>>(
+                NdArrayDevice::Cpu,
                 data.view(),
                 fourier_features,
                 fourier_scale,
@@ -761,10 +778,18 @@ mod tests {
                 learning_rate,
                 training_iterations,
                 mini_batch_size,
+                seed,
             )
             .unwrap();
 
-            decode_into(encoded, decoded.view_mut(), fourier_features, num_blocks).unwrap();
+            decode_into::<f64, _, _, NdArray<f64>>(
+                NdArrayDevice::Cpu,
+                encoded,
+                decoded.view_mut(),
+                fourier_features,
+                num_blocks,
+            )
+            .unwrap();
         }
     }
 }
