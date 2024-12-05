@@ -777,6 +777,7 @@ mod tests {
         for mini_batch_size in [
             None,                                         // no mini-batching
             Some(NonZeroUsize::MIN),                      // stochastic
+            Some(NonZeroUsize::MIN.saturating_add(6)),    // mini-batched, remainder
             Some(NonZeroUsize::MIN.saturating_add(9)),    // mini-batched
             Some(NonZeroUsize::MIN.saturating_add(1000)), // mini-batched, truncated
         ] {
