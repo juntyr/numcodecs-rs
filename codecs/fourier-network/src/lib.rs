@@ -19,7 +19,7 @@
 
 #![allow(clippy::multiple_crate_versions)]
 
-use std::{borrow::Cow, num::NonZeroUsize};
+use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 
 use burn::{
     backend::{ndarray::NdArrayDevice, Autodiff, NdArray},
@@ -62,8 +62,8 @@ pub struct FourierNetworkCodec {
     pub num_blocks: NonZeroUsize,
     /// The learning rate for the `AdamW` optimizer
     pub learning_rate: Positive<f64>,
-    /// The number of iterations for which the network is trained
-    pub training_iterations: usize,
+    /// The number of epochs for which the network is trained
+    pub num_epochs: usize,
     /// The optional mini-batch size used during training
     ///
     /// Setting the mini-batch size to `None` disables the use of batching,
@@ -87,7 +87,7 @@ impl Codec for FourierNetworkCodec {
                     self.fourier_scale,
                     self.num_blocks,
                     self.learning_rate,
-                    self.training_iterations,
+                    self.num_epochs,
                     self.mini_batch_size,
                     self.seed,
                 )?
@@ -101,7 +101,7 @@ impl Codec for FourierNetworkCodec {
                     self.fourier_scale,
                     self.num_blocks,
                     self.learning_rate,
-                    self.training_iterations,
+                    self.num_epochs,
                     self.mini_batch_size,
                     self.seed,
                 )?
@@ -120,50 +120,34 @@ impl Codec for FourierNetworkCodec {
         encoded: AnyArrayView,
         decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        if !matches!(encoded.dtype(), AnyArrayDType::F32 | AnyArrayDType::F64) {
-            return Err(FourierNetworkCodecError::UnsupportedDtype(encoded.dtype()));
-        }
+        let AnyArrayView::U8(encoded) = encoded else {
+            return Err(FourierNetworkCodecError::EncodedDataNotBytes {
+                dtype: encoded.dtype(),
+            });
+        };
 
-        match (encoded, decoded) {
-            (AnyArrayView::U8(encoded), AnyArrayViewMut::F32(decoded)) => {
-                #[allow(clippy::option_if_let_else)]
-                match encoded.view().into_dimensionality() {
-                    Ok(encoded) => decode_into::<f32, _, _, NdArray<f32>>(
-                        &NdArrayDevice::Cpu,
-                        encoded,
-                        decoded,
-                        self.fourier_features,
-                        self.num_blocks,
-                    ),
-                    Err(_) => Err(FourierNetworkCodecError::EncodedDataNotOneDimensional {
-                        shape: encoded.shape().to_vec(),
-                    }),
-                }
-            }
-            (AnyArrayView::U8(encoded), AnyArrayViewMut::F64(decoded)) => {
-                #[allow(clippy::option_if_let_else)]
-                match encoded.view().into_dimensionality() {
-                    Ok(encoded) => decode_into::<f64, _, _, NdArray<f64>>(
-                        &NdArrayDevice::Cpu,
-                        encoded,
-                        decoded,
-                        self.fourier_features,
-                        self.num_blocks,
-                    ),
-                    Err(_) => Err(FourierNetworkCodecError::EncodedDataNotOneDimensional {
-                        shape: encoded.shape().to_vec(),
-                    }),
-                }
-            }
-            (encoded @ (AnyArrayView::F32(_) | AnyArrayView::F64(_)), decoded) => {
-                Err(FourierNetworkCodecError::MismatchedDecodeIntoArray {
-                    source: AnyArrayAssignError::DTypeMismatch {
-                        src: encoded.dtype(),
-                        dst: decoded.dtype(),
-                    },
-                })
-            }
-            (encoded, _) => Err(FourierNetworkCodecError::UnsupportedDtype(encoded.dtype())),
+        let Ok(encoded): Result<ArrayBase<_, Ix1>, _> = encoded.view().into_dimensionality() else {
+            return Err(FourierNetworkCodecError::EncodedDataNotOneDimensional {
+                shape: encoded.shape().to_vec(),
+            });
+        };
+
+        match decoded {
+            AnyArrayViewMut::F32(decoded) => decode_into::<f32, _, _, NdArray<f32>>(
+                &NdArrayDevice::Cpu,
+                encoded,
+                decoded,
+                self.fourier_features,
+                self.num_blocks,
+            ),
+            AnyArrayViewMut::F64(decoded) => decode_into::<f64, _, _, NdArray<f64>>(
+                &NdArrayDevice::Cpu,
+                encoded,
+                decoded,
+                self.fourier_features,
+                self.num_blocks,
+            ),
+            decoded => Err(FourierNetworkCodecError::UnsupportedDtype(decoded.dtype())),
         }
     }
 }
@@ -226,7 +210,7 @@ impl JsonSchema for Positive<f64> {
 }
 
 #[derive(Debug, Error)]
-/// Errors that may occur when applying the [`IdentityCodec`].
+/// Errors that may occur when applying the [`FourierNetworkCodec`].
 pub enum FourierNetworkCodecError {
     /// [`FourierNetworkCodec`] does not support the dtype
     #[error("FourierNetwork does not support the dtype {0}")]
@@ -245,16 +229,22 @@ pub enum FourierNetworkCodecError {
     /// [`FourierNetworkCodec`] must be provided the output array during decoding
     #[error("FourierNetwork must be provided the output array during decoding")]
     MissingDecodingOutput,
-    /// [`FourierNetworkCodec`] can only decode one-dimensional byte arrays but received
-    /// an array of a different shape
-    #[error("FourierNetwork can only decode one-dimensional arrays but received an array of shape {shape:?}")]
+    /// [`FourierNetworkCodec`] can only decode one-dimensional byte arrays but
+    /// received an array of a different dtype
+    #[error(
+        "FourierNetwork can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
+    )]
+    EncodedDataNotBytes {
+        /// The unexpected dtype of the encoded array
+        dtype: AnyArrayDType,
+    },
+    /// [`FourierNetworkCodec`] can only decode one-dimensional byte arrays but
+    /// received an array of a different shape
+    #[error("FourierNetwork can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,
     },
-    /// [`FourierNetworkCodec`] cannot decode data of the wrong length
-    #[error("FourierNetwork cannot decode data of the wrong length")]
-    CorruptedEncodedData,
     /// [`FourierNetworkCodec`] cannot decode into the provided array
     #[error("FourierNetwork cannot decode into the provided array")]
     MismatchedDecodeIntoArray {
@@ -270,7 +260,9 @@ pub enum FourierNetworkCodecError {
 pub struct NeuralNetworkError(RecorderError);
 
 /// Floating point types.
-pub trait FloatExt: BurnElement + FloatTrait + FromPrimitive + ConstZero + ConstOne {
+pub trait FloatExt:
+    AddAssign + BurnElement + ConstOne + ConstZero + FloatTrait + FromPrimitive
+{
     /// The precision of this floating point type
     type Precision: PrecisionSettings;
 
@@ -306,7 +298,7 @@ impl FloatExt for f64 {
 ///
 /// The neural network consists of `num_blocks` blocks.
 ///
-/// The network is trained for `training_iterations` using the `learning_rate`
+/// The network is trained for `num_epochs` using the `learning_rate`
 /// and mini-batches of `mini_batch_size` if mini-batching is enabled.
 ///
 /// All random numbers are generated using the provided `seed`.
@@ -325,7 +317,7 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<F
     fourier_scale: Positive<f64>,
     num_blocks: NonZeroUsize,
     learning_rate: Positive<f64>,
-    training_iterations: usize,
+    num_epochs: usize,
     mini_batch_size: Option<NonZeroUsize>,
     seed: u64,
 ) -> Result<Array<u8, Ix1>, FourierNetworkCodecError> {
@@ -369,7 +361,7 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<F
         fourier_features,
         num_blocks,
         learning_rate,
-        training_iterations,
+        num_epochs,
         mini_batch_size,
     );
 
@@ -410,8 +402,6 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<F
 ///   array is empty but the decoded array is not
 /// - [`FourierNetworkCodecError::NeuralNetworkError`] if an error occurs during
 ///   the neural network computation
-/// - [`FourierNetworkCodecError::CorruptedEncodedData`] if the encoded data is
-///   of the wrong length
 pub fn decode_into<T: FloatExt, S: Data<Elem = u8>, D: Dimension, B: Backend<FloatElem = T>>(
     device: &B::Device,
     encoded: ArrayBase<S, Ix1>,
@@ -593,29 +583,59 @@ struct ModelExtra<B: Backend> {
 
 #[allow(clippy::similar_names)] // train_xs and train_ys
 #[allow(clippy::too_many_arguments)] // FIXME
-fn train<B: AutodiffBackend>(
+fn train<T: FloatExt, B: AutodiffBackend<FloatElem = T>>(
     device: &B::Device,
     train_xs: &Tensor<B, 2, Float>,
     train_ys: &Tensor<B, 2, Float>,
     fourier_features: NonZeroUsize,
     num_blocks: NonZeroUsize,
     learning_rate: Positive<f64>,
-    training_iterations: usize,
+    num_epochs: usize,
     mini_batch_size: Option<NonZeroUsize>,
 ) -> Model<B> {
+    let num_samples = train_ys.shape().num_elements();
+    let num_batches = mini_batch_size.map(|b| num_samples.div_ceil(b.get()));
+
     let mut model = ModelConfig::new(fourier_features, num_blocks).init(device);
     let mut optim = AdamConfig::new().init();
 
-    for it in 1..=training_iterations {
-        let _ = mini_batch_size; // FIXME
+    for epoch in 1..=num_epochs {
+        #[allow(clippy::option_if_let_else)]
+        let (train_xs_batches, train_ys_batches) = match num_batches {
+            Some(num_batches) => {
+                let shuffle = Tensor::<B, 1, Float>::random(
+                    [num_samples],
+                    Distribution::Uniform(0.0, 1.0),
+                    device,
+                );
+                let shuffle_indices = shuffle.argsort(0);
 
-        let prediction = model.forward(train_xs.clone());
-        let loss = MseLoss::new().forward(prediction, train_ys.clone(), Reduction::Mean);
+                let train_xs_shuffled = train_xs.clone().select(0, shuffle_indices.clone());
+                let train_ys_shuffled = train_ys.clone().select(0, shuffle_indices);
 
-        let grads = GradientsParams::from_grads(loss.backward(), &model);
-        model = optim.step(learning_rate.0, model, grads);
+                (
+                    train_xs_shuffled.chunk(num_batches, 0),
+                    train_ys_shuffled.chunk(num_batches, 0),
+                )
+            }
+            None => (vec![train_xs.clone()], vec![train_ys.clone()]),
+        };
 
-        log::info!("[{it}/{training_iterations}]: loss={}", loss.into_scalar(),);
+        let mut loss_sum = T::ZERO;
+
+        for (train_xs_batch, train_ys_batch) in train_xs_batches.into_iter().zip(train_ys_batches) {
+            let prediction = model.forward(train_xs_batch);
+            let loss = MseLoss::new().forward(prediction, train_ys_batch, Reduction::Mean);
+
+            let grads = GradientsParams::from_grads(loss.backward(), &model);
+            model = optim.step(learning_rate.0, model, grads);
+
+            loss_sum += loss.into_scalar();
+        }
+
+        let loss_mean = loss_sum / <T as FloatExt>::from_usize(num_batches.unwrap_or(1));
+
+        log::info!("[{epoch}/{num_epochs}]: loss={loss_mean}");
     }
 
     model
@@ -745,7 +765,7 @@ mod tests {
         let fourier_scale = Positive(10.0);
         let num_blocks = NonZeroUsize::new(2).unwrap();
         let learning_rate = Positive(1e-4);
-        let training_iterations = 100;
+        let num_epochs = 100;
         let seed = 42;
 
         for mini_batch_size in [
@@ -762,7 +782,7 @@ mod tests {
                 fourier_scale,
                 num_blocks,
                 learning_rate,
-                training_iterations,
+                num_epochs,
                 mini_batch_size,
                 seed,
             )
