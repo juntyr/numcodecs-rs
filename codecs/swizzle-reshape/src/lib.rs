@@ -516,6 +516,7 @@ impl JsonSchema for Rest {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)]
 mod tests {
     use ndarray::array;
 
@@ -729,6 +730,7 @@ mod tests {
         );
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     fn roundtrip(data: Array<i32, IxDyn>, axes: &[AxisGroup], swizzle_shape: &[usize]) {
         let swizzled = swizzle_reshape(data.view(), axes).expect("swizzle should not fail");
 
@@ -740,11 +742,11 @@ mod tests {
 
         assert_eq!(data, unswizzled);
 
-        if !axes.iter().any(|a| matches!(a, AxisGroup::Group(a) if a.len() != 1 || a.iter().any(|a| matches!(a, Axis::MergedRest(Rest))))) {
+        if axes.iter().any(|a| matches!(a, AxisGroup::Group(a) if a.len() != 1 || a.iter().any(|a| matches!(a, Axis::MergedRest(Rest))))) {
+            undo_swizzle_reshape(swizzled.view(), axes).expect_err("unswizzle should fail");
+        } else {
             let unswizzled = undo_swizzle_reshape(swizzled.view(), axes).expect("unswizzle should not fail");
             assert_eq!(data, unswizzled);
-        } else {
-            undo_swizzle_reshape(swizzled.view(), axes).expect_err("unswizzle should fail");
         }
     }
 }
