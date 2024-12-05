@@ -23,19 +23,25 @@ use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 
 use burn::{
     backend::{ndarray::NdArrayDevice, Autodiff, NdArray},
+    config::Config,
+    module::Module,
     module::Param,
-    nn::loss::Reduction,
+    nn::{
+        loss::{MseLoss, Reduction},
+        BatchNorm, BatchNormConfig, Gelu, Linear, LinearConfig,
+    },
     optim::{AdamConfig, GradientsParams, Optimizer},
-    prelude::*,
+    prelude::Backend,
     record::{
         BinBytesRecorder, DoublePrecisionSettings, FullPrecisionSettings, PrecisionSettings,
         Recorder, RecorderError,
     },
-    tensor::{backend::AutodiffBackend, Distribution, Element as BurnElement},
+    tensor::{
+        backend::AutodiffBackend, Distribution, Element as BurnElement, Float, Tensor, TensorData,
+    },
 };
 use itertools::Itertools;
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension, Ix1, Order, Zip};
-use nn::{loss::MseLoss, BatchNorm, BatchNormConfig, Gelu, Linear, LinearConfig};
 use num_traits::{ConstOne, ConstZero, Float as FloatTrait, FromPrimitive};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
