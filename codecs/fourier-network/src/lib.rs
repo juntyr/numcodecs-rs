@@ -369,6 +369,7 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<F
         learning_rate,
         num_epochs,
         mini_batch_size,
+        stdv,
     );
 
     let extra = ModelExtra {
@@ -598,6 +599,7 @@ fn train<T: FloatExt, B: AutodiffBackend<FloatElem = T>>(
     learning_rate: Positive<f64>,
     num_epochs: usize,
     mini_batch_size: Option<NonZeroUsize>,
+    stdv: T,
 ) -> Model<B> {
     let num_samples = train_ys.shape().num_elements();
     let num_batches = mini_batch_size.map(|b| num_samples.div_ceil(b.get()));
@@ -629,19 +631,34 @@ fn train<T: FloatExt, B: AutodiffBackend<FloatElem = T>>(
 
         let mut loss_sum = T::ZERO;
 
+        let mut se_sum = T::ZERO;
+        let mut ae_sum = T::ZERO;
+        let mut l_inf = T::ZERO;
+
         for (train_xs_batch, train_ys_batch) in train_xs_batches.into_iter().zip(train_ys_batches) {
             let prediction = model.forward(train_xs_batch);
-            let loss = MseLoss::new().forward(prediction, train_ys_batch, Reduction::Mean);
+            let loss =
+                MseLoss::new().forward(prediction.clone(), train_ys_batch.clone(), Reduction::Mean);
 
             let grads = GradientsParams::from_grads(loss.backward(), &model);
             model = optim.step(learning_rate.0, model, grads);
 
             loss_sum += loss.into_scalar();
+
+            let err = prediction - train_ys_batch;
+
+            se_sum += (err.clone() * err.clone()).sum().into_scalar();
+            ae_sum += err.clone().abs().sum().into_scalar();
+            l_inf = l_inf.max(err.abs().max().into_scalar());
         }
 
         let loss_mean = loss_sum / <T as FloatExt>::from_usize(num_batches.unwrap_or(1));
 
-        log::info!("[{epoch}/{num_epochs}]: loss={loss_mean}");
+        let rmse = stdv * (se_sum / <T as FloatExt>::from_usize(num_samples)).sqrt();
+        let mae = stdv * ae_sum / <T as FloatExt>::from_usize(num_samples);
+        let l_inf = stdv * l_inf;
+
+        log::info!("[{epoch}/{num_epochs}]: loss={loss_mean:0.3} MAE={mae:0.3} RMSE={rmse:0.3} Linf={l_inf:0.3}");
     }
 
     model
