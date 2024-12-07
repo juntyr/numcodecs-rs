@@ -24,8 +24,7 @@ use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 use burn::{
     backend::{ndarray::NdArrayDevice, Autodiff, NdArray},
     config::Config,
-    module::Module,
-    module::Param,
+    module::{Module, Param},
     nn::{
         loss::{MseLoss, Reduction},
         BatchNorm, BatchNormConfig, Gelu, Linear, LinearConfig,
@@ -34,7 +33,7 @@ use burn::{
     prelude::Backend,
     record::{
         BinBytesRecorder, DoublePrecisionSettings, FullPrecisionSettings, PrecisionSettings,
-        Recorder, RecorderError,
+        Record, Recorder, RecorderError,
     },
     tensor::{
         backend::AutodiffBackend, Distribution, Element as BurnElement, Float, Tensor, TensorData,
@@ -607,6 +606,10 @@ fn train<T: FloatExt, B: AutodiffBackend<FloatElem = T>>(
     let mut model = ModelConfig::new(fourier_features, num_blocks).init(device);
     let mut optim = AdamConfig::new().init();
 
+    let mut best_loss = T::infinity();
+    let mut best_epoch = 0;
+    let mut best_model_checkpoint = model.clone().into_record().into_item::<T::Precision>();
+
     for epoch in 1..=num_epochs {
         #[allow(clippy::option_if_let_else)]
         let (train_xs_batches, train_ys_batches) = match num_batches {
@@ -654,11 +657,23 @@ fn train<T: FloatExt, B: AutodiffBackend<FloatElem = T>>(
 
         let loss_mean = loss_sum / <T as FloatExt>::from_usize(num_batches.unwrap_or(1));
 
+        if loss_mean < best_loss {
+            best_loss = loss_mean;
+            best_epoch = epoch;
+            best_model_checkpoint = model.clone().into_record().into_item::<T::Precision>();
+        }
+
         let rmse = stdv * (se_sum / <T as FloatExt>::from_usize(num_samples)).sqrt();
         let mae = stdv * ae_sum / <T as FloatExt>::from_usize(num_samples);
         let l_inf = stdv * l_inf;
 
         log::info!("[{epoch}/{num_epochs}]: loss={loss_mean:0.3} MAE={mae:0.3} RMSE={rmse:0.3} Linf={l_inf:0.3}");
+    }
+
+    if best_epoch != num_epochs {
+        model = model.load_record(ModelRecord::from_item(best_model_checkpoint, device));
+
+        log::info!("restored from epoch {best_epoch} with lowest loss={best_loss:0.3}");
     }
 
     model
