@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use numcodecs::{
     AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType,
     StaticCodec, StaticCodecConfig, StaticCodecType,

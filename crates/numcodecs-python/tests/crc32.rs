@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use ndarray::{Array1, ArrayView1};
 use numcodecs::{AnyArray, AnyArrayView, AnyCowArray, Codec, DynCodec, DynCodecType};
 use numcodecs_python::{PyCodecAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};

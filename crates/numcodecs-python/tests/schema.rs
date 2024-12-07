@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use numcodecs::DynCodecType;
 use numcodecs_python::{PyCodecClass, PyCodecClassAdapter};
 use pyo3::{intern, prelude::*};
