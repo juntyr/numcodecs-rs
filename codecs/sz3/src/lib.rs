@@ -33,11 +33,21 @@ use thiserror::Error;
 use ::zstd_sys as _;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(transparent)]
+#[serde(deny_unknown_fields)]
 /// Codec providing compression using SZ3
 pub struct Sz3Codec {
+    /// Predictor
+    #[serde(default = "default_predictor")]
+    pub predictor: Option<Sz3Predictor>,
     /// SZ3 error bound
-    pub error: Sz3ErrorBound,
+    #[serde(flatten)]
+    pub error_bound: Sz3ErrorBound,
+    /// Encoder
+    #[serde(default = "default_encoder")]
+    pub encoder: Option<Sz3Encoder>,
+    /// Lossless compressor
+    #[serde(default = "default_lossless_compressor")]
+    pub lossless: Option<Sz3LosslessCompressor>,
 }
 
 /// SZ3 error bound
@@ -55,7 +65,6 @@ pub enum Sz3ErrorBound {
         /// Relative error bound
         #[serde(rename = "eb_rel")]
         rel: f64,
-        prediction: Option<Sz3PredictionMode>,
     },
     /// Errors are bounded by *either* the absolute or relative error, i.e. by
     /// whichever bound is weaker
@@ -67,7 +76,6 @@ pub enum Sz3ErrorBound {
         /// Relative error bound
         #[serde(rename = "eb_rel")]
         rel: f64,
-        prediction: Option<Sz3PredictionMode>,
     },
     /// Absolute error bound
     #[serde(rename = "abs")]
@@ -75,7 +83,6 @@ pub enum Sz3ErrorBound {
         /// Absolute error bound
         #[serde(rename = "eb_abs")]
         abs: f64,
-        prediction: Option<Sz3PredictionMode>,
     },
     /// Relative error bound
     #[serde(rename = "rel")]
@@ -83,7 +90,6 @@ pub enum Sz3ErrorBound {
         /// Relative error bound
         #[serde(rename = "eb_rel")]
         rel: f64,
-        prediction: Option<Sz3PredictionMode>,
     },
     /// Peak signal to noise ratio error bound
     #[serde(rename = "psnr")]
@@ -91,7 +97,6 @@ pub enum Sz3ErrorBound {
         /// Peak signal to noise ratio error bound
         #[serde(rename = "eb_psnr")]
         psnr: f64,
-        prediction: Option<Sz3PredictionMode>,
     },
     /// Peak L2 norm error bound
     #[serde(rename = "l2")]
@@ -99,38 +104,78 @@ pub enum Sz3ErrorBound {
         /// Peak L2 norm error bound
         #[serde(rename = "eb_l2")]
         l2: f64,
-        prediction: Option<Sz3PredictionMode>,
     },
-    /// Lossless compression using Zstandard
-    #[serde(rename = "lossless")]
-    Lossless,
 }
 
-/// SZ3 error bound
+/// SZ3 predictor
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "prediction")]
+#[serde(tag = "predictor")]
 #[serde(deny_unknown_fields)]
-pub enum Sz3PredictionMode {
+pub enum Sz3Predictor {
+    /// Interpolation
     #[serde(rename = "interpolation")]
     Interpolation {
+        /// Interpolation mode
         #[serde(rename = "interpolation")]
         mode: Sz3InterpolationMode,
     },
+    /// Interpolation + Lorenzo predictor
     #[serde(rename = "interpolation-lorenzo")]
     InterpolationLorenzo {
+        /// Interpolation mode
         #[serde(rename = "interpolation")]
         mode: Sz3InterpolationMode,
     },
+    /// Lorenzo predictor + regression
     #[serde(rename = "lorenzo-regression")]
     LorenzoRegression,
+}
+
+fn default_predictor() -> Option<Sz3Predictor> {
+    Some(Sz3Predictor::InterpolationLorenzo {
+        mode: Sz3InterpolationMode::Cubic,
+    })
 }
 
 /// SZ3 error bound
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub enum Sz3InterpolationMode {
+    /// Linear interpolation
+    #[serde(rename = "linear")]
     Linear,
+    /// Cubic interpolation
+    #[serde(rename = "cubic")]
     Cubic,
+}
+
+/// SZ3 encoder
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub enum Sz3Encoder {
+    /// Huffman coding
+    #[serde(rename = "huffman")]
+    Huffman,
+    /// Arithmetic coding
+    #[serde(rename = "arithmetic")]
+    Arithmetic,
+}
+
+fn default_encoder() -> Option<Sz3Encoder> {
+    Some(Sz3Encoder::Huffman)
+}
+
+/// SZ3 lossless compressor
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub enum Sz3LosslessCompressor {
+    /// Zstandard
+    #[serde(rename = "zstd")]
+    Zstd,
+}
+
+fn default_lossless_compressor() -> Option<Sz3LosslessCompressor> {
+    Some(Sz3LosslessCompressor::Zstd)
 }
 
 impl Codec for Sz3Codec {
@@ -139,16 +184,44 @@ impl Codec for Sz3Codec {
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
             AnyCowArray::I32(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.error)?).into_dyn(),
+                Array1::from(compress(
+                    data,
+                    self.predictor.as_ref(),
+                    &self.error_bound,
+                    self.encoder.as_ref(),
+                    self.lossless.as_ref(),
+                )?)
+                .into_dyn(),
             )),
             AnyCowArray::I64(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.error)?).into_dyn(),
+                Array1::from(compress(
+                    data,
+                    self.predictor.as_ref(),
+                    &self.error_bound,
+                    self.encoder.as_ref(),
+                    self.lossless.as_ref(),
+                )?)
+                .into_dyn(),
             )),
             AnyCowArray::F32(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.error)?).into_dyn(),
+                Array1::from(compress(
+                    data,
+                    self.predictor.as_ref(),
+                    &self.error_bound,
+                    self.encoder.as_ref(),
+                    self.lossless.as_ref(),
+                )?)
+                .into_dyn(),
             )),
             AnyCowArray::F64(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.error)?).into_dyn(),
+                Array1::from(compress(
+                    data,
+                    self.predictor.as_ref(),
+                    &self.error_bound,
+                    self.encoder.as_ref(),
+                    self.lossless.as_ref(),
+                )?)
+                .into_dyn(),
             )),
             encoded => Err(Sz3CodecError::UnsupportedDtype(encoded.dtype())),
         }
@@ -271,8 +344,9 @@ pub struct Sz3HeaderError(postcard::Error);
 pub struct Sz3CodingError(sz3::SZ3Error);
 
 #[allow(clippy::needless_pass_by_value)]
-/// Compresses the input `data` array using SZ3 with the provided error `bound`
-/// configuration.
+/// Compresses the input `data` array using SZ3, which consists of an optional
+/// `predictor`, an `error_bound`, an optional `encoder`, and an optional
+/// `lossless` compressor.
 ///
 /// # Errors
 ///
@@ -282,7 +356,10 @@ pub struct Sz3CodingError(sz3::SZ3Error);
 /// - [`Sz3CodecError::Sz3EncodeFailed`] if encoding failed with an opaque error
 pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
-    bound: &Sz3ErrorBound,
+    predictor: Option<&Sz3Predictor>,
+    error_bound: &Sz3ErrorBound,
+    encoder: Option<&Sz3Encoder>,
+    lossless: Option<&Sz3LosslessCompressor>,
 ) -> Result<Vec<u8>, Sz3CodecError> {
     let mut encoded = postcard::to_extend(
         &CompressionHeader {
@@ -340,33 +417,61 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
             shape: data.shape().to_vec(),
         })?;
 
-    let config = loop {
-        let error_bound = match bound {
-            // lossless compression
-            Sz3ErrorBound::Lossless => {
-                break sz3::Config::new(sz3::ErrorBound::Absolute(0.0))
-                    .compression_algorithm(sz3::CompressionAlgorithm::Lossless)
-            }
-            // lossy compression
-            Sz3ErrorBound::AbsoluteAndRelative { abs, rel } => {
-                sz3::ErrorBound::AbsoluteAndRelative {
-                    absolute_bound: *abs,
-                    relative_bound: *rel,
-                }
-            }
-            Sz3ErrorBound::AbsoluteOrRelative { abs, rel } => sz3::ErrorBound::AbsoluteOrRelative {
-                absolute_bound: *abs,
-                relative_bound: *rel,
-            },
-            Sz3ErrorBound::Absolute { abs } => sz3::ErrorBound::Absolute(*abs),
-            Sz3ErrorBound::Relative { rel } => sz3::ErrorBound::Relative(*rel),
-            Sz3ErrorBound::PS2NR { psnr } => sz3::ErrorBound::PSNR(*psnr),
-            Sz3ErrorBound::L2Norm { l2 } => sz3::ErrorBound::L2Norm(*l2),
+    // configure the error bound
+    let error_bound = match error_bound {
+        Sz3ErrorBound::AbsoluteAndRelative { abs, rel } => sz3::ErrorBound::AbsoluteAndRelative {
+            absolute_bound: *abs,
+            relative_bound: *rel,
+        },
+        Sz3ErrorBound::AbsoluteOrRelative { abs, rel } => sz3::ErrorBound::AbsoluteOrRelative {
+            absolute_bound: *abs,
+            relative_bound: *rel,
+        },
+        Sz3ErrorBound::Absolute { abs } => sz3::ErrorBound::Absolute(*abs),
+        Sz3ErrorBound::Relative { rel } => sz3::ErrorBound::Relative(*rel),
+        Sz3ErrorBound::PS2NR { psnr } => sz3::ErrorBound::PSNR(*psnr),
+        Sz3ErrorBound::L2Norm { l2 } => sz3::ErrorBound::L2Norm(*l2),
+    };
+    let mut config = sz3::Config::new(error_bound);
+
+    // configure the interpolation mode, if necessary
+    if let Some(
+        Sz3Predictor::Interpolation { mode } | Sz3Predictor::InterpolationLorenzo { mode },
+    ) = predictor
+    {
+        let interpolation = match mode {
+            Sz3InterpolationMode::Linear => sz3::InterpolationAlgorithm::Linear,
+            Sz3InterpolationMode::Cubic => sz3::InterpolationAlgorithm::Cubic,
         };
 
-        break sz3::Config::new(error_bound)
-            .compression_algorithm(sz3::CompressionAlgorithm::InterpolationLorenzo);
+        config = config.interpolation_algorithm(interpolation);
+    }
+
+    // configure the predictor (compression algorithm)
+    let predictor = match predictor {
+        Some(Sz3Predictor::Interpolation { .. }) => sz3::CompressionAlgorithm::Interpolation,
+        Some(Sz3Predictor::InterpolationLorenzo { .. }) => {
+            sz3::CompressionAlgorithm::InterpolationLorenzo
+        }
+        Some(Sz3Predictor::LorenzoRegression) => sz3::CompressionAlgorithm::lorenzo_regression(),
+        None => sz3::CompressionAlgorithm::NoPrediction,
     };
+    config = config.compression_algorithm(predictor);
+
+    // configure the encoder
+    let encoder = match encoder {
+        None => sz3::Encoder::SkipEncoder,
+        Some(Sz3Encoder::Huffman) => sz3::Encoder::HuffmanEncoder,
+        Some(Sz3Encoder::Arithmetic) => sz3::Encoder::ArithmeticEncoder,
+    };
+    config = config.encoder(encoder);
+
+    // configure the lossless compressor
+    let lossless = match lossless {
+        None => sz3::LossLess::LossLessBypass,
+        Some(Sz3LosslessCompressor::Zstd) => sz3::LossLess::ZSTD,
+    };
+    config = config.lossless(lossless);
 
     // FIXME: Sz3 seems to have a UB bug that impacts the last few bytes but is
     //        somehow gone if we use stdio first ... aaaaaaaah
@@ -501,7 +606,10 @@ mod tests {
     fn zero_length() -> Result<(), Sz3CodecError> {
         let encoded = compress(
             Array::<f32, _>::from_shape_vec([1, 27, 0].as_slice(), vec![])?,
+            default_predictor().as_ref(),
             &Sz3ErrorBound::L2Norm { l2: 27.0 },
+            default_encoder().as_ref(),
+            default_lossless_compressor().as_ref(),
         )?;
         let decoded = decompress(&encoded)?;
 
@@ -516,7 +624,13 @@ mod tests {
     fn one_dimension() -> Result<(), Sz3CodecError> {
         let data = Array::from_shape_vec([2_usize, 1, 2, 1].as_slice(), vec![1, 2, 3, 4])?;
 
-        let encoded = compress(data.view(), &Sz3ErrorBound::Absolute { abs: 0.0 })?;
+        let encoded = compress(
+            data.view(),
+            default_predictor().as_ref(),
+            &Sz3ErrorBound::Absolute { abs: 0.0 },
+            default_encoder().as_ref(),
+            default_lossless_compressor().as_ref(),
+        )?;
         let decoded = decompress(&encoded)?;
 
         assert_eq!(decoded, AnyArray::I32(data));
@@ -535,7 +649,10 @@ mod tests {
         ] {
             let encoded = compress(
                 ArrayView1::from(data),
+                default_predictor().as_ref(),
                 &Sz3ErrorBound::Absolute { abs: 0.0 },
+                default_encoder().as_ref(),
+                default_lossless_compressor().as_ref(),
             )?;
             let decoded = decompress(&encoded)?;
 
