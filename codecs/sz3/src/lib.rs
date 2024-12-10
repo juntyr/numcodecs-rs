@@ -466,10 +466,6 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
     };
     config = config.lossless(lossless);
 
-    // FIXME: Sz3 seems to have a UB bug that impacts the last few bytes but is
-    //        somehow gone if we use stdio first ... aaaaaaaah
-    std::mem::drop(std::io::Read::read(&mut std::io::stdin(), &mut []));
-
     // TODO: avoid extra allocation here
     let compressed = sz3::compress_with_config(&data, &config).map_err(|err| {
         Sz3CodecError::Sz3EncodeFailed {
@@ -620,7 +616,7 @@ mod tests {
         let encoded = compress(
             data.view(),
             default_predictor().as_ref(),
-            &Sz3ErrorBound::Absolute { abs: 0.0 },
+            &Sz3ErrorBound::Absolute { abs: 0.1 },
             default_encoder().as_ref(),
             default_lossless_compressor().as_ref(),
         )?;
@@ -643,7 +639,7 @@ mod tests {
             let encoded = compress(
                 ArrayView1::from(data),
                 default_predictor().as_ref(),
-                &Sz3ErrorBound::Absolute { abs: 0.0 },
+                &Sz3ErrorBound::Absolute { abs: 0.1 },
                 default_encoder().as_ref(),
                 default_lossless_compressor().as_ref(),
             )?;
