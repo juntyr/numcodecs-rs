@@ -132,7 +132,8 @@ pub enum Sz3Predictor {
     LorenzoRegression,
 }
 
-fn default_predictor() -> Option<Sz3Predictor> {
+#[allow(clippy::unnecessary_wraps)]
+const fn default_predictor() -> Option<Sz3Predictor> {
     Some(Sz3Predictor::CubicInterpolationLorenzo)
 }
 
@@ -148,7 +149,8 @@ pub enum Sz3Encoder {
     Arithmetic,
 }
 
-fn default_encoder() -> Option<Sz3Encoder> {
+#[allow(clippy::unnecessary_wraps)]
+const fn default_encoder() -> Option<Sz3Encoder> {
     Some(Sz3Encoder::Huffman)
 }
 
@@ -161,7 +163,8 @@ pub enum Sz3LosslessCompressor {
     Zstd,
 }
 
-fn default_lossless_compressor() -> Option<Sz3LosslessCompressor> {
+#[allow(clippy::unnecessary_wraps)]
+const fn default_lossless_compressor() -> Option<Sz3LosslessCompressor> {
     Some(Sz3LosslessCompressor::Zstd)
 }
 
@@ -348,7 +351,7 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
     encoder: Option<&Sz3Encoder>,
     lossless: Option<&Sz3LosslessCompressor>,
 ) -> Result<Vec<u8>, Sz3CodecError> {
-    let mut encoded = postcard::to_extend(
+    let mut encoded_bytes = postcard::to_extend(
         &CompressionHeader {
             dtype: <T as Sz3Element>::DTYPE,
             shape: Cow::Borrowed(data.shape()),
@@ -361,7 +364,7 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
 
     // sz3::DimensionedDataBuilder cannot handle zero-length dimensions
     if data.is_empty() {
-        return Ok(encoded);
+        return Ok(encoded_bytes);
     }
 
     #[allow(clippy::option_if_let_else)]
@@ -473,9 +476,9 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
             source: Sz3CodingError(err),
         }
     })?;
-    encoded.extend_from_slice(&compressed);
+    encoded_bytes.extend_from_slice(&compressed);
 
-    Ok(encoded)
+    Ok(encoded_bytes)
 }
 
 /// Decompresses the `encoded` data into an array.
