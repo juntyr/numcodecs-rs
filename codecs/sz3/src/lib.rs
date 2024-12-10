@@ -32,8 +32,12 @@ use thiserror::Error;
 // sz3-sys/Sz3-sys
 use ::zstd_sys as _;
 
+#[cfg(test)]
+use ::serde_json as _;
+
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+// serde cannot deny unknown fields because of the flatten
+#[schemars(deny_unknown_fields)]
 /// Codec providing compression using SZ3
 pub struct Sz3Codec {
     /// Predictor
@@ -109,44 +113,27 @@ pub enum Sz3ErrorBound {
 
 /// SZ3 predictor
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "predictor")]
 #[serde(deny_unknown_fields)]
 pub enum Sz3Predictor {
-    /// Interpolation
-    #[serde(rename = "interpolation")]
-    Interpolation {
-        /// Interpolation mode
-        #[serde(rename = "interpolation")]
-        mode: Sz3InterpolationMode,
-    },
-    /// Interpolation + Lorenzo predictor
-    #[serde(rename = "interpolation-lorenzo")]
-    InterpolationLorenzo {
-        /// Interpolation mode
-        #[serde(rename = "interpolation")]
-        mode: Sz3InterpolationMode,
-    },
+    /// Linear interpolation
+    #[serde(rename = "linear-interpolation")]
+    LinearInterpolation,
+    /// Cubic interpolation
+    #[serde(rename = "cubic-interpolation")]
+    CubicInterpolation,
+    /// Linear interpolation + Lorenzo predictor
+    #[serde(rename = "linear-interpolation-lorenzo")]
+    LinearInterpolationLorenzo,
+    /// Cubic interpolation + Lorenzo predictor
+    #[serde(rename = "cubic-interpolation-lorenzo")]
+    CubicInterpolationLorenzo,
     /// Lorenzo predictor + regression
     #[serde(rename = "lorenzo-regression")]
     LorenzoRegression,
 }
 
 fn default_predictor() -> Option<Sz3Predictor> {
-    Some(Sz3Predictor::InterpolationLorenzo {
-        mode: Sz3InterpolationMode::Cubic,
-    })
-}
-
-/// SZ3 error bound
-#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
-pub enum Sz3InterpolationMode {
-    /// Linear interpolation
-    #[serde(rename = "linear")]
-    Linear,
-    /// Cubic interpolation
-    #[serde(rename = "cubic")]
-    Cubic,
+    Some(Sz3Predictor::CubicInterpolationLorenzo)
 }
 
 /// SZ3 encoder
@@ -435,24 +422,27 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
     let mut config = sz3::Config::new(error_bound);
 
     // configure the interpolation mode, if necessary
-    if let Some(
-        Sz3Predictor::Interpolation { mode } | Sz3Predictor::InterpolationLorenzo { mode },
-    ) = predictor
-    {
-        let interpolation = match mode {
-            Sz3InterpolationMode::Linear => sz3::InterpolationAlgorithm::Linear,
-            Sz3InterpolationMode::Cubic => sz3::InterpolationAlgorithm::Cubic,
-        };
-
+    let interpolation = match predictor {
+        Some(Sz3Predictor::LinearInterpolation | Sz3Predictor::LinearInterpolationLorenzo) => {
+            Some(sz3::InterpolationAlgorithm::Linear)
+        }
+        Some(Sz3Predictor::CubicInterpolation | Sz3Predictor::CubicInterpolationLorenzo) => {
+            Some(sz3::InterpolationAlgorithm::Cubic)
+        }
+        Some(Sz3Predictor::LorenzoRegression) | None => None,
+    };
+    if let Some(interpolation) = interpolation {
         config = config.interpolation_algorithm(interpolation);
     }
 
     // configure the predictor (compression algorithm)
     let predictor = match predictor {
-        Some(Sz3Predictor::Interpolation { .. }) => sz3::CompressionAlgorithm::Interpolation,
-        Some(Sz3Predictor::InterpolationLorenzo { .. }) => {
-            sz3::CompressionAlgorithm::InterpolationLorenzo
+        Some(Sz3Predictor::LinearInterpolation | Sz3Predictor::CubicInterpolation) => {
+            sz3::CompressionAlgorithm::Interpolation
         }
+        Some(
+            Sz3Predictor::LinearInterpolationLorenzo | Sz3Predictor::CubicInterpolationLorenzo,
+        ) => sz3::CompressionAlgorithm::InterpolationLorenzo,
         Some(Sz3Predictor::LorenzoRegression) => sz3::CompressionAlgorithm::lorenzo_regression(),
         None => sz3::CompressionAlgorithm::NoPrediction,
     };
