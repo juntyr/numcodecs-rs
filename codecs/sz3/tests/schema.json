@@ -6,77 +6,28 @@
         {
           "oneOf": [
             {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "interpolation": {
-                  "oneOf": [
-                    {
-                      "type": "string",
-                      "const": "linear",
-                      "description": "Linear interpolation"
-                    },
-                    {
-                      "type": "string",
-                      "const": "cubic",
-                      "description": "Cubic interpolation"
-                    }
-                  ],
-                  "description": "Interpolation mode"
-                },
-                "predictor": {
-                  "type": "string",
-                  "const": "interpolation"
-                }
-              },
-              "required": [
-                "predictor",
-                "interpolation"
-              ],
-              "description": "Interpolation"
+              "type": "string",
+              "const": "linear-interpolation",
+              "description": "Linear interpolation"
             },
             {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "interpolation": {
-                  "oneOf": [
-                    {
-                      "type": "string",
-                      "const": "linear",
-                      "description": "Linear interpolation"
-                    },
-                    {
-                      "type": "string",
-                      "const": "cubic",
-                      "description": "Cubic interpolation"
-                    }
-                  ],
-                  "description": "Interpolation mode"
-                },
-                "predictor": {
-                  "type": "string",
-                  "const": "interpolation-lorenzo"
-                }
-              },
-              "required": [
-                "predictor",
-                "interpolation"
-              ],
-              "description": "Interpolation + Lorenzo predictor"
+              "type": "string",
+              "const": "cubic-interpolation",
+              "description": "Cubic interpolation"
             },
             {
-              "type": "object",
-              "properties": {
-                "predictor": {
-                  "type": "string",
-                  "const": "lorenzo-regression"
-                }
-              },
-              "required": [
-                "predictor"
-              ],
-              "additionalProperties": false,
+              "type": "string",
+              "const": "linear-interpolation-lorenzo",
+              "description": "Linear interpolation + Lorenzo predictor"
+            },
+            {
+              "type": "string",
+              "const": "cubic-interpolation-lorenzo",
+              "description": "Cubic interpolation + Lorenzo predictor"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo-regression",
               "description": "Lorenzo predictor + regression"
             }
           ],
@@ -87,10 +38,7 @@
         }
       ],
       "description": "Predictor",
-      "default": {
-        "predictor": "interpolation-lorenzo",
-        "interpolation": "cubic"
-      }
+      "default": "cubic-interpolation-lorenzo"
     },
     "encoder": {
       "anyOf": [

@@ -25,5 +25,8 @@ thiserror = { workspace = true }
 # Explicitly enable the `no_wasm_shim` feature for sz3-sys/zstd-sys
 zstd-sys = { workspace = true, features = ["no_wasm_shim"] }
 
+[dev-dependencies]
+serde_json = { workspace = true, features = ["std"] }
+
 [lints]
 workspace = true
