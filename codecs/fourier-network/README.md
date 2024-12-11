@@ -6,18 +6,18 @@
 [MSRV]: https://img.shields.io/badge/MSRV-1.81.0-blue
 [repo]: https://github.com/juntyr/numcodecs-rs
 
-[Latest Version]: https://img.shields.io/crates/v/numcodecs-reinterpret
-[crates.io]: https://crates.io/crates/numcodecs-reinterpret
+[Latest Version]: https://img.shields.io/crates/v/numcodecs-fourier-network
+[crates.io]: https://crates.io/crates/numcodecs-fourier-network
 
-[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-reinterpret
-[docs.rs]: https://docs.rs/numcodecs-reinterpret/
+[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-fourier-network
+[docs.rs]: https://docs.rs/numcodecs-fourier-network/
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_reinterpret
+[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_fourier_network
 
-# numcodecs-reinterpret
+# numcodecs-fourier-network
 
-Binary reinterpret codec implementation for the [`numcodecs`] API.
+Fourier feature neural network codec implementation for the [`numcodecs`] API.
 
 [`numcodecs`]: https://docs.rs/numcodecs/0.1/numcodecs/
 
@@ -27,6 +27,6 @@ Licensed under the Mozilla Public License, Version 2.0 ([LICENSE](LICENSE) or ht
 
 ## Funding
 
-The `numcodecs-reinterpret` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
+The `numcodecs-fourier-network` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
 
 Funded by the European Union. This work has received funding from the European High Performance Computing Joint Undertaking (JU) under grant agreement No 101093054.

@@ -1,0 +1,61 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "fourier_features": {
+      "type": "integer",
+      "format": "uint",
+      "minimum": 1,
+      "description": "The number of Fourier features that the data coordinates are projected to"
+    },
+    "fourier_scale": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "description": "The standard deviation of the Fourier features"
+    },
+    "num_blocks": {
+      "type": "integer",
+      "format": "uint",
+      "minimum": 1,
+      "description": "The number of blocks in the network"
+    },
+    "learning_rate": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "description": "The learning rate for the `Adam` optimizer"
+    },
+    "num_epochs": {
+      "type": "integer",
+      "format": "uint",
+      "minimum": 0,
+      "description": "The number of epochs for which the network is trained"
+    },
+    "mini_batch_size": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "format": "uint",
+      "minimum": 1,
+      "description": "The optional mini-batch size used during training\n\n Setting the mini-batch size to `None` disables the use of batching,\n i.e. the network is trained using one large batch that includes the\n full data."
+    },
+    "seed": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0,
+      "description": "The seed for the random number generator used during encoding"
+    }
+  },
+  "required": [
+    "fourier_features",
+    "fourier_scale",
+    "num_blocks",
+    "learning_rate",
+    "num_epochs",
+    "mini_batch_size",
+    "seed"
+  ],
+  "description": "Fourier network codec which trains and overfits a fourier feature neural\n network on encoding and predicts during decoding.\n\n The approach is based on the papers by Tancik et al. 2020\n (<https://dl.acm.org/doi/abs/10.5555/3495724.3496356>)\n and by Huang and Hoefler 2020 (<https://arxiv.org/abs/2210.12538>).",
+  "title": "FourierNetworkCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
