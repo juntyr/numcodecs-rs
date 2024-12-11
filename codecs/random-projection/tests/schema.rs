@@ -4,7 +4,8 @@ use numcodecs::{DynCodecType, StaticCodecType};
 use numcodecs_random_projection::RandomProjectionCodec;
 
 use ::{
-    ndarray as _, ndarray_rand as _, num_traits as _, schemars as _, thiserror as _, serde as _, serde_json as _,
+    ndarray as _, ndarray_rand as _, num_traits as _, schemars as _, serde as _, serde_json as _,
+    thiserror as _,
 };
 
 #[test]

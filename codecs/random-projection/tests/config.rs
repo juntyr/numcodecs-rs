@@ -5,9 +5,7 @@ use numcodecs_random_projection::RandomProjectionCodec;
 use serde::Deserialize;
 use serde_json::json;
 
-use ::{
-    ndarray as _, ndarray_rand as _, num_traits as _, schemars as _, thiserror as _,
-};
+use ::{ndarray as _, ndarray_rand as _, num_traits as _, schemars as _, thiserror as _};
 
 #[test]
 #[should_panic(expected = "missing field `seed`")]
