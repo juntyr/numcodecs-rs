@@ -50,6 +50,9 @@ use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
+#[cfg(test)]
+use ::serde_json as _;
+
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 /// Fourier network codec which trains and overfits a fourier feature neural
@@ -65,7 +68,7 @@ pub struct FourierNetworkCodec {
     pub fourier_scale: Positive<f64>,
     /// The number of blocks in the network
     pub num_blocks: NonZeroUsize,
-    /// The learning rate for the `AdamW` optimizer
+    /// The learning rate for the `Adam` optimizer
     pub learning_rate: Positive<f64>,
     /// The number of epochs for which the network is trained
     pub num_epochs: usize,
@@ -74,9 +77,18 @@ pub struct FourierNetworkCodec {
     /// Setting the mini-batch size to `None` disables the use of batching,
     /// i.e. the network is trained using one large batch that includes the
     /// full data.
+    #[serde(deserialize_with = "deserialize_required_option")]
+    #[schemars(required, extend("type" = ["integer", "null"]))]
     pub mini_batch_size: Option<NonZeroUsize>,
     /// The seed for the random number generator used during encoding
     pub seed: u64,
+}
+
+// using this wrapper function makes an Option<T> required
+fn deserialize_required_option<'de, T: serde::Deserialize<'de>, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<T>, D::Error> {
+    Option::<T>::deserialize(deserializer)
 }
 
 impl Codec for FourierNetworkCodec {
