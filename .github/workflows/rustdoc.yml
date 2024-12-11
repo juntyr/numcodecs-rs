@@ -30,7 +30,7 @@ jobs:
           RUSTDOCFLAGS="\
             --enable-index-page \
             --generate-link-to-definition \
-            --extern-html-root-url burn-tensor=https://docs.rs/burn-tensor/0.15.0/ \
+            --extern-html-root-url burn=https://docs.rs/burn/0.15.0/ \
             --extern-html-root-url ndarray=https://docs.rs/ndarray/0.16/ \
             --extern-html-root-url numcodecs=https://juntyr.github.io/numcodecs-rs/ \
             --extern-html-root-url num-traits=https://docs.rs/num-traits/0.2.19/ \
