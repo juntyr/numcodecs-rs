@@ -108,7 +108,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.81", stable, nightly]
+        rust: [stable]
         lock: ["Cargo.lock", "Cargo.lock.min"]
         python: ["3.10", "3.11", "3.12"]
     runs-on: ${{ matrix.os }}
