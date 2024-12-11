@@ -757,100 +757,7 @@
 <a href="#756" id="756">756</a>
 <a href="#757" id="757">757</a>
 <a href="#758" id="758">758</a>
-<a href="#759" id="759">759</a>
-<a href="#760" id="760">760</a>
-<a href="#761" id="761">761</a>
-<a href="#762" id="762">762</a>
-<a href="#763" id="763">763</a>
-<a href="#764" id="764">764</a>
-<a href="#765" id="765">765</a>
-<a href="#766" id="766">766</a>
-<a href="#767" id="767">767</a>
-<a href="#768" id="768">768</a>
-<a href="#769" id="769">769</a>
-<a href="#770" id="770">770</a>
-<a href="#771" id="771">771</a>
-<a href="#772" id="772">772</a>
-<a href="#773" id="773">773</a>
-<a href="#774" id="774">774</a>
-<a href="#775" id="775">775</a>
-<a href="#776" id="776">776</a>
-<a href="#777" id="777">777</a>
-<a href="#778" id="778">778</a>
-<a href="#779" id="779">779</a>
-<a href="#780" id="780">780</a>
-<a href="#781" id="781">781</a>
-<a href="#782" id="782">782</a>
-<a href="#783" id="783">783</a>
-<a href="#784" id="784">784</a>
-<a href="#785" id="785">785</a>
-<a href="#786" id="786">786</a>
-<a href="#787" id="787">787</a>
-<a href="#788" id="788">788</a>
-<a href="#789" id="789">789</a>
-<a href="#790" id="790">790</a>
-<a href="#791" id="791">791</a>
-<a href="#792" id="792">792</a>
-<a href="#793" id="793">793</a>
-<a href="#794" id="794">794</a>
-<a href="#795" id="795">795</a>
-<a href="#796" id="796">796</a>
-<a href="#797" id="797">797</a>
-<a href="#798" id="798">798</a>
-<a href="#799" id="799">799</a>
-<a href="#800" id="800">800</a>
-<a href="#801" id="801">801</a>
-<a href="#802" id="802">802</a>
-<a href="#803" id="803">803</a>
-<a href="#804" id="804">804</a>
-<a href="#805" id="805">805</a>
-<a href="#806" id="806">806</a>
-<a href="#807" id="807">807</a>
-<a href="#808" id="808">808</a>
-<a href="#809" id="809">809</a>
-<a href="#810" id="810">810</a>
-<a href="#811" id="811">811</a>
-<a href="#812" id="812">812</a>
-<a href="#813" id="813">813</a>
-<a href="#814" id="814">814</a>
-<a href="#815" id="815">815</a>
-<a href="#816" id="816">816</a>
-<a href="#817" id="817">817</a>
-<a href="#818" id="818">818</a>
-<a href="#819" id="819">819</a>
-<a href="#820" id="820">820</a>
-<a href="#821" id="821">821</a>
-<a href="#822" id="822">822</a>
-<a href="#823" id="823">823</a>
-<a href="#824" id="824">824</a>
-<a href="#825" id="825">825</a>
-<a href="#826" id="826">826</a>
-<a href="#827" id="827">827</a>
-<a href="#828" id="828">828</a>
-<a href="#829" id="829">829</a>
-<a href="#830" id="830">830</a>
-<a href="#831" id="831">831</a>
-<a href="#832" id="832">832</a>
-<a href="#833" id="833">833</a>
-<a href="#834" id="834">834</a>
-<a href="#835" id="835">835</a>
-<a href="#836" id="836">836</a>
-<a href="#837" id="837">837</a>
-<a href="#838" id="838">838</a>
-<a href="#839" id="839">839</a>
-<a href="#840" id="840">840</a>
-<a href="#841" id="841">841</a>
-<a href="#842" id="842">842</a>
-<a href="#843" id="843">843</a>
-<a href="#844" id="844">844</a>
-<a href="#845" id="845">845</a>
-<a href="#846" id="846">846</a>
-<a href="#847" id="847">847</a>
-<a href="#848" id="848">848</a>
-<a href="#849" id="849">849</a>
-<a href="#850" id="850">850</a>
-<a href="#851" id="851">851</a>
-<a href="#852" id="852">852</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+<a href="#759" id="759">759</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -875,12 +782,8 @@
 
 <span class="kw">use </span>burn::{
     backend::{ndarray::NdArrayDevice, Autodiff, NdArray},
-    config::Config,
     module::{Module, Param},
-    nn::{
-        loss::{MseLoss, Reduction},
-        BatchNorm, BatchNormConfig, Gelu, Linear, LinearConfig,
-    },
+    nn::loss::{MseLoss, Reduction},
     optim::{AdamConfig, GradientsParams, Optimizer},
     prelude::Backend,
     record::{
@@ -904,6 +807,10 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">use </span>::serde_json <span class="kw">as _</span>;
+
+<span class="kw">mod </span><a href="modules.rs.html#1-102">modules</a>;
+
+<span class="kw">use </span>modules::{<a href="modules.rs.html#45-51">Model</a>, <a href="modules.rs.html#72-75">ModelConfig</a>, <a href="modules.rs.html#97-102">ModelExtra</a>, <a href="modules.rs.html#44">ModelRecord</a>};
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -1223,7 +1130,7 @@
         <a href="#331">device</a>,
     );
 
-    <span class="kw">let </span>model = <a href="#604-692">train</a>(
+    <span class="kw">let </span>model = <a href="#511-599">train</a>(
         <a href="#331">device</a>,
         <span class="kw-2">&amp;</span><a href="#360">train_xs</a>,
         <span class="kw-2">&amp;</span><a href="#369">train_ys</a>,
@@ -1235,7 +1142,7 @@
         <a href="#345">stdv</a>,
     );
 
-    <span class="kw">let </span>extra = <a href="#595-600">ModelExtra</a> {
+    <span class="kw">let </span>extra = <a href="modules.rs.html#97-102">ModelExtra</a> {
         <a href="#374">model</a>,
         b_t: Param::from_tensor(<a href="#353">b_t</a>).set_require_grad(<span class="bool-val">false</span>),
         mean: Param::from_tensor(Tensor::from_data(
@@ -1297,8 +1204,8 @@
     <span class="kw">let </span>recorder = BinBytesRecorder::&lt;T::Precision&gt;::new();
     <span class="kw">let </span>record = <a href="#445">recorder</a>.load(<a href="#443">encoded</a>, <a href="#424">device</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="#277">NeuralNetworkError</a>)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>extra = <a href="#595-600">ModelExtra</a>::&lt;B&gt; {
-        model: <a href="#569">ModelConfig::new</a>(<a href="#427">fourier_features</a>, <a href="#428">num_blocks</a>).<a href="#576-591">init</a>(<a href="#424">device</a>),
+    <span class="kw">let </span>extra = <a href="modules.rs.html#97-102">ModelExtra</a>::&lt;B&gt; {
+        model: <a href="modules.rs.html#71">ModelConfig::new</a>(<a href="#427">fourier_features</a>, <a href="#428">num_blocks</a>).<a href="modules.rs.html#78-93">init</a>(<a href="#424">device</a>),
         b_t: Param::from_tensor(Tensor::zeros(
             [<a href="#426">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.ndim">ndim</a>(), <a href="#427">fourier_features</a>.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>()],
             <a href="#424">device</a>,
@@ -1317,7 +1224,7 @@
     <span class="kw">let </span>test_xs = <a href="#479-498">flat_grid_like</a>(<span class="kw-2">&amp;</span><a href="#426">decoded</a>, <a href="#424">device</a>);
     <span class="kw">let </span>test_xs = <a href="#500-507">fourier_mapping</a>(<a href="#465">test_xs</a>, <a href="#461">b_t</a>);
 
-    <span class="kw">let </span>prediction = <a href="#460">model</a>.<a href="#553-566">forward</a>(<a href="#466">test_xs</a>).into_data();
+    <span class="kw">let </span>prediction = <a href="#460">model</a>.<a href="modules.rs.html#55-68">forward</a>(<a href="#466">test_xs</a>).into_data();
     <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// same generic type, check must succeed
     </span><span class="kw">let </span>prediction = <a href="#468">prediction</a>.as_slice().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>();
 
@@ -1358,99 +1265,6 @@
     Tensor::cat(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[xs_proj.clone().sin(), xs_proj.cos()], <span class="number">1</span>)
 }
 
-<span class="attr">#[derive(Debug, Module)]
-</span><span class="kw">struct </span><a href="#510-514">Block</a>&lt;B: Backend&gt; {
-    bn2_1: BatchNorm&lt;B, <span class="number">0</span>&gt;,
-    gu2_2: Gelu,
-    ln2_3: Linear&lt;B&gt;,
-}
-
-<span class="kw">impl</span>&lt;B: Backend&gt; <a href="#510-514">Block</a>&lt;B&gt; {
-    <span class="attr">#[allow(clippy::let_and_return)]
-    </span><span class="kw">fn </span>forward(<span class="kw-2">&amp;</span><span class="self">self</span>, x: Tensor&lt;B, <span class="number">2</span>, Float&gt;) -&gt; Tensor&lt;B, <span class="number">2</span>, Float&gt; {
-        <span class="kw">let </span>x = <a class="self" href="#518">self</a>.bn2_1.forward(<a href="#518">x</a>);
-        <span class="kw">let </span>x = <a class="self" href="#518">self</a>.gu2_2.forward(<a href="#519">x</a>);
-        <span class="kw">let </span>x = <a class="self" href="#518">self</a>.ln2_3.forward(<a href="#520">x</a>);
-        <a href="#521">x</a>
-    }
-}
-
-<span class="attr">#[derive(Config, Debug)]
-</span><span class="kw">struct </span><a href="#527-529">BlockConfig</a> {
-    fourier_features: <a href="https://doc.rust-lang.org/nightly/core/num/nonzero/type.NonZeroUsize.html">NonZeroUsize</a>,
-}
-
-<span class="kw">impl </span><a href="#527-529">BlockConfig</a> {
-    <span class="kw">fn </span>init&lt;B: Backend&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, device: <span class="kw-2">&amp;</span>B::Device) -&gt; <a href="#510-514">Block</a>&lt;B&gt; {
-        <a href="#510-514">Block</a> {
-            bn2_1: BatchNormConfig::new(<a class="self" href="#532">self</a>.fourier_features.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>()).init(<a href="#532">device</a>),
-            gu2_2: Gelu,
-            ln2_3: LinearConfig::new(<a class="self" href="#532">self</a>.fourier_features.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>(), <a class="self" href="#532">self</a>.fourier_features.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>())
-                .init(<a href="#532">device</a>),
-        }
-    }
-}
-
-<span class="attr">#[derive(Debug, Module)]
-</span><span class="kw">struct </span><a href="#543-549">Model</a>&lt;B: Backend&gt; {
-    ln1: Linear&lt;B&gt;,
-    bl2: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="#510-514">Block</a>&lt;B&gt;&gt;,
-    bn3: BatchNorm&lt;B, <span class="number">0</span>&gt;,
-    gu4: Gelu,
-    ln5: Linear&lt;B&gt;,
-}
-
-<span class="kw">impl</span>&lt;B: Backend&gt; <a href="#543-549">Model</a>&lt;B&gt; {
-    <span class="attr">#[allow(clippy::let_and_return)]
-    </span><span class="kw">fn </span>forward(<span class="kw-2">&amp;</span><span class="self">self</span>, x: Tensor&lt;B, <span class="number">2</span>, Float&gt;) -&gt; Tensor&lt;B, <span class="number">2</span>, Float&gt; {
-        <span class="kw">let </span>x = <a class="self" href="#553">self</a>.ln1.forward(<a href="#553">x</a>);
-
-        <span class="kw">let </span><span class="kw-2">mut </span>x = <a href="#554">x</a>;
-        <span class="kw">for </span>block <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.bl2 {
-            x = block.forward(x);
-        }
-
-        <span class="kw">let </span>x = <a class="self" href="#553">self</a>.bn3.forward(<a href="#556">x</a>);
-        <span class="kw">let </span>x = <a class="self" href="#553">self</a>.gu4.forward(<a href="#561">x</a>);
-        <span class="kw">let </span>x = <a class="self" href="#553">self</a>.ln5.forward(<a href="#562">x</a>);
-
-        <a href="#563">x</a>
-    }
-}
-
-<span class="attr">#[derive(Config, Debug)]
-</span><span class="kw">struct </span><a href="#570-573">ModelConfig</a> {
-    fourier_features: <a href="https://doc.rust-lang.org/nightly/core/num/nonzero/type.NonZeroUsize.html">NonZeroUsize</a>,
-    num_blocks: <a href="https://doc.rust-lang.org/nightly/core/num/nonzero/type.NonZeroUsize.html">NonZeroUsize</a>,
-}
-
-<span class="kw">impl </span><a href="#570-573">ModelConfig</a> {
-    <span class="kw">fn </span>init&lt;B: Backend&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, device: <span class="kw-2">&amp;</span>B::Device) -&gt; <a href="#543-549">Model</a>&lt;B&gt; {
-        <span class="kw">let </span>block = <a href="#526">BlockConfig::new</a>(<a class="self" href="#576">self</a>.fourier_features);
-
-        <a href="#543-549">Model</a> {
-            ln1: LinearConfig::new(<a class="self" href="#576">self</a>.fourier_features.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>() * <span class="number">2</span>, <a class="self" href="#576">self</a>.fourier_features.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>())
-                .init(<a href="#576">device</a>),
-            <span class="attr">#[allow(clippy::useless_conversion)] </span><span class="comment">// (1..num_blocks).into_iter()
-            </span>bl2: (<span class="number">1</span>..<a class="self" href="#576">self</a>.num_blocks.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>())
-                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>()
-                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|<span class="kw">_</span>| <a href="#577">block</a>.<a href="#532-539">init</a>(<a href="#576">device</a>))
-                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>(),
-            bn3: BatchNormConfig::new(<a class="self" href="#576">self</a>.fourier_features.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>()).init(<a href="#576">device</a>),
-            gu4: Gelu,
-            ln5: LinearConfig::new(<a class="self" href="#576">self</a>.fourier_features.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>(), <span class="number">1</span>).init(<a href="#576">device</a>),
-        }
-    }
-}
-
-<span class="attr">#[derive(Debug, Module)]
-</span><span class="kw">struct </span><a href="#595-600">ModelExtra</a>&lt;B: Backend&gt; {
-    model: <a href="#543-549">Model</a>&lt;B&gt;,
-    b_t: Param&lt;Tensor&lt;B, <span class="number">2</span>, Float&gt;&gt;,
-    mean: Param&lt;Tensor&lt;B, <span class="number">1</span>, Float&gt;&gt;,
-    stdv: Param&lt;Tensor&lt;B, <span class="number">1</span>, Float&gt;&gt;,
-}
-
 <span class="attr">#[allow(clippy::similar_names)] </span><span class="comment">// train_xs and train_ys
 </span><span class="attr">#[allow(clippy::too_many_arguments)] </span><span class="comment">// FIXME
 </span><span class="kw">fn </span>train&lt;T: <a href="#280-288">FloatExt</a>, B: AutodiffBackend&lt;FloatElem = T&gt;&gt;(
@@ -1463,16 +1277,16 @@
     num_epochs: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
     mini_batch_size: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/type.NonZeroUsize.html">NonZeroUsize</a>&gt;,
     stdv: T,
-) -&gt; <a href="#543-549">Model</a>&lt;B&gt; {
-    <span class="kw">let </span>num_samples = <a href="#607">train_ys</a>.shape().num_elements();
-    <span class="kw">let </span>num_batches = <a href="#612">mini_batch_size</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(|b| <a href="#615">num_samples</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.div_ceil">div_ceil</a>(<a href="#616">b</a>.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>()));
+) -&gt; <a href="modules.rs.html#45-51">Model</a>&lt;B&gt; {
+    <span class="kw">let </span>num_samples = <a href="#514">train_ys</a>.shape().num_elements();
+    <span class="kw">let </span>num_batches = <a href="#519">mini_batch_size</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(|b| <a href="#522">num_samples</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.div_ceil">div_ceil</a>(<a href="#523">b</a>.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>()));
 
-    <span class="kw">let </span><span class="kw-2">mut </span>model = <a href="#569">ModelConfig::new</a>(<a href="#608">fourier_features</a>, <a href="#609">num_blocks</a>).<a href="#576-591">init</a>(<a href="#605">device</a>);
+    <span class="kw">let </span><span class="kw-2">mut </span>model = <a href="modules.rs.html#71">ModelConfig::new</a>(<a href="#515">fourier_features</a>, <a href="#516">num_blocks</a>).<a href="modules.rs.html#78-93">init</a>(<a href="#512">device</a>);
     <span class="kw">let </span><span class="kw-2">mut </span>optim = AdamConfig::new().init();
 
     <span class="kw">let </span><span class="kw-2">mut </span>best_loss = <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.infinity">T::infinity</a>();
     <span class="kw">let </span><span class="kw-2">mut </span>best_epoch = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>best_model_checkpoint = <a href="#618">model</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>().into_record().into_item::&lt;T::Precision&gt;();
+    <span class="kw">let </span><span class="kw-2">mut </span>best_model_checkpoint = <a href="#525">model</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>().into_record().into_item::&lt;T::Precision&gt;();
 
     <span class="kw">for </span>epoch <span class="kw">in </span><span class="number">1</span>..=num_epochs {
         <span class="attr">#[allow(clippy::option_if_let_else)]
@@ -1535,12 +1349,12 @@
     }
 
     <span class="kw">if </span>best_epoch != num_epochs {
-        <a href="#618">model</a> = <a href="#618">model</a>.load_record(ModelRecord::from_item(<a href="#623">best_model_checkpoint</a>, <a href="#605">device</a>));
+        <a href="#525">model</a> = <a href="#525">model</a>.load_record(ModelRecord::from_item(<a href="#530">best_model_checkpoint</a>, <a href="#512">device</a>));
 
         <a class="macro" href="https://docs.rs/log/0.4.22/log/macro.info.html">log::info!</a>(<span class="string">"restored from epoch {best_epoch} with lowest loss={best_loss:0.3}"</span>);
     }
 
-    <a href="#618">model</a>
+    <a href="#525">model</a>
 }
 
 <span class="attr">#[cfg(test)]
