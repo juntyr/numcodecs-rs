@@ -29,6 +29,9 @@ use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
+#[cfg(test)]
+use ::serde_json as _;
+
 /// Codec that uses random projections to reduce the dimensionality of high-
 /// dimensional data to compress it.
 ///
