@@ -23,12 +23,8 @@ use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 
 use burn::{
     backend::{ndarray::NdArrayDevice, Autodiff, NdArray},
-    config::Config,
     module::{Module, Param},
-    nn::{
-        loss::{MseLoss, Reduction},
-        BatchNorm, BatchNormConfig, Gelu, Linear, LinearConfig,
-    },
+    nn::loss::{MseLoss, Reduction},
     optim::{AdamConfig, GradientsParams, Optimizer},
     prelude::Backend,
     record::{
@@ -52,6 +48,10 @@ use thiserror::Error;
 
 #[cfg(test)]
 use ::serde_json as _;
+
+mod modules;
+
+use modules::{Model, ModelConfig, ModelExtra, ModelRecord};
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -504,99 +504,6 @@ fn fourier_mapping<B: Backend>(
     let xs_proj = xs.mul_scalar(core::f64::consts::TAU).matmul(b_t);
 
     Tensor::cat(vec![xs_proj.clone().sin(), xs_proj.cos()], 1)
-}
-
-#[derive(Debug, Module)]
-struct Block<B: Backend> {
-    bn2_1: BatchNorm<B, 0>,
-    gu2_2: Gelu,
-    ln2_3: Linear<B>,
-}
-
-impl<B: Backend> Block<B> {
-    #[allow(clippy::let_and_return)]
-    fn forward(&self, x: Tensor<B, 2, Float>) -> Tensor<B, 2, Float> {
-        let x = self.bn2_1.forward(x);
-        let x = self.gu2_2.forward(x);
-        let x = self.ln2_3.forward(x);
-        x
-    }
-}
-
-#[derive(Config, Debug)]
-struct BlockConfig {
-    fourier_features: NonZeroUsize,
-}
-
-impl BlockConfig {
-    fn init<B: Backend>(&self, device: &B::Device) -> Block<B> {
-        Block {
-            bn2_1: BatchNormConfig::new(self.fourier_features.get()).init(device),
-            gu2_2: Gelu,
-            ln2_3: LinearConfig::new(self.fourier_features.get(), self.fourier_features.get())
-                .init(device),
-        }
-    }
-}
-
-#[derive(Debug, Module)]
-struct Model<B: Backend> {
-    ln1: Linear<B>,
-    bl2: Vec<Block<B>>,
-    bn3: BatchNorm<B, 0>,
-    gu4: Gelu,
-    ln5: Linear<B>,
-}
-
-impl<B: Backend> Model<B> {
-    #[allow(clippy::let_and_return)]
-    fn forward(&self, x: Tensor<B, 2, Float>) -> Tensor<B, 2, Float> {
-        let x = self.ln1.forward(x);
-
-        let mut x = x;
-        for block in &self.bl2 {
-            x = block.forward(x);
-        }
-
-        let x = self.bn3.forward(x);
-        let x = self.gu4.forward(x);
-        let x = self.ln5.forward(x);
-
-        x
-    }
-}
-
-#[derive(Config, Debug)]
-struct ModelConfig {
-    fourier_features: NonZeroUsize,
-    num_blocks: NonZeroUsize,
-}
-
-impl ModelConfig {
-    fn init<B: Backend>(&self, device: &B::Device) -> Model<B> {
-        let block = BlockConfig::new(self.fourier_features);
-
-        Model {
-            ln1: LinearConfig::new(self.fourier_features.get() * 2, self.fourier_features.get())
-                .init(device),
-            #[allow(clippy::useless_conversion)] // (1..num_blocks).into_iter()
-            bl2: (1..self.num_blocks.get())
-                .into_iter()
-                .map(|_| block.init(device))
-                .collect(),
-            bn3: BatchNormConfig::new(self.fourier_features.get()).init(device),
-            gu4: Gelu,
-            ln5: LinearConfig::new(self.fourier_features.get(), 1).init(device),
-        }
-    }
-}
-
-#[derive(Debug, Module)]
-struct ModelExtra<B: Backend> {
-    model: Model<B>,
-    b_t: Param<Tensor<B, 2, Float>>,
-    mean: Param<Tensor<B, 1, Float>>,
-    stdv: Param<Tensor<B, 1, Float>>,
 }
 
 #[allow(clippy::similar_names)] // train_xs and train_ys
