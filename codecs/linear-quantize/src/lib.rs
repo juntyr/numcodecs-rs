@@ -1,5 +1,3 @@
-#![allow(clippy::multiple_crate_versions)] // FIXME: twofloat -> hexf -> syn 1.0
-
 //! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
@@ -18,6 +16,8 @@
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_linear_quantize
 //!
 //! Linear Quantization codec implementation for the [`numcodecs`] API.
+
+#![allow(clippy::multiple_crate_versions)] // FIXME: twofloat -> hexf -> syn 1.0
 
 use std::{borrow::Cow, fmt};
 

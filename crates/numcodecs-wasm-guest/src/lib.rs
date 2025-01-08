@@ -18,9 +18,6 @@
 //! wasm32 guest-side bindings for the [`numcodecs`] API, which allows you to
 //! export one [`StaticCodec`] from a WASM component.
 
-// hashbrown 0.14 (wasmparser) and 0.15 (indexmap)
-#![allow(clippy::multiple_crate_versions)]
-
 // Required in docs and the [`export_codec`] macro
 #[doc(hidden)]
 pub use numcodecs;
