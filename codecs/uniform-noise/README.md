@@ -3,7 +3,7 @@
 [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 
-[MSRV]: https://img.shields.io/badge/MSRV-1.81.0-blue
+[MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
 [repo]: https://github.com/juntyr/numcodecs-rs
 
 [Latest Version]: https://img.shields.io/crates/v/numcodecs-uniform-noise
