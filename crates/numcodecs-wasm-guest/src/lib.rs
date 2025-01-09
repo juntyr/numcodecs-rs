@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.81.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-wasm-guest
@@ -17,9 +17,6 @@
 //!
 //! wasm32 guest-side bindings for the [`numcodecs`] API, which allows you to
 //! export one [`StaticCodec`] from a WASM component.
-
-// hashbrown 0.14 (wasmparser) and 0.15 (indexmap)
-#![allow(clippy::multiple_crate_versions)]
 
 // Required in docs and the [`export_codec`] macro
 #[doc(hidden)]

@@ -1,0 +1,219 @@
+{
+  "type": "object",
+  "properties": {
+    "predictor": {
+      "anyOf": [
+        {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "linear-interpolation",
+              "description": "Linear interpolation"
+            },
+            {
+              "type": "string",
+              "const": "cubic-interpolation",
+              "description": "Cubic interpolation"
+            },
+            {
+              "type": "string",
+              "const": "linear-interpolation-lorenzo",
+              "description": "Linear interpolation + Lorenzo predictor"
+            },
+            {
+              "type": "string",
+              "const": "cubic-interpolation-lorenzo",
+              "description": "Cubic interpolation + Lorenzo predictor"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo-regression",
+              "description": "Lorenzo predictor + regression"
+            }
+          ],
+          "description": "SZ3 predictor"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Predictor",
+      "default": "cubic-interpolation-lorenzo"
+    },
+    "encoder": {
+      "anyOf": [
+        {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "huffman",
+              "description": "Huffman coding"
+            },
+            {
+              "type": "string",
+              "const": "arithmetic",
+              "description": "Arithmetic coding"
+            }
+          ],
+          "description": "SZ3 encoder"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Encoder",
+      "default": "huffman"
+    },
+    "lossless": {
+      "anyOf": [
+        {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "zstd",
+              "description": "Zstandard"
+            }
+          ],
+          "description": "SZ3 lossless compressor"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Lossless compressor",
+      "default": "zstd"
+    }
+  },
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "type": "object",
+      "description": "Errors are bounded by *both* the absolute and relative error, i.e. by\n whichever bound is stricter",
+      "properties": {
+        "eb_abs": {
+          "type": "number",
+          "format": "double",
+          "description": "Absolute error bound"
+        },
+        "eb_rel": {
+          "type": "number",
+          "format": "double",
+          "description": "Relative error bound"
+        },
+        "eb_mode": {
+          "type": "string",
+          "const": "abs-and-rel"
+        }
+      },
+      "required": [
+        "eb_mode",
+        "eb_abs",
+        "eb_rel"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Errors are bounded by *either* the absolute or relative error, i.e. by\n whichever bound is weaker",
+      "properties": {
+        "eb_abs": {
+          "type": "number",
+          "format": "double",
+          "description": "Absolute error bound"
+        },
+        "eb_rel": {
+          "type": "number",
+          "format": "double",
+          "description": "Relative error bound"
+        },
+        "eb_mode": {
+          "type": "string",
+          "const": "abs-or-rel"
+        }
+      },
+      "required": [
+        "eb_mode",
+        "eb_abs",
+        "eb_rel"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Absolute error bound",
+      "properties": {
+        "eb_abs": {
+          "type": "number",
+          "format": "double",
+          "description": "Absolute error bound"
+        },
+        "eb_mode": {
+          "type": "string",
+          "const": "abs"
+        }
+      },
+      "required": [
+        "eb_mode",
+        "eb_abs"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Relative error bound",
+      "properties": {
+        "eb_rel": {
+          "type": "number",
+          "format": "double",
+          "description": "Relative error bound"
+        },
+        "eb_mode": {
+          "type": "string",
+          "const": "rel"
+        }
+      },
+      "required": [
+        "eb_mode",
+        "eb_rel"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Peak signal to noise ratio error bound",
+      "properties": {
+        "eb_psnr": {
+          "type": "number",
+          "format": "double",
+          "description": "Peak signal to noise ratio error bound"
+        },
+        "eb_mode": {
+          "type": "string",
+          "const": "psnr"
+        }
+      },
+      "required": [
+        "eb_mode",
+        "eb_psnr"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Peak L2 norm error bound",
+      "properties": {
+        "eb_l2": {
+          "type": "number",
+          "format": "double",
+          "description": "Peak L2 norm error bound"
+        },
+        "eb_mode": {
+          "type": "string",
+          "const": "l2"
+        }
+      },
+      "required": [
+        "eb_mode",
+        "eb_l2"
+      ]
+    }
+  ],
+  "description": "Codec providing compression using SZ3",
+  "title": "Sz3Codec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

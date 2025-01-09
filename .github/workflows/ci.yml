@@ -52,15 +52,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.81", stable, nightly]
+        rust: ["1.82", stable, nightly]
         lock: ["Cargo.lock", "Cargo.lock.min"]
-        include:
-          - rust: "1.81"
-            wasm32-wasip1: wasm32-wasi
-          - rust: stable
-            wasm32-wasip1: wasm32-wasip1
-          - rust: nightly
-            wasm32-wasip1: wasm32-wasip1
     runs-on: ${{ matrix.os }}
     needs: lock
 
@@ -73,7 +66,7 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
-          target: ${{ matrix.wasm32-wasip1 }}
+          target: wasm32-wasip1
           override: true
 
       - name: Install power tools
@@ -93,7 +86,7 @@ jobs:
           cargo hack check --all \
             --feature-powerset --keep-going
 
-      - name: Check the powerset on ${{ matrix.wasm32-wasip1 }}
+      - name: Check the powerset on wasm32-wasip1
         run: |
           cargo hack check --all \
             --exclude numcodecs-python \
@@ -101,7 +94,7 @@ jobs:
             --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
-            --target ${{ matrix.wasm32-wasip1 }}
+            --target wasm32-wasip1
 
   test:
     name: Test Suite
@@ -175,13 +168,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.81", stable]
+        rust: ["1.82", stable]
         lock: ["Cargo.lock", "Cargo.lock.min"]
-        include:
-          - rust: "1.81"
-            wasm32-wasip1: wasm32-wasi
-          - rust: stable
-            wasm32-wasip1: wasm32-wasip1
     runs-on: ${{ matrix.os }}
     needs: lock
 
@@ -194,7 +182,7 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
-          target: ${{ matrix.wasm32-wasip1 }}
+          target: wasm32-wasip1
           components: clippy
           override: true
 
@@ -224,7 +212,7 @@ jobs:
             --feature-powerset --keep-going \
             -- -D warnings -A unknown-lints -A clippy::multiple-crate-versions
       
-      - name: Check the code style powerset on ${{ matrix.wasm32-wasip1 }}
+      - name: Check the code style powerset on wasm32-wasip1
         if: ${{ matrix.rust == 'stable' && matrix.lock == 'Cargo.lock' }}
         run: |
           cargo hack clippy --all \
@@ -233,10 +221,10 @@ jobs:
             --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
-            --target ${{ matrix.wasm32-wasip1 }} \
+            --target wasm32-wasip1 \
             -- -D warnings
       
-      - name: Check the code style powerset on ${{ matrix.wasm32-wasip1 }}
+      - name: Check the code style powerset on wasm32-wasip1
         if: ${{ matrix.rust != 'stable' || matrix.lock != 'Cargo.lock' }}
         run: |
           cargo hack clippy --all \
@@ -245,5 +233,5 @@ jobs:
             --exclude numcodecs-zfp \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
-            --target ${{ matrix.wasm32-wasip1 }} \
+            --target wasm32-wasip1 \
             -- -D warnings -A unknown-lints -A clippy::multiple-crate-versions
