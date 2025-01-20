@@ -313,7 +313,7 @@ pub fn undo_swizzle_reshape<T: Copy, S: Data<Elem = T>>(
 
     let mut inverse_permutation = vec![0; permutation.len()];
     #[allow(clippy::indexing_slicing)] // all are guaranteed to be in range
-    for (i, p) in permutation.iter().copied().enumerate() {
+    for (i, p) in permutation.into_iter().enumerate() {
         inverse_permutation[p] = i;
     }
 
@@ -363,7 +363,7 @@ pub fn undo_swizzle_reshape_into<T: Copy>(
 
     let mut inverse_permutation = vec![0; decoded.ndim()];
     #[allow(clippy::indexing_slicing)] // all are guaranteed to be in range
-    for (i, p) in permutation.iter().copied().enumerate() {
+    for (i, p) in permutation.into_iter().enumerate() {
         inverse_permutation[p] = i;
     }
 
