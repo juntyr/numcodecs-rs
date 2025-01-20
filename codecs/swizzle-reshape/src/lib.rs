@@ -263,9 +263,15 @@ pub fn swizzle_reshape<T: Copy, S: Data<Elem = T>>(
     data: ArrayBase<S, IxDyn>,
     axes: &[AxisGroup],
 ) -> Result<Array<T, IxDyn>, SwizzleReshapeCodecError> {
-    let (permutation, new_shape) = validate_into_axes_shape(&data, axes)?;
+    let SwizzleReshapeAxes {
+        permutation,
+        swizzled_shape,
+        new_shape,
+    } = validate_into_axes_shape(&data, axes)?;
 
-    let swizzled = data.permuted_axes(permutation);
+    let swizzled: ArrayBase<S, ndarray::Dim<ndarray::IxDynImpl>> = data.permuted_axes(permutation);
+    assert_eq!(swizzled.shape(), swizzled_shape, "incorrect swizzled shape");
+
     #[allow(clippy::expect_used)] // only panics on an implementation bug
     let reshaped = swizzled
         .into_owned()
@@ -303,12 +309,13 @@ pub fn undo_swizzle_reshape<T: Copy, S: Data<Elem = T>>(
         return Err(SwizzleReshapeCodecError::CannotDecodeMergedAxes);
     }
 
-    let (permutation, _shape) = validate_into_axes_shape(&encoded, axes)?;
+    let SwizzleReshapeAxes { permutation, .. } = validate_into_axes_shape(&encoded, axes)?;
 
-    #[allow(clippy::from_iter_instead_of_collect)]
-    let mut inverse_permutation = Vec::from_iter(0..permutation.len());
-    #[allow(clippy::indexing_slicing)] // all indices have been validated
-    inverse_permutation.sort_by_key(|i| permutation[*i]);
+    let mut inverse_permutation = vec![0; permutation.len()];
+    #[allow(clippy::indexing_slicing)] // all are guaranteed to be in range
+    for (i, p) in permutation.iter().copied().enumerate() {
+        inverse_permutation[p] = i;
+    }
 
     // since no axes were merged, no reshape is needed
     let unshaped = encoded;
@@ -339,7 +346,11 @@ pub fn undo_swizzle_reshape_into<T: Copy>(
     mut decoded: ArrayViewMut<T, IxDyn>,
     axes: &[AxisGroup],
 ) -> Result<(), SwizzleReshapeCodecError> {
-    let (permutation, new_shape) = validate_into_axes_shape(&decoded, axes)?;
+    let SwizzleReshapeAxes {
+        permutation,
+        swizzled_shape,
+        new_shape,
+    } = validate_into_axes_shape(&decoded, axes)?;
 
     if encoded.shape() != new_shape {
         return Err(SwizzleReshapeCodecError::MismatchedDecodeIntoArray {
@@ -350,16 +361,15 @@ pub fn undo_swizzle_reshape_into<T: Copy>(
         });
     }
 
-    let mut permuted_shape_indices = decoded.shape().iter().enumerate().collect::<Vec<_>>();
-    #[allow(clippy::indexing_slicing)] // all indices have been validated
-    permuted_shape_indices.sort_by_key(|(i, _s)| permutation[*i]);
-
-    let (inverse_permutation, permuted_shape): (Vec<_>, Vec<_>) =
-        permuted_shape_indices.into_iter().unzip();
+    let mut inverse_permutation = vec![0; decoded.ndim()];
+    #[allow(clippy::indexing_slicing)] // all are guaranteed to be in range
+    for (i, p) in permutation.iter().copied().enumerate() {
+        inverse_permutation[p] = i;
+    }
 
     #[allow(clippy::expect_used)] // only panics on an implementation bug
     let unshaped = encoded
-        .to_shape(permuted_shape)
+        .to_shape(swizzled_shape)
         .expect("new decoding shape should have the correct number of elements");
     let unswizzled = unshaped.permuted_axes(inverse_permutation);
 
@@ -368,10 +378,16 @@ pub fn undo_swizzle_reshape_into<T: Copy>(
     Ok(())
 }
 
+struct SwizzleReshapeAxes {
+    permutation: Vec<usize>,
+    swizzled_shape: Vec<usize>,
+    new_shape: Vec<usize>,
+}
+
 fn validate_into_axes_shape<T, S: Data<Elem = T>>(
     array: &ArrayBase<S, IxDyn>,
     axes: &[AxisGroup],
-) -> Result<(Vec<usize>, Vec<usize>), SwizzleReshapeCodecError> {
+) -> Result<SwizzleReshapeAxes, SwizzleReshapeCodecError> {
     // counts of each axis index, used to check for missing or duplicate axes,
     //  and for knowing which axes are caught by the rest catch-all
     let mut axis_index_counts = vec![0_usize; array.ndim()];
@@ -426,6 +442,8 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
 
     // the permutation to apply to the input axes
     let mut axis_permutation = Vec::with_capacity(array.len());
+    // the shape of the already permuted intermediary array
+    let mut permuted_shape = Vec::with_capacity(array.len());
     // the shape of the already permuted and grouped output array
     let mut grouped_shape = Vec::with_capacity(axes.len());
 
@@ -439,12 +457,14 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
                     match axis {
                         Axis::Index(index) => {
                             axis_permutation.push(*index);
+                            permuted_shape.push(array.len_of(ndarray::Axis(*index)));
                             new_len *= array.len_of(ndarray::Axis(*index));
                         }
                         Axis::MergedRest(Rest) => {
                             for (index, count) in axis_index_counts.iter().enumerate() {
                                 if *count == 0 {
                                     axis_permutation.push(index);
+                                    permuted_shape.push(array.len_of(ndarray::Axis(index)));
                                     new_len *= array.len_of(ndarray::Axis(index));
                                 }
                             }
@@ -457,6 +477,7 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
                 for (index, count) in axis_index_counts.iter().enumerate() {
                     if *count == 0 {
                         axis_permutation.push(index);
+                        permuted_shape.push(array.len_of(ndarray::Axis(index)));
                         grouped_shape.push(array.len_of(ndarray::Axis(index)));
                     }
                 }
@@ -464,7 +485,11 @@ fn validate_into_axes_shape<T, S: Data<Elem = T>>(
         }
     }
 
-    Ok((axis_permutation, grouped_shape))
+    Ok(SwizzleReshapeAxes {
+        permutation: axis_permutation,
+        swizzled_shape: permuted_shape,
+        new_shape: grouped_shape,
+    })
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -644,6 +669,23 @@ mod tests {
             ],
             &[2, 2, 2],
         );
+
+        let mut i = 0;
+        roundtrip(
+            Array::from_shape_fn([3, 1440, 721, 1, 1], |_| {
+                i += 1;
+                i
+            })
+            .into_dyn(),
+            &[
+                AxisGroup::Group(vec![Axis::Index(4)]),
+                AxisGroup::Group(vec![Axis::Index(0)]),
+                AxisGroup::Group(vec![Axis::Index(3)]),
+                AxisGroup::Group(vec![Axis::Index(2)]),
+                AxisGroup::Group(vec![Axis::Index(1)]),
+            ],
+            &[1, 3, 1, 721, 1440],
+        );
     }
 
     #[test]
@@ -710,6 +752,23 @@ mod tests {
             array![[1, 2], [3, 4], [5, 6], [7, 8]].into_dyn(),
             &[AxisGroup::Group(vec![Axis::MergedRest(Rest)])],
             &[8],
+        );
+
+        let mut i = 0;
+        roundtrip(
+            Array::from_shape_fn([3, 1440, 721, 1, 1], |_| {
+                i += 1;
+                i
+            })
+            .into_dyn(),
+            &[AxisGroup::Group(vec![
+                Axis::Index(4),
+                Axis::Index(0),
+                Axis::Index(3),
+                Axis::Index(2),
+                Axis::Index(1),
+            ])],
+            &[1 * 3 * 1 * 721 * 1440],
         );
     }
 
