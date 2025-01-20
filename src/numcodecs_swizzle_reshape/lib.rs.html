@@ -1124,7 +1124,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>inverse_permutation = <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[<span class="number">0</span>; <a href="#312">permutation</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>()];
     <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// all are guaranteed to be in range
-    </span><span class="kw">for </span>(i, p) <span class="kw">in </span>permutation.iter().copied().enumerate() {
+    </span><span class="kw">for </span>(i, p) <span class="kw">in </span>permutation.into_iter().enumerate() {
         inverse_permutation[p] = i;
     }
 
@@ -1174,7 +1174,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>inverse_permutation = <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[<span class="number">0</span>; <a href="#346">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.ndim">ndim</a>()];
     <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// all are guaranteed to be in range
-    </span><span class="kw">for </span>(i, p) <span class="kw">in </span>permutation.iter().copied().enumerate() {
+    </span><span class="kw">for </span>(i, p) <span class="kw">in </span>permutation.into_iter().enumerate() {
         inverse_permutation[p] = i;
     }
 
