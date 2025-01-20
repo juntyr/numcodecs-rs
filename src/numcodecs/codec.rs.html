@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (a580b5c37 2025-01-08)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs/</div>codec.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-5d1d17d0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (9a1d156f3 2025-01-19)" data-channel="nightly" data-search-js="search-ccb196c1.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs/</div>codec.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -301,7 +301,7 @@
 
 <span class="kw">use </span>schemars::{generate::SchemaSettings, JsonSchema, Schema};
 <span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.217/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.217/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.217/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Serializer.html">Serializer</a>};
-<span class="kw">use </span><a href="https://docs.rs/serde_json/1.0.135/serde_json/value/enum.Value.html">serde_json::Value</a>;
+<span class="kw">use </span><a href="https://docs.rs/serde_json/1.0.137/serde_json/value/enum.Value.html">serde_json::Value</a>;
 
 <span class="kw">use crate</span>::{<a href="array.rs.html#14">AnyArray</a>, <a href="array.rs.html#16">AnyArrayView</a>, <a href="array.rs.html#18">AnyArrayViewMut</a>, <a href="array.rs.html#20">AnyCowArray</a>};
 
@@ -463,7 +463,7 @@
         config: D,
     ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>::Codec, D::Error&gt; {
         <span class="kw">let </span>config = <a href="https://docs.rs/serde/1.0.217/serde/de/trait.Deserialize.html#tymethod.deserialize">T::Config::deserialize</a>(<a href="#164">config</a>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<a href="#58">T::from_config</a>(<a href="#166">config</a>))
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#58">T::from_config</a>(<a href="#166">config</a>))
     }
 }
 
@@ -528,13 +528,13 @@
         <span class="kw">let </span>id = <span class="kw-2">&amp;*</span><a href="#228">id</a>;
 
         <span class="kw">if </span>id != T::CODEC_ID {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"expected codec id {:?} but found {id:?}"</span>,
                 T::CODEC_ID,
             )));
         }
 
-        <span class="prelude-val">Ok</span>(<a href="#209-211"><span class="self">Self</span>::of</a>())
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#209-211"><span class="self">Self</span>::of</a>())
     }
 }
 
@@ -581,12 +581,12 @@
 ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;T::Codec, D::Error&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>config = <a href="https://docs.rs/serde/1.0.217/serde/de/trait.Deserialize.html#tymethod.deserialize">Value::deserialize</a>(<a href="#281">config</a>)<span class="question-mark">?</span>;
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(config) = <a href="#283">config</a>.<a href="https://docs.rs/serde_json/1.0.135/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <a href="#285">config</a>.<a href="https://docs.rs/serde_json/1.0.135/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>) {
+    <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(config) = <a href="#283">config</a>.<a href="https://docs.rs/serde_json/1.0.137/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
+        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(id) = <a href="#285">config</a>.<a href="https://docs.rs/serde_json/1.0.137/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>) {
             <span class="kw">let </span>codec_id = <a href="#280">ty</a>.<a href="#97">codec_id</a>();
 
             <span class="kw">if </span>!<span class="macro">matches!</span>(id, Value::String(<span class="kw-2">ref </span>id) <span class="kw">if </span>id == codec_id) {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                     <span class="string">"expected codec id {codec_id:?} but found {id}"
                 </span>)));
             }

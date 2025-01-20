@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/ffi.rs`."><title>ffi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (a580b5c37 2025-01-08)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_zfp/</div>ffi.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/ffi.rs`."><title>ffi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-5d1d17d0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (9a1d156f3 2025-01-19)" data-channel="nightly" data-search-js="search-ccb196c1.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_zfp/</div>ffi.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -433,13 +433,13 @@
                 (<a href="#38">field</a>, <span class="number">4</span>)
             },
             (shape, _strides) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#182-185">ZfpCodecError::ExcessiveDimensionality</a> {
+                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#182-185">ZfpCodecError::ExcessiveDimensionality</a> {
                     shape: <a href="#42">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
                 })
             }
         };
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="self">Self </span>{
             <a href="#21">field</a>,
             <a href="#21">dims</a>,
             _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
@@ -486,7 +486,7 @@
                     )
                 } != ZFP_TRUE
                 {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#188-191">ZfpCodecError::InvalidExpertMode</a> { mode: <a href="#69">mode</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>() });
+                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#188-191">ZfpCodecError::InvalidExpertMode</a> { mode: <a href="#69">mode</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>() });
                 }
             }
             <a href="lib.rs.html#64-67">ZfpCompressionMode::FixedRate</a> { rate } =&gt; {
@@ -508,7 +508,7 @@
             }
         }
 
-        <span class="prelude-val">Ok</span>(<a href="#71">stream</a>)
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#71">stream</a>)
     }
 
     <span class="attr">#[must_use]
@@ -558,12 +558,12 @@
         <span class="kw">if unsafe </span>{ zfp_sys::zfp_write_header(<span class="self">self</span>.stream, <span class="self">self</span>.field, zfp_sys::ZFP_HEADER_FULL) }
             == <span class="number">0
         </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#194">ZfpCodecError::HeaderEncodeFailed</a>);
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#194">ZfpCodecError::HeaderEncodeFailed</a>);
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>this = <a href="https://doc.rust-lang.org/nightly/core/mem/manually_drop/struct.ManuallyDrop.html#method.new">ManuallyDrop::new</a>(<a class="self" href="#163">self</a>);
 
-        <span class="prelude-val">Ok</span>(<a href="#191-197">ZfpCompressionStreamWithBitstreamWithHeader</a> {
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#191-197">ZfpCompressionStreamWithBitstreamWithHeader</a> {
             stream: <a href="#171">this</a>.stream,
             bitstream: <a href="#171">this</a>.bitstream,
             field: <a href="#171">this</a>.field,
@@ -594,13 +594,13 @@
         <span class="kw">let </span>compressed_size = <span class="kw">unsafe </span>{ zfp_sys::zfp_compress(<a class="self" href="#200">self</a>.stream, <a class="self" href="#200">self</a>.field) };
 
         <span class="kw">if </span>compressed_size == <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#197">ZfpCodecError::ZfpEncodeFailed</a>);
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#197">ZfpCodecError::ZfpEncodeFailed</a>);
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>compressed = <a href="https://doc.rust-lang.org/nightly/core/mem/fn.take.html">std::mem::take</a>(<span class="kw-2">&amp;mut </span><a class="self" href="#200">self</a>.buffer);
         <a href="#207">compressed</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.truncate">truncate</a>(<a href="#201">compressed_size</a>);
 
-        <span class="prelude-val">Ok</span>(<a href="#207">compressed</a>)
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#207">compressed</a>)
     }
 }
 
@@ -650,10 +650,10 @@
         };
 
         <span class="kw">if unsafe </span>{ zfp_sys::zfp_read_header(this.stream, field, zfp_sys::ZFP_HEADER_FULL) } == <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#216">ZfpCodecError::HeaderDecodeFailed</a>);
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#216">ZfpCodecError::HeaderDecodeFailed</a>);
         }
 
-        <span class="prelude-val">Ok</span>(<a href="#252">stream</a>)
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#252">stream</a>)
     }
 }
 
@@ -678,7 +678,7 @@
             zfp_sys::zfp_type_zfp_type_int64 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a>,
             zfp_sys::zfp_type_zfp_type_float =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F32">AnyArrayDType::F32</a>,
             zfp_sys::zfp_type_zfp_type_double =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F64">AnyArrayDType::F64</a>,
-            dtype =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#226">ZfpCodecError::DecodeUnknownDtype</a>(<a href="#288">dtype</a>)),
+            dtype =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#226">ZfpCodecError::DecodeUnknownDtype</a>(<a href="#288">dtype</a>)),
         };
 
         <span class="kw">let </span>shape = <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[
@@ -697,9 +697,9 @@
             }
 
             <span class="kw">if unsafe </span>{ zfp_sys::zfp_decompress(<span class="self">self</span>.stream, <span class="self">self</span>.field) } == <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(<a href="lib.rs.html#229">ZfpCodecError::ZfpDecodeFailed</a>)
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#229">ZfpCodecError::ZfpDecodeFailed</a>)
             } <span class="kw">else </span>{
-                <span class="prelude-val">Ok</span>(())
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
             }
         });
 
@@ -712,11 +712,11 @@
             zfp_sys::zfp_type_zfp_type_int64 =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a>,
             zfp_sys::zfp_type_zfp_type_float =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F32">AnyArrayDType::F32</a>,
             zfp_sys::zfp_type_zfp_type_double =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F64">AnyArrayDType::F64</a>,
-            dtype =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#226">ZfpCodecError::DecodeUnknownDtype</a>(<a href="#322">dtype</a>)),
+            dtype =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#226">ZfpCodecError::DecodeUnknownDtype</a>(<a href="#322">dtype</a>)),
         };
 
         <span class="kw">if </span>decompressed.dtype() != dtype {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#219-223">ZfpCodecError::MismatchedDecodeIntoArray</a> {
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#219-223">ZfpCodecError::MismatchedDecodeIntoArray</a> {
                 source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
                     src: <a href="#317">dtype</a>,
                     dst: <a href="#316">decompressed</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
@@ -735,7 +735,7 @@
         .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;&gt;();
 
         <span class="kw">if </span>decompressed.shape() != shape {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="lib.rs.html#219-223">ZfpCodecError::MismatchedDecodeIntoArray</a> {
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#219-223">ZfpCodecError::MismatchedDecodeIntoArray</a> {
                 source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
                     src: <a href="#334">shape</a>,
                     dst: <a href="#316">decompressed</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
@@ -749,9 +749,9 @@
             }
 
             <span class="kw">if unsafe </span>{ zfp_sys::zfp_decompress(<span class="self">self</span>.stream, <span class="self">self</span>.field) } == <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(<a href="lib.rs.html#229">ZfpCodecError::ZfpDecodeFailed</a>)
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="lib.rs.html#229">ZfpCodecError::ZfpDecodeFailed</a>)
             } <span class="kw">else </span>{
-                <span class="prelude-val">Ok</span>(())
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
             }
         })
     }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/export.rs`."><title>export.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (a580b5c37 2025-01-08)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_python/</div>export.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/export.rs`."><title>export.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-5d1d17d0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (9a1d156f3 2025-01-19)" data-channel="nightly" data-search-js="search-ccb196c1.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_python/</div>export.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -608,7 +608,7 @@
 
     <span class="kw">let </span>codec_class: <a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt; =
         <span class="comment">// re-exporting a Python codec class should roundtrip
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(adapter) = (<span class="kw-2">&amp;</span><a href="#35">ty</a> <span class="kw">as </span><span class="kw-2">&amp;</span><span class="kw">dyn </span><a href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html">Any</a>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.any.html#method.downcast_ref">downcast_ref</a>::&lt;<a href="adapter.rs.html#428-432">PyCodecClassAdapter</a>&gt;() {
+        </span><span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(adapter) = (<span class="kw-2">&amp;</span><a href="#35">ty</a> <span class="kw">as </span><span class="kw-2">&amp;</span><span class="kw">dyn </span><a href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html">Any</a>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.any.html#method.downcast_ref">downcast_ref</a>::&lt;<a href="adapter.rs.html#428-432">PyCodecClassAdapter</a>&gt;() {
             <a href="#43">adapter</a>.<a href="adapter.rs.html#459-461">as_codec_class</a>(<a href="#34">py</a>).<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>()
         } <span class="kw">else </span>{
             <span class="kw">let </span>codec_config_schema = <a href="#35">ty</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodecType.html#tymethod.codec_config_schema">codec_config_schema</a>();
@@ -641,7 +641,7 @@
                     <a href="#34">py</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/marker/struct.Python.html#method.eval">eval</a>(<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/alloc/ffi/c_str/struct.CString.html#method.new">CString::new</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                         <span class="string">"lambda {}: None"</span>,
                         signature_from_schema(<span class="kw-2">&amp;</span>codec_config_schema),
-                    ))<span class="question-mark">?</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>,
+                    ))<span class="question-mark">?</span>, <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>, <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>)<span class="question-mark">?</span>,
                 ),
             ]
             .<a href="https://docs.rs/pyo3/0.23/pyo3/types/dict/trait.IntoPyDict.html#tymethod.into_py_dict">into_py_dict</a>(<a href="#34">py</a>)<span class="question-mark">?</span>;
@@ -653,9 +653,9 @@
 
     <a href="#36">module</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/module/trait.PyModuleMethods.html#tymethod.add">add</a>(<a href="#39">codec_class_name</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.as_str">as_str</a>(), <span class="kw-2">&amp;</span><a href="#41">codec_class</a>)<span class="question-mark">?</span>;
 
-    <a href="registry.rs.html#44-57">PyCodecRegistry::register_codec</a>(<a href="#41">codec_class</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>(), <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+    <a href="registry.rs.html#44-57">PyCodecRegistry::register_codec</a>(<a href="#41">codec_class</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>(), <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<a href="#41">codec_class</a>)
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#41">codec_class</a>)
 }
 
 <span class="attr">#[allow(clippy::redundant_pub_crate)]
@@ -733,8 +733,8 @@
             <a class="self" href="#161">self</a>,
             <span class="kw-2">&amp;mut </span>Depythonizer::from_object(<a href="#162">config</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.as_any">as_any</a>()),
         ) {
-            <span class="prelude-val">Ok</span>(codec) =&gt; <span class="prelude-val">Ok</span>(<a href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html#method.new">Box::new</a>(<a href="#168">codec</a>)),
-            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(<a href="#169">err</a>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>()),
+            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(codec) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html#method.new">Box::new</a>(<a href="#168">codec</a>)),
+            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#169">err</a>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>()),
         }
     }
 
@@ -788,7 +788,7 @@
             .ty
             .<a href="#151-154">codec_from_config</a>(<a href="#203">kwargs</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.unwrap_or_else">unwrap_or_else</a>(|| <a href="https://docs.rs/pyo3/0.23/pyo3/types/dict/struct.PyDict.html#method.new">PyDict::new</a>(<a href="#202">py</a>)))<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="self">Self </span>{
             <a href="#206">cls_module</a>,
             <a href="#207">cls_name</a>,
             <a href="#219">codec</a>,
@@ -816,7 +816,7 @@
         out: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.23/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;&gt;,
     ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.23/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
         <span class="kw">let </span>class_method = <span class="kw-2">&amp;</span><a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{}.{}::decode"</span>, <span class="self">self</span>.cls_module, <span class="self">self</span>.cls_name);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(out) = <a href="#248">out</a> {
+        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(out) = <a href="#248">out</a> {
             <a class="self" href="#245">self</a>.<a href="#334-352">process_into</a>(
                 <a href="#246">py</a>,
                 <a href="#247">buf</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>(),
@@ -824,7 +824,7 @@
                 <a href="#110-115">AnyCodec::decode_into</a>,
                 <a href="#250">class_method</a>,
             )<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<a href="#251">out</a>)
+            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#251">out</a>)
         } <span class="kw">else </span>{
             <a class="self" href="#245">self</a>.<a href="#317-332">process</a>(<a href="#246">py</a>, <a href="#247">buf</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.as_borrowed">as_borrowed</a>(), <a href="#108">AnyCodec::decode</a>, <a href="#250">class_method</a>)
         }
@@ -842,7 +842,7 @@
         <span class="kw">let </span>cls: <a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt; = <a href="#271">cls</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()<span class="question-mark">?</span>;
 
         <span class="comment">// Ensures that cls(**config) is called and an instance of cls is returned
-        </span><a href="#274">cls</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call">call</a>((), <span class="prelude-val">Some</span>(<a href="#272">config</a>))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()
+        </span><a href="#274">cls</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.call">call</a>((), <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#272">config</a>))<span class="question-mark">?</span>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()
     }
 
     <span class="kw">fn </span>__repr__(this: <a href="https://docs.rs/pyo3/0.23/pyo3/pycell/struct.PyRef.html">PyRef</a>&lt;<span class="self">Self</span>&gt;, py: <a href="https://docs.rs/pyo3/0.23/pyo3/marker/struct.Python.html">Python</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a>, <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
@@ -877,7 +877,7 @@
 
         <a href="#285">repr</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.push">push</a>(<span class="string">')'</span>);
 
-        <span class="prelude-val">Ok</span>(<a href="#285">repr</a>)
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#285">repr</a>)
     }
 }
 
@@ -977,7 +977,7 @@
                 <a href="#358">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyCowArray::F64</a>(<a href="#408">a</a>))
             })
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"{class_method} received buffer of unsupported dtype `{dtype}`"</span>,
             )))
         }
@@ -1041,7 +1041,7 @@
                 <a href="#422">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArrayView::F64</a>(<a href="#472">a</a>))
             })
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"{class_method} received buffer of unsupported dtype `{dtype}`"</span>,
             )))
         }
@@ -1105,7 +1105,7 @@
                 <a href="#486">with</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArrayViewMut::F64</a>(<a href="#536">a</a>))
             })
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"{class_method} received buffer of unsupported dtype `{dtype}`"</span>,
             )))
         }
@@ -1117,17 +1117,17 @@
         class_method: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
     ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.23/pyo3/types/any/struct.PyAny.html">PyAny</a>&gt;, <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
         <span class="kw">match </span><a href="#548">array</a> {
-            AnyArray::U8(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#552">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            AnyArray::U16(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#553">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            AnyArray::U32(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#554">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            AnyArray::U64(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#555">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            AnyArray::I8(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#556">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            AnyArray::I16(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#557">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            AnyArray::I32(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#558">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            AnyArray::I64(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#559">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            AnyArray::F32(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#560">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            AnyArray::F64(a) =&gt; <span class="prelude-val">Ok</span>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#561">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
-            array =&gt; <span class="prelude-val">Err</span>(<a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#552">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArray::U16</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#553">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#554">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#555">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyArray::I8</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#556">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArray::I16</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#557">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#558">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#559">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#560">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(a) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(PyArray::from_owned_array(<a href="#547">py</a>, <a href="#561">a</a>).<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.into_any">into_any</a>()),
+            array =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/pyo3/0.23/pyo3/exceptions/struct.PyTypeError.html#method.new_err">PyTypeError::new_err</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"{class_method} returned unsupported dtype `{}`"</span>,
                 array.dtype(),
             ))),

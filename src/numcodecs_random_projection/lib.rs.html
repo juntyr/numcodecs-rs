@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/random-projection/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_random_projection" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (a580b5c37 2025-01-08)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_random_projection/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/random-projection/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-5d1d17d0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_random_projection" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (9a1d156f3 2025-01-19)" data-channel="nightly" data-search-js="search-ccb196c1.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_random_projection/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -1163,15 +1163,15 @@
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#124">data</a> {
-            AnyCowArray::F32(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(
                 <a href="#258-304">project_with_projection</a>(<a href="#126">data</a>, <a class="self" href="#124">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#124">self</a>.reduction, <span class="kw-2">&amp;</span><a class="self" href="#124">self</a>.projection)<span class="question-mark">?
                     </span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            AnyCowArray::F64(data) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyCowArray::F64</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(
                 <a href="#258-304">project_with_projection</a>(<a href="#130">data</a>, <a class="self" href="#124">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#124">self</a>.reduction, <span class="kw-2">&amp;</span><a class="self" href="#124">self</a>.projection)<span class="question-mark">?
                     </span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            encoded =&gt; <span class="prelude-val">Err</span>(<a href="#200">RandomProjectionCodecError::UnsupportedDtype</a>(
+            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#200">RandomProjectionCodecError::UnsupportedDtype</a>(
                 <a href="#134">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             )),
         }
@@ -1179,13 +1179,13 @@
 
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#140">encoded</a> {
-            AnyCowArray::F32(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(encoded) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(
                 <a href="#389-438">reconstruct_with_projection</a>(<a href="#142">encoded</a>, <a class="self" href="#140">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#140">self</a>.projection)<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            AnyCowArray::F64(encoded) =&gt; <span class="prelude-val">Ok</span>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyCowArray::F64</a>(encoded) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(
                 <a href="#389-438">reconstruct_with_projection</a>(<a href="#145">encoded</a>, <a class="self" href="#140">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#140">self</a>.projection)<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            encoded =&gt; <span class="prelude-val">Err</span>(<a href="#200">RandomProjectionCodecError::UnsupportedDtype</a>(
+            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#200">RandomProjectionCodecError::UnsupportedDtype</a>(
                 <a href="#148">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             )),
         }
@@ -1204,14 +1204,14 @@
                 <a href="#523-588">reconstruct_into_with_projection</a>(<a href="#163">encoded</a>, <a href="#163">decoded</a>, <a class="self" href="#155">self</a>.seed, <span class="kw-2">&amp;</span><a class="self" href="#155">self</a>.projection)
             }
             (encoded @ (AnyArrayView::F32(<span class="kw">_</span>) | AnyArrayView::F64(<span class="kw">_</span>)), decoded) =&gt; {
-                <span class="prelude-val">Err</span>(<a href="#240-244">RandomProjectionCodecError::MismatchedDecodeIntoArray</a> {
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#240-244">RandomProjectionCodecError::MismatchedDecodeIntoArray</a> {
                     source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
                         src: <a href="#166">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
                         dst: <a href="#166">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
                     },
                 })
             }
-            (encoded, _decoded) =&gt; <span class="prelude-val">Err</span>(<a href="#200">RandomProjectionCodecError::UnsupportedDtype</a>(
+            (encoded, _decoded) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#200">RandomProjectionCodecError::UnsupportedDtype</a>(
                 <a href="#174">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             )),
         }
@@ -1340,7 +1340,7 @@
         }
     }<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<a href="#277">projected</a>)
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#277">projected</a>)
 }
 
 <span class="attr">#[allow(clippy::needless_pass_by_value)]
@@ -1368,7 +1368,7 @@
     <span class="kw">let </span>(n2, _k) = <a href="#323">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
 
     <span class="kw">if </span>n2 != n {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#215-220">RandomProjectionCodecError::NumberOfSamplesMismatch</a> {
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#215-220">RandomProjectionCodecError::NumberOfSamplesMismatch</a> {
             input: <a href="#327">n</a>,
             output: <a href="#328">n2</a>,
         });
@@ -1403,10 +1403,10 @@
     }
 
     <span class="kw">if </span>!Zip::from(projected).all(|x| x.is_finite()) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#211">RandomProjectionCodecError::NonFiniteData</a>);
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#211">RandomProjectionCodecError::NonFiniteData</a>);
     }
 
-    <span class="prelude-val">Ok</span>(())
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
 }
 
 <span class="doccomment">/// Applies the (approximate) inverse of random projection to the `projected`
@@ -1436,23 +1436,23 @@
         .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#203-207">RandomProjectionCodecError::NonMatrixData</a> { source: <a href="#396">err</a> })<span class="question-mark">?</span>;
 
     <span class="kw">if </span>projected.is_empty() {
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(<a href="#394">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_owned">to_owned</a>());
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#394">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_owned">to_owned</a>());
     }
 
     <span class="kw">let </span>(_n, k): (<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) = <a href="#394">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
-    <span class="kw">let </span><span class="prelude-val">Some</span>(k) = <a href="#402">k</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<span class="number">1</span>) <span class="kw">else </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#224">RandomProjectionCodecError::ProjectedArrayZeroComponents</a>);
+    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(k) = <a href="#402">k</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<span class="number">1</span>) <span class="kw">else </span>{
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#224">RandomProjectionCodecError::ProjectedArrayZeroComponents</a>);
     };
 
     <span class="comment">// extract the number of features `d` from the extra column and check that
     //  it has been preserved consistently across the column
     </span><span class="kw">let </span>ds = <a href="#394">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice">slice</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., k));
-    <span class="kw">let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d)) = <a href="#409">ds</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.fold">fold</a>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), |acc, d| <span class="kw">match </span><a href="#410">acc</a> {
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#410">d</a>.<a href="#823">into_usize</a>())),
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d2)) <span class="kw">if </span><a href="#412">d2</a> == <a href="#410">d</a>.<a href="#823">into_usize</a>() =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#412">d2</a>)),
-        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(()),
+    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(d)) = <a href="#409">ds</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.fold">fold</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>), |acc, d| <span class="kw">match </span><a href="#410">acc</a> {
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">None</span>) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#410">d</a>.<a href="#823">into_usize</a>())),
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(d2)) <span class="kw">if </span><a href="#412">d2</a> == <a href="#410">d</a>.<a href="#823">into_usize</a>() =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#412">d2</a>)),
+        <span class="kw">_ </span>=&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(()),
     }) <span class="kw">else </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#228">RandomProjectionCodecError::CorruptedNumberOfComponents</a>);
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#228">RandomProjectionCodecError::CorruptedNumberOfComponents</a>);
     };
 
     <span class="comment">// extract the projected data, excluding the metadata column
@@ -1497,7 +1497,7 @@
     normalizer: T,
 ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;T, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix2.html">Ix2</a>&gt;, <a href="#197-245">RandomProjectionCodecError</a>&gt; {
     <span class="kw">if </span>projected.is_empty() {
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(<a href="#454">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_owned">to_owned</a>());
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#454">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_owned">to_owned</a>());
     }
 
     <span class="kw">let </span>(n, k) = <a href="#454">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
@@ -1533,10 +1533,10 @@
     }
 
     <span class="kw">if </span>!Zip::from(<span class="kw-2">&amp;</span>reconstructed).all(|x| x.is_finite()) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#211">RandomProjectionCodecError::NonFiniteData</a>);
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#211">RandomProjectionCodecError::NonFiniteData</a>);
     }
 
-    <span class="prelude-val">Ok</span>(<a href="#465">reconstructed</a>)
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#465">reconstructed</a>)
 }
 
 <span class="doccomment">/// Applies the (approximate) inverse of random projection to the `projected`
@@ -1577,29 +1577,29 @@
     <span class="kw">let </span>(n2, d2) = <a href="#532">reconstructed</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
 
     <span class="kw">if </span>n2 != n {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#215-220">RandomProjectionCodecError::NumberOfSamplesMismatch</a> {
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#215-220">RandomProjectionCodecError::NumberOfSamplesMismatch</a> {
             input: <a href="#536">n</a>,
             output: <a href="#537">n2</a>,
         });
     }
 
-    <span class="kw">let </span><span class="prelude-val">Some</span>(k) = <a href="#536">k</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<span class="number">1</span>) <span class="kw">else </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#224">RandomProjectionCodecError::ProjectedArrayZeroComponents</a>);
+    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(k) = <a href="#536">k</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<span class="number">1</span>) <span class="kw">else </span>{
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#224">RandomProjectionCodecError::ProjectedArrayZeroComponents</a>);
     };
 
     <span class="comment">// extract the number of features `d` from the extra column and check that
     //  it has been preserved consistently across the column
     </span><span class="kw">let </span>ds = <a href="#529">projected</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.slice">slice</a>(<a class="macro" href="https://docs.rs/ndarray/0.15/ndarray/macro.s.html">s!</a>(.., k));
-    <span class="kw">let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d)) = <a href="#552">ds</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.fold">fold</a>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), |acc, d| <span class="kw">match </span><a href="#553">acc</a> {
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#553">d</a>.<a href="#823">into_usize</a>())),
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(d2)) <span class="kw">if </span><a href="#555">d2</a> == <a href="#553">d</a>.<a href="#823">into_usize</a>() =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<a href="#555">d2</a>)),
-        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(()),
+    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(d)) = <a href="#552">ds</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.fold">fold</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>), |acc, d| <span class="kw">match </span><a href="#553">acc</a> {
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">None</span>) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#553">d</a>.<a href="#823">into_usize</a>())),
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(d2)) <span class="kw">if </span><a href="#555">d2</a> == <a href="#553">d</a>.<a href="#823">into_usize</a>() =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#555">d2</a>)),
+        <span class="kw">_ </span>=&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(()),
     }) <span class="kw">else </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#228">RandomProjectionCodecError::CorruptedNumberOfComponents</a>);
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#228">RandomProjectionCodecError::CorruptedNumberOfComponents</a>);
     };
 
     <span class="kw">if </span>d2 != d {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#232-237">RandomProjectionCodecError::NumberOfFeaturesMismatch</a> {
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#232-237">RandomProjectionCodecError::NumberOfFeaturesMismatch</a> {
             metadata: <a href="#553">d</a>,
             output: <a href="#537">d2</a>,
         });
@@ -1652,7 +1652,7 @@
     <span class="kw">let </span>(n2, _d) = <a href="#607">reconstructed</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.dim">dim</a>();
 
     <span class="kw">if </span>n2 != n {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#215-220">RandomProjectionCodecError::NumberOfSamplesMismatch</a> {
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#215-220">RandomProjectionCodecError::NumberOfSamplesMismatch</a> {
             input: <a href="#611">n</a>,
             output: <a href="#612">n2</a>,
         });
@@ -1687,10 +1687,10 @@
     }
 
     <span class="kw">if </span>!Zip::from(reconstructed).all(|x| x.is_finite()) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<a href="#211">RandomProjectionCodecError::NonFiniteData</a>);
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#211">RandomProjectionCodecError::NonFiniteData</a>);
     }
 
-    <span class="prelude-val">Ok</span>(())
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
 }
 
 <span class="doccomment">/// Find a 'safe' number of components `K` to randomly project to.
@@ -1730,14 +1730,14 @@
     d: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
 ) -&gt; T {
     <span class="kw">match </span><a href="#689">density</a> {
-        <span class="prelude-val">Some</span>(<a href="#765">OpenClosedUnit</a>(density)) =&gt; <a href="#815">T::from_f64</a>(<a href="#693">density</a>),
-        <span class="prelude-val">None </span>=&gt; <a href="#819">T::from_usize</a>(<a href="#690">d</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>().<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.recip">recip</a>(),
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(OpenClosedUnit(density)) =&gt; <a href="#815">T::from_f64</a>(<a href="#693">density</a>),
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None"><a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a> </a>=&gt; <a href="#819">T::from_usize</a>(<a href="#690">d</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>().<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.recip">recip</a>(),
     }
 }
 
 <span class="doccomment">/// Sample from `N(0, 1)` at the coordinate `(x, y)` with the random `seed`
 </span><span class="kw">fn </span>gaussian_project&lt;T: <a href="#807-830">FloatExt</a>&gt;(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; T {
-    <span class="kw">let </span>(<a href="#760">ClosedOpenUnit</a>(u0), <a href="#765">OpenClosedUnit</a>(u1)) = <a href="#829">T::u01x2</a>(<a href="#731-733">hash_matrix_index</a>(<a href="#699">x</a>, <a href="#699">y</a>, <a href="#699">seed</a>));
+    <span class="kw">let </span>(ClosedOpenUnit(u0), OpenClosedUnit(u1)) = <a href="#829">T::u01x2</a>(<a href="#731-733">hash_matrix_index</a>(<a href="#699">x</a>, <a href="#699">y</a>, <a href="#699">seed</a>));
 
     <span class="kw">let </span>theta = -<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.FloatConst.html#tymethod.TAU">T::TAU</a>() * <a href="#700">u0</a>;
     <span class="kw">let </span>r = (-T::TWO * <a href="#700">u1</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.ln">ln</a>()).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.sqrt">sqrt</a>();
@@ -1753,7 +1753,7 @@
 /// `{ density/2, 1-density, density/2 }` at the coordinate `(x, y)` with the
 /// random `seed`
 </span><span class="kw">fn </span>sparse_project&lt;T: <a href="#807-830">FloatExt</a>&gt;(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, density: T, seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; T {
-    <span class="kw">let </span>(<a href="#760">ClosedOpenUnit</a>(u0), _u1) = <a href="#829">T::u01x2</a>(<a href="#731-733">hash_matrix_index</a>(<a href="#715">x</a>, <a href="#715">y</a>, <a href="#715">seed</a>));
+    <span class="kw">let </span>(ClosedOpenUnit(u0), _u1) = <a href="#829">T::u01x2</a>(<a href="#731-733">hash_matrix_index</a>(<a href="#715">x</a>, <a href="#715">y</a>, <a href="#715">seed</a>));
 
     <span class="kw">if </span>u0 &lt; (density * T::HALF) {
         -T::ONE
@@ -1815,9 +1815,9 @@
         <span class="kw">let </span>x = <a href="https://docs.rs/serde/1.0.217/serde/de/trait.Deserialize.html#tymethod.deserialize">f64::deserialize</a>(<a href="#774">deserializer</a>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>x &gt; <span class="number">0.0 </span>&amp;&amp; x &lt;= <span class="number">1.0 </span>{
-            <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<a href="#775">x</a>))
+            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="self">Self</span>(<a href="#775">x</a>))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.invalid_value">serde::de::Error::invalid_value</a>(
+            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.invalid_value">serde::de::Error::invalid_value</a>(
                 <a href="https://docs.rs/serde/1.0.217/serde/de/enum.Unexpected.html#variant.Float">serde::de::Unexpected::Float</a>(<a href="#775">x</a>),
                 <span class="kw-2">&amp;</span><span class="string">"a value in (0.0, 1.0]"</span>,
             ))
