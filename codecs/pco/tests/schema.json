@@ -1,0 +1,73 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "level": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "description": "compression level",
+      "default": 8
+    },
+    "mode": {
+      "oneOf": [
+        {
+          "type": "string",
+          "const": "auto",
+          "description": "Automatically detects a good mode.\n\n This works well most of the time, but costs some compression time and\n can select a bad mode in adversarial cases."
+        },
+        {
+          "type": "string",
+          "const": "classic",
+          "description": "Only uses the classic mode"
+        }
+      ],
+      "description": "compression mode",
+      "default": "auto"
+    },
+    "delta": {
+      "oneOf": [
+        {
+          "type": "string",
+          "const": "auto",
+          "description": "Automatically detects a detects a good delta encoding.\n\n This works well most of the time, but costs some compression time and\n can select a bad delta encoding in adversarial cases."
+        },
+        {
+          "type": "string",
+          "const": "none",
+          "description": "Never uses delta encoding.\n\n This is best if your data is in a random order or adjacent numbers have\n no relation to each other."
+        },
+        {
+          "type": "string",
+          "const": "try-lookback",
+          "description": "Tries delta encoding according to an extra latent variable of\n \"lookback\".\n\n This can improve compression ratio when there are nontrivial patterns\n in the array, but reduces compression speed substantially."
+        }
+      ],
+      "description": "delta encoding",
+      "default": "auto"
+    },
+    "equal_pages_up_to": {
+      "type": "integer",
+      "format": "uint",
+      "minimum": 1,
+      "description": "Divide the chunk into equal pages of up to this many numbers.\n\n For example, with equal pages up to 100,000, a chunk of 150,000 numbers\n would be divided into 2 pages, each of 75,000 numbers.",
+      "default": 262144
+    }
+  },
+  "description": "Codec providing compression using pco",
+  "title": "Pcodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
