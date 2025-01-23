@@ -29,7 +29,6 @@ fn minimal_config() {
             "level": 0,
             "mode": "classic",
             "delta": "none",
-            // "paging": "equal-pages-up-to",
             "equal_pages_up_to": 1000,
         }))
         .unwrap(),

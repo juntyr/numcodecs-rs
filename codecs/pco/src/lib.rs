@@ -54,7 +54,7 @@ pub struct Pcodec {
 }
 
 #[derive(
-    Copy, Clone, Debug, Default, PartialEq, Serialize_repr, Deserialize_repr, JsonSchema_repr,
+    Copy, Clone, Debug, Default, PartialEq, Eq, Serialize_repr, Deserialize_repr, JsonSchema_repr,
 )]
 #[repr(u8)]
 /// Pco compression level.
@@ -81,7 +81,7 @@ pub enum PcoLevel {
     PcoLevel12 = 12,
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 /// Pco compression mode
 pub enum PcoMode {
@@ -97,7 +97,7 @@ pub enum PcoMode {
     Classic,
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 /// Pco delta encoding
 pub enum PcoDeltaEncoding {
@@ -124,7 +124,7 @@ pub enum PcoDeltaEncoding {
 }
 
 const fn default_equal_pages_up_to() -> NonZeroUsize {
-    NonZeroUsize::new(pco::DEFAULT_MAX_PAGE_N).unwrap()
+    NonZeroUsize::MIN.saturating_add(pco::DEFAULT_MAX_PAGE_N.saturating_sub(1))
 }
 
 impl Codec for Pcodec {
@@ -381,12 +381,12 @@ pub fn compress<T: PcoElement, S: Data<Elem = T>, D: Dimension>(
     })?;
 
     let data_owned;
-    let data = match data.as_slice() {
-        Some(slice) => slice,
-        None => {
-            data_owned = data.into_iter().copied().collect::<Vec<T>>();
-            data_owned.as_slice()
-        }
+    #[allow(clippy::option_if_let_else)]
+    let data = if let Some(slice) = data.as_slice() {
+        slice
+    } else {
+        data_owned = data.into_iter().copied().collect::<Vec<T>>();
+        data_owned.as_slice()
     };
 
     let config = pco::ChunkConfig::default()
@@ -608,7 +608,7 @@ struct CompressionHeader<'a> {
 }
 
 /// Dtypes that pco can compress and decompress
-#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[allow(missing_docs)]
 pub enum PcoDType {
     #[serde(rename = "u16", alias = "uint16")]
@@ -634,14 +634,14 @@ impl PcoDType {
     /// Convert the [`PcoDType`] into an [`AnyArrayDType`]
     pub const fn into_dtype(self) -> AnyArrayDType {
         match self {
-            PcoDType::U16 => AnyArrayDType::U16,
-            PcoDType::U32 => AnyArrayDType::U32,
-            PcoDType::U64 => AnyArrayDType::U64,
-            PcoDType::I16 => AnyArrayDType::I16,
-            PcoDType::I32 => AnyArrayDType::I32,
-            PcoDType::I64 => AnyArrayDType::I64,
-            PcoDType::F32 => AnyArrayDType::F32,
-            PcoDType::F64 => AnyArrayDType::F64,
+            Self::U16 => AnyArrayDType::U16,
+            Self::U32 => AnyArrayDType::U32,
+            Self::U64 => AnyArrayDType::U64,
+            Self::I16 => AnyArrayDType::I16,
+            Self::I32 => AnyArrayDType::I32,
+            Self::I64 => AnyArrayDType::I64,
+            Self::F32 => AnyArrayDType::F32,
+            Self::F64 => AnyArrayDType::F64,
         }
     }
 }
