@@ -1,9 +1,9 @@
 (function() {
-    var implementors = Object.fromEntries([["numcodecs",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"enum\" href=\"numcodecs/enum.AnyArrayDType.html\" title=\"enum numcodecs::AnyArrayDType\">AnyArrayDType</a>"]]]]);
+    var implementors = Object.fromEntries([["numcodecs",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"enum\" href=\"numcodecs/enum.AnyArrayDType.html\" title=\"enum numcodecs::AnyArrayDType\">AnyArrayDType</a>"]]],["numcodecs_pco",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"enum\" href=\"numcodecs_pco/enum.PcoCompressionLevel.html\" title=\"enum numcodecs_pco::PcoCompressionLevel\">PcoCompressionLevel</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"enum\" href=\"numcodecs_pco/enum.PcoDType.html\" title=\"enum numcodecs_pco::PcoDType\">PcoDType</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"enum\" href=\"numcodecs_pco/enum.PcoDeltaEncodingOrder.html\" title=\"enum numcodecs_pco::PcoDeltaEncodingOrder\">PcoDeltaEncodingOrder</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"enum\" href=\"numcodecs_pco/enum.PcoDeltaSpec.html\" title=\"enum numcodecs_pco::PcoDeltaSpec\">PcoDeltaSpec</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"enum\" href=\"numcodecs_pco/enum.PcoPagingSpec.html\" title=\"enum numcodecs_pco::PcoPagingSpec\">PcoPagingSpec</a>"]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
         window.pending_implementors = implementors;
     }
 })()
-//{"start":57,"fragment_lengths":[269]}
+//{"start":57,"fragment_lengths":[269,1354]}

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PcoCompressionLevel","PcoDType","PcoDeltaEncodingOrder","PcoDeltaSpec","PcoModeSpec","PcoPagingSpec","PcodecError"],"fn":["compress","decompress","decompress_into"],"struct":["PcoCodingError","PcoHeaderError","Pcodec"],"trait":["PcoElement"]};
