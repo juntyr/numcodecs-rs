@@ -33,24 +33,21 @@ use thiserror::Error;
 use ::serde_json as _;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+#[schemars(deny_unknown_fields)] // serde cannot deny unknown fields because of the flatten
 /// Codec providing compression using pco
 pub struct Pcodec {
-    /// compression level
-    #[serde(default)]
-    pub level: PcoLevel,
-    /// compression mode
-    #[serde(default)]
-    pub mode: PcoMode,
-    /// delta encoding
-    #[serde(default)]
-    pub delta: PcoDeltaEncoding,
-    /// Divide the chunk into equal pages of up to this many numbers.
-    ///
-    /// For example, with equal pages up to 100,000, a chunk of 150,000 numbers
-    /// would be divided into 2 pages, each of 75,000 numbers.
-    #[serde(default = "default_equal_pages_up_to")]
-    pub equal_pages_up_to: NonZeroUsize,
+    /// Compression level, ranging from 0 (weak) over 8 (very good) to 12
+    /// (expensive)
+    pub level: PcoCompressionLevel,
+    /// Specifies how the mode should be determined
+    #[serde(flatten)]
+    pub mode: PcoModeSpec,
+    /// Specifies how delta encoding should be chosen
+    #[serde(flatten)]
+    pub delta: PcoDeltaSpec,
+    /// Specifies how the chunk should be split into pages
+    #[serde(flatten)]
+    pub paging: PcoPagingSpec,
 }
 
 #[derive(
@@ -64,63 +61,132 @@ pub struct Pcodec {
 /// * Level 8 achieves very good compression.
 /// * Level 12 achieves marginally better compression than 8.
 #[allow(missing_docs)]
-pub enum PcoLevel {
-    PcoLevel0 = 0,
-    PcoLevel1 = 1,
-    PcoLevel2 = 2,
-    PcoLevel3 = 3,
-    PcoLevel4 = 4,
-    PcoLevel5 = 5,
-    PcoLevel6 = 6,
-    PcoLevel7 = 7,
+pub enum PcoCompressionLevel {
+    Level0 = 0,
+    Level1 = 1,
+    Level2 = 2,
+    Level3 = 3,
+    Level4 = 4,
+    Level5 = 5,
+    Level6 = 6,
+    Level7 = 7,
     #[default]
-    PcoLevel8 = 8,
-    PcoLevel9 = 9,
-    PcoLevel10 = 10,
-    PcoLevel11 = 11,
-    PcoLevel12 = 12,
+    Level8 = 8,
+    Level9 = 9,
+    Level10 = 10,
+    Level11 = 11,
+    Level12 = 12,
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(deny_unknown_fields)] // serde cannot deny unknown fields because of the flatten
+#[serde(tag = "mode", rename_all = "kebab-case")]
 /// Pco compression mode
-pub enum PcoMode {
+pub enum PcoModeSpec {
     #[default]
-    #[serde(rename = "auto")]
     /// Automatically detects a good mode.
     ///
     /// This works well most of the time, but costs some compression time and
     /// can select a bad mode in adversarial cases.
     Auto,
-    #[serde(rename = "classic")]
     /// Only uses the classic mode
     Classic,
+    /// Tries using the `FloatMult` mode with a given base.
+    ///
+    /// Only applies to floating-point types.
+    TryFloatMult {
+        /// the base for the `FloatMult` mode
+        float_mult_base: f64,
+    },
+    /// Tries using the `FloatQuant` mode with the given number of bits of
+    /// quantization.
+    ///
+    /// Only applies to floating-point types.
+    TryFloatQuant {
+        /// the number of bits to which floating-point values are quantized
+        float_quant_bits: u32,
+    },
+    /// Tries using the `IntMult` mode with a given base.
+    ///
+    /// Only applies to integer types.
+    TryIntMult {
+        /// the base for the `IntMult` mode
+        int_mult_base: u64,
+    },
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+#[schemars(deny_unknown_fields)] // serde cannot deny unknown fields because of the flatten
+#[serde(tag = "delta", rename_all = "kebab-case")]
 /// Pco delta encoding
-pub enum PcoDeltaEncoding {
+pub enum PcoDeltaSpec {
     #[default]
-    #[serde(rename = "auto")]
     /// Automatically detects a detects a good delta encoding.
     ///
     /// This works well most of the time, but costs some compression time and
     /// can select a bad delta encoding in adversarial cases.
     Auto,
-    #[serde(rename = "none")]
     /// Never uses delta encoding.
     ///
     /// This is best if your data is in a random order or adjacent numbers have
     /// no relation to each other.
     None,
-    #[serde(rename = "try-lookback")]
+    /// Tries taking nth order consecutive deltas.
+    ///
+    /// Supports a delta encoding order up to 7. For instance, 1st order is
+    /// just regular delta encoding, 2nd is deltas-of-deltas, etc. It is legal
+    /// to use 0th order, but it is identical to None.
+    TryConsecutive {
+        /// the order of the delta encoding
+        delta_encoding_order: PcoDeltaEncodingOrder,
+    },
     /// Tries delta encoding according to an extra latent variable of
     /// "lookback".
     ///
     /// This can improve compression ratio when there are nontrivial patterns
     /// in the array, but reduces compression speed substantially.
     TryLookback,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
+#[repr(u8)]
+/// Pco delta encoding order.
+///
+/// The order ranges from 0 to 7 inclusive.
+#[allow(missing_docs)]
+pub enum PcoDeltaEncodingOrder {
+    Order0 = 0,
+    Order1 = 1,
+    Order2 = 2,
+    Order3 = 3,
+    Order4 = 4,
+    Order5 = 5,
+    Order6 = 6,
+    Order7 = 7,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[schemars(deny_unknown_fields)] // serde cannot deny unknown fields because of the flatten
+#[serde(tag = "paging", rename_all = "kebab-case")]
+/// Pco paging mode
+pub enum PcoPagingSpec {
+    /// Divide the chunk into equal pages of up to this many numbers.
+    ///
+    /// For example, with equal pages up to 100,000, a chunk of 150,000 numbers
+    /// would be divided into 2 pages, each of 75,000 numbers.
+    EqualPagesUpTo {
+        #[serde(default = "default_equal_pages_up_to")]
+        /// maximum amount of numbers in a page
+        equal_pages_up_to: NonZeroUsize,
+    },
+}
+
+impl Default for PcoPagingSpec {
+    fn default() -> Self {
+        Self::EqualPagesUpTo {
+            equal_pages_up_to: default_equal_pages_up_to(),
+        }
+    }
 }
 
 const fn default_equal_pages_up_to() -> NonZeroUsize {
@@ -138,7 +204,7 @@ impl Codec for Pcodec {
                     self.level,
                     self.mode,
                     self.delta,
-                    self.equal_pages_up_to,
+                    self.paging,
                 )?)
                 .into_dyn(),
             )),
@@ -148,7 +214,7 @@ impl Codec for Pcodec {
                     self.level,
                     self.mode,
                     self.delta,
-                    self.equal_pages_up_to,
+                    self.paging,
                 )?)
                 .into_dyn(),
             )),
@@ -158,7 +224,7 @@ impl Codec for Pcodec {
                     self.level,
                     self.mode,
                     self.delta,
-                    self.equal_pages_up_to,
+                    self.paging,
                 )?)
                 .into_dyn(),
             )),
@@ -168,7 +234,7 @@ impl Codec for Pcodec {
                     self.level,
                     self.mode,
                     self.delta,
-                    self.equal_pages_up_to,
+                    self.paging,
                 )?)
                 .into_dyn(),
             )),
@@ -178,7 +244,7 @@ impl Codec for Pcodec {
                     self.level,
                     self.mode,
                     self.delta,
-                    self.equal_pages_up_to,
+                    self.paging,
                 )?)
                 .into_dyn(),
             )),
@@ -188,7 +254,7 @@ impl Codec for Pcodec {
                     self.level,
                     self.mode,
                     self.delta,
-                    self.equal_pages_up_to,
+                    self.paging,
                 )?)
                 .into_dyn(),
             )),
@@ -198,7 +264,7 @@ impl Codec for Pcodec {
                     self.level,
                     self.mode,
                     self.delta,
-                    self.equal_pages_up_to,
+                    self.paging,
                 )?)
                 .into_dyn(),
             )),
@@ -208,7 +274,7 @@ impl Codec for Pcodec {
                     self.level,
                     self.mode,
                     self.delta,
-                    self.equal_pages_up_to,
+                    self.paging,
                 )?)
                 .into_dyn(),
             )),
@@ -355,7 +421,7 @@ pub struct PcoCodingError(pco::errors::PcoError);
 
 #[allow(clippy::needless_pass_by_value)]
 /// Compresses the input `data` array using pco with the given compression
-/// `level`, `mode`, `delta` encoding, and `equal_pages_up_to` paging mode.
+/// `level`, `mode`, `delta` encoding, and `paging` mode.
 ///
 /// # Errors
 ///
@@ -364,10 +430,10 @@ pub struct PcoCodingError(pco::errors::PcoError);
 /// - [`PcodecError::PcoEncodeFailed`] if encoding failed with an opaque error
 pub fn compress<T: PcoElement, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
-    level: PcoLevel,
-    mode: PcoMode,
-    delta: PcoDeltaEncoding,
-    equal_pages_up_to: NonZeroUsize,
+    level: PcoCompressionLevel,
+    mode: PcoModeSpec,
+    delta: PcoDeltaSpec,
+    paging: PcoPagingSpec,
 ) -> Result<Vec<u8>, PcodecError> {
     let mut encoded_bytes = postcard::to_extend(
         &CompressionHeader {
@@ -392,15 +458,29 @@ pub fn compress<T: PcoElement, S: Data<Elem = T>, D: Dimension>(
     let config = pco::ChunkConfig::default()
         .with_compression_level(level as usize)
         .with_mode_spec(match mode {
-            PcoMode::Auto => pco::ModeSpec::Auto,
-            PcoMode::Classic => pco::ModeSpec::Classic,
+            PcoModeSpec::Auto => pco::ModeSpec::Auto,
+            PcoModeSpec::Classic => pco::ModeSpec::Classic,
+            PcoModeSpec::TryFloatMult { float_mult_base } => {
+                pco::ModeSpec::TryFloatMult(float_mult_base)
+            }
+            PcoModeSpec::TryFloatQuant { float_quant_bits } => {
+                pco::ModeSpec::TryFloatQuant(float_quant_bits)
+            }
+            PcoModeSpec::TryIntMult { int_mult_base } => pco::ModeSpec::TryIntMult(int_mult_base),
         })
         .with_delta_spec(match delta {
-            PcoDeltaEncoding::Auto => pco::DeltaSpec::Auto,
-            PcoDeltaEncoding::None => pco::DeltaSpec::None,
-            PcoDeltaEncoding::TryLookback => pco::DeltaSpec::TryLookback,
+            PcoDeltaSpec::Auto => pco::DeltaSpec::Auto,
+            PcoDeltaSpec::None => pco::DeltaSpec::None,
+            PcoDeltaSpec::TryConsecutive {
+                delta_encoding_order,
+            } => pco::DeltaSpec::TryConsecutive(delta_encoding_order as usize),
+            PcoDeltaSpec::TryLookback => pco::DeltaSpec::TryLookback,
         })
-        .with_paging_spec(pco::PagingSpec::EqualPagesUpTo(equal_pages_up_to.get()));
+        .with_paging_spec(match paging {
+            PcoPagingSpec::EqualPagesUpTo { equal_pages_up_to } => {
+                pco::PagingSpec::EqualPagesUpTo(equal_pages_up_to.get())
+            }
+        });
 
     let encoded = pco::standalone::simple_compress(data, &config).map_err(|err| {
         PcodecError::PcoEncodeFailed {
