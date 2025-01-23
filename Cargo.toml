@@ -12,6 +12,7 @@ members = [
     "codecs/identity",
     "codecs/linear-quantize",
     "codecs/log",
+    "codecs/pco",
     "codecs/random-projection",
     "codecs/reinterpret",
     "codecs/round",
@@ -44,18 +45,19 @@ numcodecs-fourier-network = { version = "0.1", path = "codecs/fourier-network", 
 numcodecs-identity = { version = "0.2", path = "codecs/identity", default-features = false }
 numcodecs-linear-quantize = { version = "0.3", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.3", path = "codecs/log", default-features = false }
+numcodecs-pco = { version = "0.1", path = "codecs/pco", default-features = false }
 numcodecs-random-projection = { version = "0.2", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.2", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.2", path = "codecs/round", default-features = false }
 numcodecs-swizzle-reshape = { version = "0.2", path = "codecs/swizzle-reshape", default-features = false }
-numcodecs-sz3 = { version = "0.2", path = "codecs/sz3", default-features = false }
+numcodecs-sz3 = { version = "0.3", path = "codecs/sz3", default-features = false }
 numcodecs-uniform-noise = { version = "0.2", path = "codecs/uniform-noise", default-features = false }
 numcodecs-zfp = { version = "0.2", path = "codecs/zfp", default-features = false }
 numcodecs-zlib = { version = "0.2", path = "codecs/zlib", default-features = false }
 numcodecs-zstd = { version = "0.2", path = "codecs/zstd", default-features = false }
 
 # crates.io third-party dependencies
-burn = { version = "0.16", default-features = false }
+burn = { version = "0.15", default-features = false }
 convert_case = { version = "0.7", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
 itertools = { version = "0.14", default-features = false }
@@ -66,6 +68,7 @@ ndarray = { version = "0.16", default-features = false } # keep in sync with num
 ndarray-rand = { version = "0.15", default-features = false }
 numpy = { version = "0.23", default-features = false }
 num-traits = { version = "0.2.19", default-features = false }
+pco = { version = "0.4", default-features = false }
 postcard = { version = "1.0.8", default-features = false }
 pyo3 = { version = "0.23.3", default-features = false }
 pyo3-error = { version = "0.3", default-features = false }

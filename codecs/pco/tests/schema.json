@@ -1,0 +1,215 @@
+{
+  "type": "object",
+  "required": [
+    "level"
+  ],
+  "properties": {
+    "level": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "description": "Compression level, ranging from 0 (weak) over 8 (very good) to 12\n (expensive)"
+    }
+  },
+  "unevaluatedProperties": false,
+  "description": "Codec providing compression using pco",
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "auto"
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "description": "Automatically detects a good mode.\n\n This works well most of the time, but costs some compression time and\n can select a bad mode in adversarial cases."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "classic"
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "description": "Only uses the classic mode"
+        },
+        {
+          "type": "object",
+          "description": "Tries using the `FloatMult` mode with a given base.\n\n Only applies to floating-point types.",
+          "properties": {
+            "float_mult_base": {
+              "type": "number",
+              "format": "double",
+              "description": "the base for the `FloatMult` mode"
+            },
+            "mode": {
+              "type": "string",
+              "const": "try-float-mult"
+            }
+          },
+          "required": [
+            "mode",
+            "float_mult_base"
+          ]
+        },
+        {
+          "type": "object",
+          "description": "Tries using the `FloatQuant` mode with the given number of bits of\n quantization.\n\n Only applies to floating-point types.",
+          "properties": {
+            "float_quant_bits": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0,
+              "description": "the number of bits to which floating-point values are quantized"
+            },
+            "mode": {
+              "type": "string",
+              "const": "try-float-quant"
+            }
+          },
+          "required": [
+            "mode",
+            "float_quant_bits"
+          ]
+        },
+        {
+          "type": "object",
+          "description": "Tries using the `IntMult` mode with a given base.\n\n Only applies to integer types.",
+          "properties": {
+            "int_mult_base": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0,
+              "description": "the base for the `IntMult` mode"
+            },
+            "mode": {
+              "type": "string",
+              "const": "try-int-mult"
+            }
+          },
+          "required": [
+            "mode",
+            "int_mult_base"
+          ]
+        }
+      ]
+    },
+    {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "delta": {
+              "type": "string",
+              "const": "auto"
+            }
+          },
+          "required": [
+            "delta"
+          ],
+          "description": "Automatically detects a detects a good delta encoding.\n\n This works well most of the time, but costs some compression time and\n can select a bad delta encoding in adversarial cases."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "delta": {
+              "type": "string",
+              "const": "none"
+            }
+          },
+          "required": [
+            "delta"
+          ],
+          "description": "Never uses delta encoding.\n\n This is best if your data is in a random order or adjacent numbers have\n no relation to each other."
+        },
+        {
+          "type": "object",
+          "description": "Tries taking nth order consecutive deltas.\n\n Supports a delta encoding order up to 7. For instance, 1st order is\n just regular delta encoding, 2nd is deltas-of-deltas, etc. It is legal\n to use 0th order, but it is identical to None.",
+          "properties": {
+            "delta_encoding_order": {
+              "type": "integer",
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "description": "the order of the delta encoding"
+            },
+            "delta": {
+              "type": "string",
+              "const": "try-consecutive"
+            }
+          },
+          "required": [
+            "delta",
+            "delta_encoding_order"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "delta": {
+              "type": "string",
+              "const": "try-lookback"
+            }
+          },
+          "required": [
+            "delta"
+          ],
+          "description": "Tries delta encoding according to an extra latent variable of\n \"lookback\".\n\n This can improve compression ratio when there are nontrivial patterns\n in the array, but reduces compression speed substantially."
+        }
+      ]
+    }
+  ],
+  "oneOf": [
+    {
+      "type": "object",
+      "description": "Divide the chunk into equal pages of up to this many numbers.\n\n For example, with equal pages up to 100,000, a chunk of 150,000 numbers\n would be divided into 2 pages, each of 75,000 numbers.",
+      "properties": {
+        "equal_pages_up_to": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 1,
+          "description": "maximum amount of numbers in a page",
+          "default": 262144
+        },
+        "paging": {
+          "type": "string",
+          "const": "equal-pages-up-to"
+        }
+      },
+      "required": [
+        "paging"
+      ]
+    }
+  ],
+  "title": "Pcodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
