@@ -1,5 +1,10 @@
-**/.ruff_cache
 /.venv
+/.mypy_cache
+/.ruff_cache
+/uv.lock
+
 /build
-**/*.egg-info
+/site
+
 **/__pycache__
+**/*.egg-info

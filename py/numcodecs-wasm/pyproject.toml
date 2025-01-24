@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "numcodecs_wasm"
-version = "0.2.0"
+version = "0.2.0.dev0"
 description = "numcodecs compression for codecs compiled to WebAssembly"
 
 authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
@@ -16,10 +16,10 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 
 dependencies = [
-    "numcodecs==0.13",
+    "numcodecs~=0.13.1",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.8",
+    "ruff~=0.9.0",
 ]
