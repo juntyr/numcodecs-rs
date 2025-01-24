@@ -3,9 +3,9 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "numcodecs_wasm_%package_suffix%"
-version = "%crate-version%"
-description = "numcodecs-%crate-suffix% compression codec compiled to WebAssembly"
+name = "numcodecs_wasm_materialise"
+version = "0.1.0"
+description = "utility to materialise instances of the `numcodecs-wasm-template` package"
 
 authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
 maintainers = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
@@ -15,9 +15,7 @@ license = { file = "LICENSE" }
 
 requires-python = ">=3.10"
 
-dependencies = [
-    "numcodecs-wasm==0.2.0.dev0",
-]
+dependencies = []
 
 [dependency-groups]
 dev = [
