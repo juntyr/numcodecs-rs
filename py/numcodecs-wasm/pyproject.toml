@@ -16,6 +16,7 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 
 dependencies = [
+    "field-compression-benchmark==0.0.15",
     "numcodecs~=0.13.1",
 ]
 
