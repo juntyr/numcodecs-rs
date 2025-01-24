@@ -15,7 +15,9 @@ license = { file = "LICENSE" }
 
 requires-python = ">=3.10"
 
-dependencies = []
+dependencies = [
+    "toml~=0.10.0",
+]
 
 [dependency-groups]
 dev = [
