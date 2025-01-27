@@ -6,19 +6,20 @@
 [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
 [repo]: https://github.com/juntyr/numcodecs-rs
 
-[Latest Version]: https://img.shields.io/crates/v/numcodecs-pco
-[crates.io]: https://crates.io/crates/numcodecs-pco
+[Latest Version]: https://img.shields.io/crates/v/numcodecs-wasm-logging
+[crates.io]: https://crates.io/crates/numcodecs-wasm-logging
 
-[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-pco
-[docs.rs]: https://docs.rs/numcodecs-pco/
+[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-wasm-logging
+[docs.rs]: https://docs.rs/numcodecs-wasm-logging/
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_pco
+[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_wasm_logging
 
-# numcodecs-pco
+# numcodecs-wasm-logging
 
-Pcodec implementation for the [`numcodecs`] API.
+Enable logging for wasm32-compiled [`StaticCodec`]s for the [`numcodecs`] API.
 
+[`StaticCodec`]: https://docs.rs/numcodecs/latest/numcodecs/trait.StaticCodec.html
 [`numcodecs`]: https://docs.rs/numcodecs/0.2/numcodecs/
 
 ## License
@@ -27,6 +28,6 @@ Licensed under the Mozilla Public License, Version 2.0 ([LICENSE](LICENSE) or ht
 
 ## Funding
 
-The `numcodecs-pco` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
+The `numcodecs-wasm-logging` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
 
 Funded by the European Union. This work has received funding from the European High Performance Computing Joint Undertaking (JU) under grant agreement No 101093054.

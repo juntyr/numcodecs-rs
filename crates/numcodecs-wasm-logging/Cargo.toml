@@ -1,0 +1,21 @@
+[package]
+name = "numcodecs-wasm-logging"
+version = "0.1.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "Enable logging for wasm32-compiled codecs for the numcodecs API"
+readme = "README.md"
+categories = ["wasm", "api-bindings", "compression", "encoding", "development-tools::debugging"]
+keywords = ["numcodecs", "compression", "encoding", "wasm-component", "logging"]
+
+[dependencies]
+log = { workspace = true }
+numcodecs = { workspace = true }
+wasi-logger = { workspace = true }
+
+[lints]
+workspace = true

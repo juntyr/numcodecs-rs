@@ -1,3 +1,5 @@
+#![allow(missing_docs)] // FIXME
+
 use std::{
     collections::HashMap,
     fs, io,
@@ -5,21 +7,36 @@ use std::{
     process::Command,
 };
 
+use clap::Parser;
+use semver::Version;
+
+// ensure the crate is rebuilt if any of these files change
+const _: &'static str = include_str!("../flake.lock");
+const _: &'static str = include_str!("../flake.nix");
+const _: &'static str = include_str!("../include.hpp");
+
+#[derive(Parser, Debug)]
+#[command()]
+struct Args {
+    /// Name of the numcodecs codec crate to compile
+    #[arg(name = "crate", long)]
+    crate_: String,
+
+    /// Version of the numcodecs codec crate to compile
+    #[arg(long)]
+    version: Version,
+
+    /// Path to the codec type to export, without the leading crate name
+    #[arg(long)]
+    codec: String,
+
+    /// Path to which the wasm file is output
+    #[arg(long, short)]
+    out: PathBuf,
+}
+
 fn main() -> io::Result<()> {
-    return Ok(());
-
-    // Check for `clippy` and return early in this case
-    //  since `clippy` pollutes the `RUSTFLAGS` between rebuilds
-    if std::env::var_os("RUSTC_WRAPPER")
-        .or_else(|| std::env::var_os("RUSTC_WORKSPACE_WRAPPER"))
-        .map_or(false, |wrapper| {
-            Path::new(&wrapper).ends_with("clippy-driver")
-        })
-    {
-        return Ok(());
-    }
-
-    std::env::remove_var("CARGO_ENCODED_RUSTFLAGS");
+    let args = Args::parse();
 
     let scratch_dir = scratch::path(concat!(
         env!("CARGO_PKG_NAME"),
@@ -27,19 +44,9 @@ fn main() -> io::Result<()> {
         env!("CARGO_PKG_VERSION"),
     ));
     let target_dir = scratch_dir.join("target");
+    let crate_dir = scratch_dir.join(format!("{}-wasm-{}", args.crate_, args.version));
     let flake_path = get_nix_flake_path()?;
     let cpp_include_path = write_or_get_cpp_include_path(&scratch_dir)?;
-
-    println!("cargo::rerun-if-changed=build.rs");
-    println!(
-        "cargo::rerun-if-changed={}",
-        flake_path.join("flake.nix").display()
-    );
-    println!(
-        "cargo::rerun-if-changed={}",
-        flake_path.join("flake.lock").display()
-    );
-    println!("cargo::rerun-if-changed={}", cpp_include_path.display());
 
     let nix_env = NixEnv::new(&flake_path)?;
 
@@ -51,40 +58,48 @@ fn main() -> io::Result<()> {
     eprintln!("creating {target_dir:?}");
     fs::create_dir_all(&target_dir)?;
 
-    for (crate_name, codec_name) in [
-        ("asinh-codec", "asinh"),
-        ("bit-round-codec", "bit-round"),
-        ("fixed-offset-scale-codec", "fixed-offset-scale"),
-        ("fourier-network-codec", "fourier-network"),
-        ("identity-codec", "identity"),
-        ("linear-quantize-codec", "linear-quantize"),
-        ("log-codec", "log"),
-        ("random-projection-codec", "random-projection"),
-        ("reinterpret-codec", "reinterpret"),
-        ("round-codec", "round"),
-        ("swizzle-reshape-codec", "swizzle-reshape"),
-        ("sz3-codec", "sz3"),
-        ("uniform-noise-codec", "uniform-noise"),
-        ("zfp-codec", "zfp"),
-        ("zlib-codec", "zlib"),
-        ("zstd-codec", "zstd"),
-    ] {
-        // FIXME: https://github.com/rust-lang/rust/issues/109711
-        if cfg!(target_os = "macos") && codec_name == "zfp" {
-            continue;
-        }
-        let wasm = build_wasm_codec(
-            &flake_path,
-            &nix_env,
-            &cpp_include_path,
-            &target_dir,
-            crate_name,
-        )?;
-        add_change_dependencies(&wasm)?;
-        let wasm = optimize_wasm_codec(&wasm, &nix_env)?;
-        let wasm = adapt_wasi_snapshot_to_preview2(&wasm)?;
-        copy_wasm_codec(&wasm, codec_name)?;
+    eprintln!("creating {crate_dir:?}");
+    if crate_dir.exists() {
+        fs::remove_dir_all(&crate_dir)?;
     }
+    fs::create_dir_all(&crate_dir)?;
+
+    fs::write(crate_dir.join("Cargo.toml"), format!(r#"
+[package]
+name = "{crate_}-wasm"
+version = "{version}"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+numcodecs-wasm-logging = {{ version = "0.1", default-features = false }}
+numcodecs-wasm-guest = {{ version = "0.2", default-features = false }}
+numcodecs-my-codec = {{ package = "{crate_}", version = {version}, default-features = false }}
+    "#, crate_ = args.crate_, version = args.version))?;
+
+    fs::create_dir_all(crate_dir.join("src"))?;
+
+    fs::write(crate_dir.join("src").join("lib.rs"), format!(r#"
+#![cfg_attr(not(test), no_main)]
+
+numcodecs_wasm_guest::export_codec!(
+    codecs_wasm_logging::LoggingCodec<numcodecs_my_codec::{codec}>
+);
+    "#, codec = args.codec))?;
+
+    let wasm = build_wasm_codec(
+        &flake_path,
+        &nix_env,
+        &cpp_include_path,
+        &target_dir,
+        &crate_dir,
+        &format!("{}-wasm", args.crate_),
+    )?;
+    let wasm = optimize_wasm_codec(&wasm, &nix_env)?;
+    let wasm = adapt_wasi_snapshot_to_preview2(&wasm)?;
+
+    fs::copy(wasm, args.out)?;
 
     Ok(())
 }
@@ -175,6 +190,7 @@ fn configure_cargo_cmd(
     } = nix_env;
 
     let mut cmd = Command::new("nix");
+    cmd.env_remove("CARGO_ENCODED_RUSTFLAGS");
     cmd.arg("develop");
     // cmd.arg("--store");
     // cmd.arg(nix_store_path);
@@ -282,6 +298,7 @@ fn build_wasm_codec(
     nix_env: &NixEnv,
     cpp_include_path: &Path,
     target_dir: &Path,
+    crate_dir: &Path,
     crate_name: &str,
 ) -> io::Result<PathBuf> {
     let mut cmd = configure_cargo_cmd(flake_path, nix_env, cpp_include_path, target_dir);
@@ -293,8 +310,7 @@ fn build_wasm_codec(
         .arg("build-std-features=panic_immediate_abort")
         .arg("--release")
         .arg("--target=wasm32-wasip1")
-        .arg("--package")
-        .arg(crate_name);
+        .current_dir(crate_dir);
 
     eprintln!("executing {cmd:?}");
 
@@ -311,26 +327,6 @@ fn build_wasm_codec(
         .join("release")
         .join(crate_name.replace('-', "_"))
         .with_extension("wasm"))
-}
-
-fn add_change_dependencies(wasm: &Path) -> io::Result<()> {
-    let dep_file = wasm.with_extension("d");
-
-    eprintln!("reading {dep_file:?}");
-    let deps = fs::read_to_string(dep_file)?;
-
-    let Some((_, deps)) = deps.split_once(':') else {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidData,
-            "invalid deps file format",
-        ));
-    };
-
-    for dep in deps.split_whitespace() {
-        println!("cargo::rerun-if-changed={dep}");
-    }
-
-    Ok(())
 }
 
 fn optimize_wasm_codec(wasm: &Path, nix_env: &NixEnv) -> io::Result<PathBuf> {
@@ -411,18 +407,4 @@ fn adapt_wasi_snapshot_to_preview2(wasm: &Path) -> io::Result<PathBuf> {
     fs::write(&wasm_preview2, wasm)?;
 
     Ok(wasm_preview2)
-}
-
-fn copy_wasm_codec(wasm: &Path, codec_name: &str) -> io::Result<()> {
-    eprintln!("finding the wasm codec dir");
-    let wasm_codec_dir = PathBuf::from("..")
-        .join("..")
-        .join("data")
-        .join("codecs")
-        .canonicalize()?;
-
-    eprintln!("copying {wasm:?} into {wasm_codec_dir:?}");
-    fs::copy(wasm, wasm_codec_dir.join(codec_name).with_extension("wasm"))?;
-
-    Ok(())
 }

@@ -1,0 +1,35 @@
+[package]
+name = "numcodecs-wasm-builder"
+version = "0.1.0+wasi0.2.3"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "Compile numcodecs API compressors into wasm components"
+readme = "README.md"
+categories = ["wasm", "api-bindings", "compression", "encoding", "compilers"]
+keywords = ["numcodecs", "compression", "encoding", "wasm-component", "wasm-bindgen"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { workspace = true, features = [
+    "derive",
+    "std",
+    "color",
+    "help",
+    "usage",
+    "error-context",
+    "suggestions",
+    "wrap_help",
+] }
+scratch = { workspace = true }
+semver = { workspace = true, features = ["std"] }
+# REMEMBER: keep +wasi version in sync
+wasi-preview1-component-adapter-provider = { workspace = true }
+wit-component = { workspace = true }
+
+[lints]
+workspace = true
