@@ -1,3 +1,5 @@
+__all__ = ["%CodecName%"]
+
 import importlib.resources
 import sys
 

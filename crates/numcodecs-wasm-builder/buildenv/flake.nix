@@ -25,9 +25,9 @@
             version = "22.0";
             src = pkgs.fetchurl {
               url =
-                "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sysroot-25.0.tar.gz";
+                "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-22/wasi-sysroot-22.0.tar.gz";
               sha256 =
-                "d09c62c18efcddffe4b2fdd8c5830109cc8e36130cdbc9acdc0bd1b204c942bb";
+                "23881870d5a9c94df0529bc3e9b13682b7bbb07e5167555132fdc14e1faf1bb8";
             };
 
             phases = "installPhase";
