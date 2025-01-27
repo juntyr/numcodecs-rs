@@ -25,9 +25,9 @@
             version = "22.0";
             src = pkgs.fetchurl {
               url =
-                "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-22/wasi-sysroot-22.0.tar.gz";
+                "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sysroot-25.0.tar.gz";
               sha256 =
-                "23881870d5a9c94df0529bc3e9b13682b7bbb07e5167555132fdc14e1faf1bb8";
+                "d09c62c18efcddffe4b2fdd8c5830109cc8e36130cdbc9acdc0bd1b204c942bb";
             };
 
             phases = "installPhase";
@@ -40,18 +40,18 @@
         in {
           default = pkgs.mkShellNoCC {
             packages = with pkgs; [
-              (rust-bin.fromRustupToolchainFile ../../rust-toolchain)
-              llvmPackages_18.libclang
+              (rust-bin.fromRustupToolchainFile ./rust-toolchain)
+              llvmPackages_19.libclang
               wasi-sysroot
               cmake
               binaryen
             ];
             env = {
-              MY_AR = "${pkgs.llvmPackages_18.bintools}/bin/ar";
-              MY_CLANG = "${pkgs.llvmPackages_18.clang.cc}/bin";
-              MY_LIBCLANG = "${pkgs.llvmPackages_18.libclang.lib}/lib";
-              MY_LLD = "${pkgs.llvmPackages_18.lld}/bin";
-              MY_NM = "${pkgs.llvmPackages_18.bintools}/bin/nm";
+              MY_AR = "${pkgs.llvmPackages_19.bintools}/bin/ar";
+              MY_CLANG = "${pkgs.llvmPackages_19.clang.cc}/bin";
+              MY_LIBCLANG = "${pkgs.llvmPackages_19.libclang.lib}/lib";
+              MY_LLD = "${pkgs.llvmPackages_19.lld}/bin";
+              MY_NM = "${pkgs.llvmPackages_19.bintools}/bin/nm";
               MY_WASI_SYSROOT = "${wasi-sysroot}";
               MY_WASM_OPT = "${pkgs.binaryen}/bin/wasm-opt";
             };

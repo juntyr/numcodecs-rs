@@ -10,11 +10,6 @@ use std::{
 use clap::Parser;
 use semver::Version;
 
-// ensure the crate is rebuilt if any of these files change
-const _: &'static str = include_str!("../flake.lock");
-const _: &'static str = include_str!("../flake.nix");
-const _: &'static str = include_str!("../include.hpp");
-
 #[derive(Parser, Debug)]
 #[command()]
 struct Args {
@@ -43,55 +38,21 @@ fn main() -> io::Result<()> {
         "-",
         env!("CARGO_PKG_VERSION"),
     ));
-    let target_dir = scratch_dir.join("target");
-    let crate_dir = scratch_dir.join(format!("{}-wasm-{}", args.crate_, args.version));
-    let flake_path = get_nix_flake_path()?;
-    let cpp_include_path = write_or_get_cpp_include_path(&scratch_dir)?;
-
-    let nix_env = NixEnv::new(&flake_path)?;
-
     eprintln!("scratch_dir={scratch_dir:?}");
-    eprintln!("target_dir={target_dir:?}");
-    eprintln!("flake_path={flake_path:?}");
-    eprintln!("cpp_include_path={cpp_include_path:?}");
 
+    let target_dir = scratch_dir.join("target");
+    eprintln!("target_dir={target_dir:?}");
     eprintln!("creating {target_dir:?}");
     fs::create_dir_all(&target_dir)?;
 
-    eprintln!("creating {crate_dir:?}");
-    if crate_dir.exists() {
-        fs::remove_dir_all(&crate_dir)?;
-    }
-    fs::create_dir_all(&crate_dir)?;
+    let crate_dir =
+        create_codec_wasm_component_crate(&scratch_dir, &args.crate_, &args.version, &args.codec)?;
+    copy_buildenv_to_crate(&crate_dir)?;
 
-    fs::write(crate_dir.join("Cargo.toml"), format!(r#"
-[package]
-name = "{crate_}-wasm"
-version = "{version}"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-numcodecs-wasm-logging = {{ version = "0.1", default-features = false }}
-numcodecs-wasm-guest = {{ version = "0.2", default-features = false }}
-numcodecs-my-codec = {{ package = "{crate_}", version = {version}, default-features = false }}
-    "#, crate_ = args.crate_, version = args.version))?;
-
-    fs::create_dir_all(crate_dir.join("src"))?;
-
-    fs::write(crate_dir.join("src").join("lib.rs"), format!(r#"
-#![cfg_attr(not(test), no_main)]
-
-numcodecs_wasm_guest::export_codec!(
-    codecs_wasm_logging::LoggingCodec<numcodecs_my_codec::{codec}>
-);
-    "#, codec = args.codec))?;
+    let nix_env = NixEnv::new(&crate_dir)?;
 
     let wasm = build_wasm_codec(
-        &flake_path,
         &nix_env,
-        &cpp_include_path,
         &target_dir,
         &crate_dir,
         &format!("{}-wasm", args.crate_),
@@ -104,12 +65,80 @@ numcodecs_wasm_guest::export_codec!(
     Ok(())
 }
 
-fn write_or_get_cpp_include_path(_scratch_dir: &Path) -> io::Result<PathBuf> {
-    Path::new("include.hpp").canonicalize()
+fn create_codec_wasm_component_crate(
+    scratch_dir: &Path,
+    crate_: &str,
+    version: &Version,
+    codec: &str,
+) -> io::Result<PathBuf> {
+    let crate_dir = scratch_dir.join(format!("{crate_}-wasm-{version}"));
+    eprintln!("crate_dir={crate_dir:?}");
+    eprintln!("creating {crate_dir:?}");
+    if crate_dir.exists() {
+        fs::remove_dir_all(&crate_dir)?;
+    }
+    fs::create_dir_all(&crate_dir)?;
+
+    fs::write(
+        crate_dir.join("Cargo.toml"),
+        format!(
+            r#"
+[workspace]
+
+[package]
+name = "{crate_}-wasm"
+version = "{version}"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+numcodecs-wasm-logging = {{ version = "0.1", default-features = false }}
+numcodecs-wasm-guest = {{ version = "0.2", default-features = false }}
+numcodecs-my-codec = {{ package = "{crate_}", version = "{version}", default-features = false }}
+    "#
+        ),
+    )?;
+
+    fs::create_dir_all(crate_dir.join("src"))?;
+
+    fs::write(
+        crate_dir.join("src").join("lib.rs"),
+        format!(
+            r#"
+#![cfg_attr(not(test), no_main)]
+
+numcodecs_wasm_guest::export_codec!(
+    numcodecs_wasm_logging::LoggingCodec<numcodecs_my_codec::{codec}>
+);
+    "#
+        ),
+    )?;
+
+    Ok(crate_dir)
 }
 
-fn get_nix_flake_path() -> io::Result<PathBuf> {
-    Path::new(".").canonicalize()
+fn copy_buildenv_to_crate(crate_dir: &Path) -> io::Result<()> {
+    fs::write(
+        crate_dir.join("flake.nix"),
+        include_str!("../buildenv/flake.nix"),
+    )?;
+    fs::write(
+        crate_dir.join("flake.lock"),
+        include_str!("../buildenv/flake.lock"),
+    )?;
+
+    fs::write(
+        crate_dir.join("include.hpp"),
+        include_str!("../buildenv/include.hpp"),
+    )?;
+
+    fs::write(
+        crate_dir.join("rust-toolchain"),
+        include_str!("../buildenv/rust-toolchain"),
+    )?;
+
+    Ok(())
 }
 
 struct NixEnv {
@@ -123,7 +152,7 @@ struct NixEnv {
 }
 
 impl NixEnv {
-    pub fn new(flake_path: &Path) -> io::Result<Self> {
+    pub fn new(flake_parent_dir: &Path) -> io::Result<Self> {
         fn try_read_env(env: &HashMap<&str, &str>, key: &str) -> Result<PathBuf, io::Error> {
             env.get(key).copied().map(PathBuf::from).ok_or_else(|| {
                 io::Error::new(
@@ -134,12 +163,13 @@ impl NixEnv {
         }
 
         let mut env = Command::new("nix");
+        env.current_dir(flake_parent_dir);
         env.arg("develop");
         // env.arg("--store");
         // env.arg(nix_store_path);
+        env.arg("path:.");
         env.arg("--no-update-lock-file");
         env.arg("--ignore-environment");
-        env.arg(flake_path);
         env.arg("--command");
         env.arg("env");
         eprintln!("executing {env:?}");
@@ -173,12 +203,7 @@ impl NixEnv {
 }
 
 #[expect(clippy::too_many_lines)]
-fn configure_cargo_cmd(
-    flake_path: &Path,
-    nix_env: &NixEnv,
-    cpp_include_path: &Path,
-    target_dir: &Path,
-) -> Command {
+fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) -> Command {
     let NixEnv {
         ar,
         clang,
@@ -190,13 +215,13 @@ fn configure_cargo_cmd(
     } = nix_env;
 
     let mut cmd = Command::new("nix");
-    cmd.env_remove("CARGO_ENCODED_RUSTFLAGS");
+    cmd.current_dir(crate_dir);
     cmd.arg("develop");
     // cmd.arg("--store");
     // cmd.arg(nix_store_path);
     cmd.arg("--no-update-lock-file");
     cmd.arg("--ignore-environment");
-    cmd.arg(flake_path);
+    cmd.arg("path:.");
     cmd.arg("--command");
     cmd.arg("env");
     cmd.arg(format!("CC={clang}", clang = clang.join("clang").display()));
@@ -245,7 +270,7 @@ fn configure_cargo_cmd(
         wasi32_wasi_include = wasi_sysroot.join("include").join("wasm32-wasip1").display(),
         include = wasi_sysroot.join("include").display(),
         lld = lld.display(),
-        cpp_include_path = cpp_include_path.display(),
+        cpp_include_path = crate_dir.join("include.hpp").display(),
     ));
     cmd.arg(format!(
         "BINDGEN_EXTRA_CLANG_ARGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir \
@@ -294,14 +319,12 @@ fn configure_cargo_cmd(
 }
 
 fn build_wasm_codec(
-    flake_path: &Path,
     nix_env: &NixEnv,
-    cpp_include_path: &Path,
     target_dir: &Path,
     crate_dir: &Path,
     crate_name: &str,
 ) -> io::Result<PathBuf> {
-    let mut cmd = configure_cargo_cmd(flake_path, nix_env, cpp_include_path, target_dir);
+    let mut cmd = configure_cargo_cmd(nix_env, target_dir, crate_dir);
     cmd.arg("rustc")
         .arg("--crate-type=cdylib")
         .arg("-Z")
@@ -309,8 +332,7 @@ fn build_wasm_codec(
         .arg("-Z")
         .arg("build-std-features=panic_immediate_abort")
         .arg("--release")
-        .arg("--target=wasm32-wasip1")
-        .current_dir(crate_dir);
+        .arg("--target=wasm32-wasip1");
 
     eprintln!("executing {cmd:?}");
 
