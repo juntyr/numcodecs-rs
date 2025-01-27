@@ -105,13 +105,13 @@ numcodecs-my-codec = {{ package = "{crate_}", version = "{version}", default-fea
     fs::write(
         crate_dir.join("src").join("lib.rs"),
         format!(
-            r#"
+            "
 #![cfg_attr(not(test), no_main)]
 
 numcodecs_wasm_guest::export_codec!(
     numcodecs_wasm_logging::LoggingCodec<numcodecs_my_codec::{codec}>
 );
-    "#
+    "
         ),
     )?;
 
