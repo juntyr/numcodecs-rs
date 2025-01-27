@@ -1,13 +1,11 @@
 import importlib.resources
+import sys
 
 from numcodecs_wasm import WasmCodecMeta
 
 
-class %CodecName%(
-    metaclass=WasmCodecMeta,
-    wasm=importlib.resources.files("fcbench")
-    .joinpath("data")
-    .joinpath("codecs")
-    .joinpath("%wasm-file%.wasm"),
-):
-    pass
+with importlib.resources.as_file(
+    importlib.resources.files(sys.modules[__name__]).joinpath("codec.wasm")
+) as wasm:
+    class %CodecName%(metaclass=WasmCodecMeta, wasm=wasm):
+        pass

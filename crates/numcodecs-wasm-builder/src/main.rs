@@ -27,7 +27,7 @@ struct Args {
 
     /// Path to which the wasm file is output
     #[arg(long, short)]
-    out: PathBuf,
+    output: PathBuf,
 }
 
 fn main() -> io::Result<()> {
@@ -60,7 +60,7 @@ fn main() -> io::Result<()> {
     let wasm = optimize_wasm_codec(&wasm, &nix_env)?;
     let wasm = adapt_wasi_snapshot_to_preview2(&wasm)?;
 
-    fs::copy(wasm, args.out)?;
+    fs::copy(wasm, args.output)?;
 
     Ok(())
 }

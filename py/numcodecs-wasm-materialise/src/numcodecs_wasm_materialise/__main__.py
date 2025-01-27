@@ -1,4 +1,6 @@
 import re
+import shlex
+import subprocess
 from pathlib import Path
 
 import toml
@@ -16,6 +18,7 @@ staging_path = (
     / "staging"
     / f"numcodecs-wasm-{CODEC}"
 )
+dist_path = repo_path / "py" / "numcodecs-wasm-materialis" / "dist"
 
 codec_crate_path = repo_path / "codecs" / CODEC
 
@@ -24,6 +27,7 @@ templates = {
     "package_suffix": CODEC.replace("-", "_"),
     "crate-suffix": CODEC,
     "crate-version": toml.load(codec_crate_path / "Cargo.toml")["package"]["version"],
+    "codec-path": "".join(c.title() for c in CODEC.split("-")) + "Codec",
     "CodecName": "".join(c.title() for c in CODEC.split("-")),
     "wasm-file": CODEC,
 }
@@ -54,3 +58,17 @@ for p in template_path.glob("**/*"):
 
     with np.open("w") as f:
         f.write(c)
+
+subprocess.run(
+    shlex.split(
+        "cargo run -p numcodecs-wasm-builder --"
+        f" --crate numcodecs-{templates['crate-suffix']}"
+        f" --version {templates['crate-version']}"
+        f" --codec {templates['codec-path']}"
+        f" --output {staging_path / 'src' / ('numcodecs_wasm_' + templates['package_suffix']) / 'codec.wasm'}"
+    )
+)
+
+subprocess.run(
+    shlex.split(f"uv build --directory {staging_path} --out-dir {dist_path}")
+)
