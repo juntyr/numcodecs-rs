@@ -90,7 +90,7 @@ sz3 = { version = "0.3", default-features = false }
 thiserror = { version = "2.0", default-features = false }
 twofloat = { version = "0.8", default-features = false }
 wasi-logger = { version = "0.1", default-features = false }
-wasi-preview1-component-adapter-provider = { version = "29.0", default-features = false }
+wasi-preview1-component-adapter-provider = { version = "28.0", default-features = false }
 wit-bindgen = { version = "0.38", default-features = false }
 wit-component = { version = "0.224", default-features = false }
 wyhash = { version = "0.5", default-features = false }
