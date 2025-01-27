@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "numcodecs_wasm"
-version = "0.1.0.dev0+wasi0.2.3"
+version = "0.1.0.dev0"  # wasi 0.2.3
 description = "numcodecs compression for codecs compiled to WebAssembly"
 
 authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
