@@ -66,9 +66,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wasm-codecs
+          path: dist
 
       - name: List the built dist files
-        run: ls -lh .
+        run: ls -lh dist/
 
       - name: Publish the package
         uses: pypa/gh-action-pypi-publish@release/v1
