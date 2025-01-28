@@ -3,9 +3,9 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "numcodecs_wasm_materialise"
+name = "numcodecs_wasm_materialize"
 version = "0.1.0"
-description = "utility to materialise instances of the `numcodecs-wasm-template` package"
+description = "utility to materialize instances of the `numcodecs-wasm-template` package"
 
 authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
 maintainers = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]

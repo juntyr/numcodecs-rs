@@ -10,7 +10,7 @@ template_pattern = re.compile(r"(%[^%]+%)")
 
 repo_path = Path(__file__).parent.parent.parent.parent.parent
 template_path = repo_path / "py" / "numcodecs-wasm-template"
-dist_path = repo_path / "py" / "numcodecs-wasm-materialise" / "dist"
+dist_path = repo_path / "py" / "numcodecs-wasm-materialize" / "dist"
 
 codec_pattern = sys.argv[1]
 
@@ -24,7 +24,7 @@ for c in (repo_path / "codecs").iterdir():
     staging_path = (
         repo_path
         / "py"
-        / "numcodecs-wasm-materialise"
+        / "numcodecs-wasm-materialize"
         / "staging"
         / f"numcodecs-wasm-{codec}"
     )
