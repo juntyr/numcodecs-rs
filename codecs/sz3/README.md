@@ -1,4 +1,4 @@
-[![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+[![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![PyPi Release]][pypi] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 
 [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -8,6 +8,9 @@
 
 [Latest Version]: https://img.shields.io/crates/v/numcodecs-sz3
 [crates.io]: https://crates.io/crates/numcodecs-sz3
+
+[PyPi Release]: https://img.shields.io/pypi/v/numcodecs-wasm-sz3.svg
+[pypi]: https://pypi.python.org/pypi/numcodecs-wasm-sz3
 
 [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-sz3
 [docs.rs]: https://docs.rs/numcodecs-sz3/

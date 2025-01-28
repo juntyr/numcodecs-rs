@@ -1,4 +1,4 @@
-[![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+[![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![PyPi Release]][pypi] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 
 [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -8,6 +8,9 @@
 
 [Latest Version]: https://img.shields.io/crates/v/numcodecs-random-projection
 [crates.io]: https://crates.io/crates/numcodecs-random-projection
+
+[PyPi Release]: https://img.shields.io/pypi/v/numcodecs-wasm-random-projection.svg
+[pypi]: https://pypi.python.org/pypi/numcodecs-wasm-random-projection
 
 [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-random-projection
 [docs.rs]: https://docs.rs/numcodecs-random-projection/
