@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["adapt_wasi_snapshot_to_preview2","build_wasm_codec","configure_cargo_cmd","copy_buildenv_to_crate","create_codec_wasm_component_crate","main","optimize_wasm_codec"],"struct":["Args","NixEnv"]};

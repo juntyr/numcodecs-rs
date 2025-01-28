@@ -1,0 +1,1 @@
+searchState.loadedDescShard("numcodecs_wasm_logging", 0, "CI Status MSRV Latest Version Rust Doc Crate Rust Doc Main\nWrapper for a <code>StaticCodec</code> that automatically installs a …\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")
