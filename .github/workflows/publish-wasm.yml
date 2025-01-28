@@ -40,6 +40,7 @@ jobs:
 
       - name: Test importing the WASM codecs
         run: |
+          mkdir -p py/test
           cd py/test
           uv venv
           uv pip install ../numcodecs-wasm-materialize/dist/*.whl

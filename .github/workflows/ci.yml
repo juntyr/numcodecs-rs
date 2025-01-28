@@ -283,6 +283,7 @@ jobs:
 
       - name: Test importing the ZFP WASM codec
         run: |
+          mkdir -p py/test
           cd py/test
           uv venv
           uv python install ${{ matrix.python }}
