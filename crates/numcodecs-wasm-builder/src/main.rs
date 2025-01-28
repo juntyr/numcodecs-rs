@@ -5,6 +5,7 @@ use std::{
     fs, io,
     path::{Path, PathBuf},
     process::Command,
+    str::FromStr,
 };
 
 use clap::Parser;
@@ -142,6 +143,7 @@ fn copy_buildenv_to_crate(crate_dir: &Path) -> io::Result<()> {
 }
 
 struct NixEnv {
+    llvm_version: String,
     ar: PathBuf,
     clang: PathBuf,
     libclang: PathBuf,
@@ -153,11 +155,21 @@ struct NixEnv {
 
 impl NixEnv {
     pub fn new(flake_parent_dir: &Path) -> io::Result<Self> {
-        fn try_read_env(env: &HashMap<&str, &str>, key: &str) -> Result<PathBuf, io::Error> {
-            env.get(key).copied().map(PathBuf::from).ok_or_else(|| {
-                io::Error::new(
+        fn try_read_env<T: FromStr<Err: std::error::Error>>(
+            env: &HashMap<&str, &str>,
+            key: &str,
+        ) -> Result<T, io::Error> {
+            let Some(var) = env.get(key).copied() else {
+                return Err(io::Error::new(
                     io::ErrorKind::InvalidData,
                     format!("missing flake env key: {key}"),
+                ));
+            };
+
+            T::from_str(var).map_err(|err| {
+                io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("invalid flake env variable {key}={var}: {err}"),
                 )
             })
         }
@@ -191,6 +203,7 @@ impl NixEnv {
             .collect::<HashMap<_, _>>();
 
         Ok(Self {
+            llvm_version: try_read_env(&env, "MY_LLVM_VERSION")?,
             ar: try_read_env(&env, "MY_AR")?,
             clang: try_read_env(&env, "MY_CLANG")?,
             libclang: try_read_env(&env, "MY_LIBCLANG")?,
@@ -205,6 +218,7 @@ impl NixEnv {
 #[expect(clippy::too_many_lines)]
 fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) -> Command {
     let NixEnv {
+        llvm_version,
         ar,
         clang,
         libclang,
@@ -240,10 +254,14 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
     cmd.arg(format!(
         "CFLAGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir {resource_dir} \
          --sysroot={wasi_sysroot} -isystem {clang_include} -isystem {wasi32_wasi_include} \
-         -isystem {include} -B {lld} -D_WASI_EMULATED_PROCESS_CLOCKS -O3 --target=wasm32-wasip1",
-        resource_dir = libclang.join("clang").join("18").display(),
+         -isystem {include} -B {lld} -D_WASI_EMULATED_PROCESS_CLOCKS -O3",
+        resource_dir = libclang.join("clang").join(llvm_version).display(),
         wasi_sysroot = wasi_sysroot.display(),
-        clang_include = libclang.join("clang").join("18").join("include").display(),
+        clang_include = libclang
+            .join("clang")
+            .join(llvm_version)
+            .join("include")
+            .display(),
         wasi32_wasi_include = wasi_sysroot.join("include").join("wasm32-wasip1").display(),
         include = wasi_sysroot.join("include").display(),
         lld = lld.display(),
@@ -252,8 +270,8 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
         "CXXFLAGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir {resource_dir} \
          --sysroot={wasi_sysroot} -isystem {wasm32_wasi_cxx_include} -isystem {cxx_include} \
          -isystem {clang_include} -isystem {wasi32_wasi_include} -isystem {include} -B {lld} \
-         -D_WASI_EMULATED_PROCESS_CLOCKS -include {cpp_include_path} -O3 --target=wasm32-wasip1",
-        resource_dir = libclang.join("clang").join("18").display(),
+         -D_WASI_EMULATED_PROCESS_CLOCKS -include {cpp_include_path} -O3",
+        resource_dir = libclang.join("clang").join(llvm_version).display(),
         wasi_sysroot = wasi_sysroot.display(),
         wasm32_wasi_cxx_include = wasi_sysroot
             .join("include")
@@ -266,7 +284,11 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
             .join("c++")
             .join("v1")
             .display(),
-        clang_include = libclang.join("clang").join("18").join("include").display(),
+        clang_include = libclang
+            .join("clang")
+            .join(llvm_version)
+            .join("include")
+            .display(),
         wasi32_wasi_include = wasi_sysroot.join("include").join("wasm32-wasip1").display(),
         include = wasi_sysroot.join("include").display(),
         lld = lld.display(),
@@ -277,7 +299,7 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
          {resource_dir} --sysroot={wasi_sysroot} -isystem {wasm32_wasi_cxx_include} -isystem \
          {cxx_include} -isystem {clang_include} -isystem {wasi32_wasi_include} -isystem {include} \
          -B {lld} -D_WASI_EMULATED_PROCESS_CLOCKS -fvisibility=default",
-        resource_dir = libclang.join("clang").join("18").display(),
+        resource_dir = libclang.join("clang").join(llvm_version).display(),
         wasi_sysroot = wasi_sysroot.display(),
         wasm32_wasi_cxx_include = wasi_sysroot
             .join("include")
@@ -290,7 +312,11 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
             .join("c++")
             .join("v1")
             .display(),
-        clang_include = libclang.join("clang").join("18").join("include").display(),
+        clang_include = libclang
+            .join("clang")
+            .join(llvm_version)
+            .join("include")
+            .display(),
         wasi32_wasi_include = wasi_sysroot.join("include").join("wasm32-wasip1").display(),
         include = wasi_sysroot.join("include").display(),
         lld = lld.display(),

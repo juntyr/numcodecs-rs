@@ -1,11 +1,10 @@
 import re
 import shlex
 import subprocess
+import sys
 from pathlib import Path
 
 import toml
-
-CODEC = "identity"  # TODO: obtain from argparse
 
 template_pattern = re.compile(r"(%[^%]+%)")
 
@@ -13,31 +12,36 @@ repo_path = Path(__file__).parent.parent.parent.parent.parent
 template_path = repo_path / "py" / "numcodecs-wasm-template"
 dist_path = repo_path / "py" / "numcodecs-wasm-materialise" / "dist"
 
-for c in (repo_path / "codecs").iterdir():
-    CODEC = c.name
+codec_pattern = sys.argv[1]
 
-    codec_crate_path = repo_path / "codecs" / CODEC
+for c in (repo_path / "codecs").iterdir():
+    codec = c.name
+
+    if not codec_pattern or re.match(codec_pattern, codec) is None:
+        continue
+
+    codec_crate_path = repo_path / "codecs" / codec
     staging_path = (
         repo_path
         / "py"
         / "numcodecs-wasm-materialise"
         / "staging"
-        / f"numcodecs-wasm-{CODEC}"
+        / f"numcodecs-wasm-{codec}"
     )
 
     templates = {
-        "package-suffix": CODEC,
-        "package_suffix": CODEC.replace("-", "_"),
-        "crate-suffix": CODEC,
+        "package-suffix": codec,
+        "package_suffix": codec.replace("-", "_"),
+        "crate-suffix": codec,
         "crate-version": toml.load(codec_crate_path / "Cargo.toml")["package"][
             "version"
         ],
-        "codec-path": "".join(c.title() for c in CODEC.split("-")) + "Codec",
-        "CodecName": "".join(c.title() for c in CODEC.split("-")),
-        "wasm-file": CODEC,
+        "codec-path": "".join(c.title() for c in codec.split("-")) + "Codec",
+        "CodecName": "".join(c.title() for c in codec.split("-")),
+        "wasm-file": codec,
     }
 
-    if CODEC == "pco":
+    if codec == "pco":
         templates["codec-path"] = "Pcodec"
         templates["CodecName"] = "Pco"
 
@@ -68,21 +72,18 @@ for c in (repo_path / "codecs").iterdir():
         with np.open("w") as f:
             f.write(c)
 
-    try:
-        subprocess.run(
-            shlex.split(
-                "cargo run -p numcodecs-wasm-builder --"
-                f" --crate numcodecs-{templates['crate-suffix']}"
-                f" --version {templates['crate-version']}"
-                f" --codec {templates['codec-path']}"
-                f" --output {staging_path / 'src' / ('numcodecs_wasm_' + templates['package_suffix']) / 'codec.wasm'}"
-            ),
-            check=True,
-        )
+    subprocess.run(
+        shlex.split(
+            "cargo run -p numcodecs-wasm-builder --"
+            f" --crate numcodecs-{templates['crate-suffix']}"
+            f" --version {templates['crate-version']}"
+            f" --codec {templates['codec-path']}"
+            f" --output {staging_path / 'src' / ('numcodecs_wasm_' + templates['package_suffix']) / 'codec.wasm'}"
+        ),
+        check=True,
+    )
 
-        subprocess.run(
-            shlex.split(f"uv build --directory {staging_path} --out-dir {dist_path}"),
-            check=True,
-        )
-    except Exception as err:
-        print(err)
+    subprocess.run(
+        shlex.split(f"uv build --directory {staging_path} --out-dir {dist_path}"),
+        check=True,
+    )

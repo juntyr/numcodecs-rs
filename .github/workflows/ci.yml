@@ -4,12 +4,12 @@ on:
   push:
     branches:
       - main
-      - '*.*'
+      - "*.*"
   pull_request:
     branches:
-      - '*'
+      - "*"
   schedule:
-    - cron: '0 0 * * MON'
+    - cron: "0 0 * * MON"
 
 env:
   CARGO_TERM_COLOR: always
@@ -204,14 +204,14 @@ jobs:
           cargo hack clippy --all \
             --feature-powerset --keep-going \
             -- -D warnings
-      
+
       - name: Check the code style powerset
         if: ${{ matrix.rust != 'stable' || matrix.lock != 'Cargo.lock' }}
         run: |
           cargo hack clippy --all \
             --feature-powerset --keep-going \
             -- -D warnings -A unknown-lints -A clippy::multiple-crate-versions
-      
+
       - name: Check the code style powerset on wasm32-wasip1
         if: ${{ matrix.rust == 'stable' && matrix.lock == 'Cargo.lock' }}
         run: |
@@ -223,7 +223,7 @@ jobs:
             --feature-powerset --keep-going \
             --target wasm32-wasip1 \
             -- -D warnings
-      
+
       - name: Check the code style powerset on wasm32-wasip1
         if: ${{ matrix.rust != 'stable' || matrix.lock != 'Cargo.lock' }}
         run: |
@@ -235,3 +235,56 @@ jobs:
             --feature-powerset --keep-going \
             --target wasm32-wasip1 \
             -- -D warnings -A unknown-lints -A clippy::multiple-crate-versions
+
+  wasm:
+    name: Test WASM Codec
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        rust: [stable]
+        lock: ["Cargo.lock", "Cargo.lock.min"]
+        python: ["3.10", "3.11", "3.12"]
+    runs-on: ${{ matrix.os }}
+    needs: lock
+
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v2
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v27
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install the Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+
+      - name: Download the Cargo lockfiles
+        uses: actions/download-artifact@v4
+        with:
+          name: Cargo.lock
+
+      - name: Rename ${{ matrix.lock }} to Cargo.lock
+        run: mv ${{ matrix.lock }} Cargo.lock
+        if: ${{ matrix.lock != 'Cargo.lock' }}
+
+      - name: Build the ZFP WASM codec
+        run: |
+          cd py/numcodecs-wasm-materialize
+          rm .python-version
+          uv python install ${{ matrix.python }}
+          uv sync && uv pip install .
+          uv run python3 -m numcodecs_wasm_materialize zfp
+
+      - name: Test the ZFP WASM codec
+        run: |
+          cd test
+          uv venv
+          uv python install ${{ matrix.python }}
+          uv pip install ../numcodecs-wasm-materialize/dist/*.whl
+          uv run python3 -c "from numcodecs_wasm_zfp import Zfp"

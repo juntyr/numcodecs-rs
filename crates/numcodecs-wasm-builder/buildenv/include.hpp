@@ -60,4 +60,9 @@ void operator delete(void* p, std::align_val_t a) noexcept
     std::free(p);
 }
 
+void operator delete(void* p, std::size_t sz) noexcept
+{
+    std::free(p);
+}
+
 #endif // _CODECS_BUILD_CPP_INCLUDE_HPP
