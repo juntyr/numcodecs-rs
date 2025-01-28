@@ -1,7 +1,10 @@
-[![CI Status]][workflow]
+[![CI Status]][workflow] [![PyPi Release]][pypi]
 
 [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
+
+[PyPi Release]: https://img.shields.io/pypi/v/numcodecs-wasm.svg
+[pypi]: https://pypi.python.org/pypi/numcodecs-wasmx
 
 # numcodecs-wasm
 
