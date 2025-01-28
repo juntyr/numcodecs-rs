@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "numcodecs_wasm"
+version = "0.1.0.dev0" # wasi 0.2.2
+description = "numcodecs compression for codecs compiled to WebAssembly"
+
+authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
+maintainers = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
+
+readme = "README.md"
+license = { file = "LICENSE" }
+
+requires-python = ">=3.10"
+
+dependencies = [
+    "field-compression-benchmark==0.0.15",
+    "numcodecs~=0.13.1",
+]
+
+[dependency-groups]
+dev = [
+    "ruff~=0.9.0",
+]
+
+[tool.setuptools]
+# Workaround for
+# https://github.com/astral-sh/uv/issues/9513
+# https://github.com/pypa/setuptools/issues/4759
+license-files = []

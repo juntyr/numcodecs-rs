@@ -19,7 +19,7 @@
 
 Fourier feature neural network codec implementation for the [`numcodecs`] API.
 
-[`numcodecs`]: https://docs.rs/numcodecs/0.1/numcodecs/
+[`numcodecs`]: https://docs.rs/numcodecs/0.2/numcodecs/
 
 ## License
 
