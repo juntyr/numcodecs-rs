@@ -24,3 +24,9 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 numcodecs_wasm_%package_suffix% = ["codec.wasm"]
+
+[tool.setuptools]
+# Workaround for
+# https://github.com/astral-sh/uv/issues/9513
+# https://github.com/pypa/setuptools/issues/4759
+license-files = []
