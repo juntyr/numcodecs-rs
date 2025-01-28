@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "numcodecs_wasm_%package_suffix%"
-version = "%crate-version%"
+version = "%crate-version%.dev0"
 description = "numcodecs-%crate-suffix% compression codec compiled to WebAssembly"
 
 authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
