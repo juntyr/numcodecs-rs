@@ -1,0 +1,32 @@
+[package]
+name = "numcodecs-wasm-host"
+version = "0.1.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "Import numcodecs API compressors from wasm components"
+readme = "README.md"
+categories = ["wasm", "api-bindings", "compression", "encoding"]
+keywords = ["numcodecs", "compression", "encoding", "wasm-component", "wasm-bindgen"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = { workspace = true }
+# core-error = { workspace = true }
+ndarray = { workspace = true, features = ["std"] }
+numcodecs = { workspace = true }
+schemars = { workspace = true }
+semver = { workspace = true }
+serde = { workspace = true }
+serde-transcode = { workspace = true }
+serde_json = { workspace = true, features = ["std"] }
+thiserror = { workspace = true }
+wasm_component_layer = { workspace = true }
+wasm_runtime_layer = { workspace = true }
+
+[lints]
+workspace = true

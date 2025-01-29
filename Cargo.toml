@@ -6,6 +6,7 @@ members = [
     "crates/numcodecs-wasm-builder",
     "crates/numcodecs-wasm-logging",
     "crates/numcodecs-wasm-guest",
+    "crates/numcodecs-wasm-host",
 
     "codecs/asinh",
     "codecs/bit-round",
@@ -40,6 +41,7 @@ numcodecs-python = { version = "0.4", path = "crates/numcodecs-python", default-
 numcodecs-wasm-builder = { version = "0.1", path = "crates/numcodecs-wasm-builder", default-features = false }
 numcodecs-wasm-logging = { version = "0.1", path = "crates/numcodecs-wasm-logging", default-features = false }
 numcodecs-wasm-guest = { version = "0.2", path = "crates/numcodecs-wasm-guest", default-features = false }
+numcodecs-wasm-host = { version = "0.1", path = "crates/numcodecs-wasm-host", default-features = false }
 
 # workspace-internal codecs crates
 numcodecs-asinh = { version = "0.2", path = "codecs/asinh", default-features = false }
@@ -61,6 +63,7 @@ numcodecs-zlib = { version = "0.2", path = "codecs/zlib", default-features = fal
 numcodecs-zstd = { version = "0.2", path = "codecs/zstd", default-features = false }
 
 # crates.io third-party dependencies
+anyhow = { version = "1.0", default-features = false }
 burn = { version = "0.15", default-features = false }
 clap = { version = "4.5", default-features = false }
 convert_case = { version = "0.7", default-features = false }
@@ -91,12 +94,16 @@ thiserror = { version = "2.0", default-features = false }
 twofloat = { version = "0.8", default-features = false }
 wasi-logger = { version = "0.1", default-features = false }
 wasi-preview1-component-adapter-provider = { version = "28.0", default-features = false }
+wasm_runtime_layer = { version = "0.4", default-features = false }
 wit-bindgen = { version = "0.38", default-features = false }
 wit-component = { version = "0.224", default-features = false }
 wyhash = { version = "0.5", default-features = false }
 zfp-sys = { version = "0.3.0", default-features = false }
 zstd = { version = "0.13", default-features = false }
 zstd-sys = { version = "2.0.12", default-features = false }
+
+# git third-party dependencies with non-upstream fixes
+wasm_component_layer = { git = "https://github.com/juntyr/wasm_component_layer.git", rev = "b633734", version = "0.1", default-features = false }
 
 [workspace.lints.rust]
 unsafe_code = "deny"
