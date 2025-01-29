@@ -21,7 +21,13 @@ The repository is structured as follows:
   - [`numcodecs`](crates/numcodecs): Rusty compression codec API
   - [`numcodecs-python`](crates/numcodecs-python): Rust bindings to the [`numcodecs`] Python API, which allows Python codecs to be used in Rust and Rust codecs to be used in Python
   - [`numcodecs-wasm-guest`](crates/numcodecs-wasm-guest): Export a Rust codec as a WebAssembly [component] when compiling to WebAssembly
+  - [`numcodecs-wasm-builder`](crates/numcodecs-wasm-builder): Compile a Rust codec into a WebAssembly [component] using `numcodecs-wasm-guest`
+  - [`numcodecs-wasm-logging`](crates/numcodecs-wasm-logging/): A codec wrapper that enables logging when compiled to WebAssembly
 - [`codecs`](codecs): Codec implementation crates, some new, some adapting existing [`numcodecs`] codecs with a more composable API
+- [`py`](py): Python packages that expose the compression codecs
+  - [`numcodecs-wasm`](py/numcodecs-wasm/): Load a WebAssembly [component] into a Python class implementing the [`numcodecs`] Python API
+  - [`numcodecs-wasm-template`](py/numcodecs-wasm-template/): Template for a Python package that exports a WebAssembly [component] as a Python class implementing the [`numcodecs`] Python API
+  - [`numcodecs-wasm-materialize`](py/numcodecs-wasm-materialize/): Build Python packages for the codecs implemented in this repository by compiling them to WebAssembly [component]s using the `numcodecs-wasm-builder` and creating packages using the `numcodecs-wasm-template`
 
 [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 [component]: https://component-model.bytecodealliance.org/design/components.html
