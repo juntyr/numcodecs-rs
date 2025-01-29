@@ -130,66 +130,56 @@ pub fn schema_from_codec_class(
     Ok(schema)
 }
 
-pub fn docs_from_schema(schema: &Schema, codec_id: &str) -> Option<String> {
+pub fn docs_from_schema(schema: &Schema) -> Option<String> {
     let parameters = parameters_from_schema(schema);
     let schema = schema.as_object()?;
 
     let mut docs = String::new();
 
-    docs.push_str("# ");
-    docs.push_str(codec_id);
-
-    if let Some(Value::String(title)) = schema.get("title") {
-        docs.push_str(" (");
-        docs.push_str(title);
-        docs.push(')');
-    }
-
-    docs.push_str("\n\n");
-
     if let Some(Value::String(description)) = schema.get("description") {
-        docs.push_str(description);
+        docs.push_str(&derust_doc_comment(description));
         docs.push_str("\n\n");
     }
 
-    docs.push_str("## Parameters\n\n");
+    if !parameters.named.is_empty() || parameters.additional {
+        docs.push_str("Parameters\n----------\n\n");
+    }
 
     for parameter in &parameters.named {
-        docs.push_str(" - ");
         docs.push_str(parameter.name);
 
-        docs.push_str(" (");
+        docs.push_str(" : ...");
 
-        if parameter.required {
-            docs.push_str("required");
-        } else {
-            docs.push_str("optional");
+        if !parameter.required {
+            docs.push_str(", optional");
         }
 
         if let Some(default) = parameter.default {
-            docs.push_str(", default = `");
+            docs.push_str(", default = ");
             docs.push_str(&format!("{default}"));
-            docs.push('`');
-        }
-
-        docs.push(')');
-
-        if let Some(info) = &parameter.docs {
-            docs.push_str(": ");
-            docs.push_str(&info.replace('\n', "\n   "));
         }
 
         docs.push('\n');
+
+        if let Some(info) = &parameter.docs {
+            docs.push_str("    ");
+            docs.push_str(&info.replace('\n', "\n    "));
+        }
+
+        docs.push_str("\n\n");
     }
 
-    if parameters.named.is_empty() {
-        if parameters.additional {
+    if parameters.additional {
+        docs.push_str("**kwargs\n");
+        docs.push_str("    ");
+
+        if parameters.named.is_empty() {
             docs.push_str("This codec takes *any* parameters.");
         } else {
-            docs.push_str("This codec does *not* take any parameters.");
+            docs.push_str("This codec takes *any* additional parameters.");
         }
-    } else if parameters.additional {
-        docs.push_str("\nThis codec takes *any* additional parameters.");
+    } else if parameters.named.is_empty() {
+        docs.push_str("This codec does *not* take any parameters.");
     }
 
     docs.truncate(docs.trim_end().len());
@@ -316,7 +306,7 @@ fn extend_parameters_from_one_of_schema<'a>(
                 _ => &[],
             };
             let variant_docs = match schema.get("description") {
-                Some(Value::String(docs)) => Some(docs.as_str()),
+                Some(Value::String(docs)) => Some(derust_doc_comment(docs)),
                 _ => None,
             };
 
@@ -330,7 +320,7 @@ fn extend_parameters_from_one_of_schema<'a>(
                                 name,
                                 parameter,
                                 required,
-                                variant_docs,
+                                variant_docs.clone(),
                             ));
                         }
                         Entry::Occupied(mut entry) => {
@@ -339,7 +329,7 @@ fn extend_parameters_from_one_of_schema<'a>(
                                 name,
                                 parameter,
                                 required,
-                                variant_docs,
+                                variant_docs.clone(),
                             );
                         }
                     }
@@ -359,6 +349,22 @@ fn extend_parameters_from_one_of_schema<'a>(
                 .map(VariantParameter::into_parameter),
         );
     }
+}
+
+fn derust_doc_comment(docs: &str) -> Cow<str> {
+    if docs.trim() != docs {
+        return Cow::Borrowed(docs);
+    }
+
+    if !docs
+        .split('\n')
+        .skip(1)
+        .all(|l| l.trim().is_empty() || l.starts_with(' '))
+    {
+        return Cow::Borrowed(docs);
+    }
+
+    Cow::Owned(docs.replace("\n ", "\n"))
 }
 
 #[derive(Debug, Error)]
@@ -405,7 +411,7 @@ impl<'a> Parameter<'a> {
                 .any(|r| matches!(r, Value::String(n) if n == name)),
             default: parameter.get("default"),
             docs: match parameter.get("description") {
-                Some(Value::String(docs)) => Some(Cow::Borrowed(docs)),
+                Some(Value::String(docs)) => Some(derust_doc_comment(docs)),
                 _ => None,
             },
         }
@@ -426,7 +432,7 @@ impl<'a> VariantParameter<'a> {
         name: &'a str,
         parameter: &'a Value,
         required: &[Value],
-        variant_docs: Option<&'a str>,
+        variant_docs: Option<Cow<'a, str>>,
     ) -> Self {
         let r#const = parameter.get("const");
 
@@ -437,7 +443,7 @@ impl<'a> VariantParameter<'a> {
             // a tag parameter must be introduced in the first generation
             Some(r#const) if generation == 0 => {
                 #[allow(clippy::or_fun_call)]
-                let docs = parameter.docs.take().or(variant_docs.map(Cow::Borrowed));
+                let docs = parameter.docs.take().or(variant_docs);
                 Some(vec![(r#const, docs)])
             }
             _ => None,
@@ -456,7 +462,7 @@ impl<'a> VariantParameter<'a> {
         name: &'a str,
         parameter: &'a Value,
         required: &[Value],
-        variant_docs: Option<&'a str>,
+        variant_docs: Option<Cow<'a, str>>,
     ) {
         self.generation = generation;
 
@@ -473,7 +479,7 @@ impl<'a> VariantParameter<'a> {
             // we're building docs for a tag-like parameter
             if let Some(r#const) = r#const {
                 #[allow(clippy::or_fun_call)]
-                tag_docs.push((r#const, parameter.docs.or(variant_docs.map(Cow::Borrowed))));
+                tag_docs.push((r#const, parameter.docs.or(variant_docs)));
             } else {
                 // mixing tag and non-tag parameter => no docs
                 self.tag_docs = None;
@@ -504,16 +510,16 @@ impl<'a> VariantParameter<'a> {
     #[must_use]
     pub fn into_parameter(mut self) -> Parameter<'a> {
         if let Some(tag_docs) = self.tag_docs {
-            let mut docs = String::from("\n");
+            let mut docs = String::new();
 
             for (tag, tag_docs) in tag_docs {
                 docs.push_str(" - ");
                 docs.push_str(&format!("{tag}"));
                 if let Some(tag_docs) = tag_docs {
                     docs.push_str(": ");
-                    docs.push_str(&tag_docs);
+                    docs.push_str(&tag_docs.replace('\n', "\n    "));
                 }
-                docs.push('\n');
+                docs.push_str("\n\n");
             }
 
             docs.truncate(docs.trim_end().len());
@@ -535,27 +541,42 @@ mod tests {
     fn schema() {
         assert_eq!(
             format!("{}", schema_for!(MyCodec).to_value()),
-            r#"{"type":"object","properties":{"param":{"type":["integer","null"],"format":"int32","description":"An optional integer value."}},"unevaluatedProperties":false,"oneOf":[{"type":"object","description":"Mode a.","properties":{"value":{"type":"boolean","description":"A boolean value."},"common":{"type":"string","description":"A common string value."},"mode":{"type":"string","const":"A"}},"required":["mode","value","common"]},{"type":"object","description":"Mode b.","properties":{"common":{"type":"string","description":"A common string value."},"mode":{"type":"string","const":"B"}},"required":["mode","common"]}],"description":"A codec that does something on encoding and decoding.","title":"MyCodec","$schema":"https://json-schema.org/draft/2020-12/schema"}"#
+            r#"{"type":"object","properties":{"param":{"type":["integer","null"],"format":"int32","description":"An optional integer value."}},"unevaluatedProperties":false,"oneOf":[{"type":"object","description":"Mode a.\n\n It gets another line.","properties":{"value":{"type":"boolean","description":"A boolean value. And some really, really, really, long first\n line that wraps around.\n\n With multiple lines of comments."},"common":{"type":"string","description":"A common string value.\n\n Something else here."},"mode":{"type":"string","const":"A"}},"required":["mode","value","common"]},{"type":"object","description":"Mode b.","properties":{"common":{"type":"string","description":"A common string value.\n\n Something else here."},"mode":{"type":"string","const":"B"}},"required":["mode","common"]}],"description":"A codec that does something on encoding and decoding.\n\n With multiple lines of comments.","title":"MyCodec","$schema":"https://json-schema.org/draft/2020-12/schema"}"#
         );
     }
 
     #[test]
     fn docs() {
         assert_eq!(
-            docs_from_schema(&schema_for!(MyCodec), "my-codec").as_deref(),
+            docs_from_schema(&schema_for!(MyCodec)).as_deref(),
             Some(
-                r#"# my-codec (MyCodec)
+                r#"A codec that does something on encoding and decoding.
 
-A codec that does something on encoding and decoding.
+With multiple lines of comments.
 
-## Parameters
+Parameters
+----------
 
- - common (required): A common string value.
- - mode (required): 
-    - "A": Mode a.
-    - "B": Mode b.
- - param (optional): An optional integer value.
- - value (optional): A boolean value."#
+common : ...
+    A common string value.
+    
+    Something else here.
+
+mode : ...
+     - "A": Mode a.
+        
+        It gets another line.
+    
+     - "B": Mode b.
+
+param : ..., optional
+    An optional integer value.
+
+value : ..., optional
+    A boolean value. And some really, really, really, long first
+    line that wraps around.
+    
+    With multiple lines of comments."#
             )
         );
     }
@@ -572,6 +593,8 @@ A codec that does something on encoding and decoding.
     #[derive(JsonSchema)]
     #[schemars(deny_unknown_fields)]
     /// A codec that does something on encoding and decoding.
+    ///
+    /// With multiple lines of comments.
     struct MyCodec {
         /// An optional integer value.
         #[schemars(default, skip_serializing_if = "Option::is_none")]
@@ -587,15 +610,24 @@ A codec that does something on encoding and decoding.
     #[schemars(deny_unknown_fields)]
     enum Config {
         /// Mode a.
+        ///
+        /// It gets another line.
         A {
-            /// A boolean value.
+            /// A boolean value. And some really, really, really, long first
+            /// line that wraps around.
+            ///
+            /// With multiple lines of comments.
             value: bool,
             /// A common string value.
+            ///
+            /// Something else here.
             common: String,
         },
         /// Mode b.
         B {
             /// A common string value.
+            ///
+            /// Something else here.
             common: String,
         },
     }

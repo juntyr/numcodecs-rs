@@ -54,7 +54,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
                 (intern!(py, "__module__"), module.name()?.into_any()),
                 (
                     intern!(py, "__doc__"),
-                    docs_from_schema(&codec_config_schema, &codec_id).into_pyobject(py)?,
+                    docs_from_schema(&codec_config_schema).into_pyobject(py)?,
                 ),
                 (
                     intern!(py, RustCodec::TYPE_ATTRIBUTE),
