@@ -1,0 +1,61 @@
+site_name: numcodecs-wasm
+
+strict: false
+
+markdown_extensions:
+  - footnotes
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      use_pygments: true
+      noclasses: true
+
+theme:
+  name: readthedocs
+  highlightjs: false
+
+nav:
+  - Home: index.md
+  - Documentation: api/
+  - Links:
+      - GitHub: https://github.com/juntyr/numcodecs-rs
+      - PyPI: https://pypi.org/project/numcodecs-wasm/
+
+plugins:
+  - gen-files:
+      scripts:
+        - docs/generate_api.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - exclude:
+      glob:
+        - generate_api.py
+        - requirements.txt
+  - search
+  - include-markdown
+  - mkdocstrings:
+      enable_inventory: true
+      handlers:
+        python:
+          options:
+              docstring_section_style: list
+              docstring_style: numpy
+              show_if_no_docstring: true
+              filters: [
+                "!^_$", "!^_[^_]", "!^__", "__init__"
+              ]
+              members_order: source
+              group_by_category: false
+              show_source: false
+              separate_signature: true
+              show_signature_annotations: true
+              signature_crossrefs: true
+              show_root_toc_entry: false
+              merge_init_into_class: true
+              summary:
+                  attributes: false
+                  classes: true
+                  functions: true
+                  modules: true
+          import:
+            - https://docs.python.org/3.12/objects.inv
+            - https://numcodecs.readthedocs.io/en/v0.13.0/objects.inv
