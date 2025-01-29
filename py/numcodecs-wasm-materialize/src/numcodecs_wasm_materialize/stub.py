@@ -42,7 +42,7 @@ def extract_docstring(
 
         if docstring is not None:
             break
-    
+
     return docstring
 
 
@@ -61,21 +61,21 @@ def process_docstring(
             doc_lines.pop(i)
         else:
             i += 1
-    
+
     math_block = False
 
     for i, line in enumerate(doc_lines):
         if line.strip() == "```math" and not math_block:
             line = line.replace("```math", "$$")
             math_block = True
-        
+
         if line.strip() == "```" and math_block:
             line = line.replace("```", "$$")
             math_block = False
-        
+
         if not math_block:
             line = INLINE_MATH_PATTERN.sub("$", line)
-        
+
         matches = list(LINK_USE_PATTERN.finditer(line))
         for match in matches[::-1]:
             next = None if match.end() >= len(line) else line[match.end()]
@@ -91,9 +91,7 @@ def process_docstring(
                     + f"[{source}]({target})"
                     + line[match.end() :]  # noqa: E203
                 )
-            elif not source.startswith("Accessed: ") and source.startswith(
-                "`"
-            ):
+            elif not source.startswith("Accessed: ") and source.startswith("`"):
                 source = source.replace("::", ".")
                 target = source.strip("`")
                 line = (
@@ -101,12 +99,12 @@ def process_docstring(
                     + f"[{source}][{module}.{target}]"
                     + line[match.end() :]  # noqa: E203
                 )
-        
+
         doc_lines[i] = line
-    
+
     while len(doc_lines) > 0 and len(doc_lines[-1].strip()) == 0:
         doc_lines.pop()
-    
+
     return "\n".join(doc_lines)
 
 
@@ -122,7 +120,7 @@ def extract_and_process_docstring(
 
     if module is None:
         module = obj.__module__
-    
+
     docstring = process_docstring(docstring, module)
 
     if len(docstring.strip()) == 0:
@@ -151,25 +149,26 @@ def stub_function(
             .lstrip()
             .rstrip()
         )
-    
+
     docstring = extract_and_process_docstring(func, cls=cls, module=module)
 
     string = f"{indent}def {name}{text_signature}:"
-    
+
     if docstring is not None:
-        string += '\n'
-        string += f'{indent+INDENT}r"""\n'
-        string += f"{indent+INDENT}{do_indent(docstring, indent+INDENT)}\n"
-        string += f'{indent+INDENT}"""\n'
-        string += f'{indent+INDENT}...\n\n'
+        string += "\n"
+        string += f'{indent + INDENT}r"""\n'
+        string += f"{indent + INDENT}{do_indent(docstring, indent + INDENT)}\n"
+        string += f'{indent + INDENT}"""\n'
+        string += f"{indent + INDENT}...\n\n"
     else:
-        string += ' ...\n\n'
-    
+        string += " ...\n\n"
+
     return string
 
 
 def stub_module(
-    obj: Any, indent: str,
+    obj: Any,
+    indent: str,
 ) -> str:
     string = ""
 
@@ -180,15 +179,17 @@ def stub_module(
             continue
         if name.startswith("_"):
             continue
-        if getattr(obj, '__all__', None) is None or name in obj.__all__:
-            string += stub_member(member, indent, module=obj.__name__, imports=imports, name=name)
-    
+        if getattr(obj, "__all__", None) is None or name in obj.__all__:
+            string += stub_member(
+                member, indent, module=obj.__name__, imports=imports, name=name
+            )
+
     if len(imports) > 0:
         string = "\n".join(f"import {i}" for i in sorted(imports)) + "\n\n" + string
-    
-    if getattr(obj, '__all__', None) is not None:
+
+    if getattr(obj, "__all__", None) is not None:
         string = f"__all__ = {sorted(set(obj.__all__))!r}\n\n" + string
-    
+
     return string
 
 
@@ -211,7 +212,7 @@ def stub_class(
         inherit = f"({', '.join(inherit)})"
     else:
         inherit = ""
-    
+
     string = f"class {obj.__name__}{inherit}:"
     indent += INDENT
 
@@ -219,10 +220,7 @@ def stub_class(
 
     docstring = extract_and_process_docstring(obj, cls=obj)
     if docstring is not None:
-        body += (
-            f'{indent}r"""\n{indent}{do_indent(docstring, indent)}\n'
-            f'{indent}"""\n\n'
-        )
+        body += f'{indent}r"""\n{indent}{do_indent(docstring, indent)}\n{indent}"""\n\n'
 
     # __init__ signature
     if obj.__text_signature__:
@@ -234,7 +232,14 @@ def stub_class(
         )
         body += f"{indent}def __init__{text_signature}: ...\n\n"
     elif getattr(obj, "__init__", None) is not None:
-        body += stub_member(obj.__init__, indent=indent, module=obj.__module__, imports=imports, name="__init__", cls=obj)
+        body += stub_member(
+            obj.__init__,
+            indent=indent,
+            module=obj.__module__,
+            imports=imports,
+            name="__init__",
+            cls=obj,
+        )
 
     for name, member in inspect.getmembers(obj):
         if not name.startswith("_"):
@@ -251,18 +256,24 @@ def stub_class(
         string += " ...\n\n"
     else:
         string += f"\n{body}\n\n"
-    
+
     return string
 
+
 def stub_member(
-    obj: Any, indent: str, module: str, imports: set, name: Optional[str] = None, cls: Optional[type] = None,
+    obj: Any,
+    indent: str,
+    module: str,
+    imports: set,
+    name: Optional[str] = None,
+    cls: Optional[type] = None,
 ) -> str:
     if inspect.ismodule(obj):
         return stub_module(obj, indent)
-    
+
     if inspect.isclass(obj):
         return stub_class(obj, indent, imports)
-    
+
     if inspect.isbuiltin(obj):
         stub = stub_function(obj, indent, module, cls=cls)
         return f"{indent}@staticmethod\n{stub}"
@@ -271,7 +282,14 @@ def stub_member(
         return stub_function(obj, indent, module, cls=cls)
 
     if name is not None and isinstance(obj, type(lambda x: x)):
-        return stub_function(obj, indent, module, name=name, text_signature=str(inspect.signature(obj)), cls=cls)
+        return stub_function(
+            obj,
+            indent,
+            module,
+            name=name,
+            text_signature=str(inspect.signature(obj)),
+            cls=cls,
+        )
 
     if name is not None:
         return f"{indent}{name} = {obj!r}\n\n"
@@ -280,15 +298,18 @@ def stub_member(
 
 
 def write_module_stubs(module: Any, directory: Path) -> None:
-    pyi_content = stub_module(
-        module,
-        indent="",
-    ).strip() + "\n"
+    pyi_content = (
+        stub_module(
+            module,
+            indent="",
+        ).strip()
+        + "\n"
+    )
 
     directory.mkdir(parents=True, exist_ok=True)
 
     filename = directory / "__init__.pyi"
-    
+
     with open(filename, "w") as f:
         f.write(pyi_content)
 
