@@ -84,6 +84,25 @@ for c in (repo_path / "codecs").iterdir():
     )
 
     subprocess.run(
+        shlex.split("uv sync"),
+        check=True,
+        cwd=staging_path,
+    )
+    subprocess.run(
+        shlex.split("uv pip install ."),
+        check=True,
+        cwd=staging_path,
+    )
+    subprocess.run(
+        shlex.split(
+            f"uv run python3 {Path(__file__).parent / 'stub.py'}"
+            f"{'numcodecs_wasm_' + templates['package_suffix']} src"
+        ),
+        check=True,
+        cwd=staging_path,
+    )
+
+    subprocess.run(
         shlex.split(f"uv build --directory {staging_path} --out-dir {dist_path}"),
         check=True,
     )
