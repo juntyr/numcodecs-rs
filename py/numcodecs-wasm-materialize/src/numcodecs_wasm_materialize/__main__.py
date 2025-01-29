@@ -1,5 +1,6 @@
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -101,6 +102,7 @@ for c in (repo_path / "codecs").iterdir():
         check=True,
         cwd=staging_path,
     )
+    shutil.rmtree(staging_path / ".venv", ignore_errors=True)
 
     subprocess.run(
         shlex.split(f"uv build --directory {staging_path} --out-dir {dist_path}"),
