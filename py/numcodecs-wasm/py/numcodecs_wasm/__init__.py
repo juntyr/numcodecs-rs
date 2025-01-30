@@ -5,7 +5,7 @@ from types import ModuleType
 
 import numcodecs.abc
 
-from ._wasm import _create_codec_class
+from ._wasm import _create_codec_class, _read_codec_instruction_counter
 
 
 class WasmCodecMeta(type):
@@ -23,3 +23,7 @@ class WasmCodecMeta(type):
 
 def create_codec_class(module: ModuleType, wasm: bytes) -> type[numcodecs.abc.Codec]:
     return _create_codec_class(module, wasm)
+
+
+def read_instruction_counter(codec: numcodecs.abc.Codec) -> int:
+    return _read_codec_instruction_counter(codec)
