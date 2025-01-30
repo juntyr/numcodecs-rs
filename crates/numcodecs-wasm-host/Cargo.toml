@@ -26,7 +26,6 @@ serde-transcode = { workspace = true }
 serde_json = { workspace = true, features = ["std"] }
 thiserror = { workspace = true }
 wasm_component_layer = { workspace = true }
-wasm_runtime_layer = { workspace = true }
 
 [lints]
 workspace = true

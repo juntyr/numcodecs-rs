@@ -1,94 +1,81 @@
-use std::{
-    borrow::BorrowMut,
-    sync::{Arc, OnceLock},
-};
+use std::sync::{Arc, OnceLock};
 
 use ndarray::{ArrayBase, ArrayView, Data, Dimension};
 use numcodecs::{AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray};
+use schemars::Schema;
 use serde::Serializer;
 use wasm_component_layer::{
-    Enum, EnumType, List, ListType, Record, RecordType, ResourceOwn, Value, ValueType, Variant,
-    VariantCase, VariantType,
+    AsContextMut, Enum, EnumType, Func, Instance, List, ListType, Record, RecordType, ResourceOwn,
+    Value, ValueType, Variant, VariantCase, VariantType,
 };
 
 use crate::{
+    component::WasmCodecComponent,
     error::{GuestError, RuntimeError},
-    plugin::CodecPlugin,
     wit::guest_error_from_wasm,
 };
 
 #[expect(clippy::module_name_repetitions)]
-pub struct WasmCodec<P: BorrowMut<CodecPlugin> = CodecPlugin> {
+pub struct WasmCodec {
+    // codec
     pub(crate) resource: ResourceOwn,
-    pub(crate) plugin: P,
-    pub(crate) instruction_counter: u64,
+    // precomputed properties
+    pub(crate) codec_id: Arc<str>,
+    pub(crate) codec_config_schema: Arc<Schema>,
+    // wit functions
+    // FIXME: make typed instead
+    pub(crate) from_config: Func,
+    pub(crate) encode: Func,
+    pub(crate) decode: Func,
+    pub(crate) decode_into: Func,
+    pub(crate) get_config: Func,
+    // wasm component instance
+    pub(crate) instance: Arc<Instance>,
 }
 
-impl<P: BorrowMut<CodecPlugin>> WasmCodec<P> {
-    #[must_use]
-    pub const fn instruction_counter(&self) -> u64 {
-        self.instruction_counter
-    }
-
+impl WasmCodec {
     #[expect(clippy::needless_pass_by_value)]
     pub fn encode(
-        &mut self,
+        &self,
+        ctx: impl AsContextMut,
         data: AnyCowArray,
     ) -> Result<Result<AnyArray, GuestError>, RuntimeError> {
         self.process(
+            ctx,
             data.view(),
             None,
-            |plugin, arguments, results| plugin.ctx.call_func(&plugin.encode, arguments, results),
+            |ctx, arguments, results| self.encode.call(ctx, arguments, results),
             |encoded| Ok(encoded.into_owned()),
         )
     }
 
     #[expect(clippy::needless_pass_by_value)]
-    pub fn encode_into(
-        &mut self,
-        data: AnyCowArray,
-        mut encoded: AnyArrayViewMut,
-    ) -> Result<Result<(), GuestError>, RuntimeError> {
-        self.process(
-            data.view(),
-            None,
-            |plugin, arguments, results| plugin.ctx.call_func(&plugin.encode, arguments, results),
-            |encoded_in| {
-                encoded
-                    .assign(&encoded_in)
-                    .map_err(anyhow::Error::new)
-                    .map_err(RuntimeError::from)
-            },
-        )
-    }
-
-    #[expect(clippy::needless_pass_by_value)]
     pub fn decode(
-        &mut self,
+        &self,
+        ctx: impl AsContextMut,
         encoded: AnyCowArray,
     ) -> Result<Result<AnyArray, GuestError>, RuntimeError> {
         self.process(
+            ctx,
             encoded.view(),
             None,
-            |plugin, arguments, results| plugin.ctx.call_func(&plugin.decode, arguments, results),
+            |ctx, arguments, results| self.decode.call(ctx, arguments, results),
             |decoded| Ok(decoded.into_owned()),
         )
     }
 
     pub fn decode_into(
-        &mut self,
+        &self,
+        ctx: impl AsContextMut,
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<Result<(), GuestError>, RuntimeError> {
         self.process(
+            ctx,
             encoded,
             #[expect(clippy::unnecessary_to_owned)] // we need the lifetime extension
             Some((decoded.dtype(), &decoded.shape().to_vec())),
-            |plugin, arguments, results| {
-                plugin
-                    .ctx
-                    .call_func(&plugin.decode_into, arguments, results)
-            },
+            |ctx, arguments, results| self.decode_into.call(ctx, arguments, results),
             |decoded_in| {
                 decoded
                     .assign(&decoded_in)
@@ -98,21 +85,22 @@ impl<P: BorrowMut<CodecPlugin>> WasmCodec<P> {
         )
     }
 
-    pub fn get_config<S: Serializer>(&mut self, serializer: S) -> Result<S::Ok, S::Error> {
-        let plugin: &mut CodecPlugin = self.plugin.borrow_mut();
-
-        let resource = plugin
-            .ctx
-            .borrow_resource(&self.resource)
+    pub fn get_config<S: Serializer>(
+        &self,
+        mut ctx: impl AsContextMut,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error> {
+        let resource = self
+            .resource
+            .borrow(&mut ctx)
             .map_err(serde::ser::Error::custom)?;
 
         let arg = Value::Borrow(resource);
         let mut result = Value::U8(0);
 
-        plugin
-            .ctx
-            .call_func(
-                &plugin.get_config,
+        self.get_config
+            .call(
+                &mut ctx,
                 std::slice::from_ref(&arg),
                 std::slice::from_mut(&mut result),
             )
@@ -129,48 +117,71 @@ impl<P: BorrowMut<CodecPlugin>> WasmCodec<P> {
                     return Err(serde::ser::Error::custom(format!(
                         "unexpected get-config result value {result:?}"
                     )))
-                },
+                }
             },
             value => {
                 return Err(serde::ser::Error::custom(format!(
                     "unexpected get-config result value {value:?}"
                 )))
-            },
+            }
         };
 
         serde_transcode::transcode(&mut serde_json::Deserializer::from_str(&config), serializer)
     }
-
-    pub fn drop(mut self) -> Result<(), RuntimeError> {
-        let plugin: &mut CodecPlugin = self.plugin.borrow_mut();
-
-        let result = plugin
-            .ctx
-            .drop_resource(&self.resource)
-            .map_err(RuntimeError::from);
-
-        // We need to forget here instead of using ManuallyDrop since we need
-        //  both a mutable borrow to self.plugin and an immutable borrow to
-        //  self.resource at the same time
-        std::mem::forget(self);
-
-        result
-    }
 }
 
-impl<P: BorrowMut<CodecPlugin>> WasmCodec<P> {
-    fn process<O>(
-        &mut self,
+impl WasmCodec {
+    #[must_use]
+    pub fn ty(&self) -> WasmCodecComponent {
+        WasmCodecComponent {
+            codec_id: self.codec_id.clone(),
+            codec_config_schema: self.codec_config_schema.clone(),
+            from_config: self.from_config.clone(),
+            encode: self.encode.clone(),
+            decode: self.decode.clone(),
+            decode_into: self.decode_into.clone(),
+            get_config: self.get_config.clone(),
+            instance: self.instance.clone(),
+        }
+    }
+
+    pub fn try_clone(&self, mut ctx: impl AsContextMut) -> Result<Self, serde_json::Error> {
+        let mut config = self.get_config(&mut ctx, serde_json::value::Serializer)?;
+
+        if let Some(config) = config.as_object_mut() {
+            config.remove("id");
+        }
+
+        let codec: Self = self.ty().codec_from_config(ctx, config)?;
+
+        Ok(codec)
+    }
+
+    pub fn try_clone_into(
+        &self,
+        ctx_from: impl AsContextMut,
+        ctx_into: impl AsContextMut,
+    ) -> Result<Self, serde_json::Error> {
+        let mut config = self.get_config(ctx_from, serde_json::value::Serializer)?;
+
+        if let Some(config) = config.as_object_mut() {
+            config.remove("id");
+        }
+
+        let codec: Self = self.ty().codec_from_config(ctx_into, config)?;
+
+        Ok(codec)
+    }
+
+    fn process<O, C: AsContextMut>(
+        &self,
+        mut ctx: C,
         data: AnyArrayView,
         output_prototype: Option<(AnyArrayDType, &[usize])>,
-        process: impl FnOnce(&mut CodecPlugin, &[Value], &mut [Value]) -> anyhow::Result<()>,
+        process: impl FnOnce(&mut C, &[Value], &mut [Value]) -> anyhow::Result<()>,
         with_result: impl for<'a> FnOnce(AnyArrayView<'a>) -> Result<O, RuntimeError>,
     ) -> Result<Result<O, GuestError>, RuntimeError> {
-        let plugin: &mut CodecPlugin = self.plugin.borrow_mut();
-
-        let resource = plugin
-            .ctx
-            .borrow_resource(&self.resource)?;
+        let resource = self.resource.borrow(&mut ctx)?;
 
         let array = Self::array_into_wasm(data)?;
 
@@ -178,14 +189,10 @@ impl<P: BorrowMut<CodecPlugin>> WasmCodec<P> {
             .map(|(dtype, shape)| Self::array_prototype_into_wasm(dtype, shape))
             .transpose()?;
 
-        let instruction_counter_pre = plugin
-            .ctx
-            .call_typed_u64_func(&plugin.instruction_counter)?;
-
         let mut result = Value::U8(0);
 
         process(
-            plugin,
+            &mut ctx,
             &match output_prototype {
                 None => vec![Value::Borrow(resource), Value::Record(array)],
                 Some(output) => vec![
@@ -197,18 +204,13 @@ impl<P: BorrowMut<CodecPlugin>> WasmCodec<P> {
             std::slice::from_mut(&mut result),
         )?;
 
-        let instruction_counter_post = plugin
-            .ctx
-            .call_typed_u64_func(&plugin.instruction_counter)?;
-        self.instruction_counter += instruction_counter_post - instruction_counter_pre;
-
         match result {
             Value::Result(result) => match &*result {
                 Ok(Some(Value::Record(record))) if &record.ty() == Self::any_array_ty() => {
                     Self::with_array_view_from_wasm_record(record, |array| {
                         Ok(Ok(with_result(array)?))
                     })
-                },
+                }
                 Err(err) => guest_error_from_wasm(err.as_ref()).map(Err),
                 result => Err(RuntimeError::from(anyhow::Error::msg(format!(
                     "unexpected process result value {result:?}"
@@ -431,7 +433,6 @@ impl<P: BorrowMut<CodecPlugin>> WasmCodec<P> {
         .map_err(RuntimeError::from)
     }
 
-    #[expect(clippy::too_many_lines)] // FIXME
     fn with_array_view_from_wasm_record<O>(
         record: &Record,
         with: impl for<'a> FnOnce(AnyArrayView<'a>) -> Result<O, RuntimeError>,
@@ -463,91 +464,53 @@ impl<P: BorrowMut<CodecPlugin>> WasmCodec<P> {
 
         let array = match data.discriminant() {
             0 => AnyArrayView::U8(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             1 => AnyArrayView::U16(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             2 => AnyArrayView::U32(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             3 => AnyArrayView::U64(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             4 => AnyArrayView::I8(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             5 => AnyArrayView::I16(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             6 => AnyArrayView::I32(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             7 => AnyArrayView::I64(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             8 => AnyArrayView::F32(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             9 => AnyArrayView::F64(
-                ArrayView::from_shape(
-                    shape.as_slice(),
-                    values.typed()?,
-                )
-                .map_err(anyhow::Error::new)?,
+                ArrayView::from_shape(shape.as_slice(), values.typed()?)
+                    .map_err(anyhow::Error::new)?,
             ),
             discriminant => {
                 return Err(RuntimeError::from(anyhow::Error::msg(format!(
                     "process result buffer has an invalid variant [{discriminant}]:{:?}",
                     data.value().map(|v| v.ty())
                 ))))
-            },
+            }
         };
 
         with(array)
-    }
-}
-
-impl<P: BorrowMut<CodecPlugin>> Drop for WasmCodec<P> {
-    fn drop(&mut self) {
-        let plugin: &mut CodecPlugin = self.plugin.borrow_mut();
-
-        std::mem::drop(plugin.ctx.drop_resource(&self.resource));
     }
 }
