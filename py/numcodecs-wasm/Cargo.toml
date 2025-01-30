@@ -1,0 +1,29 @@
+[package]
+name = "numcodecs-wasm"
+version = "0.1.0+wasi0.2.2"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "numcodecs_wasm"
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = { workspace = true }
+numcodecs-python = { workspace = true }
+numcodecs-wasm-host-reproducible = { workspace = true }
+pyo3 = { workspace = true, features = ["macros", "abi3-py310"] }
+pyo3-error = { workspace = true }
+pyo3-log = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+pyodide-webassembly-runtime-layer = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+wasmtime = { workspace = true, features = ["runtime", "cranelift", "cache", "gc-null"] }
+wasmtime_runtime_layer = { workspace = true }
