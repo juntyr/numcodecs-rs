@@ -142,7 +142,7 @@ pub fn docs_from_schema(schema: &Schema) -> Option<String> {
     }
 
     if !parameters.named.is_empty() || parameters.additional {
-        docs.push_str("Parameters\n----------\n\n");
+        docs.push_str("Parameters\n----------\n");
     }
 
     for parameter in &parameters.named {
@@ -166,7 +166,7 @@ pub fn docs_from_schema(schema: &Schema) -> Option<String> {
             docs.push_str(&info.replace('\n', "\n    "));
         }
 
-        docs.push_str("\n\n");
+        docs.push_str("\n");
     }
 
     if parameters.additional {
@@ -556,22 +556,18 @@ With multiple lines of comments.
 
 Parameters
 ----------
-
 common : ...
     A common string value.
     
     Something else here.
-
 mode : ...
      - "A": Mode a.
         
         It gets another line.
     
      - "B": Mode b.
-
 param : ..., optional
     An optional integer value.
-
 value : ..., optional
     A boolean value. And some really, really, really, long first
     line that wraps around.

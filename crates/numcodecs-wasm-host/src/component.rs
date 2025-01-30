@@ -12,7 +12,6 @@ use crate::{
     wit::{guest_error_from_wasm, NumcodecsWitInterfaces},
 };
 
-#[expect(clippy::module_name_repetitions)]
 pub struct WasmCodecComponent {
     // precomputed properties
     pub(crate) codec_id: Arc<str>,

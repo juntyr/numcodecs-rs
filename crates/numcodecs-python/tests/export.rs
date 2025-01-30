@@ -86,11 +86,7 @@ fn schema() -> Result<(), PyErr> {
 
         assert_eq!(
             class.getattr("__doc__")?.extract::<String>()?,
-            "# negate (NegateCodec)
-
-A codec that negates its inputs on encoding and decoding.
-
-## Parameters
+            "A codec that negates its inputs on encoding and decoding.
 
 This codec does *not* take any parameters."
         );

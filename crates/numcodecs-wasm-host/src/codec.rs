@@ -15,7 +15,6 @@ use crate::{
     wit::guest_error_from_wasm,
 };
 
-#[expect(clippy::module_name_repetitions)]
 pub struct WasmCodec {
     // codec
     pub(crate) resource: ResourceOwn,
