@@ -84,6 +84,22 @@ impl WasmCodec {
             },
         )
     }
+}
+
+impl WasmCodec {
+    #[must_use]
+    pub fn ty(&self) -> WasmCodecComponent {
+        WasmCodecComponent {
+            codec_id: self.codec_id.clone(),
+            codec_config_schema: self.codec_config_schema.clone(),
+            from_config: self.from_config.clone(),
+            encode: self.encode.clone(),
+            decode: self.decode.clone(),
+            decode_into: self.decode_into.clone(),
+            get_config: self.get_config.clone(),
+            instance: self.instance.clone(),
+        }
+    }
 
     pub fn get_config<S: Serializer>(
         &self,
@@ -131,20 +147,6 @@ impl WasmCodec {
 }
 
 impl WasmCodec {
-    #[must_use]
-    pub fn ty(&self) -> WasmCodecComponent {
-        WasmCodecComponent {
-            codec_id: self.codec_id.clone(),
-            codec_config_schema: self.codec_config_schema.clone(),
-            from_config: self.from_config.clone(),
-            encode: self.encode.clone(),
-            decode: self.decode.clone(),
-            decode_into: self.decode_into.clone(),
-            get_config: self.get_config.clone(),
-            instance: self.instance.clone(),
-        }
-    }
-
     pub fn try_clone(&self, mut ctx: impl AsContextMut) -> Result<Self, serde_json::Error> {
         let mut config = self.get_config(&mut ctx, serde_json::value::Serializer)?;
 
@@ -172,7 +174,9 @@ impl WasmCodec {
 
         Ok(codec)
     }
+}
 
+impl WasmCodec {
     fn process<O, C: AsContextMut>(
         &self,
         mut ctx: C,

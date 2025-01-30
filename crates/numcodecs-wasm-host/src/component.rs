@@ -78,7 +78,9 @@ impl WasmCodecComponent {
             instance: Arc::new(instance),
         })
     }
+}
 
+impl WasmCodecComponent {
     #[must_use]
     pub fn codec_id(&self) -> &str {
         &self.codec_id
