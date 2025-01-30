@@ -1,4 +1,8 @@
-use numcodecs_wasm_host::NumcodecsWitInterfaces;
+use std::sync::OnceLock;
+
+use anyhow::{anyhow, Error};
+use semver::Version;
+use wasm_component_layer::{InterfaceIdentifier, PackageIdentifier, PackageName};
 use wasm_encoder::reencode::{self, Reencode};
 
 pub enum InstructionCounterInjecter {}
@@ -19,7 +23,9 @@ impl InstructionCounterInjecter {
             instruction_counter_func_index: None,
             func_index: 0,
         };
-        reencoder.parse_core_module(&mut module, parser, wasm)?;
+        reencoder
+            .parse_core_module(&mut module, parser, wasm)
+            .map_err(|err| anyhow::format_err!("{}", err))?;
 
         if let Some(instruction_counter_func_index) = reencoder.instruction_counter_func_index {
             anyhow::ensure!(
@@ -42,7 +48,7 @@ struct InstructionCounterInjecterReencoder {
 }
 
 impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
-    type Error = AnyError;
+    type Error = Error;
 
     fn global_index(&mut self, global: u32) -> u32 {
         match self.instruction_counter_global {
@@ -63,7 +69,7 @@ impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
                 wasmparser::TypeRef::Func(_) => self.num_imported_funcs += 1,
                 wasmparser::TypeRef::Global(_) => {
                     *self.instruction_counter_global.get_or_insert(0) += 1;
-                },
+                }
                 wasmparser::TypeRef::Table(_)
                 | wasmparser::TypeRef::Memory(_)
                 | wasmparser::TypeRef::Tag(_) => (),
@@ -104,11 +110,11 @@ impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
         section: wasmparser::ExportSectionReader<'_>,
     ) -> Result<(), reencode::Error<Self::Error>> {
         let instruction_counter_export_name = {
-            let CodecPluginInterfaces {
+            let PerfWitInterfaces {
                 perf: perf_interface,
                 instruction_counter,
                 ..
-            } = CodecPluginInterfaces::get();
+            } = PerfWitInterfaces::get();
 
             format!("{perf_interface}#{instruction_counter}")
         };
@@ -117,12 +123,12 @@ impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
             let export = export?;
             if export.name == instruction_counter_export_name {
                 if !matches!(export.kind, wasmparser::ExternalKind::Func) {
-                    return Err(reencode::Error::UserError(AnyError::msg(
+                    return Err(reencode::Error::UserError(anyhow!(
                         "instruction counter reader export must be a function",
                     )));
                 }
                 if self.instruction_counter_func_index.is_some() {
-                    return Err(reencode::Error::UserError(AnyError::msg(
+                    return Err(reencode::Error::UserError(anyhow!(
                         "duplicate instruction counter reader export",
                     )));
                 }
@@ -140,7 +146,7 @@ impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
         func: wasmparser::FunctionBody<'_>,
     ) -> Result<(), reencode::Error<Self::Error>> {
         let Some(instruction_counter_global) = self.instruction_counter_global else {
-            return Err(reencode::Error::UserError(AnyError::msg(
+            return Err(reencode::Error::UserError(anyhow!(
                 "missing instruction counter import",
             )));
         };
@@ -152,7 +158,7 @@ impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
             let locals = func.get_locals_reader()?;
 
             if locals.get_count() > 0 {
-                return Err(reencode::Error::UserError(AnyError::msg(
+                return Err(reencode::Error::UserError(anyhow!(
                     "instruction counter function has no locals",
                 )));
             }
@@ -161,7 +167,7 @@ impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
                 instructions.as_slice(),
                 [wasmparser::Operator::Unreachable, wasmparser::Operator::End]
             ) {
-                return Err(reencode::Error::UserError(AnyError::msg(
+                return Err(reencode::Error::UserError(anyhow!(
                     "instruction counter function has a single instruction and is unreachable",
                 )));
             }
@@ -203,9 +209,14 @@ impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
 
 impl InstructionCounterInjecterReencoder {
     fn inject_instruction_counter_import(imports: &mut wasm_encoder::ImportSection) {
+        let PerfWitInterfaces {
+            perf: perf_interface,
+            instruction_counter,
+        } = PerfWitInterfaces::get();
+
         imports.import(
-            "fcbench",
-            "instruction-counter",
+            &format!("{perf_interface}"),
+            instruction_counter,
             wasm_encoder::EntityType::Global(wasm_encoder::GlobalType {
                 val_type: wasm_encoder::ValType::I64,
                 mutable: true,
@@ -270,7 +281,7 @@ impl InstructionCounterInjecterReencoder {
             //  here, so saving is not necessary
             wasmparser::Operator::Call { .. } | wasmparser::Operator::CallIndirect { .. } => {
                 Some(false)
-            },
+            }
             // === Tail calls ===
             // tail calls need to save since they return from this function
             wasmparser::Operator::ReturnCall { .. }
@@ -488,7 +499,7 @@ impl InstructionCounterInjecterReencoder {
             // we need to save before diverging control flow
             wasmparser::Operator::BrOnCast { .. } | wasmparser::Operator::BrOnCastFail { .. } => {
                 Some(true)
-            },
+            }
             // no control flow
             wasmparser::Operator::AnyConvertExtern
             | wasmparser::Operator::ExternConvertAny
@@ -903,12 +914,12 @@ impl InstructionCounterInjecterReencoder {
             // we need to save before diverging control flow
             wasmparser::Operator::BrOnNull { .. } | wasmparser::Operator::BrOnNonNull { .. } => {
                 Some(true)
-            },
+            }
             // === Stack switching ===
             // creating a continuation does not change the control flow (yet)
             wasmparser::Operator::ContNew { .. } | wasmparser::Operator::ContBind { .. } => {
                 Some(false)
-            },
+            }
             // we need to save before diverging control flow by suspending or
             //  resuming a continuation diverg
             wasmparser::Operator::Suspend { .. }
@@ -926,5 +937,28 @@ impl InstructionCounterInjecterReencoder {
             // === FIXME ===
             _ => panic!("unsupported instruction"),
         }
+    }
+}
+
+pub struct PerfWitInterfaces {
+    pub perf: InterfaceIdentifier,
+    pub instruction_counter: String,
+}
+
+impl PerfWitInterfaces {
+    #[must_use]
+    pub fn get() -> &'static Self {
+        static PERF_WIT_INTERFACES: OnceLock<PerfWitInterfaces> = OnceLock::new();
+
+        PERF_WIT_INTERFACES.get_or_init(|| Self {
+            perf: InterfaceIdentifier::new(
+                PackageIdentifier::new(
+                    PackageName::new("numcodecs", "wasm"),
+                    Some(Version::new(0, 1, 0)),
+                ),
+                "perf",
+            ),
+            instruction_counter: String::from("instruction-counter"),
+        })
     }
 }

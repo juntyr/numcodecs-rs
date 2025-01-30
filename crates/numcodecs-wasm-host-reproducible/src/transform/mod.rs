@@ -1,24 +1,20 @@
 use std::sync::OnceLock;
 
-use numcodecs_wasm_host::{NumcodecsWitInterfaces, RuntimeError};
+use anyhow::{anyhow, Context, Error};
+use instcnt::PerfWitInterfaces;
+use numcodecs_wasm_host::NumcodecsWitInterfaces;
 
-use crate::{
-    loader::WasmCodecLoaderError, logging::WasiLoggingInterface, stdio::FcBenchStdioInterface,
-};
+use crate::{logging::WasiLoggingInterface, stdio::FcBenchStdioInterface};
 
 pub mod instcnt;
 pub mod nan;
 
 #[expect(clippy::too_many_lines)] // FIXME
-pub fn transform_wasm_component(
-    wasm_component: impl Into<Vec<u8>>,
-) -> Result<Vec<u8>, LocationError<WasmCodecLoaderError>> {
-    #[track_caller]
-    fn map_wasm_err<E: 'static + std::error::Error + Send + Sync>(err: E) -> WasmCodecLoaderError {
-        WasmCodecLoaderError::Runtime(LocationError::from2(anyhow::Error::new(err)))
-    }
-
-    let interfaces = CodecPluginInterfaces::get();
+pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Vec<u8>, Error> {
+    let NumcodecsWitInterfaces {
+        codec: codec_interface,
+        ..
+    } = NumcodecsWitInterfaces::get();
 
     // create a new WAC composition graph with the WASI component packages
     //  pre-registered and the fcbench:perf/perf interface pre-exported
@@ -30,22 +26,16 @@ pub fn transform_wasm_component(
 
     // parse and instantiate the root package, which exports numcodecs:abc/codec
     let fcbench_codec_package = wac_graph::types::Package::from_bytes(
-        &format!("{}", interfaces.codecs.package().name()),
-        interfaces.codecs.package().version(),
+        &format!("{}", codec_interface.package().name()),
+        codec_interface.package().version(),
         wasm_component,
         wac.types_mut(),
-    )
-    .map_err(LocationError::from2)
-    .map_err(WasmCodecLoaderError::Runtime)?;
+    )?;
 
     let fcbench_codec_world = &wac.types()[fcbench_codec_package.ty()];
-    let fcbench_codec_imports = extract_component_ports(&fcbench_codec_world.imports)
-        .map_err(LocationError::from2)
-        .map_err(WasmCodecLoaderError::Runtime)?;
+    let fcbench_codec_imports = extract_component_ports(&fcbench_codec_world.imports)?;
 
-    let fcbench_codec_package = wac
-        .register_package(fcbench_codec_package)
-        .map_err(map_wasm_err)?;
+    let fcbench_codec_package = wac.register_package(fcbench_codec_package)?;
     let fcbench_codec_instance = wac.instantiate(fcbench_codec_package);
 
     // list the imports that the linker will provide
@@ -95,11 +85,9 @@ pub fn transform_wasm_component(
                 .iter()
                 .any(|export| export.package() == &required_package)
         }) else {
-            return Err(LocationError::new(WasmCodecLoaderError::Runtime(
-                LocationError::from2(anyhow::anyhow!(
-                    "WASM component requires unresolved import(s) from package {required_package}"
-                )),
-            )));
+            return Err(anyhow!(
+                "WASM component requires unresolved import(s) from package {required_package}"
+            ));
         };
 
         let PackageWithPorts {
@@ -117,11 +105,9 @@ pub fn transform_wasm_component(
                 // ... if the dependency has already been instantiated,
                 //     import its export directly
                 let import_str = &format!("{import}");
-                let dependency_export = wac
-                    .alias_instance_export(dependency_instance, import_str)
-                    .map_err(map_wasm_err)?;
-                wac.set_instantiation_argument(component_instance, import_str, dependency_export)
-                    .map_err(map_wasm_err)?;
+                let dependency_export =
+                    wac.alias_instance_export(dependency_instance, import_str)?;
+                wac.set_instantiation_argument(component_instance, import_str, dependency_export)?;
             } else {
                 // ... otherwise require the dependency package and store the
                 //     import so that it can be resolved later
@@ -141,12 +127,9 @@ pub fn transform_wasm_component(
             // try to resolve unresolved imports using the export of this package
             if let Some(unresolved_imports) = unresolved_imports.remove(export) {
                 let export_str = &format!("{export}");
-                let component_export = wac
-                    .alias_instance_export(component_instance, export_str)
-                    .map_err(map_wasm_err)?;
+                let component_export = wac.alias_instance_export(component_instance, export_str)?;
                 for import in unresolved_imports {
-                    wac.set_instantiation_argument(import, export_str, component_export)
-                        .map_err(map_wasm_err)?;
+                    wac.set_instantiation_argument(import, export_str, component_export)?;
                 }
             }
         }
@@ -158,31 +141,25 @@ pub fn transform_wasm_component(
     }
 
     if !unresolved_imports.is_empty() {
-        return Err(LocationError::new(WasmCodecLoaderError::Runtime(
-            LocationError::from2(anyhow::anyhow!(
-                "WASM component requires unresolved import(s): {:?}",
-                unresolved_imports.into_keys().collect::<Vec<_>>(),
-            )),
-        )));
+        return Err(anyhow!(
+            "WASM component requires unresolved import(s): {:?}",
+            unresolved_imports.into_keys().collect::<Vec<_>>(),
+        ));
     }
 
     // export the numcodecs:abc/codec interface
-    let fcbench_codecs_str = &format!("{}", interfaces.codecs);
-    let fcbench_codecs_export = wac
-        .alias_instance_export(fcbench_codec_instance, fcbench_codecs_str)
-        .map_err(map_wasm_err)?;
-    wac.export(fcbench_codecs_export, fcbench_codecs_str)
-        .map_err(map_wasm_err)?;
+    let fcbench_codecs_str = &format!("{}", codec_interface);
+    let fcbench_codecs_export =
+        wac.alias_instance_export(fcbench_codec_instance, fcbench_codecs_str)?;
+    wac.export(fcbench_codecs_export, fcbench_codecs_str)?;
 
     // encode the WAC composition graph into a WASM component and validate it
-    let wasm = wac
-        .encode(wac_graph::EncodeOptions {
-            define_components: true,
-            // we do our own validation right below
-            validate: false,
-            processor: None,
-        })
-        .map_err(map_wasm_err)?;
+    let wasm = wac.encode(wac_graph::EncodeOptions {
+        define_components: true,
+        // we do our own validation right below
+        validate: false,
+        processor: None,
+    })?;
 
     wasmparser::Validator::new_with_features(
         wasmparser::WasmFeaturesInflated {
@@ -200,8 +177,7 @@ pub fn transform_wasm_component(
         }
         .into(),
     )
-    .validate_all(&wasm)
-    .map_err(map_wasm_err)?;
+    .validate_all(&wasm)?;
 
     Ok(wasm)
 }
@@ -211,17 +187,15 @@ struct PreparedCompositionGraph {
     wasi: Box<[PackageWithPorts]>,
 }
 
-fn get_prepared_composition_graph(
-) -> Result<&'static PreparedCompositionGraph, WasmCodecLoaderError> {
-    static PREPARED_COMPOSITION_GRAPH: OnceLock<
-        Result<PreparedCompositionGraph, LocationError<AnyError>>,
-    > = OnceLock::new();
+fn get_prepared_composition_graph() -> Result<&'static PreparedCompositionGraph, Error> {
+    static PREPARED_COMPOSITION_GRAPH: OnceLock<Result<PreparedCompositionGraph, Error>> =
+        OnceLock::new();
 
     let prepared_composition_graph = PREPARED_COMPOSITION_GRAPH.get_or_init(|| {
-        let CodecPluginInterfaces {
+        let PerfWitInterfaces {
             perf: perf_interface,
             ..
-        } = CodecPluginInterfaces::get();
+        } = PerfWitInterfaces::get();
 
         // create a new WAC composition graph
         let mut wac = wac_graph::CompositionGraph::new();
@@ -235,11 +209,9 @@ fn get_prepared_composition_graph(
 
         // export the fcbench:perf/perf interface
         let fcbench_perf_str = &format!("{perf_interface}");
-        let fcbench_perf_export = wac
-            .alias_instance_export(fcbench_perf_instance, fcbench_perf_str)
-            .map_err(AnyError::new)?;
-        wac.export(fcbench_perf_export, fcbench_perf_str)
-            .map_err(AnyError::new)?;
+        let fcbench_perf_export =
+            wac.alias_instance_export(fcbench_perf_instance, fcbench_perf_str)?;
+        wac.export(fcbench_perf_export, fcbench_perf_str)?;
 
         Ok(PreparedCompositionGraph {
             graph: wac,
@@ -249,9 +221,7 @@ fn get_prepared_composition_graph(
 
     match prepared_composition_graph {
         Ok(prepared_composition_graph) => Ok(prepared_composition_graph),
-        Err(err) => Err(WasmCodecLoaderError::Runtime(
-            err.map_ref(|err| RuntimeError::from(anyhow::Error::new(err))),
-        )),
+        Err(err) => Err(anyhow!(err)),
     }
 }
 
@@ -263,43 +233,37 @@ struct PackageWithPorts {
 
 fn register_wasi_component_packages(
     wac: &mut wac_graph::CompositionGraph,
-) -> Result<Vec<PackageWithPorts>, LocationError<AnyError>> {
-    let wasi_component_packages = virtual_wasi_build::ALL_COMPONENTS
-        .iter()
-        .map(
-            |(component_name, component_bytes)| -> Result<_, LocationError<AnyError>> {
-                let component_package = wac_graph::types::Package::from_bytes(
-                    component_name,
-                    None,
-                    Vec::from(*component_bytes),
-                    wac.types_mut(),
-                )
-                .map_err(AnyError::from2)
-                .map_err(LocationError::from)?;
+) -> Result<Vec<PackageWithPorts>, Error> {
+    // let wasi_component_packages = virtual_wasi_build::ALL_COMPONENTS
+    //     .iter()
+    //     .map(
+    //         |(component_name, component_bytes)| -> Result<_, Error> {
+    //             let component_package = wac_graph::types::Package::from_bytes(
+    //                 component_name,
+    //                 None,
+    //                 Vec::from(*component_bytes),
+    //                 wac.types_mut(),
+    //             )?;
 
-                let component_world = &wac.types()[component_package.ty()];
+    //             let component_world = &wac.types()[component_package.ty()];
 
-                let component_imports = extract_component_ports(&component_world.imports)
-                    .map_err(AnyError::from2)
-                    .map_err(LocationError::from)?;
-                let component_exports = extract_component_ports(&component_world.exports)
-                    .map_err(AnyError::from2)
-                    .map_err(LocationError::from)?;
+    //             let component_imports = extract_component_ports(&component_world.imports)?;
+    //             let component_exports = extract_component_ports(&component_world.exports)?;
 
-                let component_package = wac
-                    .register_package(component_package)
-                    .map_err(AnyError::new)?;
+    //             let component_package = wac
+    //                 .register_package(component_package)?;
 
-                Ok(PackageWithPorts {
-                    package: component_package,
-                    imports: component_imports.into_boxed_slice(),
-                    exports: component_exports.into_boxed_slice(),
-                })
-            },
-        )
-        .collect::<Result<Vec<_>, _>>()?;
+    //             Ok(PackageWithPorts {
+    //                 package: component_package,
+    //                 imports: component_imports.into_boxed_slice(),
+    //                 exports: component_exports.into_boxed_slice(),
+    //             })
+    //         },
+    //     )
+    //     .collect::<Result<Vec<_>, _>>()?;
 
-    Ok(wasi_component_packages)
+    // Ok(wasi_component_packages)
+    Ok(Vec::new())
 }
 
 fn extract_component_ports(
@@ -318,8 +282,11 @@ fn extract_component_ports(
 
 fn instantiate_fcbench_perf_package(
     wac: &mut wac_graph::CompositionGraph,
-) -> Result<wac_graph::NodeId, LocationError<AnyError>> {
-    let perf_interface = &CodecPluginInterfaces::get().perf;
+) -> Result<wac_graph::NodeId, Error> {
+    let PerfWitInterfaces {
+        perf: perf_interface,
+        ..
+    } = PerfWitInterfaces::get();
 
     // create, register, and instantiate the fcbench:perf package
     let fcbench_perf_package = wac_graph::types::Package::from_bytes(
@@ -327,26 +294,21 @@ fn instantiate_fcbench_perf_package(
         perf_interface.package().version(),
         create_fcbench_perf_component()?,
         wac.types_mut(),
-    )
-    .map_err(AnyError::from2)
-    .map_err(LocationError::from)?;
+    )?;
 
-    let fcbench_perf_package = wac
-        .register_package(fcbench_perf_package)
-        .map_err(AnyError::new)?;
+    let fcbench_perf_package = wac.register_package(fcbench_perf_package)?;
     let fcbench_perf_instance = wac.instantiate(fcbench_perf_package);
 
     Ok(fcbench_perf_instance)
 }
 
-fn create_fcbench_perf_component() -> Result<Vec<u8>, LocationError<AnyError>> {
+fn create_fcbench_perf_component() -> Result<Vec<u8>, Error> {
     const ROOT: &str = "root";
 
-    let CodecPluginInterfaces {
+    let PerfWitInterfaces {
         perf: perf_interface,
         instruction_counter,
-        ..
-    } = CodecPluginInterfaces::get();
+    } = PerfWitInterfaces::get();
 
     let mut module = create_fcbench_perf_module();
 
@@ -437,29 +399,24 @@ fn create_fcbench_perf_component() -> Result<Vec<u8>, LocationError<AnyError>> {
         &resolve,
         world,
         wit_component::StringEncoding::UTF8,
-    )
-    .map_err(AnyError::from2)
-    .map_err(LocationError::from)?;
+    )?;
 
     let mut encoder = wit_component::ComponentEncoder::default()
         .module(&module)
-        .map_err(|err| {
-            AnyError::from2(err.context("wit_component::ComponentEncoder::module failed"))
-        })?;
+        .context("wit_component::ComponentEncoder::module failed")?;
 
-    let component = encoder.encode().map_err(|err| {
-        AnyError::from2(err.context("wit_component::ComponentEncoder::encode failed"))
-    })?;
+    let component = encoder
+        .encode()
+        .context("wit_component::ComponentEncoder::encode failed")?;
 
     Ok(component)
 }
 
 fn create_fcbench_perf_module() -> Vec<u8> {
-    let CodecPluginInterfaces {
+    let PerfWitInterfaces {
         perf: perf_interface,
         instruction_counter,
-        ..
-    } = CodecPluginInterfaces::get();
+    } = PerfWitInterfaces::get();
 
     let mut module = wasm_encoder::Module::new();
 

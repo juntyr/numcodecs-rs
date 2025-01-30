@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 
+use anyhow::{anyhow, Error};
 use wasm_encoder::reencode::{self, Reencode};
 
 /// Adapted from cranelift's NaN canonicalisation codegen pass
@@ -26,7 +27,9 @@ impl NaNCanonicaliser {
             func_type_num_params: Vec::new(),
             function_type_indices: VecDeque::new(),
         };
-        reencoder.parse_core_module(&mut module, parser, wasm)?;
+        reencoder
+            .parse_core_module(&mut module, parser, wasm)
+            .map_err(|err| anyhow::format_err!("{}", err))?;
 
         let wasm = module.finish();
         wasmparser::Validator::new_with_features(features).validate_all(&wasm)?;
@@ -40,7 +43,7 @@ struct NaNCanonicaliserReencoder {
 }
 
 impl wasm_encoder::reencode::Reencode for NaNCanonicaliserReencoder {
-    type Error = AnyError;
+    type Error = Error;
 
     fn parse_type_section(
         &mut self,
@@ -76,12 +79,12 @@ impl wasm_encoder::reencode::Reencode for NaNCanonicaliserReencoder {
         func: wasmparser::FunctionBody<'_>,
     ) -> Result<(), reencode::Error<Self::Error>> {
         let Some(function_ty) = self.function_type_indices.pop_front() else {
-            return Err(reencode::Error::UserError(AnyError::msg(
+            return Err(reencode::Error::UserError(anyhow!(
                 "wasm function body without declaration",
             )));
         };
         let Some(num_params) = self.func_type_num_params.get(function_ty).copied() else {
-            return Err(reencode::Error::UserError(AnyError::msg(
+            return Err(reencode::Error::UserError(anyhow!(
                 "invalid type index for wasm function",
             )));
         };
@@ -101,7 +104,7 @@ impl wasm_encoder::reencode::Reencode for NaNCanonicaliserReencoder {
         let instructions = func.get_operators_reader()?;
         for instruction in instructions {
             if let Some(kind) = Self::may_produce_non_deterministic_nan(&instruction?)
-                .map_err(|err| reencode::Error::UserError(AnyError::new(err)))?
+                .map_err(|err| reencode::Error::UserError(anyhow!(err)))?
             {
                 match kind {
                     MaybeNaNKind::F32 => stash_f32.get_or_insert_with(|| {
@@ -123,7 +126,7 @@ impl wasm_encoder::reencode::Reencode for NaNCanonicaliserReencoder {
                             num_locals += 1;
                             stash_v128
                         })
-                    },
+                    }
                 };
             }
         }
@@ -134,7 +137,7 @@ impl wasm_encoder::reencode::Reencode for NaNCanonicaliserReencoder {
             let instruction = instruction?;
 
             let kind = Self::may_produce_non_deterministic_nan(&instruction)
-                .map_err(|err| reencode::Error::UserError(AnyError::new(err)))?;
+                .map_err(|err| reencode::Error::UserError(anyhow!(err)))?;
 
             function.instruction(&self.instruction(instruction)?);
 
@@ -144,7 +147,7 @@ impl wasm_encoder::reencode::Reencode for NaNCanonicaliserReencoder {
                     MaybeNaNKind::F64 => stash_f64,
                     MaybeNaNKind::F32x4 | MaybeNaNKind::F64x2 => stash_v128,
                 }) else {
-                    return Err(reencode::Error::UserError(AnyError::msg(
+                    return Err(reencode::Error::UserError(anyhow!(
                         "wasm float operation without matching canonicalisation stash",
                     )));
                 };
@@ -348,7 +351,7 @@ impl NaNCanonicaliserReencoder {
             //  non-canonical NaN value is stored
             wasmparser::Operator::F32Store { .. } | wasmparser::Operator::F64Store { .. } => {
                 Ok(None)
-            },
+            }
             // non-float operation
             wasmparser::Operator::I32Store8 { .. }
             | wasmparser::Operator::I32Store16 { .. }
@@ -363,7 +366,7 @@ impl NaNCanonicaliserReencoder {
             //  non-canonical NaN values
             wasmparser::Operator::F32Const { .. } | wasmparser::Operator::F64Const { .. } => {
                 Ok(None)
-            },
+            }
             // === Reference types ===
             // non-float operation
             wasmparser::Operator::RefNull { .. }
@@ -650,7 +653,7 @@ impl NaNCanonicaliserReencoder {
             | wasmparser::Operator::I64AtomicRmw16CmpxchgU { .. }
             | wasmparser::Operator::I64AtomicRmw32CmpxchgU { .. } => {
                 Err(NonDeterministicWasmFeature::Threads)
-            },
+            }
             // === Shared-everything threads ===
             // non-deterministic with potential data races
             wasmparser::Operator::GlobalAtomicGet { .. }
@@ -690,7 +693,7 @@ impl NaNCanonicaliserReencoder {
             | wasmparser::Operator::ArrayAtomicRmwCmpxchg { .. }
             | wasmparser::Operator::RefI31Shared => {
                 Err(NonDeterministicWasmFeature::SharedEverythingThreads)
-            },
+            }
             // === SIMD ===
             // non-float operation, memory loads/stores are deterministic
             wasmparser::Operator::V128Load { .. }
@@ -938,7 +941,7 @@ impl NaNCanonicaliserReencoder {
             // convert int to float, deterministic
             wasmparser::Operator::F32x4ConvertI32x4S | wasmparser::Operator::F32x4ConvertI32x4U => {
                 Ok(None)
-            },
+            }
             // truncate float to int, which saturates to be deterministic
             wasmparser::Operator::I32x4TruncSatF64x2SZero
             | wasmparser::Operator::I32x4TruncSatF64x2UZero => Ok(None),
@@ -971,7 +974,7 @@ impl NaNCanonicaliserReencoder {
             | wasmparser::Operator::I16x8RelaxedDotI8x16I7x16S
             | wasmparser::Operator::I32x4RelaxedDotI8x16I7x16AddS => {
                 Err(NonDeterministicWasmFeature::RelaxedSimd)
-            },
+            }
             // === Typed function references ===
             // non-float operation
             wasmparser::Operator::CallRef { .. }

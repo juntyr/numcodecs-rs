@@ -8,6 +8,6 @@ mod codec;
 mod engine;
 mod logging;
 mod stdio;
-// mod transform;
+mod transform;
 
 pub use codec::{ReproducibleWasmCodec, ReproducibleWasmCodecError, ReproducibleWasmCodecType};

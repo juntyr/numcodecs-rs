@@ -7,7 +7,10 @@ use wasm_runtime_layer::{
     ExportType, ExternType, FuncType, GlobalType, ImportType, MemoryType, TableType,
 };
 
-// use crate::transform::{instcnt::InstructionCounterInjecter, nan::NaNCanonicaliser};
+use crate::transform::{
+    instcnt::{InstructionCounterInjecter, PerfWitInterfaces},
+    nan::NaNCanonicaliser,
+};
 
 #[derive(Clone)]
 #[repr(transparent)]
@@ -173,9 +176,14 @@ impl<E: WasmEngine> WasmInstance<ValidatedEngine<E>> for ValidatedInstance<E> {
                 .into_iter()
                 .map(|((module, name), value)| ((module, name), into_extern(value))),
         );
+
+        let PerfWitInterfaces {
+            perf: perf_interface,
+            instruction_counter,
+        } = PerfWitInterfaces::get();
         new_imports.define(
-            "fcbench",
-            "instruction-counter",
+            &format!("{perf_interface}"),
+            instruction_counter,
             Extern::Global(
                 store
                     .as_context_mut()
@@ -370,11 +378,11 @@ impl<E: WasmEngine> WasmModule<ValidatedEngine<E>> for ValidatedModule<E> {
 
         wasmparser::Validator::new_with_features(features).validate_all(&bytes)?;
 
-        // // Inject an instruction counter into the WASM module
-        // let bytes = InstructionCounterInjecter::apply_to_module(&bytes, features)?;
+        // Inject an instruction counter into the WASM module
+        let bytes = InstructionCounterInjecter::apply_to_module(&bytes, features)?;
 
-        // // Normalise NaNs to ensure floating point operations are deterministic
-        // let bytes = NaNCanonicaliser::apply_to_module(&bytes, features)?;
+        // Normalise NaNs to ensure floating point operations are deterministic
+        let bytes = NaNCanonicaliser::apply_to_module(&bytes, features)?;
 
         Ok(Self(<E::Module as WasmModule<E>>::new(
             engine.as_ref(),

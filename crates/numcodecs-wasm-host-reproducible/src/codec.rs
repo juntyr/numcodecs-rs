@@ -6,10 +6,11 @@ use numcodecs::{
 use numcodecs_wasm_host::{GuestError, RuntimeError, WasmCodec, WasmCodecComponent};
 use schemars::Schema;
 use serde::Serializer;
-use wasm_component_layer::Store;
-use wasm_component_layer::{AsContextMut, Component, Instance, Linker};
+use wasm_component_layer::{AsContextMut, Component, Instance, Linker, Store, TypedFunc};
 use wasm_runtime_layer::{backend::WasmEngine, Engine};
 
+use crate::transform::instcnt::PerfWitInterfaces;
+use crate::transform::transform_wasm_component;
 use crate::{engine::ValidatedEngine, logging, stdio};
 
 #[derive(Debug, thiserror::Error)]
@@ -36,6 +37,7 @@ where
     instance: Instance,
     codec: WasmCodec,
     ty: ReproducibleWasmCodecType<E>,
+    instruction_counter: TypedFunc<(), u64>,
 }
 
 impl<E: WasmEngine> ReproducibleWasmCodec<E>
@@ -49,7 +51,6 @@ where
             config.remove("id");
         }
 
-        // TODO: reuse or call ty()?
         let codec: Self = self.ty.codec_from_config(config)?;
 
         Ok(codec)
@@ -76,12 +77,24 @@ where
         result.and(results)
     }
 
-    // pub fn instruction_counter(&self) -> Result<u64, WasmCodecError> {
-    //     let codec = self.codec.lock().map_err(|_| WasmCodecError::Poisoned {
-    //         codec_id: self.ty.codec_id.clone(),
-    //     })?;
-    //     Ok(codec.instruction_counter())
-    // }
+    pub fn instruction_counter(&self) -> Result<u64, ReproducibleWasmCodecError> {
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|_| ReproducibleWasmCodecError::Poisoned {
+                codec_id: self.ty.codec_id.clone(),
+            })?;
+
+        let cnt = self
+            .instruction_counter
+            .call(store.as_context_mut(), ())
+            .map_err(|err| ReproducibleWasmCodecError::Runtime {
+                codec_id: self.ty.codec_id.clone(),
+                source: RuntimeError::from(err),
+            })?;
+
+        Ok(cnt)
+    }
 }
 
 impl<E: WasmEngine> Clone for ReproducibleWasmCodec<E>
@@ -253,8 +266,12 @@ where
         E: Send + Sync,
         Store<(), ValidatedEngine<E>>: Send + Sync,
     {
-        // let wasm_component = transform_wasm_component(wasm_component)?;
-        let wasm_component = wasm_component.into();
+        let wasm_component = transform_wasm_component(wasm_component).map_err(|err| {
+            ReproducibleWasmCodecError::Runtime {
+                codec_id: Arc::from("<unknown>"),
+                source: RuntimeError::from(err),
+            }
+        })?;
 
         let engine = Engine::new(ValidatedEngine::new(engine));
         let component = Component::new(&engine, &wasm_component).map_err(|err| {
@@ -339,16 +356,37 @@ where
                 .map_err(serde::de::Error::custom)?;
         let codec = component.codec_from_config(store.as_context_mut(), config)?;
 
+        let PerfWitInterfaces {
+            perf: perf_interface,
+            instruction_counter,
+        } = PerfWitInterfaces::get();
+        let Some(perf_interface) = instance.exports().instance(perf_interface) else {
+            return Err(serde::de::Error::custom(
+                "WASM component does not contain an interface to read the instruction counter",
+            ));
+        };
+        let Some(instruction_counter) = perf_interface.func(instruction_counter) else {
+            return Err(serde::de::Error::custom(
+                "WASM component interface does not contain a function to read the instruction counter"
+            ));
+        };
+        let instruction_counter = instruction_counter.typed().map_err(|err| {
+            serde::de::Error::custom(format!(
+                "WASM component instruction counter function has the wrong signature: {err}"
+            ))
+        })?;
+
         Ok(ReproducibleWasmCodec {
-            codec,
+            store: Mutex::new(store),
             instance,
+            codec,
             ty: Self {
                 codec_id: self.codec_id.clone(),
                 codec_config_schema: self.codec_config_schema.clone(),
                 component: self.component.clone(),
                 component_instantiater: self.component_instantiater.clone(),
             },
-            store: Mutex::new(store),
+            instruction_counter,
         })
     }
 
