@@ -29,7 +29,7 @@ pub struct WasmCodec {
     pub(crate) decode_into: Func,
     pub(crate) get_config: Func,
     // wasm component instance
-    pub(crate) instance: Arc<Instance>,
+    pub(crate) instance: Instance,
 }
 
 impl WasmCodec {
@@ -172,6 +172,10 @@ impl WasmCodec {
         let codec: Self = self.ty().codec_from_config(ctx_into, config)?;
 
         Ok(codec)
+    }
+
+    pub fn drop(&self, ctx: impl AsContextMut) -> Result<(), RuntimeError> {
+        self.resource.drop(ctx).map_err(RuntimeError::from)
     }
 }
 

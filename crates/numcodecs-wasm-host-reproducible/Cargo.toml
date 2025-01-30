@@ -1,5 +1,5 @@
 [package]
-name = "numcodecs-wasm-host"
+name = "numcodecs-wasm-host-reproducible"
 version = "0.1.0"
 edition = { workspace = true }
 authors = { workspace = true }
@@ -7,7 +7,7 @@ repository = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 
-description = "Import numcodecs-API-like compressors from wasm components"
+description = "Import numcodecs API reproducible compressors from wasm components"
 readme = "README.md"
 categories = ["wasm", "api-bindings", "compression", "encoding"]
 keywords = ["numcodecs", "compression", "encoding", "wasm-component", "wasm-bindgen"]
@@ -16,16 +16,24 @@ keywords = ["numcodecs", "compression", "encoding", "wasm-component", "wasm-bind
 
 [dependencies]
 anyhow = { workspace = true }
-# core-error = { workspace = true }
-ndarray = { workspace = true, features = ["std"] }
+numcodecs-wasm-host = { workspace = true }
+indexmap = { workspace = true, features = ["std"] }
+log = { workspace = true }
 numcodecs = { workspace = true }
+polonius-the-crab = { workspace = true }
 schemars = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
-serde-transcode = { workspace = true }
-serde_json = { workspace = true, features = ["std"] }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
+wac-graph = { workspace = true }
 wasm_component_layer = { workspace = true }
+wasm_runtime_layer = { workspace = true }
+wasmparser = { workspace = true, features = ["features"] }
+wasm-encoder = { workspace = true, features = ["wasmparser"] }
+wit-component = { workspace = true }
+wit-parser = { workspace = true }
+vecmap-rs = { workspace = true }
 
 [lints]
 workspace = true

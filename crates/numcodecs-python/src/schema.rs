@@ -166,7 +166,7 @@ pub fn docs_from_schema(schema: &Schema) -> Option<String> {
             docs.push_str(&info.replace('\n', "\n    "));
         }
 
-        docs.push_str("\n");
+        docs.push('\n');
     }
 
     if parameters.additional {

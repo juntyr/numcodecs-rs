@@ -24,7 +24,7 @@ pub struct WasmCodecComponent {
     pub(crate) decode_into: Func,
     pub(crate) get_config: Func,
     // wasm component instance
-    pub(crate) instance: Arc<Instance>,
+    pub(crate) instance: Instance,
 }
 
 impl WasmCodecComponent {
@@ -74,7 +74,7 @@ impl WasmCodecComponent {
             decode: load_func(codecs_interface, "[method]codec.decode")?,
             decode_into: load_func(codecs_interface, "[method]codec.decode-into")?,
             get_config: load_func(codecs_interface, "[method]codec.get-config")?,
-            instance: Arc::new(instance),
+            instance,
         })
     }
 }
