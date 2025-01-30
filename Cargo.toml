@@ -110,7 +110,7 @@ wasmparser = { version = "0.224", default-features = false }
 wasmtime = { version = "28.0", default-features = false }
 wasmtime_runtime_layer = { version = "28.0", default-features = false }
 wasm-encoder = { version = "0.224", default-features = false }
-wasm_runtime_layer = { version = "0.4", default-features = false }
+wasm_runtime_layer = { version = "0.4.2", default-features = false }
 wit-bindgen = { version = "0.38", default-features = false }
 wit-component = { version = "0.224", default-features = false }
 wit-parser = { version = "0.224", default-features = false }
