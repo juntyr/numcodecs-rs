@@ -4,7 +4,7 @@ use pyo3::{exceptions::PyTypeError, prelude::*};
 
 mod engine;
 
-use engine::{Engine, default_engine};
+use engine::{default_engine, Engine};
 
 #[pymodule]
 #[pyo3(name = "_wasm")]
@@ -43,10 +43,17 @@ fn read_codec_instruction_counter<'py>(
     py: Python<'py>,
     codec: &Bound<'py, PyCodec>,
 ) -> Result<u64, PyErr> {
-    let Some(instruction_counter) = PyCodecAdapter::with_downcast(codec, |codec: &ReproducibleWasmCodec<Engine>| {
-        codec.instruction_counter().map_err(|err| pyo3_error::PyErrChain::new(py, err))
-    }).transpose()? else {
-        return Err(PyTypeError::new_err("`codec` is not a wasm codec, only wasm codecs have instruction counts"));
+    let Some(instruction_counter) =
+        PyCodecAdapter::with_downcast(codec, |codec: &ReproducibleWasmCodec<Engine>| {
+            codec
+                .instruction_counter()
+                .map_err(|err| pyo3_error::PyErrChain::new(py, err))
+        })
+        .transpose()?
+    else {
+        return Err(PyTypeError::new_err(
+            "`codec` is not a wasm codec, only wasm codecs have instruction counts",
+        ));
     };
 
     Ok(instruction_counter)
