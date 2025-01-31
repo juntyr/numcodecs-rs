@@ -7,6 +7,17 @@ repository = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 
+description = "numcodecs compression for codecs compiled to WebAssembly"
+readme = "README.md"
+categories = ["wasm", "api-bindings", "compression", "encoding"]
+keywords = [
+    "numcodecs",
+    "compression",
+    "encoding",
+    "wasm-component",
+    "wasm-bindgen",
+]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
