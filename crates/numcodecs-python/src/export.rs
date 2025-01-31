@@ -54,7 +54,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
                 (intern!(py, "__module__"), module.name()?.into_any()),
                 (
                     intern!(py, "__doc__"),
-                    docs_from_schema(&codec_config_schema, &codec_id).into_pyobject(py)?,
+                    docs_from_schema(&codec_config_schema).into_pyobject(py)?,
                 ),
                 (
                     intern!(py, RustCodec::TYPE_ATTRIBUTE),
@@ -91,7 +91,8 @@ pub fn export_codec_class<'py, T: DynCodecType>(
 }
 
 #[allow(clippy::redundant_pub_crate)]
-#[pyclass(frozen)]
+#[pyclass(frozen, module = "numcodecs._rust", name = "_RustCodecType")]
+/// Rust-implemented codec type container.
 pub(crate) struct RustCodecType {
     ty: Box<dyn 'static + Send + Sync + AnyCodecType>,
 }
@@ -176,7 +177,10 @@ impl<T: DynCodecType> AnyCodecType for T {
 }
 
 #[allow(clippy::redundant_pub_crate)]
-#[pyclass(subclass, frozen)]
+#[pyclass(subclass, frozen, module = "numcodecs._rust")]
+/// Rust-implemented codec abstract base class.
+///
+/// This class implements the [`numcodecs.abc.Codec`][numcodecs.abc.Codec] API.
 pub(crate) struct RustCodec {
     cls_module: String,
     cls_name: String,
@@ -227,6 +231,19 @@ impl RustCodec {
         })
     }
 
+    /// Encode the data in `buf`.
+    ///
+    /// Parameters
+    /// ----------
+    /// buf : Buffer
+    ///     Data to be encoded. May be any object supporting the new-style
+    ///     buffer protocol.
+    ///
+    /// Returns
+    /// -------
+    /// enc : Buffer
+    ///     Encoded data. May be any object supporting the new-style buffer
+    ///     protocol.
     fn encode<'py>(
         &self,
         py: Python<'py>,
@@ -241,6 +258,22 @@ impl RustCodec {
     }
 
     #[pyo3(signature = (buf, out=None))]
+    /// Decode the data in `buf`.
+    ///
+    /// Parameters
+    /// ----------
+    /// buf : Buffer
+    ///     Encoded data. May be any object supporting the new-style buffer
+    ///     protocol.
+    /// out : Buffer, optional
+    ///     Writeable buffer to store decoded data. N.B. if provided, this buffer must
+    ///     be exactly the right size to store the decoded data.
+    ///
+    /// Returns
+    /// -------
+    /// dec : Buffer
+    ///     Decoded data. May be any object supporting the new-style
+    ///     buffer protocol.
     fn decode<'py>(
         &self,
         py: Python<'py>,
@@ -262,11 +295,31 @@ impl RustCodec {
         }
     }
 
+    /// Returns the configuration of the codec.
+    ///
+    /// [`numcodecs.registry.get_codec(config)`][numcodecs.registry.get_codec]
+    /// can be used to reconstruct this codec from the returned config.
+    ///
+    /// Returns
+    /// -------
+    /// config : dict
+    ///     Configuration of the codec.
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {
         self.codec.get_config(py)
     }
 
     #[classmethod]
+    /// Instantiate the codec from a configuration [`dict`][dict].
+    ///
+    /// Parameters
+    /// ----------
+    /// config : dict
+    ///     Configuration of the codec.
+    ///
+    /// Returns
+    /// -------
+    /// codec : Self
+    ///     Instantiated codec.
     fn from_config<'py>(
         cls: &Bound<'py, PyType>,
         config: &Bound<'py, PyDict>,
@@ -279,8 +332,7 @@ impl RustCodec {
 
     fn __repr__(this: PyRef<Self>, py: Python) -> Result<String, PyErr> {
         let config = this.get_config(py)?;
-        // FIXME: let Ok(..) is sufficient with MSRV 1.82
-        let py_this = this.into_pyobject(py)?;
+        let Ok(py_this) = this.into_pyobject(py);
 
         let mut repr = py_this.get_type().name()?.to_cow()?.into_owned();
         repr.push('(');

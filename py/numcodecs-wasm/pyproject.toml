@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.8,<2.0"]
+build-backend = "maturin"
 
 [project]
 name = "numcodecs_wasm"
-version = "0.1.0.dev0" # wasi 0.2.2
+version = "0.1.0.dev1" # wasi 0.2.2
 description = "numcodecs compression for codecs compiled to WebAssembly"
 
 authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
@@ -15,18 +15,18 @@ license = { file = "LICENSE" }
 
 requires-python = ">=3.10"
 
-dependencies = [
-    "field-compression-benchmark==0.0.15",
-    "numcodecs~=0.13.1",
+dependencies = ["numcodecs~=0.13.1"]
+
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
 [dependency-groups]
-dev = [
-    "ruff~=0.9.0",
-]
+dev = ["ruff~=0.9.0"]
 
-[tool.setuptools]
-# Workaround for
-# https://github.com/astral-sh/uv/issues/9513
-# https://github.com/pypa/setuptools/issues/4759
-license-files = []
+[tool.maturin]
+python-source = "py"
+module-name = "numcodecs_wasm._wasm"
+features = ["pyo3/extension-module"]

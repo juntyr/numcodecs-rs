@@ -17,9 +17,7 @@
 //!
 //! Zstandard codec implementation for the [`numcodecs`] API.
 
-use schemars::JsonSchema;
-// Only used to explicitly enable the `no_wasm_shim` feature in zstd/zstd-sys
-use zstd_sys as _;
+#![allow(clippy::multiple_crate_versions)] // embedded-io
 
 use std::{borrow::Cow, io};
 
@@ -28,8 +26,11 @@ use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
 };
+use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
+// Only used to explicitly enable the `no_wasm_shim` feature in zstd/zstd-sys
+use zstd_sys as _;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]

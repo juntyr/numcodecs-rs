@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "numcodecs_wasm_%package_suffix%"
-version = "%crate-version%.dev0"
+version = "%crate-version%.dev1"
 description = "numcodecs-%crate-suffix% compression codec compiled to WebAssembly"
 
 authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
@@ -16,7 +16,7 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 
 dependencies = [
-    "numcodecs-wasm==0.1.0.dev0", # wasi 0.2.2
+    "numcodecs-wasm==0.1.0.dev1", # wasi 0.2.2
 ]
 
 [tool.setuptools.packages.find]

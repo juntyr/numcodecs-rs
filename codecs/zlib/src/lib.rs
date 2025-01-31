@@ -17,6 +17,8 @@
 //!
 //! Zlib codec implementation for the [`numcodecs`] API.
 
+#![allow(clippy::multiple_crate_versions)] // embedded-io
+
 use std::borrow::Cow;
 
 use ndarray::Array1;
