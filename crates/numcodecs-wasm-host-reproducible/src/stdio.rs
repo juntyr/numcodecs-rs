@@ -6,25 +6,25 @@ use wasm_component_layer::{
 };
 
 pub fn add_to_linker(linker: &mut Linker, mut ctx: impl AsContextMut) -> Result<(), anyhow::Error> {
-    let FcBenchStdioInterface {
-        stdio: fcbench_stdio_interface,
-    } = FcBenchStdioInterface::get();
+    let WasiSandboxedStdioInterface {
+        stdio: simple_stdio_interface,
+    } = WasiSandboxedStdioInterface::get();
 
-    let fcbench_stdio_instance = linker.define_instance(fcbench_stdio_interface.clone())?;
+    let simple_stdio_instance = linker.define_instance(simple_stdio_interface.clone())?;
 
-    fcbench_stdio_instance.define_func(
+    simple_stdio_instance.define_func(
         "write-stdout",
         OutputStream::Stdout.create_write_func(ctx.as_context_mut()),
     )?;
-    fcbench_stdio_instance.define_func(
+    simple_stdio_instance.define_func(
         "flush-stdout",
         OutputStream::Stdout.create_flush_func(ctx.as_context_mut()),
     )?;
-    fcbench_stdio_instance.define_func(
+    simple_stdio_instance.define_func(
         "write-stderr",
         OutputStream::Stderr.create_write_func(ctx.as_context_mut()),
     )?;
-    fcbench_stdio_instance.define_func(
+    simple_stdio_instance.define_func(
         "flush-stderr",
         OutputStream::Stderr.create_flush_func(ctx.as_context_mut()),
     )?;
@@ -45,15 +45,15 @@ impl OutputStream {
             FuncType::new([ValueType::List(ListType::new(ValueType::U8))], []),
             move |_ctx, args, results| {
                 let [Value::List(contents)] = args else {
-                    anyhow::bail!("invalid fcbench:wasi/stdio#write-{self} arguments");
+                    anyhow::bail!("invalid wasi-sandboxed:io/stdio#write-{self} arguments");
                 };
                 let Ok(contents) = contents.typed::<u8>() else {
-                    anyhow::bail!("invalid fcbench:wasi/stdio#write-{self} argument type");
+                    anyhow::bail!("invalid wasi-sandboxed:io/stdio#write-{self} argument type");
                 };
 
                 anyhow::ensure!(
                     results.is_empty(),
-                    "invalid fcbench:wasi/stdio#write-{self} results"
+                    "invalid wasi-sandboxed:io/stdio#write-{self} results"
                 );
 
                 if let Err(err) = match self {
@@ -76,12 +76,12 @@ impl OutputStream {
         Func::new(ctx, FuncType::new([], []), move |_ctx, args, results| {
             anyhow::ensure!(
                 args.is_empty(),
-                "invalid fcbench:wasi/stdio#flush-{self} arguments"
+                "invalid wasi-sandboxed:io/stdio#flush-{self} arguments"
             );
 
             anyhow::ensure!(
                 results.is_empty(),
-                "invalid fcbench:wasi/stdio#flush-{self} results"
+                "invalid wasi-sandboxed:io/stdio#flush-{self} results"
             );
 
             if let Err(err) = match self {
@@ -106,19 +106,20 @@ impl fmt::Display for OutputStream {
 }
 
 #[non_exhaustive]
-pub struct FcBenchStdioInterface {
+pub struct WasiSandboxedStdioInterface {
     pub stdio: InterfaceIdentifier,
 }
 
-impl FcBenchStdioInterface {
+impl WasiSandboxedStdioInterface {
     #[must_use]
     pub fn get() -> &'static Self {
-        static FCBENCH_STDIO_INTERFACE: OnceLock<FcBenchStdioInterface> = OnceLock::new();
+        static WASI_SANDBOXED_STDIO_INTERFACE: OnceLock<WasiSandboxedStdioInterface> =
+            OnceLock::new();
 
-        FCBENCH_STDIO_INTERFACE.get_or_init(|| Self {
+        WASI_SANDBOXED_STDIO_INTERFACE.get_or_init(|| Self {
             stdio: InterfaceIdentifier::new(
                 PackageIdentifier::new(
-                    PackageName::new("fcbench", "wasi"),
+                    PackageName::new("wasi-sandboxed", "io"),
                     Some(semver::Version::new(0, 2, 2)),
                 ),
                 "stdio",

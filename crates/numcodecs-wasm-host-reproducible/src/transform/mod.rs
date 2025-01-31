@@ -4,7 +4,7 @@ use anyhow::{anyhow, Context, Error};
 use instcnt::PerfWitInterfaces;
 use numcodecs_wasm_host::NumcodecsWitInterfaces;
 
-use crate::{logging::WasiLoggingInterface, stdio::FcBenchStdioInterface};
+use crate::{logging::WasiLoggingInterface, stdio::WasiSandboxedStdioInterface};
 
 pub mod instcnt;
 pub mod nan;
@@ -17,7 +17,7 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     } = NumcodecsWitInterfaces::get();
 
     // create a new WAC composition graph with the WASI component packages
-    //  pre-registered and the fcbench:perf/perf interface pre-exported
+    //  pre-registered and the numcodecs:wasm/perf interface pre-exported
     let PreparedCompositionGraph {
         graph: wac,
         wasi: wasi_component_packages,
@@ -25,32 +25,32 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     let mut wac = wac.clone();
 
     // parse and instantiate the root package, which exports numcodecs:abc/codec
-    let fcbench_codec_package = wac_graph::types::Package::from_bytes(
+    let numcodecs_codec_package = wac_graph::types::Package::from_bytes(
         &format!("{}", codec_interface.package().name()),
         codec_interface.package().version(),
         wasm_component,
         wac.types_mut(),
     )?;
 
-    let fcbench_codec_world = &wac.types()[fcbench_codec_package.ty()];
-    let fcbench_codec_imports = extract_component_ports(&fcbench_codec_world.imports)?;
+    let numcodecs_codec_world = &wac.types()[numcodecs_codec_package.ty()];
+    let numcodecs_codec_imports = extract_component_ports(&numcodecs_codec_world.imports)?;
 
-    let fcbench_codec_package = wac.register_package(fcbench_codec_package)?;
-    let fcbench_codec_instance = wac.instantiate(fcbench_codec_package);
+    let numcodecs_codec_package = wac.register_package(numcodecs_codec_package)?;
+    let numcodecs_codec_instance = wac.instantiate(numcodecs_codec_package);
 
     // list the imports that the linker will provide
     let linker_provided_imports = [
-        &FcBenchStdioInterface::get().stdio,
+        &WasiSandboxedStdioInterface::get().stdio,
         &WasiLoggingInterface::get().logging,
     ];
 
     // initialise the unresolved imports to the imports of the root package
     let mut unresolved_imports = vecmap::VecMap::new();
-    for import in &fcbench_codec_imports {
+    for import in &numcodecs_codec_imports {
         unresolved_imports
             .entry(import.clone())
             .or_insert_with(Vec::new)
-            .push(fcbench_codec_instance);
+            .push(numcodecs_codec_instance);
     }
 
     // track all non-root instances, which may fulfil imports
@@ -58,7 +58,7 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
 
     // initialise the queue of required, still to instantiate packages
     //  to the imports of the root package
-    let mut required_packages_queue = fcbench_codec_imports
+    let mut required_packages_queue = numcodecs_codec_imports
         .iter()
         .map(|import| import.package().clone())
         .collect::<std::collections::VecDeque<_>>();
@@ -148,10 +148,10 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     }
 
     // export the numcodecs:abc/codec interface
-    let fcbench_codecs_str = &format!("{}", codec_interface);
-    let fcbench_codecs_export =
-        wac.alias_instance_export(fcbench_codec_instance, fcbench_codecs_str)?;
-    wac.export(fcbench_codecs_export, fcbench_codecs_str)?;
+    let numcodecs_codecs_str = &format!("{codec_interface}");
+    let numcodecs_codecs_export =
+        wac.alias_instance_export(numcodecs_codec_instance, numcodecs_codecs_str)?;
+    wac.export(numcodecs_codecs_export, numcodecs_codecs_str)?;
 
     // encode the WAC composition graph into a WASM component and validate it
     let wasm = wac.encode(wac_graph::EncodeOptions {
@@ -204,14 +204,14 @@ fn get_prepared_composition_graph() -> Result<&'static PreparedCompositionGraph,
         let wasi_component_packages =
             register_wasi_component_packages(&mut wac)?.into_boxed_slice();
 
-        // create, register, and instantiate the fcbench:perf package
-        let fcbench_perf_instance = instantiate_fcbench_perf_package(&mut wac)?;
+        // create, register, and instantiate the numcodecs:wasm package
+        let numcodecs_wasm_perf_instance = instantiate_numcodecs_wasm_perf_package(&mut wac)?;
 
-        // export the fcbench:perf/perf interface
-        let fcbench_perf_str = &format!("{perf_interface}");
-        let fcbench_perf_export =
-            wac.alias_instance_export(fcbench_perf_instance, fcbench_perf_str)?;
-        wac.export(fcbench_perf_export, fcbench_perf_str)?;
+        // export the numcodecs:wasm/perf interface
+        let numcodecs_wasm_perf_str = &format!("{perf_interface}");
+        let numcodecs_wasm_perf_export =
+            wac.alias_instance_export(numcodecs_wasm_perf_instance, numcodecs_wasm_perf_str)?;
+        wac.export(numcodecs_wasm_perf_export, numcodecs_wasm_perf_str)?;
 
         Ok(PreparedCompositionGraph {
             graph: wac,
@@ -234,36 +234,32 @@ struct PackageWithPorts {
 fn register_wasi_component_packages(
     wac: &mut wac_graph::CompositionGraph,
 ) -> Result<Vec<PackageWithPorts>, Error> {
-    // let wasi_component_packages = virtual_wasi_build::ALL_COMPONENTS
-    //     .iter()
-    //     .map(
-    //         |(component_name, component_bytes)| -> Result<_, Error> {
-    //             let component_package = wac_graph::types::Package::from_bytes(
-    //                 component_name,
-    //                 None,
-    //                 Vec::from(*component_bytes),
-    //                 wac.types_mut(),
-    //             )?;
+    let wasi_component_packages = wasi_sandboxed_component_builder::ALL_COMPONENTS
+        .iter()
+        .map(|(component_name, component_bytes)| -> Result<_, Error> {
+            let component_package = wac_graph::types::Package::from_bytes(
+                component_name,
+                None,
+                Vec::from(*component_bytes),
+                wac.types_mut(),
+            )?;
 
-    //             let component_world = &wac.types()[component_package.ty()];
+            let component_world = &wac.types()[component_package.ty()];
 
-    //             let component_imports = extract_component_ports(&component_world.imports)?;
-    //             let component_exports = extract_component_ports(&component_world.exports)?;
+            let component_imports = extract_component_ports(&component_world.imports)?;
+            let component_exports = extract_component_ports(&component_world.exports)?;
 
-    //             let component_package = wac
-    //                 .register_package(component_package)?;
+            let component_package = wac.register_package(component_package)?;
 
-    //             Ok(PackageWithPorts {
-    //                 package: component_package,
-    //                 imports: component_imports.into_boxed_slice(),
-    //                 exports: component_exports.into_boxed_slice(),
-    //             })
-    //         },
-    //     )
-    //     .collect::<Result<Vec<_>, _>>()?;
+            Ok(PackageWithPorts {
+                package: component_package,
+                imports: component_imports.into_boxed_slice(),
+                exports: component_exports.into_boxed_slice(),
+            })
+        })
+        .collect::<Result<Vec<_>, _>>()?;
 
-    // Ok(wasi_component_packages)
-    Ok(Vec::new())
+    Ok(wasi_component_packages)
 }
 
 fn extract_component_ports(
@@ -280,7 +276,7 @@ fn extract_component_ports(
         .collect::<Result<Vec<_>, _>>()
 }
 
-fn instantiate_fcbench_perf_package(
+fn instantiate_numcodecs_wasm_perf_package(
     wac: &mut wac_graph::CompositionGraph,
 ) -> Result<wac_graph::NodeId, Error> {
     let PerfWitInterfaces {
@@ -288,21 +284,21 @@ fn instantiate_fcbench_perf_package(
         ..
     } = PerfWitInterfaces::get();
 
-    // create, register, and instantiate the fcbench:perf package
-    let fcbench_perf_package = wac_graph::types::Package::from_bytes(
+    // create, register, and instantiate the numcodecs:wasm/perf package
+    let numcodecs_wasm_perf_package = wac_graph::types::Package::from_bytes(
         &format!("{}", perf_interface.package().name()),
         perf_interface.package().version(),
-        create_fcbench_perf_component()?,
+        create_numcodecs_wasm_perf_component()?,
         wac.types_mut(),
     )?;
 
-    let fcbench_perf_package = wac.register_package(fcbench_perf_package)?;
-    let fcbench_perf_instance = wac.instantiate(fcbench_perf_package);
+    let numcodecs_wasm_perf_package = wac.register_package(numcodecs_wasm_perf_package)?;
+    let numcodecs_wasm_perf_instance = wac.instantiate(numcodecs_wasm_perf_package);
 
-    Ok(fcbench_perf_instance)
+    Ok(numcodecs_wasm_perf_instance)
 }
 
-fn create_fcbench_perf_component() -> Result<Vec<u8>, Error> {
+fn create_numcodecs_wasm_perf_component() -> Result<Vec<u8>, Error> {
     const ROOT: &str = "root";
 
     let PerfWitInterfaces {
@@ -310,7 +306,7 @@ fn create_fcbench_perf_component() -> Result<Vec<u8>, Error> {
         instruction_counter,
     } = PerfWitInterfaces::get();
 
-    let mut module = create_fcbench_perf_module();
+    let mut module = create_numcodecs_wasm_perf_module();
 
     let mut resolve = wit_parser::Resolve::new();
 
@@ -412,7 +408,7 @@ fn create_fcbench_perf_component() -> Result<Vec<u8>, Error> {
     Ok(component)
 }
 
-fn create_fcbench_perf_module() -> Vec<u8> {
+fn create_numcodecs_wasm_perf_module() -> Vec<u8> {
     let PerfWitInterfaces {
         perf: perf_interface,
         instruction_counter,

@@ -11,6 +11,7 @@
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 [docs]: https://juntyr.github.io/numcodecs-rs
+
 # numcodecs-rs
 
 This repository provides a compression codec API in Rust inspired by the [`numcodecs`] Python API.
