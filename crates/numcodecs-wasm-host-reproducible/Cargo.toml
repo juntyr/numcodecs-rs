@@ -33,7 +33,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 wac-graph = { workspace = true }
-wasi-sandboxed-component-builder = { workspace = true }
+wasi-sandboxed-component-provider = { workspace = true }
 wasm_component_layer = { workspace = true }
 wasm_runtime_layer = { workspace = true }
 wasmparser = { workspace = true, features = ["features"] }

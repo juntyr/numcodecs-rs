@@ -234,7 +234,7 @@ struct PackageWithPorts {
 fn register_wasi_component_packages(
     wac: &mut wac_graph::CompositionGraph,
 ) -> Result<Vec<PackageWithPorts>, Error> {
-    let wasi_component_packages = wasi_sandboxed_component_builder::ALL_COMPONENTS
+    let wasi_component_packages = wasi_sandboxed_component_provider::ALL_COMPONENTS
         .iter()
         .map(|(component_name, component_bytes)| -> Result<_, Error> {
             let component_package = wac_graph::types::Package::from_bytes(
