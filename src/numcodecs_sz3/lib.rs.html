@@ -654,7 +654,9 @@
 <a href="#653" id="653">653</a>
 <a href="#654" id="654">654</a>
 <a href="#655" id="655">655</a>
-<a href="#656" id="656">656</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -672,6 +674,8 @@
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_sz3
 //!
 //! SZ3 codec implementation for the [`numcodecs`] API.
+
+</span><span class="attr">#![allow(clippy::multiple_crate_versions)] </span><span class="comment">// embedded-io
 
 </span><span class="kw">use </span>std::{<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">borrow::Cow</a>, <a href="https://doc.rust-lang.org/nightly/alloc/fmt/index.html">fmt</a>};
 
@@ -698,16 +702,16 @@
 </span><span class="kw">pub struct </span><a href="../../numcodecs_sz3/struct.Sz3Codec.html">Sz3Codec</a> {
     <span class="doccomment">/// Predictor
     </span><span class="attr">#[serde(default = <span class="string">"default_predictor"</span>)]
-    </span><span class="kw">pub </span>predictor: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#117-133">Sz3Predictor</a>&gt;,
+    </span><span class="kw">pub </span>predictor: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#119-135">Sz3Predictor</a>&gt;,
     <span class="doccomment">/// SZ3 error bound
     </span><span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>error_bound: <a href="#61-112">Sz3ErrorBound</a>,
+    </span><span class="kw">pub </span>error_bound: <a href="#63-114">Sz3ErrorBound</a>,
     <span class="doccomment">/// Encoder
     </span><span class="attr">#[serde(default = <span class="string">"default_encoder"</span>)]
-    </span><span class="kw">pub </span>encoder: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#143-150">Sz3Encoder</a>&gt;,
+    </span><span class="kw">pub </span>encoder: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#145-152">Sz3Encoder</a>&gt;,
     <span class="doccomment">/// Lossless compressor
     </span><span class="attr">#[serde(default = <span class="string">"default_lossless_compressor"</span>)]
-    </span><span class="kw">pub </span>lossless: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#160-164">Sz3LosslessCompressor</a>&gt;,
+    </span><span class="kw">pub </span>lossless: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#162-166">Sz3LosslessCompressor</a>&gt;,
 }
 
 <span class="doccomment">/// SZ3 error bound
@@ -789,8 +793,8 @@
 }
 
 <span class="attr">#[allow(clippy::unnecessary_wraps)]
-</span><span class="kw">const fn </span>default_predictor() -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#117-133">Sz3Predictor</a>&gt; {
-    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#129">Sz3Predictor::CubicInterpolationLorenzo</a>)
+</span><span class="kw">const fn </span>default_predictor() -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#119-135">Sz3Predictor</a>&gt; {
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#131">Sz3Predictor::CubicInterpolationLorenzo</a>)
 }
 
 <span class="doccomment">/// SZ3 encoder
@@ -806,8 +810,8 @@
 }
 
 <span class="attr">#[allow(clippy::unnecessary_wraps)]
-</span><span class="kw">const fn </span>default_encoder() -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#143-150">Sz3Encoder</a>&gt; {
-    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#146">Sz3Encoder::Huffman</a>)
+</span><span class="kw">const fn </span>default_encoder() -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#145-152">Sz3Encoder</a>&gt; {
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#148">Sz3Encoder::Huffman</a>)
 }
 
 <span class="doccomment">/// SZ3 lossless compressor
@@ -820,73 +824,73 @@
 }
 
 <span class="attr">#[allow(clippy::unnecessary_wraps)]
-</span><span class="kw">const fn </span>default_lossless_compressor() -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#160-164">Sz3LosslessCompressor</a>&gt; {
-    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#163">Sz3LosslessCompressor::Zstd</a>)
+</span><span class="kw">const fn </span>default_lossless_compressor() -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="#162-166">Sz3LosslessCompressor</a>&gt; {
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#165">Sz3LosslessCompressor::Zstd</a>)
 }
 
-<span class="kw">impl </span><a href="../../numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#42-55">Sz3Codec</a> {
-    <span class="kw">type </span>Error = <a href="#263-324">Sz3CodecError</a>;
+<span class="kw">impl </span><a href="../../numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#44-57">Sz3Codec</a> {
+    <span class="kw">type </span>Error = <a href="#265-326">Sz3CodecError</a>;
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span><a href="#174">data</a> {
+        <span class="kw">match </span><a href="#176">data</a> {
             <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyCowArray::I32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#347-478">compress</a>(
-                    <a href="#176">data</a>,
-                    <a class="self" href="#174">self</a>.predictor.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
-                    <span class="kw-2">&amp;</span><a class="self" href="#174">self</a>.error_bound,
-                    <a class="self" href="#174">self</a>.encoder.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
-                    <a class="self" href="#174">self</a>.lossless.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#349-480">compress</a>(
+                    <a href="#178">data</a>,
+                    <a class="self" href="#176">self</a>.predictor.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                    <span class="kw-2">&amp;</span><a class="self" href="#176">self</a>.error_bound,
+                    <a class="self" href="#176">self</a>.encoder.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                    <a class="self" href="#176">self</a>.lossless.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
                 )<span class="question-mark">?</span>)
                 .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
             <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyCowArray::I64</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#347-478">compress</a>(
-                    <a href="#186">data</a>,
-                    <a class="self" href="#174">self</a>.predictor.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
-                    <span class="kw-2">&amp;</span><a class="self" href="#174">self</a>.error_bound,
-                    <a class="self" href="#174">self</a>.encoder.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
-                    <a class="self" href="#174">self</a>.lossless.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#349-480">compress</a>(
+                    <a href="#188">data</a>,
+                    <a class="self" href="#176">self</a>.predictor.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                    <span class="kw-2">&amp;</span><a class="self" href="#176">self</a>.error_bound,
+                    <a class="self" href="#176">self</a>.encoder.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                    <a class="self" href="#176">self</a>.lossless.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
                 )<span class="question-mark">?</span>)
                 .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
             <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#347-478">compress</a>(
-                    <a href="#196">data</a>,
-                    <a class="self" href="#174">self</a>.predictor.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
-                    <span class="kw-2">&amp;</span><a class="self" href="#174">self</a>.error_bound,
-                    <a class="self" href="#174">self</a>.encoder.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
-                    <a class="self" href="#174">self</a>.lossless.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#349-480">compress</a>(
+                    <a href="#198">data</a>,
+                    <a class="self" href="#176">self</a>.predictor.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                    <span class="kw-2">&amp;</span><a class="self" href="#176">self</a>.error_bound,
+                    <a class="self" href="#176">self</a>.encoder.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                    <a class="self" href="#176">self</a>.lossless.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
                 )<span class="question-mark">?</span>)
                 .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
             <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyCowArray::F64</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#347-478">compress</a>(
-                    <a href="#206">data</a>,
-                    <a class="self" href="#174">self</a>.predictor.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
-                    <span class="kw-2">&amp;</span><a class="self" href="#174">self</a>.error_bound,
-                    <a class="self" href="#174">self</a>.encoder.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
-                    <a class="self" href="#174">self</a>.lossless.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#349-480">compress</a>(
+                    <a href="#208">data</a>,
+                    <a class="self" href="#176">self</a>.predictor.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                    <span class="kw-2">&amp;</span><a class="self" href="#176">self</a>.error_bound,
+                    <a class="self" href="#176">self</a>.encoder.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
+                    <a class="self" href="#176">self</a>.lossless.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>(),
                 )<span class="question-mark">?</span>)
                 .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#266">Sz3CodecError::UnsupportedDtype</a>(<a href="#216">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
+            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#268">Sz3CodecError::UnsupportedDtype</a>(<a href="#218">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span><a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(encoded) = <a href="#220">encoded</a> <span class="kw">else </span>{
-            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#292-295">Sz3CodecError::EncodedDataNotBytes</a> {
-                dtype: <a href="#220">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+        <span class="kw">let </span><a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(encoded) = <a href="#222">encoded</a> <span class="kw">else </span>{
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#294-297">Sz3CodecError::EncodedDataNotBytes</a> {
+                dtype: <a href="#222">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             });
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#299-302">Sz3CodecError::EncodedDataNotOneDimensional</a> {
-                shape: <a href="#221">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#301-304">Sz3CodecError::EncodedDataNotOneDimensional</a> {
+                shape: <a href="#223">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             });
         }
 
-        <a href="#486-532">decompress</a>(<span class="kw-2">&amp;</span><a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(<a href="#221">encoded</a>).<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>())
+        <a href="#488-534">decompress</a>(<span class="kw-2">&amp;</span><a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(<a href="#223">encoded</a>).<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>())
     }
 
     <span class="kw">fn </span>decode_into(
@@ -894,23 +898,23 @@
         encoded: <a href="../../numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
         <span class="kw-2">mut </span>decoded: <a href="../../numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
     ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span>decoded_in = <a class="self" href="#237">self</a>.<a href="../../numcodecs/codec/trait.Codec.html#tymethod.decode">decode</a>(<a href="#238">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.cow">cow</a>())<span class="question-mark">?</span>;
+        <span class="kw">let </span>decoded_in = <a class="self" href="#239">self</a>.<a href="../../numcodecs/codec/trait.Codec.html#tymethod.decode">decode</a>(<a href="#240">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.cow">cow</a>())<span class="question-mark">?</span>;
 
-        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#239">decoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#241">decoded_in</a>)<span class="question-mark">?</span>)
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#241">decoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#243">decoded_in</a>)<span class="question-mark">?</span>)
     }
 }
 
-<span class="kw">impl </span><a href="../../numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#42-55">Sz3Codec</a> {
+<span class="kw">impl </span><a href="../../numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#44-57">Sz3Codec</a> {
     <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"sz3"</span>;
 
     <span class="kw">type </span>Config&lt;<span class="lifetime">'de</span>&gt; = <span class="self">Self</span>;
 
     <span class="kw">fn </span>from_config(config: <span class="self">Self</span>::Config&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self </span>{
-        <a href="#252">config</a>
+        <a href="#254">config</a>
     }
 
     <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;<span class="self">Self</span>&gt; {
-        <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#256">self</a>)
+        <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#258">self</a>)
     }
 }
 
@@ -924,13 +928,13 @@
     </span><span class="attr">#[error(<span class="string">"Sz3 failed to encode the header"</span>)]
     </span>HeaderEncodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: <a href="#329">Sz3HeaderError</a>,
+        </span>source: <a href="#331">Sz3HeaderError</a>,
     },
     <span class="doccomment">/// [`Sz3Codec`] cannot encode an array of `shape`
     </span><span class="attr">#[error(<span class="string">"Sz3 cannot encode an array of shape {shape:?}"</span>)]
     </span>InvalidEncodeShape {
         <span class="doccomment">/// Opaque source error
-        </span>source: <a href="#334">Sz3CodingError</a>,
+        </span>source: <a href="#336">Sz3CodingError</a>,
         <span class="doccomment">/// The invalid shape of the encoded array
         </span>shape: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
     },
@@ -938,7 +942,7 @@
     </span><span class="attr">#[error(<span class="string">"Sz3 failed to encode the data"</span>)]
     </span>Sz3EncodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: <a href="#334">Sz3CodingError</a>,
+        </span>source: <a href="#336">Sz3CodingError</a>,
     },
     <span class="doccomment">/// [`Sz3Codec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
@@ -960,7 +964,7 @@
     </span><span class="attr">#[error(<span class="string">"Sz3 failed to decode the header"</span>)]
     </span>HeaderDecodeFailed {
         <span class="doccomment">/// Opaque source error
-        </span>source: <a href="#329">Sz3HeaderError</a>,
+        </span>source: <a href="#331">Sz3HeaderError</a>,
     },
     <span class="doccomment">/// [`Sz3Codec`] decoded an invalid array shape header which does not fit
     /// the decoded data
@@ -1000,36 +1004,36 @@
 /// - [`Sz3CodecError::HeaderEncodeFailed`] if encoding the header failed
 /// - [`Sz3CodecError::InvalidEncodeShape`] if the array shape is invalid
 /// - [`Sz3CodecError::Sz3EncodeFailed`] if encoding failed with an opaque error
-</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.compress.html">compress</a>&lt;T: <a href="#535-538">Sz3Element</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.compress.html">compress</a>&lt;T: <a href="#537-540">Sz3Element</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
-    predictor: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><a href="#117-133">Sz3Predictor</a>&gt;,
-    error_bound: <span class="kw-2">&amp;</span><a href="#61-112">Sz3ErrorBound</a>,
-    encoder: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><a href="#143-150">Sz3Encoder</a>&gt;,
-    lossless: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><a href="#160-164">Sz3LosslessCompressor</a>&gt;,
-) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#263-324">Sz3CodecError</a>&gt; {
+    predictor: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><a href="#119-135">Sz3Predictor</a>&gt;,
+    error_bound: <span class="kw-2">&amp;</span><a href="#63-114">Sz3ErrorBound</a>,
+    encoder: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><a href="#145-152">Sz3Encoder</a>&gt;,
+    lossless: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><a href="#162-166">Sz3LosslessCompressor</a>&gt;,
+) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#265-326">Sz3CodecError</a>&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>encoded_bytes = postcard::to_extend(
-        <span class="kw-2">&amp;</span><a href="#557-561">CompressionHeader</a> {
+        <span class="kw-2">&amp;</span><a href="#559-563">CompressionHeader</a> {
             dtype: &lt;T <span class="kw">as </span>Sz3Element&gt;::DTYPE,
-            shape: <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#348">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>()),
+            shape: <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#350">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>()),
         },
         <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>(),
     )
-    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#269-272">Sz3CodecError::HeaderEncodeFailed</a> {
-        source: <a href="#329">Sz3HeaderError</a>(<a href="#361">err</a>),
+    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#271-274">Sz3CodecError::HeaderEncodeFailed</a> {
+        source: <a href="#331">Sz3HeaderError</a>(<a href="#363">err</a>),
     })<span class="question-mark">?</span>;
 
     <span class="comment">// sz3::DimensionedDataBuilder cannot handle zero-length dimensions
     </span><span class="kw">if </span>data.is_empty() {
-        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#354">encoded_bytes</a>);
+        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#356">encoded_bytes</a>);
     }
 
     <span class="attr">#[allow(clippy::option_if_let_else)]
-    </span><span class="kw">let </span>data_cow = <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(data) = <a href="#348">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
-        <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#371">data</a>)
+    </span><span class="kw">let </span>data_cow = <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(data) = <a href="#350">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
+        <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#373">data</a>)
     } <span class="kw">else </span>{
-        <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#348">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>())
+        <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#350">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>())
     };
-    <span class="kw">let </span><span class="kw-2">mut </span>builder = sz3::DimensionedData::build(<span class="kw-2">&amp;</span><a href="#371">data_cow</a>);
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = sz3::DimensionedData::build(<span class="kw-2">&amp;</span><a href="#373">data_cow</a>);
 
     <span class="kw">for </span>length <span class="kw">in </span>data.shape() {
         <span class="comment">// Sz3 ignores dimensions of length 1 and panics on length zero
@@ -1048,40 +1052,40 @@
     <span class="kw">if </span>data.len() == <span class="number">1 </span>{
         <span class="comment">// If there is only one element, all dimensions will have been skipped,
         //  so we explicitly encode one dimension of size 1 here
-        </span><a href="#376">builder</a> = <a href="#376">builder</a>
+        </span><a href="#378">builder</a> = <a href="#378">builder</a>
             .dim(<span class="number">1</span>)
-            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#275-280">Sz3CodecError::InvalidEncodeShape</a> {
-                source: <a href="#334">Sz3CodingError</a>(<a href="#397">err</a>),
-                shape: <a href="#348">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#277-282">Sz3CodecError::InvalidEncodeShape</a> {
+                source: <a href="#336">Sz3CodingError</a>(<a href="#399">err</a>),
+                shape: <a href="#350">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             })<span class="question-mark">?</span>;
     }
 
-    <span class="kw">let </span>data = <a href="#376">builder</a>
+    <span class="kw">let </span>data = <a href="#378">builder</a>
         .finish()
-        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#275-280">Sz3CodecError::InvalidEncodeShape</a> {
-            source: <a href="#334">Sz3CodingError</a>(<a href="#405">err</a>),
-            shape: <a href="#348">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#277-282">Sz3CodecError::InvalidEncodeShape</a> {
+            source: <a href="#336">Sz3CodingError</a>(<a href="#407">err</a>),
+            shape: <a href="#350">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
         })<span class="question-mark">?</span>;
 
     <span class="comment">// configure the error bound
-    </span><span class="kw">let </span>error_bound = <span class="kw">match </span><a href="#350">error_bound</a> {
-        <a href="#65-72">Sz3ErrorBound::AbsoluteAndRelative</a> { abs, rel } =&gt; sz3::ErrorBound::AbsoluteAndRelative {
-            absolute_bound: <span class="kw-2">*</span><a href="#412">abs</a>,
-            relative_bound: <span class="kw-2">*</span><a href="#412">rel</a>,
+    </span><span class="kw">let </span>error_bound = <span class="kw">match </span><a href="#352">error_bound</a> {
+        <a href="#67-74">Sz3ErrorBound::AbsoluteAndRelative</a> { abs, rel } =&gt; sz3::ErrorBound::AbsoluteAndRelative {
+            absolute_bound: <span class="kw-2">*</span><a href="#414">abs</a>,
+            relative_bound: <span class="kw-2">*</span><a href="#414">rel</a>,
         },
-        <a href="#76-83">Sz3ErrorBound::AbsoluteOrRelative</a> { abs, rel } =&gt; sz3::ErrorBound::AbsoluteOrRelative {
-            absolute_bound: <span class="kw-2">*</span><a href="#416">abs</a>,
-            relative_bound: <span class="kw-2">*</span><a href="#416">rel</a>,
+        <a href="#78-85">Sz3ErrorBound::AbsoluteOrRelative</a> { abs, rel } =&gt; sz3::ErrorBound::AbsoluteOrRelative {
+            absolute_bound: <span class="kw-2">*</span><a href="#418">abs</a>,
+            relative_bound: <span class="kw-2">*</span><a href="#418">rel</a>,
         },
-        <a href="#86-90">Sz3ErrorBound::Absolute</a> { abs } =&gt; sz3::ErrorBound::Absolute(<span class="kw-2">*</span><a href="#420">abs</a>),
-        <a href="#93-97">Sz3ErrorBound::Relative</a> { rel } =&gt; sz3::ErrorBound::Relative(<span class="kw-2">*</span><a href="#421">rel</a>),
-        <a href="#100-104">Sz3ErrorBound::PS2NR</a> { psnr } =&gt; sz3::ErrorBound::PSNR(<span class="kw-2">*</span><a href="#422">psnr</a>),
-        <a href="#107-111">Sz3ErrorBound::L2Norm</a> { l2 } =&gt; sz3::ErrorBound::L2Norm(<span class="kw-2">*</span><a href="#423">l2</a>),
+        <a href="#88-92">Sz3ErrorBound::Absolute</a> { abs } =&gt; sz3::ErrorBound::Absolute(<span class="kw-2">*</span><a href="#422">abs</a>),
+        <a href="#95-99">Sz3ErrorBound::Relative</a> { rel } =&gt; sz3::ErrorBound::Relative(<span class="kw-2">*</span><a href="#423">rel</a>),
+        <a href="#102-106">Sz3ErrorBound::PS2NR</a> { psnr } =&gt; sz3::ErrorBound::PSNR(<span class="kw-2">*</span><a href="#424">psnr</a>),
+        <a href="#109-113">Sz3ErrorBound::L2Norm</a> { l2 } =&gt; sz3::ErrorBound::L2Norm(<span class="kw-2">*</span><a href="#425">l2</a>),
     };
-    <span class="kw">let </span><span class="kw-2">mut </span>config = sz3::Config::new(<a href="#411">error_bound</a>);
+    <span class="kw">let </span><span class="kw-2">mut </span>config = sz3::Config::new(<a href="#413">error_bound</a>);
 
     <span class="comment">// configure the interpolation mode, if necessary
-    </span><span class="kw">let </span>interpolation = <span class="kw">match </span><a href="#349">predictor</a> {
+    </span><span class="kw">let </span>interpolation = <span class="kw">match </span><a href="#351">predictor</a> {
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Sz3Predictor::LinearInterpolation | Sz3Predictor::LinearInterpolationLorenzo) =&gt; {
             <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(sz3::InterpolationAlgorithm::Linear)
         }
@@ -1090,12 +1094,12 @@
         }
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Sz3Predictor::LorenzoRegression) | <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None"><a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a> </a>=&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
     };
-    <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(interpolation) = <a href="#428">interpolation</a> {
-        <a href="#425">config</a> = <a href="#425">config</a>.interpolation_algorithm(<a href="#437">interpolation</a>);
+    <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(interpolation) = <a href="#430">interpolation</a> {
+        <a href="#427">config</a> = <a href="#427">config</a>.interpolation_algorithm(<a href="#439">interpolation</a>);
     }
 
     <span class="comment">// configure the predictor (compression algorithm)
-    </span><span class="kw">let </span>predictor = <span class="kw">match </span><a href="#349">predictor</a> {
+    </span><span class="kw">let </span>predictor = <span class="kw">match </span><a href="#351">predictor</a> {
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Sz3Predictor::LinearInterpolation | Sz3Predictor::CubicInterpolation) =&gt; {
             sz3::CompressionAlgorithm::Interpolation
         }
@@ -1105,32 +1109,32 @@
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Sz3Predictor::LorenzoRegression) =&gt; sz3::CompressionAlgorithm::lorenzo_regression(),
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None"><a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a> </a>=&gt; sz3::CompressionAlgorithm::NoPrediction,
     };
-    <a href="#425">config</a> = <a href="#425">config</a>.compression_algorithm(<a href="#442">predictor</a>);
+    <a href="#427">config</a> = <a href="#427">config</a>.compression_algorithm(<a href="#444">predictor</a>);
 
     <span class="comment">// configure the encoder
-    </span><span class="kw">let </span>encoder = <span class="kw">match </span><a href="#351">encoder</a> {
+    </span><span class="kw">let </span>encoder = <span class="kw">match </span><a href="#353">encoder</a> {
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None"><a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a> </a>=&gt; sz3::Encoder::SkipEncoder,
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Sz3Encoder::Huffman) =&gt; sz3::Encoder::HuffmanEncoder,
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Sz3Encoder::Arithmetic) =&gt; sz3::Encoder::ArithmeticEncoder,
     };
-    <a href="#425">config</a> = <a href="#425">config</a>.encoder(<a href="#455">encoder</a>);
+    <a href="#427">config</a> = <a href="#427">config</a>.encoder(<a href="#457">encoder</a>);
 
     <span class="comment">// configure the lossless compressor
-    </span><span class="kw">let </span>lossless = <span class="kw">match </span><a href="#352">lossless</a> {
+    </span><span class="kw">let </span>lossless = <span class="kw">match </span><a href="#354">lossless</a> {
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None"><a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a> </a>=&gt; sz3::LossLess::LossLessBypass,
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Sz3LosslessCompressor::Zstd) =&gt; sz3::LossLess::ZSTD,
     };
-    <a href="#425">config</a> = <a href="#425">config</a>.lossless(<a href="#463">lossless</a>);
+    <a href="#427">config</a> = <a href="#427">config</a>.lossless(<a href="#465">lossless</a>);
 
     <span class="comment">// TODO: avoid extra allocation here
-    </span><span class="kw">let </span>compressed = sz3::compress_with_config(<span class="kw-2">&amp;</span><a href="#403">data</a>, <span class="kw-2">&amp;</span><a href="#425">config</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-        <a href="#283-286">Sz3CodecError::Sz3EncodeFailed</a> {
-            source: <a href="#334">Sz3CodingError</a>(<a href="#470">err</a>),
+    </span><span class="kw">let </span>compressed = sz3::compress_with_config(<span class="kw-2">&amp;</span><a href="#405">data</a>, <span class="kw-2">&amp;</span><a href="#427">config</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
+        <a href="#285-288">Sz3CodecError::Sz3EncodeFailed</a> {
+            source: <a href="#336">Sz3CodingError</a>(<a href="#472">err</a>),
         }
     })<span class="question-mark">?</span>;
-    <a href="#354">encoded_bytes</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.extend_from_slice">extend_from_slice</a>(<span class="kw-2">&amp;</span><a href="#470">compressed</a>);
+    <a href="#356">encoded_bytes</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.extend_from_slice">extend_from_slice</a>(<span class="kw-2">&amp;</span><a href="#472">compressed</a>);
 
-    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#354">encoded_bytes</a>)
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#356">encoded_bytes</a>)
 }
 
 <span class="doccomment">/// Decompresses the `encoded` data into an array.
@@ -1139,79 +1143,79 @@
 ///
 /// Errors with
 /// - [`Sz3CodecError::HeaderDecodeFailed`] if decoding the header failed
-</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#263-324">Sz3CodecError</a>&gt; {
+</span><span class="kw">pub fn </span><a href="../../numcodecs_sz3/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#265-326">Sz3CodecError</a>&gt; {
     <span class="kw">let </span>(header, data) =
-        postcard::take_from_bytes::&lt;<a href="#557-561">CompressionHeader</a>&gt;(<a href="#486">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-            <a href="#305-308">Sz3CodecError::HeaderDecodeFailed</a> {
-                source: <a href="#329">Sz3HeaderError</a>(<a href="#488">err</a>),
+        postcard::take_from_bytes::&lt;<a href="#559-563">CompressionHeader</a>&gt;(<a href="#488">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
+            <a href="#307-310">Sz3CodecError::HeaderDecodeFailed</a> {
+                source: <a href="#331">Sz3HeaderError</a>(<a href="#490">err</a>),
             }
         })<span class="question-mark">?</span>;
 
     <span class="kw">let </span>decoded = <span class="kw">if </span>header.shape.iter().copied().product::&lt;usize&gt;() == <span class="number">0 </span>{
-        <span class="kw">match </span><a href="#487">header</a>.dtype {
-            <a href="#568">Sz3DType::I32</a> =&gt; {
-                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#487">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
+        <span class="kw">match </span><a href="#489">header</a>.dtype {
+            <a href="#570">Sz3DType::I32</a> =&gt; {
+                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#489">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
             }
-            <a href="#570">Sz3DType::I64</a> =&gt; {
-                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#487">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
+            <a href="#572">Sz3DType::I64</a> =&gt; {
+                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#489">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
             }
-            <a href="#572">Sz3DType::F32</a> =&gt; {
-                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#487">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
+            <a href="#574">Sz3DType::F32</a> =&gt; {
+                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#489">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
             }
-            <a href="#574">Sz3DType::F64</a> =&gt; {
-                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#487">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
+            <a href="#576">Sz3DType::F64</a> =&gt; {
+                <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(<span class="kw-2">&amp;*</span><a href="#489">header</a>.shape, <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>())<span class="question-mark">?</span>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>())
             }
         }
     } <span class="kw">else </span>{
         <span class="comment">// TODO: avoid extra allocation here
-        </span><span class="kw">match </span><a href="#487">header</a>.dtype {
-            <a href="#568">Sz3DType::I32</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
-                <span class="kw-2">&amp;*</span><a href="#487">header</a>.shape,
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#487">data</a>).<span class="number">1</span>.data()),
+        </span><span class="kw">match </span><a href="#489">header</a>.dtype {
+            <a href="#570">Sz3DType::I32</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
+                <span class="kw-2">&amp;*</span><a href="#489">header</a>.shape,
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#489">data</a>).<span class="number">1</span>.data()),
             )<span class="question-mark">?</span>),
-            <a href="#570">Sz3DType::I64</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
-                <span class="kw-2">&amp;*</span><a href="#487">header</a>.shape,
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#487">data</a>).<span class="number">1</span>.data()),
+            <a href="#572">Sz3DType::I64</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
+                <span class="kw-2">&amp;*</span><a href="#489">header</a>.shape,
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#489">data</a>).<span class="number">1</span>.data()),
             )<span class="question-mark">?</span>),
-            <a href="#572">Sz3DType::F32</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
-                <span class="kw-2">&amp;*</span><a href="#487">header</a>.shape,
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#487">data</a>).<span class="number">1</span>.data()),
+            <a href="#574">Sz3DType::F32</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
+                <span class="kw-2">&amp;*</span><a href="#489">header</a>.shape,
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#489">data</a>).<span class="number">1</span>.data()),
             )<span class="question-mark">?</span>),
-            <a href="#574">Sz3DType::F64</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
-                <span class="kw-2">&amp;*</span><a href="#487">header</a>.shape,
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#487">data</a>).<span class="number">1</span>.data()),
+            <a href="#576">Sz3DType::F64</a> =&gt; <a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec">Array::from_shape_vec</a>(
+                <span class="kw-2">&amp;*</span><a href="#489">header</a>.shape,
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Vec::from</a>(sz3::decompress(<a href="#489">data</a>).<span class="number">1</span>.data()),
             )<span class="question-mark">?</span>),
         }
     };
 
-    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#494">decoded</a>)
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#496">decoded</a>)
 }
 
 <span class="doccomment">/// Array element types which can be compressed with SZ3.
 </span><span class="kw">pub trait </span><a href="../../numcodecs_sz3/trait.Sz3Element.html">Sz3Element</a>: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a> + sz3::SZ3Compressible {
     <span class="doccomment">/// The dtype representation of the type
-    </span><span class="kw">const </span>DTYPE: <a href="#566-575">Sz3DType</a>;
+    </span><span class="kw">const </span>DTYPE: <a href="#568-577">Sz3DType</a>;
 }
 
-<span class="kw">impl </span><a href="#535-538">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a> {
-    <span class="kw">const </span>DTYPE: <a href="#566-575">Sz3DType</a> = <a href="#568">Sz3DType::I32</a>;
+<span class="kw">impl </span><a href="#537-540">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a> {
+    <span class="kw">const </span>DTYPE: <a href="#568-577">Sz3DType</a> = <a href="#570">Sz3DType::I32</a>;
 }
 
-<span class="kw">impl </span><a href="#535-538">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a> {
-    <span class="kw">const </span>DTYPE: <a href="#566-575">Sz3DType</a> = <a href="#570">Sz3DType::I64</a>;
+<span class="kw">impl </span><a href="#537-540">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a> {
+    <span class="kw">const </span>DTYPE: <a href="#568-577">Sz3DType</a> = <a href="#572">Sz3DType::I64</a>;
 }
 
-<span class="kw">impl </span><a href="#535-538">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
-    <span class="kw">const </span>DTYPE: <a href="#566-575">Sz3DType</a> = <a href="#572">Sz3DType::F32</a>;
+<span class="kw">impl </span><a href="#537-540">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
+    <span class="kw">const </span>DTYPE: <a href="#568-577">Sz3DType</a> = <a href="#574">Sz3DType::F32</a>;
 }
 
-<span class="kw">impl </span><a href="#535-538">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
-    <span class="kw">const </span>DTYPE: <a href="#566-575">Sz3DType</a> = <a href="#574">Sz3DType::F64</a>;
+<span class="kw">impl </span><a href="#537-540">Sz3Element</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
+    <span class="kw">const </span>DTYPE: <a href="#568-577">Sz3DType</a> = <a href="#576">Sz3DType::F64</a>;
 }
 
 <span class="attr">#[derive(Serialize, Deserialize)]
 </span><span class="kw">struct </span>CompressionHeader&lt;<span class="lifetime">'a</span>&gt; {
-    dtype: <a href="#566-575">Sz3DType</a>,
+    dtype: <a href="#568-577">Sz3DType</a>,
     <span class="attr">#[serde(borrow)]
     </span>shape: <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, [<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>]&gt;,
 }
@@ -1230,13 +1234,13 @@
     </span>F64,
 }
 
-<span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#566-575">Sz3DType</a> {
+<span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#568-577">Sz3DType</a> {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html">fmt::Formatter</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html">fmt::Result</a> {
-        <a href="#578">fmt</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.write_str">write_str</a>(<span class="kw">match </span><span class="self"><a href="#578">self</a> </span>{
-            <a href="#568"><span class="self">Self</span>::I32</a> =&gt; <span class="string">"i32"</span>,
-            <a href="#570"><span class="self">Self</span>::I64</a> =&gt; <span class="string">"i64"</span>,
-            <a href="#572"><span class="self">Self</span>::F32</a> =&gt; <span class="string">"f32"</span>,
-            <a href="#574"><span class="self">Self</span>::F64</a> =&gt; <span class="string">"f64"</span>,
+        <a href="#580">fmt</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.write_str">write_str</a>(<span class="kw">match </span><span class="self"><a href="#580">self</a> </span>{
+            <a href="#570"><span class="self">Self</span>::I32</a> =&gt; <span class="string">"i32"</span>,
+            <a href="#572"><span class="self">Self</span>::I64</a> =&gt; <span class="string">"i64"</span>,
+            <a href="#574"><span class="self">Self</span>::F32</a> =&gt; <span class="string">"f32"</span>,
+            <a href="#576"><span class="self">Self</span>::F64</a> =&gt; <span class="string">"f64"</span>,
         })
     }
 }

@@ -545,7 +545,7 @@
 <span class="kw">use </span><a href="https://docs.rs/serde-transcode/1.0.1/serde_transcode/fn.transcode.html">serde_transcode::transcode</a>;
 
 <span class="kw">use crate</span>::{
-    export::{<a href="export.rs.html#180-184">RustCodec</a>, <a href="export.rs.html#95-97">RustCodecType</a>},
+    export::{<a href="export.rs.html#184-188">RustCodec</a>, <a href="export.rs.html#96-98">RustCodecType</a>},
     <a href="schema.rs.html#30-131">schema::schema_from_codec_class</a>,
     <a href="utils.rs.html#4-13">utils::numpy_asarray</a>,
     <a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>, <a href="codec_class.rs.html#22-44">PyCodecClassMethods</a>, <a href="codec.rs.html#25-75">PyCodecMethods</a>, <a href="registry.rs.html#8-10">PyCodecRegistry</a>,
@@ -653,11 +653,11 @@
         codec: <span class="kw-2">&amp;</span><a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<a href="codec.rs.html#20-22">PyCodec</a>&gt;,
         with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html">FnOnce</a>(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; O,
     ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;O&gt; {
-        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(codec) = <a href="#126">codec</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;<a href="export.rs.html#180-184">RustCodec</a>&gt;() <span class="kw">else </span>{
+        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(codec) = <a href="#126">codec</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast">downcast</a>::&lt;<a href="export.rs.html#184-188">RustCodec</a>&gt;() <span class="kw">else </span>{
             <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
         };
 
-        <span class="kw">let </span>codec = <a href="#129">codec</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.get">get</a>().<a href="export.rs.html#190-192">downcast</a>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>codec = <a href="#129">codec</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.get">get</a>().<a href="export.rs.html#194-196">downcast</a>()<span class="question-mark">?</span>;
 
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#127">with</a>(<a href="#133">codec</a>))
     }
@@ -1007,11 +1007,11 @@
             <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
         };
 
-        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(ty) = <a href="#479">ty</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast_into_exact">downcast_into_exact</a>::&lt;<a href="export.rs.html#95-97">RustCodecType</a>&gt;() <span class="kw">else </span>{
+        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(ty) = <a href="#479">ty</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast_into_exact">downcast_into_exact</a>::&lt;<a href="export.rs.html#96-98">RustCodecType</a>&gt;() <span class="kw">else </span>{
             <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
         };
 
-        <span class="kw">let </span>ty: <span class="kw-2">&amp;</span>T = <a href="#483">ty</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.get">get</a>().<a href="export.rs.html#100-102">downcast</a>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>ty: <span class="kw-2">&amp;</span>T = <a href="#483">ty</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.get">get</a>().<a href="export.rs.html#101-103">downcast</a>()<span class="question-mark">?</span>;
 
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#477">with</a>(<a href="#487">ty</a>))
     }
