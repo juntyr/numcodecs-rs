@@ -17,6 +17,8 @@
 //!
 //! Pcodec implementation for the [`numcodecs`] API.
 
+#![allow(clippy::multiple_crate_versions)] // embedded-io
+
 use std::{borrow::Cow, fmt, num::NonZeroUsize};
 
 use ndarray::{Array, Array1, ArrayBase, ArrayViewMut, Data, Dimension, ShapeError};
