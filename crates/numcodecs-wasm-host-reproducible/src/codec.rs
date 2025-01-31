@@ -72,11 +72,12 @@ where
                     codec_id: self.ty.codec_id.clone(),
                     source,
                 });
-        let results = try_drop_instance(&mut store, &self.instance, &self.ty.codec_id);
+        let results = try_drop_instance(store, &self.instance, &self.ty.codec_id);
 
         result.and(results)
     }
 
+    #[expect(clippy::significant_drop_tightening)]
     pub fn instruction_counter(&self) -> Result<u64, ReproducibleWasmCodecError> {
         let mut store = self
             .store
@@ -121,7 +122,7 @@ where
         let result = self.codec.drop(&mut store);
         std::mem::drop(result);
 
-        let results = self.instance.drop(&mut store);
+        let results = self.instance.drop(store);
         std::mem::drop(results);
     }
 }
@@ -132,6 +133,7 @@ where
 {
     type Error = ReproducibleWasmCodecError;
 
+    #[expect(clippy::significant_drop_tightening)]
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         let mut store = self
             .store
@@ -155,6 +157,7 @@ where
         Ok(encoded)
     }
 
+    #[expect(clippy::significant_drop_tightening)]
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         let mut store = self
             .store
@@ -178,6 +181,7 @@ where
         Ok(decoded)
     }
 
+    #[expect(clippy::significant_drop_tightening)]
     fn decode_into(
         &self,
         encoded: AnyArrayView,
@@ -306,10 +310,10 @@ where
             })?;
 
             let component =
-                WasmCodecComponent::new(instance.clone(), &mut store).map_err(|err| {
+                WasmCodecComponent::new(instance.clone(), &mut store).map_err(|source| {
                     ReproducibleWasmCodecError::Runtime {
                         codec_id: Arc::from(codec_id),
-                        source: RuntimeError::from(err),
+                        source,
                     }
                 })?;
 
@@ -328,7 +332,7 @@ where
             (codec_id, codec_config_schema)
         };
 
-        Ok(ReproducibleWasmCodecType {
+        Ok(Self {
             codec_id,
             codec_config_schema,
             component,

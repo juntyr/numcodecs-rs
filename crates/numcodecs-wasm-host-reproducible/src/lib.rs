@@ -1,5 +1,6 @@
 #![allow(missing_docs)] // FIXME
 #![allow(clippy::missing_errors_doc)] // FIXME
+#![allow(clippy::multiple_crate_versions)] // FIXME
 
 #[macro_use]
 extern crate log;
