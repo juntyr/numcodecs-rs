@@ -37,6 +37,7 @@ jobs:
       - name: Build the wheels
         uses: PyO3/maturin-action@v1
         with:
+          working-directory: py/numcodecs-wasm
           target: ${{ matrix.platform.target }}
           args: --release --out dist
           sccache: "true"
@@ -90,6 +91,7 @@ jobs:
   #     # - name: Build the free-threaded wheels
   #     #   uses: PyO3/maturin-action@v1
   #     #   with:
+  #     #     working-directory: py/numcodecs-wasm
   #     #     target: ${{ matrix.platform.target }}
   #     #     args: --release --out dist -i python3.13t
   #     #     sccache: "true"
@@ -123,6 +125,7 @@ jobs:
   #     - name: Build the wheels
   #       uses: PyO3/maturin-action@v1
   #       with:
+  #         working-directory: py/numcodecs-wasm
   #         target: ${{ matrix.platform.target }}
   #         args: --release --out dist
   #         sccache: "true"
@@ -162,6 +165,7 @@ jobs:
       - name: Build the wheels
         uses: PyO3/maturin-action@v1
         with:
+          working-directory: py/numcodecs-wasm
           target: ${{ matrix.platform.target }}
           args: --release --out dist
           sccache: "true"
@@ -188,6 +192,7 @@ jobs:
       - name: Build the sdist
         uses: PyO3/maturin-action@v1
         with:
+          working-directory: py/numcodecs-wasm
           command: sdist
           args: --out dist
 
