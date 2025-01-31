@@ -17,7 +17,7 @@ src = Path(numcodecs_wasm.__file__).parent.parent
 
 print(src)
 
-for path in sorted(src.rglob("numcodecs_wasm_*/**/*.py")):
+for path in [src / "numcodecs_wasm"] + sorted(src.rglob("numcodecs_wasm_*/**/*.py")):
     module_path = path.relative_to(src).with_suffix("")
     doc_path = path.relative_to(src).with_suffix(".md")
     full_doc_path = Path("api", doc_path)

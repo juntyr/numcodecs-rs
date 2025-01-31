@@ -10,6 +10,8 @@
 
 [`numcodecs`] compression for codecs compiled to WebAssembly.
 
+`numcodecs-wasm` provides the `WasmCodecMeta` meta class to load a codec from a WebAssembly component into a fresh Python class
+
 [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 
 ## License

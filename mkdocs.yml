@@ -1,6 +1,6 @@
 site_name: numcodecs-wasm
 
-strict: false
+strict: true
 
 markdown_extensions:
   - footnotes
@@ -8,6 +8,16 @@ markdown_extensions:
   - pymdownx.highlight:
       use_pygments: true
       noclasses: true
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - js/katex.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js
+
+extra_css:
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css
 
 theme:
   name: readthedocs
@@ -31,7 +41,7 @@ plugins:
         - generate_api.py
         - requirements.txt
   - search
-  - include-markdown
+  - autorefs
   - mkdocstrings:
       enable_inventory: true
       handlers:
@@ -57,5 +67,5 @@ plugins:
                   functions: true
                   modules: true
           import:
-            - https://docs.python.org/3.12/objects.inv
-            - https://numcodecs.readthedocs.io/en/v0.13.0/objects.inv
+            - https://docs.python.org/3.10/objects.inv
+            - https://numcodecs.readthedocs.io/en/v0.13.1/objects.inv
