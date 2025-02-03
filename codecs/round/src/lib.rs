@@ -31,7 +31,7 @@ use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-/// Codec that [`round`]s the data on encoding and passes through the input
+/// Codec that rounds the data on encoding and passes through the input
 /// unchanged during decoding.
 ///
 /// The codec only supports floating point data.
