@@ -661,7 +661,7 @@ pub fn reconstruct_into<T: FloatExt, S: Data<Elem = T>>(
 ///
 /// The minimum number of components to guarantee the `$\epsilon$`-embedding is
 /// given by
-/// `$K \ge \frac{4 \cdot \log(N)}{\frac{{\epsilon}^{2}}{2} - \frac{{\epsilon}^{3}}{3}}$`.
+/// `$K \ge \frac{4 \cdot \ln(N)}{\frac{{\epsilon}^{2}}{2} - \frac{{\epsilon}^{3}}{3}}$`.
 ///
 /// The implementation is adapted from [`sklearn`]'s.
 ///
@@ -762,12 +762,12 @@ const fn seahash_diffuse(mut x: u64) -> u64 {
 
 #[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
-/// Floating point number in [0.0, 1.0)
+/// Floating point number in `$[0.0, 1.0)$`
 pub struct ClosedOpenUnit<T: FloatExt>(T);
 
 #[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
-/// Floating point number in (0.0, 1.0]
+/// Floating point number in `$(0.0, 1.0]$`
 pub struct OpenClosedUnit<T: FloatExt>(T);
 
 impl Serialize for OpenClosedUnit<f64> {
