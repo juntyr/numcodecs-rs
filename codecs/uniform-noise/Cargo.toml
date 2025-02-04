@@ -12,6 +12,8 @@ readme = "README.md"
 categories = ["compression", "encoding"]
 keywords = ["noise", "numcodecs", "compression", "encoding"]
 
+include = ["/src", "/LICENSE", "/docs/katex.html"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -26,3 +28,6 @@ thiserror = { workspace = true }
 
 [lints]
 workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "./docs/katex.html"]

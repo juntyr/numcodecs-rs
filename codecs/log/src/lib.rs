@@ -15,7 +15,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_log
 //!
-//! `ln(x)` codec implementation for the [`numcodecs`] API.
+//! `$\ln(x)$` codec implementation for the [`numcodecs`] API.
 
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension, Zip};
 use num_traits::{Float, Signed};
@@ -29,8 +29,8 @@ use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-/// Log codec which calculates `c = ln(x)` on encoding and `d = exp(c)` on
-/// decoding.
+/// Log codec which calculates `$c = \ln(x)$` on encoding and `$d = {e}^{c}$`
+/// on decoding.
 ///
 /// The codec only supports finite positive floating point numbers.
 pub struct LogCodec {
@@ -118,7 +118,7 @@ pub enum LogCodecError {
     },
 }
 
-/// Compute `ln(x)` over the elements of the input `data` array.
+/// Compute `$\ln(x)$` over the elements of the input `data` array.
 ///
 /// # Errors
 ///
@@ -144,7 +144,7 @@ pub fn ln<T: Float + Signed, S: Data<Elem = T>, D: Dimension>(
     Ok(data)
 }
 
-/// Compute `exp(x)` over the elements of the input `data` array.
+/// Compute `${e}^{x}$` over the elements of the input `data` array.
 ///
 /// # Errors
 ///
@@ -165,8 +165,8 @@ pub fn exp<T: Float, S: Data<Elem = T>, D: Dimension>(
 }
 
 #[allow(clippy::needless_pass_by_value)]
-/// Compute `exp(x)` over the elements of the input `data` array and write them
-/// into the `out`put array.
+/// Compute `${e}^{x}$` over the elements of the input `data` array and write
+/// them into the `out`put array.
 ///
 /// # Errors
 ///

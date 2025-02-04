@@ -12,6 +12,8 @@ readme = "README.md"
 categories = ["compression", "encoding"]
 keywords = ["scale", "offset", "numcodecs", "compression", "encoding"]
 
+include = ["/src", "/LICENSE", "/docs/katex.html"]
+
 [dependencies]
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
@@ -22,3 +24,6 @@ thiserror = { workspace = true }
 
 [lints]
 workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "./docs/katex.html"]

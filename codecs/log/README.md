@@ -20,7 +20,7 @@
 
 # numcodecs-log
 
-`ln(x)` codec implementation for the [`numcodecs`] API.
+$\ln(x)$ codec implementation for the [`numcodecs`] API.
 
 [`numcodecs`]: https://docs.rs/numcodecs/0.2/numcodecs/
 

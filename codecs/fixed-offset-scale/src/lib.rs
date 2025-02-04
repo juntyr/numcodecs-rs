@@ -15,7 +15,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_fixed_offset_scale
 //!
-//! `(x-o) * s` codec implementation for the [`numcodecs`] API.
+//! `$\frac{x - o}{s}$` codec implementation for the [`numcodecs`] API.
 
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension};
 use num_traits::Float;
@@ -29,11 +29,13 @@ use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-/// Fixed offset-scale codec which calculates `c = (x-o) / s` on encoding and
-/// `d = (c*s) + o` on decoding.
+/// Fixed offset-scale codec which calculates `$c = \frac{x - o}{s}$` on
+/// encoding and `$d = (c \cdot s) + o$` on decoding.
 ///
-/// - Setting `o = mean(x)` and `s = std(x)` normalizes that data.
-/// - Setting `o = min(x)` and `s = max(x) - min(x)` standardizes the data.
+/// - Setting `$o = \text{mean}(x)$` and `$s = \text{std}(x)$` normalizes that
+///   data.
+/// - Setting `$o = \text{min}(x)$` and `$s = \text{max}(x) - \text{min}(x)$`
+///   standardizes the data.
 ///
 /// The codec only supports floating point numbers.
 pub struct FixedOffsetScaleCodec {
@@ -135,7 +137,7 @@ pub enum FixedOffsetScaleCodecError {
     },
 }
 
-/// Compute `(x-o) / s` over the elements of the input `data` array.
+/// Compute `$\frac{x - o}{s}$` over the elements of the input `data` array.
 pub fn scale<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     offset: T,
@@ -149,7 +151,7 @@ pub fn scale<T: Float, S: Data<Elem = T>, D: Dimension>(
     data
 }
 
-/// Compute `(x*s) + o` over the elements of the input `data` array.
+/// Compute `$(x \cdot s) + o$` over the elements of the input `data` array.
 pub fn unscale<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     offset: T,
@@ -162,8 +164,8 @@ pub fn unscale<T: Float, S: Data<Elem = T>, D: Dimension>(
 }
 
 #[allow(clippy::needless_pass_by_value)]
-/// Compute `(x*s) + o` over the elements of the input `data` array and write
-/// them into the `out`put array.
+/// Compute `$(x \cdot s) + o$` over the elements of the input `data` array and
+/// write them into the `out`put array.
 ///
 /// # Errors
 ///

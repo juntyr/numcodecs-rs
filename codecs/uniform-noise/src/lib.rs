@@ -36,9 +36,9 @@ use wyhash::{WyHash, WyRng};
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-/// Codec that adds `seed`ed `U(-scale/2, scale/2)` uniform noise of the given
-/// `scale` during encoding and passes through the input unchanged during
-/// decoding.
+/// Codec that adds `seed`ed `$\text{U}(-0.5 \cdot scale, 0.5 \cdot scale)$`
+/// uniform noise of the given `scale` during encoding and passes through the
+/// input unchanged during decoding.
 ///
 /// This codec first hashes the input array data and shape to then seed a
 /// pseudo-random number generator that generates the uniform noise. Therefore,
@@ -46,7 +46,7 @@ use wyhash::{WyHash, WyRng};
 /// and thus the same encoded output.
 pub struct UniformNoiseCodec {
     /// Scale of the uniform noise, which is sampled from
-    /// `U(-scale/2, +scale/2)`
+    /// `$\text{U}(-0.5 \cdot scale, 0.5 \cdot scale)$`
     pub scale: f64,
     /// Seed for the random noise generator
     pub seed: u64,
@@ -120,7 +120,8 @@ pub enum UniformNoiseCodecError {
     },
 }
 
-/// Adds `U(-scale/2, scale/2)` uniform random noise to the input `data`.
+/// Adds `$\text{U}(-0.5 \cdot scale, 0.5 \cdot scale)$` uniform random noise
+/// to the input `data`.
 ///
 /// This function first hashes the input and its shape to then seed a pseudo-
 /// random number generator that generates the uniform noise. Therefore,

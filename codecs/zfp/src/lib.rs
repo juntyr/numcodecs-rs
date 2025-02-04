@@ -56,10 +56,10 @@ pub enum ZfpCompressionMode {
         /// for integer data.
         min_exp: i32,
     },
-    /// In fixed-rate mode, each d-dimensional compressed block of 4^d values
-    /// is stored using a fixed number of bits. This number of compressed bits
-    /// per block is amortized over the 4^d values to give a rate of
-    /// `rate = max_bits / 4^d` in bits per value.
+    /// In fixed-rate mode, each d-dimensional compressed block of `$4^d$`
+    /// values is stored using a fixed number of bits. This number of
+    /// compressed bits per block is amortized over the `$4^d$` values to give
+    /// a rate of `$rate = \frac{maxbits}{4^d}$` in bits per value.
     #[serde(rename = "fixed-rate")]
     FixedRate {
         /// Rate in bits per value
@@ -75,7 +75,8 @@ pub enum ZfpCompressionMode {
     },
     /// In fixed-accuracy mode, all transform coefficient bit planes up to a
     /// minimum bit plane number are encoded. The smallest absolute bit plane
-    /// number is chosen such that `minexp = floor(log2(tolerance))`.
+    /// number is chosen such that
+    /// `$minexp = \text{floor}(\log_{2}(tolerance))$`.
     #[serde(rename = "fixed-accuracy")]
     FixedAccuracy {
         /// Absolute error tolerance

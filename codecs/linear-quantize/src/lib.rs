@@ -42,7 +42,7 @@ use twofloat::TwoFloat;
 pub struct LinearQuantizeCodec {
     /// Dtype of the decoded data
     pub dtype: LinearQuantizeDType,
-    /// Binary precision of the encoded data where `bits = log2(bins)`
+    /// Binary precision of the encoded data where `$bits = \log_{2}(bins)$`
     pub bits: LinearQuantizeBins,
 }
 
@@ -625,7 +625,7 @@ pub fn reconstruct_into<T: Float + DeserializeOwned, Q: Unsigned>(
     Ok(())
 }
 
-/// Returns `exp2(bits) - 1.0`
+/// Returns `${2.0}^{bits} - 1.0$`
 fn scale_for_bits<T: Float + From<u8> + ConstOne>(bits: u8) -> T {
     <T as From<u8>>::from(bits).exp2() - T::ONE
 }

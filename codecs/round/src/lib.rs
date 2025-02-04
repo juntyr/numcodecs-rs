@@ -149,7 +149,8 @@ pub enum RoundCodecError {
 }
 
 #[must_use]
-/// Rounds the input `data` using `c = round(x / precision) * precision`
+/// Rounds the input `data` using
+/// `$c = \text{round}\left( \frac{x}{precision} \right) \cdot precision$`
 pub fn round<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     precision: Positive<T>,

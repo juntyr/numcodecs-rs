@@ -20,7 +20,7 @@
 
 # numcodecs-asinh
 
-`asinh(x)` codec implementation for the [`numcodecs`] API.
+$asinh(x)$ codec implementation for the [`numcodecs`] API.
 
 [`numcodecs`]: https://docs.rs/numcodecs/0.2/numcodecs/
 

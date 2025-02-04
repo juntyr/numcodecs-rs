@@ -20,7 +20,7 @@
 
 # numcodecs-fixed-offset-scale
 
-`(x-o) / s` codec implementation for the [`numcodecs`] API.
+$\frac{x - o}{s}$ codec implementation for the [`numcodecs`] API.
 
 [`numcodecs`]: https://docs.rs/numcodecs/0.2/numcodecs/
 

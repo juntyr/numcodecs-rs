@@ -12,6 +12,8 @@ readme = "README.md"
 categories = ["compression", "encoding"]
 keywords = ["linear", "quantization", "numcodecs", "compression", "encoding"]
 
+include = ["/src", "/LICENSE", "/docs/katex.html"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -27,3 +29,6 @@ twofloat = { workspace = true, features = ["std"] }
 
 [lints]
 workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "./docs/katex.html"]

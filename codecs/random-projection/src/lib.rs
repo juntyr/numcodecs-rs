@@ -35,15 +35,16 @@ use ::serde_json as _;
 /// Codec that uses random projections to reduce the dimensionality of high-
 /// dimensional data to compress it.
 ///
-/// A two-dimensional array of shape `N x D` is encoded as n array of shape
-/// `N x K`, where `K` is either set explicitly or chosen using the the Johnson-
-/// Lindenstrauss lemma. For `K` to be smaller than `D`, `D` must be quite
-/// large. Therefore, this codec should only applied on large datasets as it
-/// otherwise significantly inflates the data size instead of reducing it.
+/// A two-dimensional array of shape `$N \times D$` is encoded as n array of
+/// shape `$N \times K$`, where `$K$` is either set explicitly or chosen using
+/// the the Johnson-Lindenstrauss lemma. For `$K$` to be smaller than `$D$`,
+/// `$D$` must be quite large. Therefore, this codec should only applied on
+/// large datasets as it otherwise significantly inflates the data size instead
+/// of reducing it.
 ///
 /// Choosing a lower distortion rate `epsilon` will improve the quality of the
 /// lossy compression, i.e. reduce the compression error, at the cost of
-/// increasing `K`.
+/// increasing `$K$`.
 ///
 /// This codec only supports finite floating point data.
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
@@ -51,7 +52,7 @@ use ::serde_json as _;
 pub struct RandomProjectionCodec {
     /// Seed for generating the random projection matrix
     pub seed: u64,
-    /// Method with which the reduced dimensionality `K` is selected
+    /// Method with which the reduced dimensionality `$K$` is selected
     #[serde(flatten)]
     pub reduction: RandomProjectionReduction,
     /// Projection kind that is used to generate the random projection matrix
@@ -59,19 +60,19 @@ pub struct RandomProjectionCodec {
     pub projection: RandomProjectionKind,
 }
 
-/// Method with which the reduced dimensionality `K` is selected
+/// Method with which the reduced dimensionality `$K$` is selected
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // FIXME: #[serde(deny_unknown_fields)]
 #[serde(tag = "reduction", rename_all = "kebab-case")]
 pub enum RandomProjectionReduction {
-    /// The reduced dimensionality `K` is derived from `epsilon`, as defined by
-    /// the Johnson-Lindenstrauss lemma.
+    /// The reduced dimensionality `$K$` is derived from `epsilon`, as defined
+    /// by the Johnson-Lindenstrauss lemma.
     JohnsonLindenstrauss {
         /// Maximum distortion rate
         epsilon: OpenClosedUnit<f64>,
     },
-    /// The reduced dimensionality `K`, to which the data is projected, is given
-    /// explicitly.
+    /// The reduced dimensionality `$K$`, to which the data is projected, is
+    /// given explicitly.
     Explicit {
         /// Reduced dimensionality
         k: NonZeroUsize,
@@ -84,21 +85,24 @@ pub enum RandomProjectionReduction {
 #[serde(tag = "projection", rename_all = "kebab-case")]
 pub enum RandomProjectionKind {
     /// The random projection matrix is dense and its components are sampled
-    /// from `N(0, 1/k)`
+    /// from `$\text{N}\left( 0, \frac{1}{k} \right)$`
     Gaussian,
     /// The random projection matrix is sparse where only `density`% of entries
     /// are non-zero.
     ///
     /// The matrix's components are sampled from
     ///
-    /// - `-sqrt(1 / (k * density))` with probability `density/2`
-    /// - `0` with probability `1-density`
-    /// - `+sqrt(1 / (k * density))` with probability `density/2`
+    /// - `$-\sqrt{\frac{1}{k \cdot density}}$` with probability
+    ///   `$0.5 \cdot density$`
+    /// - `$0$` with probability `$1 - density$`
+    /// - `$+\sqrt{\frac{1}{k \cdot density}}$` with probability
+    ///   `$0.5 \cdot density$`
     Sparse {
         /// The `density` of the sparse projection matrix.
         ///
-        /// Setting `density` to `Some(1.0/3.0)` reproduces the settings by
-        /// Achlioptas [^1]. If `density` is `None`, it is set to `1/sqrt(d)`,
+        /// Setting `density` to `$\frac{1}{3}$` reproduces the settings by
+        /// Achlioptas [^1]. If `density` is `None`, it is set to
+        /// `$\frac{1}{\sqrt{d}}$`,
         /// the minimum density as recommended by Li et al [^2].
         ///
         ///
@@ -209,8 +213,8 @@ pub enum RandomProjectionCodecError {
     /// floating point data
     #[error("RandomProjection does not support non-finite (infinite or NaN) floating point data")]
     NonFiniteData,
-    /// [`RandomProjectionCodec`] cannot encode or decode from an array with `N`
-    /// samples to an array with a different number of samples
+    /// [`RandomProjectionCodec`] cannot encode or decode from an array with
+    /// `$N$` samples to an array with a different number of samples
     #[error("RandomProjection cannot encode or decode from an array with {input} samples to an array with {output} samples")]
     NumberOfSamplesMismatch {
         /// Number of samples `N` in the input array
@@ -219,20 +223,20 @@ pub enum RandomProjectionCodecError {
         output: usize,
     },
     /// [`RandomProjectionCodec`] cannot decode from an array with zero
-    /// dimensionality `K`
+    /// dimensionality `$K$`
     #[error("RandomProjection cannot decode from an array with zero dimensionality `K`")]
     ProjectedArrayZeroComponents,
     /// [`RandomProjectionCodec`] cannot decode from an array with corrupted
     /// dimensionality metadata
     #[error("RandomProjection cannot decode from an array with corrupted dimensionality metadata")]
     CorruptedNumberOfComponents,
-    /// [`RandomProjectionCodec`] cannot decode into an array with `D` features
-    /// that differs from the `D` stored in the encoded metadata
+    /// [`RandomProjectionCodec`] cannot decode into an array with `$D$`
+    /// features that differs from the `$D$` stored in the encoded metadata
     #[error("RandomProjection cannot decode into an array with {output} features that differs from the {metadata} features stored in the encoded metadata")]
     NumberOfFeaturesMismatch {
-        /// Number of features `D` in the encoded array metadata
+        /// Number of features `$D$` in the encoded array metadata
         metadata: usize,
-        /// Number of features `D` in the decoded output array
+        /// Number of features `$D$` in the decoded output array
         output: usize,
     },
     /// [`RandomProjectionCodec`] cannot decode into the provided array
@@ -276,7 +280,7 @@ pub fn project_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
 
     let mut projected = Array::<T, Ix2>::from_elem((n, k + 1), T::ZERO);
 
-    // stash the number of features `d` in an extra column
+    // stash the number of features `$d$` in an extra column
     // this is quite inefficient but works for now
     for p in projected.slice_mut(s!(.., k)) {
         *p = T::from_usize(d);
@@ -308,7 +312,7 @@ pub fn project_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
 /// `projected` array.
 ///
 /// The random projection matrix is defined by the `projection` function
-/// `(i, j) -> P[i, j]` and a globally applied `normalizer` factor.
+/// `$(i, j) \rightarrow P[i, j]$` and a globally applied `normalizer` factor.
 ///
 /// # Errors
 ///
@@ -381,7 +385,7 @@ pub fn project_into<T: FloatExt, S: Data<Elem = T>>(
 /// - [`RandomProjectionCodecError::NonMatrixData`] if the `projected` array is
 ///   not a two-dimensional matrix
 /// - [`RandomProjectionCodecError::ProjectedArrayZeroComponents`] if the
-///   `projected` array is of shape `(n, 0)`
+///   `projected` array is of shape `$(N, 0)$`
 /// - [`RandomProjectionCodecError::CorruptedNumberOfComponents`] if the
 ///   `projected` array's dimensionality metadata is corrupted
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the `projected` array or
@@ -404,7 +408,7 @@ pub fn reconstruct_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>
         return Err(RandomProjectionCodecError::ProjectedArrayZeroComponents);
     };
 
-    // extract the number of features `d` from the extra column and check that
+    // extract the number of features `$d$` from the extra column and check that
     //  it has been preserved consistently across the column
     let ds = projected.slice(s!(.., k));
     let Ok(Some(d)) = ds.fold(Ok(None), |acc, d| match acc {
@@ -443,7 +447,7 @@ pub fn reconstruct_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>
 /// resulting reconstructed array.
 ///
 /// The random projection matrix is defined by the `projection` function
-/// `(i, j) -> P[i, j]` and a globally applied `normalizer` factor.
+/// `$(i, j) \rightarrow P[i, j]$` and a globally applied `normalizer` factor.
 ///
 /// # Errors
 ///
@@ -509,15 +513,15 @@ pub fn reconstruct<T: FloatExt, S: Data<Elem = T>>(
 /// - [`RandomProjectionCodecError::NonMatrixData`] if the `projected` and
 ///   `reconstructed` arrays are not two-dimensional matrices
 /// - [`RandomProjectionCodecError::NumberOfSamplesMismatch`] if the number of
-///   samples `N` of the `projected` array don't match the number of samples of
-///   the `reconstructed` array
+///   samples `$N$` of the `projected` array don't match the number of samples
+///   of the `reconstructed` array
 /// - [`RandomProjectionCodecError::ProjectedArrayZeroComponents`] if the
-///   `projected` array is of shape `(n, 0)`
+///   `projected` array is of shape `$(N, 0)$`
 /// - [`RandomProjectionCodecError::CorruptedNumberOfComponents`] if the
 ///   `projected` array's dimensionality metadata is corrupted
 /// - [`RandomProjectionCodecError::NumberOfFeaturesMismatch`] if the
-///   `reconstructed` array's dimensionality `D` does not match the `projected`
-///   array's dimensionality metadata
+///   `reconstructed` array's dimensionality `$D$` does not match the
+///   `projected` array's dimensionality metadata
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the `projected` array or
 ///   the reconstructed output contains non-finite data
 pub fn reconstruct_into_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
@@ -547,7 +551,7 @@ pub fn reconstruct_into_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimen
         return Err(RandomProjectionCodecError::ProjectedArrayZeroComponents);
     };
 
-    // extract the number of features `d` from the extra column and check that
+    // extract the number of features `$d$` from the extra column and check that
     //  it has been preserved consistently across the column
     let ds = projected.slice(s!(.., k));
     let Ok(Some(d)) = ds.fold(Ok(None), |acc, d| match acc {
@@ -592,14 +596,14 @@ pub fn reconstruct_into_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimen
 /// array to reconstruct the input data outputs into the `reconstructed` array.
 ///
 /// The random projection matrix is defined by the `projection` function
-/// `(i, j) -> P[i, j]` and a globally applied `normalizer` factor.
+/// `$(i, j) \rightarrow P[i, j]$` and a globally applied `normalizer` factor.
 ///
 /// # Errors
 ///
 /// Errors with
 /// - [`RandomProjectionCodecError::NumberOfSamplesMismatch`] if the number of
-///   samples `N` of the `projected` array don't match the number of samples of
-///   the `reconstructed` array
+///   samples `$N$` of the `projected` array don't match the number of samples
+///   of the `reconstructed` array
 /// - [`RandomProjectionCodecError::NonFiniteData`] if the `projected` array or
 ///   the reconstructed output contains non-finite data
 pub fn reconstruct_into<T: FloatExt, S: Data<Elem = T>>(
@@ -653,10 +657,11 @@ pub fn reconstruct_into<T: FloatExt, S: Data<Elem = T>>(
     Ok(())
 }
 
-/// Find a 'safe' number of components `K` to randomly project to.
+/// Find a 'safe' number of components `$K$` to randomly project to.
 ///
-/// The minimum number of components to guarantee the eps-embedding is
-/// given by `K >= 4 log(N) / (eps^2 / 2 - eps^3 / 3)`.
+/// The minimum number of components to guarantee the `$\epsilon$`-embedding is
+/// given by
+/// `$K \ge \frac{4 \cdot \log(N)}{\frac{{\epsilon}^{2}}{2} - \frac{{\epsilon}^{3}}{3}}$`.
 ///
 /// The implementation is adapted from [`sklearn`]'s.
 ///
@@ -676,7 +681,7 @@ pub fn johnson_lindenstrauss_min_k(
 }
 
 /// Extract the provided `density` if it is `Some(_)`, or compute the minimum
-/// required density `1/sqrt(d)` as recommended by Li et al [^3].
+/// required density `$\frac{1}{\sqrt{d}}$` as recommended by Li et al [^3].
 ///
 /// [^3]: Li, P., Hastie, T. J., and Church, K. W. (2006). Very sparse
 ///       random projections. In *Proceedings of the 12th ACM SIGKDD
@@ -695,7 +700,8 @@ pub fn density_or_ping_li_minimum<T: FloatExt>(
     }
 }
 
-/// Sample from `N(0, 1)` at the coordinate `(x, y)` with the random `seed`
+/// Sample from `$\text{N}(0, 1)$` at the coordinate `$(x, y)$` with the random
+/// `seed`
 fn gaussian_project<T: FloatExt>(x: usize, y: usize, seed: u64) -> T {
     let (ClosedOpenUnit(u0), OpenClosedUnit(u1)) = T::u01x2(hash_matrix_index(x, y, seed));
 
@@ -709,9 +715,9 @@ fn gaussian_normaliser<T: FloatExt>(k: usize) -> T {
     T::from_usize(k).sqrt().recip()
 }
 
-/// Sample from `{ -1, 0, +1 }` with probabilities
-/// `{ density/2, 1-density, density/2 }` at the coordinate `(x, y)` with the
-/// random `seed`
+/// Sample from `${ -1, 0, +1 }$` with probabilities
+/// `${ 0.5 \cdot density, 1 - density, 0.5 \cdot density }$` at the coordinate
+/// `$(x, y)$` with the random `seed`
 fn sparse_project<T: FloatExt>(x: usize, y: usize, density: T, seed: u64) -> T {
     let (ClosedOpenUnit(u0), _u1) = T::u01x2(hash_matrix_index(x, y, seed));
 
@@ -805,9 +811,9 @@ impl JsonSchema for OpenClosedUnit<f64> {
 
 /// Floating point types.
 pub trait FloatExt: Float + ConstZero + ConstOne + FloatConst + AddAssign {
-    /// `0.5`
+    /// `$0.5$`
     const HALF: Self;
-    /// `2.0`
+    /// `$2.0$`
     const TWO: Self;
 
     /// Converts from a [`f64`].
@@ -824,7 +830,8 @@ pub trait FloatExt: Float + ConstZero + ConstOne + FloatConst + AddAssign {
 
     /// Generates two uniform random numbers from a random `hash` value.
     ///
-    /// The first is sampled from `[0.0, 1.0)`, the second from `(0.0, 1.0]`.
+    /// The first is sampled from `$[0.0, 1.0)$`, the second from
+    /// `$(0.0, 1.0]$`.
     #[must_use]
     fn u01x2(hash: u64) -> (ClosedOpenUnit<Self>, OpenClosedUnit<Self>);
 }
