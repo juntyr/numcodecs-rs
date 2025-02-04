@@ -133,16 +133,14 @@ def stub_function(
     func: Any,
     indent: str,
     module: str,
+    name: str,
     cls: Optional[type] = None,
-    name: Optional[str] = None,
-    text_signature: Optional[str] = None,
 ) -> str:
-    if name is None:
-        name = func.__name__
+    text_signature = getattr(func, "__text_signature__", None)
 
     if text_signature is None:
-        text_signature = func.__text_signature__
-    if text_signature is not None:
+        text_signature = str(inspect.signature(func))
+    else:
         text_signature = (
             text_signature.replace("$self", "self")
             .replace("$cls", "cls")
@@ -153,6 +151,15 @@ def stub_function(
     docstring = extract_and_process_docstring(func, cls=cls, module=module)
 
     string = f"{indent}def {name}{text_signature}:"
+
+    if cls is not None:
+        if isinstance(inspect.getattr_static(cls, name, None), staticmethod):
+            string = f"{indent}@staticmethod\n{string}"
+        elif (
+            isinstance(inspect.getattr_static(cls, name, None), classmethod)
+            or getattr(func, "__self__", None) is cls
+        ):
+            string = f"{indent}@classmethod\n{string}"
 
     if docstring is not None:
         string += "\n"
@@ -265,7 +272,7 @@ def stub_member(
     indent: str,
     module: str,
     imports: set,
-    name: Optional[str] = None,
+    name: str,
     cls: Optional[type] = None,
 ) -> str:
     if inspect.ismodule(obj):
@@ -274,27 +281,10 @@ def stub_member(
     if inspect.isclass(obj):
         return stub_class(obj, indent, imports)
 
-    if inspect.isbuiltin(obj):
-        stub = stub_function(obj, indent, module, cls=cls)
-        return f"{indent}@staticmethod\n{stub}"
+    if inspect.isroutine(obj):
+        return stub_function(obj, indent, module, name, cls=cls)
 
-    if inspect.ismethoddescriptor(obj):
-        return stub_function(obj, indent, module, cls=cls)
-
-    if name is not None and isinstance(obj, type(lambda x: x)):
-        return stub_function(
-            obj,
-            indent,
-            module,
-            name=name,
-            text_signature=str(inspect.signature(obj)),
-            cls=cls,
-        )
-
-    if name is not None:
-        return f"{indent}{name} = {obj!r}\n\n"
-
-    raise Exception(f"Object {obj} is not supported")
+    return f"{indent}{name} = {obj!r}\n\n"
 
 
 def write_module_stubs(module: Any, directory: Path) -> None:
