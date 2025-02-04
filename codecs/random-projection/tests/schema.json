@@ -11,7 +11,7 @@
   "required": [
     "seed"
   ],
-  "description": "Codec that uses random projections to reduce the dimensionality of high-\n dimensional data to compress it.\n\n A two-dimensional array of shape `N x D` is encoded as n array of shape\n `N x K`, where `K` is either set explicitly or chosen using the the Johnson-\n Lindenstrauss lemma. For `K` to be smaller than `D`, `D` must be quite\n large. Therefore, this codec should only applied on large datasets as it\n otherwise significantly inflates the data size instead of reducing it.\n\n Choosing a lower distortion rate `epsilon` will improve the quality of the\n lossy compression, i.e. reduce the compression error, at the cost of\n increasing `K`.\n\n This codec only supports finite floating point data.",
+  "description": "Codec that uses random projections to reduce the dimensionality of high-\n dimensional data to compress it.\n\n A two-dimensional array of shape `$N \\times D$` is encoded as n array of\n shape `$N \\times K$`, where `$K$` is either set explicitly or chosen using\n the the Johnson-Lindenstrauss lemma. For `$K$` to be smaller than `$D$`,\n `$D$` must be quite large. Therefore, this codec should only applied on\n large datasets as it otherwise significantly inflates the data size instead\n of reducing it.\n\n Choosing a lower distortion rate `epsilon` will improve the quality of the\n lossy compression, i.e. reduce the compression error, at the cost of\n increasing `$K$`.\n\n This codec only supports finite floating point data.",
   "allOf": [
     {
       "oneOf": [
@@ -33,7 +33,7 @@
             "reduction",
             "epsilon"
           ],
-          "description": "The reduced dimensionality `K` is derived from `epsilon`, as defined by\n the Johnson-Lindenstrauss lemma."
+          "description": "The reduced dimensionality `$K$` is derived from `epsilon`, as defined\n by the Johnson-Lindenstrauss lemma."
         },
         {
           "type": "object",
@@ -53,7 +53,7 @@
             "reduction",
             "k"
           ],
-          "description": "The reduced dimensionality `K`, to which the data is projected, is given\n explicitly."
+          "description": "The reduced dimensionality `$K$`, to which the data is projected, is\n given explicitly."
         }
       ]
     },
@@ -70,7 +70,7 @@
           "required": [
             "projection"
           ],
-          "description": "The random projection matrix is dense and its components are sampled\n from `N(0, 1/k)`"
+          "description": "The random projection matrix is dense and its components are sampled\n from `$\\text{N}\\left( 0, \\frac{1}{k} \\right)$`"
         },
         {
           "type": "object",
@@ -82,7 +82,7 @@
               ],
               "exclusiveMinimum": 0.0,
               "maximum": 1.0,
-              "description": "The `density` of the sparse projection matrix.\n\n Setting `density` to `Some(1.0/3.0)` reproduces the settings by\n Achlioptas [^1]. If `density` is `None`, it is set to `1/sqrt(d)`,\n the minimum density as recommended by Li et al [^2].\n\n\n [^1]: Achlioptas, D. (2003). Database-friendly random projections:\n       Johnson-Lindenstrauss with binary coins. *Journal of Computer\n       and System Sciences*, 66(4), 671-687. Available from:\n       [doi:10.1016/S0022-0000(03)00025-4](https://doi.org/10.1016/S0022-0000(03)00025-4).\n\n [^2]: Li, P., Hastie, T. J., and Church, K. W. (2006). Very sparse\n       random projections. In *Proceedings of the 12th ACM SIGKDD\n       international conference on Knowledge discovery and data\n       mining (KDD '06)*. Association for Computing Machinery, New\n       York, NY, USA, 287–296. Available from:\n       [doi:10.1145/1150402.1150436](https://doi.org/10.1145/1150402.1150436)."
+              "description": "The `density` of the sparse projection matrix.\n\n Setting `density` to `$\\frac{1}{3}$` reproduces the settings by\n Achlioptas [^1]. If `density` is `None`, it is set to\n `$\\frac{1}{\\sqrt{d}}$`,\n the minimum density as recommended by Li et al [^2].\n\n\n [^1]: Achlioptas, D. (2003). Database-friendly random projections:\n       Johnson-Lindenstrauss with binary coins. *Journal of Computer\n       and System Sciences*, 66(4), 671-687. Available from:\n       [doi:10.1016/S0022-0000(03)00025-4](https://doi.org/10.1016/S0022-0000(03)00025-4).\n\n [^2]: Li, P., Hastie, T. J., and Church, K. W. (2006). Very sparse\n       random projections. In *Proceedings of the 12th ACM SIGKDD\n       international conference on Knowledge discovery and data\n       mining (KDD '06)*. Association for Computing Machinery, New\n       York, NY, USA, 287–296. Available from:\n       [doi:10.1145/1150402.1150436](https://doi.org/10.1145/1150402.1150436)."
             },
             "projection": {
               "type": "string",
@@ -92,7 +92,7 @@
           "required": [
             "projection"
           ],
-          "description": "The random projection matrix is sparse where only `density`% of entries\n are non-zero.\n\n The matrix's components are sampled from\n\n - `-sqrt(1 / (k * density))` with probability `density/2`\n - `0` with probability `1-density`\n - `+sqrt(1 / (k * density))` with probability `density/2`"
+          "description": "The random projection matrix is sparse where only `density`% of entries\n are non-zero.\n\n The matrix's components are sampled from\n\n - `$-\\sqrt{\\frac{1}{k \\cdot density}}$` with probability\n   `$0.5 \\cdot density$`\n - `$0$` with probability `$1 - density$`\n - `$+\\sqrt{\\frac{1}{k \\cdot density}}$` with probability\n   `$0.5 \\cdot density$`"
         }
       ]
     }
