@@ -1746,7 +1746,7 @@
 ///
 /// The minimum number of components to guarantee the `$\epsilon$`-embedding is
 /// given by
-/// `$K \ge \frac{4 \cdot \log(N)}{\frac{{\epsilon}^{2}}{2} - \frac{{\epsilon}^{3}}{3}}$`.
+/// `$K \ge \frac{4 \cdot \ln(N)}{\frac{{\epsilon}^{2}}{2} - \frac{{\epsilon}^{3}}{3}}$`.
 ///
 /// The implementation is adapted from [`sklearn`]'s.
 ///
@@ -1847,12 +1847,12 @@
 
 <span class="attr">#[allow(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
-</span><span class="doccomment">/// Floating point number in [0.0, 1.0)
+</span><span class="doccomment">/// Floating point number in `$[0.0, 1.0)$`
 </span><span class="kw">pub struct </span><a href="../../numcodecs_random_projection/struct.ClosedOpenUnit.html">ClosedOpenUnit</a>&lt;T: <a href="#813-837">FloatExt</a>&gt;(T);
 
 <span class="attr">#[allow(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
-</span><span class="doccomment">/// Floating point number in (0.0, 1.0]
+</span><span class="doccomment">/// Floating point number in `$(0.0, 1.0]$`
 </span><span class="kw">pub struct </span><a href="../../numcodecs_random_projection/struct.OpenClosedUnit.html">OpenClosedUnit</a>&lt;T: <a href="#813-837">FloatExt</a>&gt;(T);
 
 <span class="kw">impl </span><a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#771">OpenClosedUnit</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
