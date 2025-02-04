@@ -279,7 +279,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_log
 //!
-//! `ln(x)` codec implementation for the [`numcodecs`] API.
+//! `$\ln(x)$` codec implementation for the [`numcodecs`] API.
 
 </span><span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayViewMut.html">ArrayViewMut</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html">Zip</a>};
 <span class="kw">use </span>num_traits::{<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a>, <a href="https://docs.rs/num-traits/0.2/num_traits/sign/trait.Signed.html">Signed</a>};
@@ -293,8 +293,8 @@
 
 <span class="attr">#[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-</span><span class="doccomment">/// Log codec which calculates `c = ln(x)` on encoding and `d = exp(c)` on
-/// decoding.
+</span><span class="doccomment">/// Log codec which calculates `$c = \ln(x)$` on encoding and `$d = {e}^{c}$`
+/// on decoding.
 ///
 /// The codec only supports finite positive floating point numbers.
 </span><span class="kw">pub struct </span><a href="../../numcodecs_log/struct.LogCodec.html">LogCodec</a> {
@@ -382,7 +382,7 @@
     },
 }
 
-<span class="doccomment">/// Compute `ln(x)` over the elements of the input `data` array.
+<span class="doccomment">/// Compute `$\ln(x)$` over the elements of the input `data` array.
 ///
 /// # Errors
 ///
@@ -408,7 +408,7 @@
     <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#141">data</a>)
 }
 
-<span class="doccomment">/// Compute `exp(x)` over the elements of the input `data` array.
+<span class="doccomment">/// Compute `${e}^{x}$` over the elements of the input `data` array.
 ///
 /// # Errors
 ///
@@ -429,8 +429,8 @@
 }
 
 <span class="attr">#[allow(clippy::needless_pass_by_value)]
-</span><span class="doccomment">/// Compute `exp(x)` over the elements of the input `data` array and write them
-/// into the `out`put array.
+</span><span class="doccomment">/// Compute `${e}^{x}$` over the elements of the input `data` array and write
+/// them into the `out`put array.
 ///
 /// # Errors
 ///

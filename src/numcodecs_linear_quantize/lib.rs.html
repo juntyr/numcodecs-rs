@@ -913,7 +913,7 @@
 </span><span class="kw">pub struct </span><a href="../../numcodecs_linear_quantize/struct.LinearQuantizeCodec.html">LinearQuantizeCodec</a> {
     <span class="doccomment">/// Dtype of the decoded data
     </span><span class="kw">pub </span>dtype: <a href="#53-58">LinearQuantizeDType</a>,
-    <span class="doccomment">/// Binary precision of the encoded data where `bits = log2(bins)`
+    <span class="doccomment">/// Binary precision of the encoded data where `$bits = \log_{2}(bins)$`
     </span><span class="kw">pub </span>bits: <a href="#78-87">LinearQuantizeBins</a>,
 }
 
@@ -1496,7 +1496,7 @@
     <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
 }
 
-<span class="doccomment">/// Returns `exp2(bits) - 1.0`
+<span class="doccomment">/// Returns `${2.0}^{bits} - 1.0$`
 </span><span class="kw">fn </span>scale_for_bits&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a> + <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html">From</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; + <a href="https://docs.rs/num-traits/0.2/num_traits/identities/trait.ConstOne.html">ConstOne</a>&gt;(bits: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; T {
     &lt;T <span class="kw">as </span>From&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;::from(<a href="#629">bits</a>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.exp2">exp2</a>() - T::ONE
 }

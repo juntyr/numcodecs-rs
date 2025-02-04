@@ -337,7 +337,8 @@
 <a href="#298" id="298">298</a>
 <a href="#299" id="299">299</a>
 <a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -372,7 +373,7 @@
 </span><span class="doccomment">/// Codec providing compression using ZFP
 </span><span class="kw">pub struct </span><a href="../../numcodecs_zfp/struct.ZfpCodec.html">ZfpCodec</a> {
     <span class="doccomment">/// ZFP compression mode
-    </span><span class="kw">pub </span>mode: <a href="#43-88">ZfpCompressionMode</a>,
+    </span><span class="kw">pub </span>mode: <a href="#43-89">ZfpCompressionMode</a>,
 }
 
 <span class="attr">#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
@@ -395,10 +396,10 @@
         /// for integer data.
         </span>min_exp: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
     },
-    <span class="doccomment">/// In fixed-rate mode, each d-dimensional compressed block of 4^d values
-    /// is stored using a fixed number of bits. This number of compressed bits
-    /// per block is amortized over the 4^d values to give a rate of
-    /// `rate = max_bits / 4^d` in bits per value.
+    <span class="doccomment">/// In fixed-rate mode, each d-dimensional compressed block of `$4^d$`
+    /// values is stored using a fixed number of bits. This number of
+    /// compressed bits per block is amortized over the `$4^d$` values to give
+    /// a rate of `$rate = \frac{maxbits}{4^d}$` in bits per value.
     </span><span class="attr">#[serde(rename = <span class="string">"fixed-rate"</span>)]
     </span>FixedRate {
         <span class="doccomment">/// Rate in bits per value
@@ -414,7 +415,8 @@
     },
     <span class="doccomment">/// In fixed-accuracy mode, all transform coefficient bit planes up to a
     /// minimum bit plane number are encoded. The smallest absolute bit plane
-    /// number is chosen such that `minexp = floor(log2(tolerance))`.
+    /// number is chosen such that
+    /// `$minexp = \text{floor}(\log_{2}(tolerance))$`.
     </span><span class="attr">#[serde(rename = <span class="string">"fixed-accuracy"</span>)]
     </span>FixedAccuracy {
         <span class="doccomment">/// Absolute error tolerance
@@ -427,7 +429,7 @@
 }
 
 <span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#34-37">ZfpCodec</a> {
-    <span class="kw">type </span>Error = <a href="#173-230">ZfpCodecError</a>;
+    <span class="kw">type </span>Error = <a href="#174-231">ZfpCodecError</a>;
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">if </span><span class="macro">matches!</span>(data.dtype(), AnyArrayDType::I32 | AnyArrayDType::I64)
@@ -436,40 +438,40 @@
                 ZfpCompressionMode::FixedAccuracy { tolerance: <span class="kw">_ </span>}
             )
         {
-            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#179">ZfpCodecError::FixedAccuracyModeIntegerData</a>);
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#180">ZfpCodecError::FixedAccuracyModeIntegerData</a>);
         }
 
-        <span class="kw">match </span><a href="#93">data</a> {
+        <span class="kw">match </span><a href="#94">data</a> {
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyCowArray::I32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#243-260">compress</a>(<a href="#104">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view">view</a>(), <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.mode)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#244-261">compress</a>(<a href="#105">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view">view</a>(), <span class="kw-2">&amp;</span><a class="self" href="#94">self</a>.mode)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyCowArray::I64</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#243-260">compress</a>(<a href="#107">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view">view</a>(), <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.mode)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#244-261">compress</a>(<a href="#108">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view">view</a>(), <span class="kw-2">&amp;</span><a class="self" href="#94">self</a>.mode)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#243-260">compress</a>(<a href="#110">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view">view</a>(), <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.mode)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#244-261">compress</a>(<a href="#111">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view">view</a>(), <span class="kw-2">&amp;</span><a class="self" href="#94">self</a>.mode)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyCowArray::F64</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#243-260">compress</a>(<a href="#113">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view">view</a>(), <span class="kw-2">&amp;</span><a class="self" href="#93">self</a>.mode)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Array1::from</a>(<a href="#244-261">compress</a>(<a href="#114">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view">view</a>(), <span class="kw-2">&amp;</span><a class="self" href="#94">self</a>.mode)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
             )),
-            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#176">ZfpCodecError::UnsupportedDtype</a>(<a href="#116">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
+            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#177">ZfpCodecError::UnsupportedDtype</a>(<a href="#117">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
 
     <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(encoded) = <a href="#120">encoded</a> <span class="kw">else </span>{
-            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#203-206">ZfpCodecError::EncodedDataNotBytes</a> {
-                dtype: <a href="#120">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+        <span class="kw">let </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(encoded) = <a href="#121">encoded</a> <span class="kw">else </span>{
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#204-207">ZfpCodecError::EncodedDataNotBytes</a> {
+                dtype: <a href="#121">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             });
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#210-213">ZfpCodecError::EncodedDataNotOneDimensional</a> {
-                shape: <a href="#121">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#211-214">ZfpCodecError::EncodedDataNotOneDimensional</a> {
+                shape: <a href="#122">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             });
         }
 
-        <a href="#271-280">decompress</a>(<span class="kw-2">&amp;</span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(<a href="#121">encoded</a>).<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>())
+        <a href="#272-281">decompress</a>(<span class="kw-2">&amp;</span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyCowArray::U8</a>(<a href="#122">encoded</a>).<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>())
     }
 
     <span class="kw">fn </span>decode_into(
@@ -477,19 +479,19 @@
         encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
         decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
     ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(encoded) = <a href="#138">encoded</a> <span class="kw">else </span>{
-            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#203-206">ZfpCodecError::EncodedDataNotBytes</a> {
-                dtype: <a href="#138">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+        <span class="kw">let </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(encoded) = <a href="#139">encoded</a> <span class="kw">else </span>{
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#204-207">ZfpCodecError::EncodedDataNotBytes</a> {
+                dtype: <a href="#139">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
             });
         };
 
         <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
-            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#210-213">ZfpCodecError::EncodedDataNotOneDimensional</a> {
-                shape: <a href="#141">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#211-214">ZfpCodecError::EncodedDataNotOneDimensional</a> {
+                shape: <a href="#142">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
             });
         }
 
-        <a href="#293-301">decompress_into</a>(<span class="kw-2">&amp;</span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(<a href="#141">encoded</a>).<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>(), <a href="#139">decoded</a>)
+        <a href="#294-302">decompress_into</a>(<span class="kw-2">&amp;</span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(<a href="#142">encoded</a>).<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>(), <a href="#140">decoded</a>)
     }
 }
 
@@ -499,11 +501,11 @@
     <span class="kw">type </span>Config&lt;<span class="lifetime">'de</span>&gt; = <span class="self">Self</span>;
 
     <span class="kw">fn </span>from_config(config: <span class="self">Self</span>::Config&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self </span>{
-        <a href="#162">config</a>
+        <a href="#163">config</a>
     }
 
     <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;<span class="self">Self</span>&gt; {
-        <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#166">self</a>)
+        <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#167">self</a>)
     }
 }
 
@@ -526,7 +528,7 @@
     </span><span class="attr">#[error(<span class="string">"Zfp was configured with an invalid expert mode {mode:?}"</span>)]
     </span>InvalidExpertMode {
         <span class="doccomment">/// The unexpected compression mode
-        </span>mode: <a href="#43-88">ZfpCompressionMode</a>,
+        </span>mode: <a href="#43-89">ZfpCompressionMode</a>,
     },
     <span class="doccomment">/// [`ZfpCodec`] failed to encode the header
     </span><span class="attr">#[error(<span class="string">"Zfp failed to encode the header"</span>)]
@@ -581,21 +583,21 @@
 /// - [`ZfpCodecError::ZfpEncodeFailed`] if an opaque encoding error occurred
 </span><span class="kw">pub fn </span><a href="../../numcodecs_zfp/fn.compress.html">compress</a>&lt;T: <a href="ffi.rs.html#375-377">ffi::ZfpCompressible</a>, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>&lt;T, D&gt;,
-    mode: <span class="kw-2">&amp;</span><a href="#43-88">ZfpCompressionMode</a>,
-) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#173-230">ZfpCodecError</a>&gt; {
+    mode: <span class="kw-2">&amp;</span><a href="#43-89">ZfpCompressionMode</a>,
+) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#174-231">ZfpCodecError</a>&gt; {
     <span class="comment">// Setup zfp structs to begin compression
-    </span><span class="kw">let </span>field = <a href="ffi.rs.html#18-54">ffi::ZfpField::new</a>(<a href="#244">data</a>)<span class="question-mark">?</span>;
-    <span class="kw">let </span>stream = <a href="ffi.rs.html#69-119">ffi::ZfpCompressionStream::new</a>(<span class="kw-2">&amp;</span><a href="#248">field</a>, <a href="#245">mode</a>)<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>field = <a href="ffi.rs.html#18-54">ffi::ZfpField::new</a>(<a href="#245">data</a>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>stream = <a href="ffi.rs.html#69-119">ffi::ZfpCompressionStream::new</a>(<span class="kw-2">&amp;</span><a href="#249">field</a>, <a href="#246">mode</a>)<span class="question-mark">?</span>;
 
     <span class="comment">// Allocate space based on the maximum size potentially required by zfp to
     //  store the compressed array
-    </span><span class="kw">let </span>stream = <a href="#249">stream</a>.<a href="ffi.rs.html#122-144">with_bitstream</a>(<a href="#248">field</a>);
+    </span><span class="kw">let </span>stream = <a href="#250">stream</a>.<a href="ffi.rs.html#122-144">with_bitstream</a>(<a href="#249">field</a>);
 
     <span class="comment">// Write the full header so we can reconstruct the array on decompression
-    </span><span class="kw">let </span>stream = <a href="#253">stream</a>.<a href="ffi.rs.html#162-180">write_full_header</a>()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>stream = <a href="#254">stream</a>.<a href="ffi.rs.html#162-180">write_full_header</a>()<span class="question-mark">?</span>;
 
     <span class="comment">// Compress the field into the allocated output array
-    </span><a href="#256">stream</a>.<a href="ffi.rs.html#200-211">compress</a>()
+    </span><a href="#257">stream</a>.<a href="ffi.rs.html#200-211">compress</a>()
 }
 
 <span class="doccomment">/// Decompress the `encoded` data into an array using ZFP.
@@ -607,15 +609,15 @@
 /// - [`ZfpCodecError::DecodeUnknownDtype`] if the encoded data uses an unknown
 ///   dtype
 /// - [`ZfpCodecError::ZfpDecodeFailed`] if an opaque decoding error occurred
-</span><span class="kw">pub fn </span><a href="../../numcodecs_zfp/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#173-230">ZfpCodecError</a>&gt; {
+</span><span class="kw">pub fn </span><a href="../../numcodecs_zfp/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#174-231">ZfpCodecError</a>&gt; {
     <span class="comment">// Setup zfp structs to begin decompression
-    </span><span class="kw">let </span>stream = <a href="ffi.rs.html#230-245">ffi::ZfpDecompressionStream::new</a>(<a href="#271">encoded</a>);
+    </span><span class="kw">let </span>stream = <a href="ffi.rs.html#230-245">ffi::ZfpDecompressionStream::new</a>(<a href="#272">encoded</a>);
 
     <span class="comment">// Read the full header to verify the decompression dtype
-    </span><span class="kw">let </span>stream = <a href="#273">stream</a>.<a href="ffi.rs.html#247-264">read_full_header</a>()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>stream = <a href="#274">stream</a>.<a href="ffi.rs.html#247-264">read_full_header</a>()<span class="question-mark">?</span>;
 
     <span class="comment">// Decompress the field into a newly allocated output array
-    </span><a href="#276">stream</a>.<a href="ffi.rs.html#282-314">decompress</a>()
+    </span><a href="#277">stream</a>.<a href="ffi.rs.html#282-314">decompress</a>()
 }
 
 <span class="doccomment">/// Decompress the `encoded` data into a `decoded` array using ZFP.
@@ -629,13 +631,13 @@
 /// - [`ZfpCodecError::MismatchedDecodeIntoArray`] if the `decoded` array is of
 ///   the wrong dtype or shape
 /// - [`ZfpCodecError::ZfpDecodeFailed`] if an opaque decoding error occurred
-</span><span class="kw">pub fn </span><a href="../../numcodecs_zfp/fn.decompress_into.html">decompress_into</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#173-230">ZfpCodecError</a>&gt; {
+</span><span class="kw">pub fn </span><a href="../../numcodecs_zfp/fn.decompress_into.html">decompress_into</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#174-231">ZfpCodecError</a>&gt; {
     <span class="comment">// Setup zfp structs to begin decompression
-    </span><span class="kw">let </span>stream = <a href="ffi.rs.html#230-245">ffi::ZfpDecompressionStream::new</a>(<a href="#293">encoded</a>);
+    </span><span class="kw">let </span>stream = <a href="ffi.rs.html#230-245">ffi::ZfpDecompressionStream::new</a>(<a href="#294">encoded</a>);
 
     <span class="comment">// Read the full header to verify the decompression dtype
-    </span><span class="kw">let </span>stream = <a href="#295">stream</a>.<a href="ffi.rs.html#247-264">read_full_header</a>()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>stream = <a href="#296">stream</a>.<a href="ffi.rs.html#247-264">read_full_header</a>()<span class="question-mark">?</span>;
 
-    <a href="#298">stream</a>.<a href="ffi.rs.html#316-364">decompress_into</a>(<a href="#293">decoded</a>)
+    <a href="#299">stream</a>.<a href="ffi.rs.html#316-364">decompress_into</a>(<a href="#294">decoded</a>)
 }
 </code></pre></div></section></main></body></html>

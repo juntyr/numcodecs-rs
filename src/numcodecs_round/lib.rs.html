@@ -196,7 +196,8 @@
 <a href="#157" id="157">157</a>
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 //!
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -244,11 +245,11 @@
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><a href="#46">data</a> {
             <span class="attr">#[allow(clippy::cast_possible_truncation)]
-            </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#153-160">round</a>(
+            </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#154-161">round</a>(
                 <a href="#49">data</a>,
                 <a href="#96">Positive</a>(<a class="self" href="#46">self</a>.precision.<span class="number">0 </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>),
             ))),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyCowArray::F64</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#153-160">round</a>(<a href="#53">data</a>, <a class="self" href="#46">self</a>.precision))),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyCowArray::F64</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#154-161">round</a>(<a href="#53">data</a>, <a class="self" href="#46">self</a>.precision))),
             encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#141">RoundCodecError::UnsupportedDtype</a>(<a href="#54">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
         }
     }
@@ -347,13 +348,14 @@
 }
 
 <span class="attr">#[must_use]
-</span><span class="doccomment">/// Rounds the input `data` using `c = round(x / precision) * precision`
+</span><span class="doccomment">/// Rounds the input `data` using
+/// `$c = \text{round}\left( \frac{x}{precision} \right) \cdot precision$`
 </span><span class="kw">pub fn </span><a href="../../numcodecs_round/fn.round.html">round</a>&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
     data: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
     precision: <a href="#96">Positive</a>&lt;T&gt;,
 ) -&gt; <a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;T, D&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>encoded = <a href="#154">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
-    <a href="#157">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(|x| (<a href="#158">x</a> / <a href="#155">precision</a>.<span class="number">0</span>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.round">round</a>() * <a href="#155">precision</a>.<span class="number">0</span>);
-    <a href="#157">encoded</a>
+    <span class="kw">let </span><span class="kw-2">mut </span>encoded = <a href="#155">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
+    <a href="#158">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(|x| (<a href="#159">x</a> / <a href="#156">precision</a>.<span class="number">0</span>).<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.round">round</a>() * <a href="#156">precision</a>.<span class="number">0</span>);
+    <a href="#158">encoded</a>
 }
 </code></pre></div></section></main></body></html>
