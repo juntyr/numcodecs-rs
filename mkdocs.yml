@@ -1,6 +1,6 @@
 site_name: numcodecs-wasm
 
-strict: false  # TODO: FIXME
+strict: true
 
 markdown_extensions:
   - footnotes
