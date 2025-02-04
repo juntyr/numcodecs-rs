@@ -36,6 +36,7 @@ jobs:
             --extern-html-root-url num-traits=https://docs.rs/num-traits/0.2.19/ \
             --extern-html-root-url pyo3=https://docs.rs/pyo3/0.23/ \
             --extern-html-root-url serde=https://docs.rs/serde/1.0/ \
+            --html-in-header docs/rs/katex.html \
             -Zunstable-options\
           " cargo doc \
             --all-features \

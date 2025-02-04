@@ -1,0 +1,37 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Replace all
+        // ```math
+        // a^2 + b^2 = c^2
+        // ```
+        // code blocks, as identified by the "language-math" class,
+        // with KaTex math blocks.
+        while (document.getElementsByClassName("language-math").length > 0) {
+            const code = document.getElementsByClassName("language-math")[0];
+
+            const math = document.createElement("span");
+            katex.render(code.innerText, math, { displayMode: true });
+
+            const math_outer = document.createElement("p");
+            math_outer.appendChild(math);
+            code.parentNode.parentNode.replaceChild(math_outer, code.parentNode);
+        }
+
+        // Replace all `$a^2 + b^2 = c^2$` inline code with KaTex inline math.
+        for (let i = 0; i < document.getElementsByTagName("code").length;) {
+            const code = document.getElementsByTagName("code")[i];
+
+			if (code.innerText.startsWith("$") && code.innerText.endsWith("$")) {
+                const math = document.createElement("span");
+				katex.render(code.innerText.slice(1, -1), math, { displayMode: false });
+                code.parentNode.replaceChild(math, code);
+			} else {
+                i += 1;
+            }
+        }
+    });
+</script>

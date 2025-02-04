@@ -38,6 +38,7 @@ plugins:
       nav_file: SUMMARY.md
   - exclude:
       glob:
+        - rs/katex.html
         - generate_api.py
         - requirements.txt
   - search

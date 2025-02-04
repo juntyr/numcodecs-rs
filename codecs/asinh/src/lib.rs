@@ -15,7 +15,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_asinh
 //!
-//! `asinh(x)` codec implementation for the [`numcodecs`] API.
+//! $\text{asinh(x)}$ codec implementation for the [`numcodecs`] API.
 
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension, Zip};
 use num_traits::{Float, Signed};
@@ -36,8 +36,11 @@ use thiserror::Error;
 /// transform is asymptotically logarithmic. Unlike a logarithmic transform,
 /// this codec supports all finite values, including negative values and zero.
 ///
-/// In detail, the codec calculates `c = asinh(x/w) * w` on encoding and
-/// `d = sinh(c/w) * w` on decoding, where `w` is the codec's `linear_width`.
+/// In detail, the codec calculates
+/// $c = \text{asinh}\left( \frac{x}{w} \right) \cdot w$
+/// on encoding and
+/// $d = \text{sinh}\left( \frac{c}{w} \right) \cdot w$
+/// on decoding, where $w$ is the codec's `linear_width`.
 ///
 /// The codec only supports finite floating point numbers.
 pub struct AsinhCodec {
@@ -128,7 +131,8 @@ pub enum AsinhCodecError {
     },
 }
 
-/// Compute `asinh(x/w) * w` over the elements of the input `data` array.
+/// Compute $\text{asinh}\left( \frac{x}{w} \right) \cdot w$ over the elements
+/// of the input `data` array.
 ///
 /// # Errors
 ///
@@ -149,7 +153,8 @@ pub fn asinh<T: Float + Signed, S: Data<Elem = T>, D: Dimension>(
     Ok(data)
 }
 
-/// Compute `sinh(x/w) * w` over the elements of the input `data` array.
+/// Compute $\text{sinh}\left( \frac{x}{w} \right) \cdot w$ over the elements
+/// of the input `data` array.
 ///
 /// # Errors
 ///
@@ -171,8 +176,8 @@ pub fn sinh<T: Float, S: Data<Elem = T>, D: Dimension>(
 }
 
 #[allow(clippy::needless_pass_by_value)]
-/// Compute `sinh(x/w) * w` over the elements of the input `data` array and
-/// write them into the `out`put array.
+/// Compute $\text{sinh}\left( \frac{x}{w} \right) \cdot w$ over the elements
+/// of the input `data` array and write them into the `out`put array.
 ///
 /// # Errors
 ///
