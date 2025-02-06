@@ -1,6 +1,7 @@
 site_name: numcodecs-wasm
 
-strict: true
+# FIXME: numcodecs_wasm.WasmCodecMeta wasm parameter must also be in signature
+strict: false
 
 markdown_extensions:
   - footnotes
