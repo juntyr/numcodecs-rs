@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "numcodecs_wasm"
-version = "0.1.0.dev2" # wasi 0.2.3
+version = "0.1.0" # wasi 0.2.3
 description = "numcodecs compression for codecs compiled to WebAssembly"
 
 authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
@@ -15,7 +15,12 @@ license = { file = "LICENSE" }
 
 requires-python = ">=3.10"
 
-dependencies = ["numcodecs~=0.13.1"]
+dependencies = [
+    "numcodecs>=0.13.0,<0.16",
+    "numcodecs-observers~=0.1.1",
+    "numpy~=2.0",
+    "typing-extensions~=4.6",
+]
 
 classifiers = [
     "Programming Language :: Rust",

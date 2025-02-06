@@ -16,7 +16,7 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 
 dependencies = [
-    "numcodecs-wasm==0.1.0.dev2", # wasi 0.2.3
+    "numcodecs-wasm~=0.1.0", # wasi 0.2.3
 ]
 
 [tool.setuptools.packages.find]
