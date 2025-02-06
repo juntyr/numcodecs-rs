@@ -51,9 +51,10 @@ plugins:
           options:
               docstring_section_style: list
               docstring_style: numpy
-              show_if_no_docstring: false
+              show_if_no_docstring: true
               filters: [
-                "!^_$", "!^_[^_]", "!^__", "__init__"
+                "!^_$", "!^_[^_]", "!^__", "__init__",
+                "!observe_encode", "!observe_decode",
               ]
               members_order: source
               group_by_category: false
