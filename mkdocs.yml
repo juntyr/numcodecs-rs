@@ -1,7 +1,6 @@
 site_name: numcodecs-wasm
 
-# FIXME: numcodecs_wasm.WasmCodecMeta wasm parameter must also be in signature
-strict: false
+strict: true
 
 markdown_extensions:
   - footnotes
@@ -69,6 +68,7 @@ plugins:
                   classes: true
                   functions: true
                   modules: true
-          import:
-            - https://docs.python.org/3.10/objects.inv
-            - https://numcodecs.readthedocs.io/en/v0.13.1/objects.inv
+          inventories:
+            - https://docs.python.org/3.12/objects.inv
+            - https://numcodecs.readthedocs.io/en/v0.15.0/objects.inv
+            - https://numcodecs-observers.readthedocs.io/en/v0.1.1/objects.inv
