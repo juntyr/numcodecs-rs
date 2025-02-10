@@ -14,22 +14,22 @@ use crate::transform::{
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ValidatedEngine<E: WasmEngine>(E);
+pub struct ReproducibleEngine<E: WasmEngine>(E);
 
-impl<E: WasmEngine> WasmEngine for ValidatedEngine<E> {
-    type ExternRef = ValidatedExternRef<E>;
-    type Func = ValidatedFunc<E>;
-    type Global = ValidatedGlobal<E>;
-    type Instance = ValidatedInstance<E>;
-    type Memory = ValidatedMemory<E>;
-    type Module = ValidatedModule<E>;
-    type Store<T> = ValidatedStore<T, E>;
-    type StoreContext<'a, T: 'a> = ValidatedStoreContext<'a, T, E>;
-    type StoreContextMut<'a, T: 'a> = ValidatedStoreContextMut<'a, T, E>;
-    type Table = ValidatedTable<E>;
+impl<E: WasmEngine> WasmEngine for ReproducibleEngine<E> {
+    type ExternRef = ReproducibleExternRef<E>;
+    type Func = ReproducibleFunc<E>;
+    type Global = ReproducibleGlobal<E>;
+    type Instance = ReproducibleInstance<E>;
+    type Memory = ReproducibleMemory<E>;
+    type Module = ReproducibleModule<E>;
+    type Store<T> = ReproducibleStore<T, E>;
+    type StoreContext<'a, T: 'a> = ReproducibleStoreContext<'a, T, E>;
+    type StoreContextMut<'a, T: 'a> = ReproducibleStoreContextMut<'a, T, E>;
+    type Table = ReproducibleTable<E>;
 }
 
-impl<E: WasmEngine> ValidatedEngine<E> {
+impl<E: WasmEngine> ReproducibleEngine<E> {
     pub const fn new(engine: E) -> Self {
         Self(engine)
     }
@@ -49,11 +49,11 @@ impl<E: WasmEngine> ValidatedEngine<E> {
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ValidatedExternRef<E: WasmEngine>(E::ExternRef);
+pub struct ReproducibleExternRef<E: WasmEngine>(E::ExternRef);
 
-impl<E: WasmEngine> WasmExternRef<ValidatedEngine<E>> for ValidatedExternRef<E> {
+impl<E: WasmEngine> WasmExternRef<ReproducibleEngine<E>> for ReproducibleExternRef<E> {
     fn new<T: 'static + Send + Sync>(
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
         object: T,
     ) -> Self {
         Self(<E::ExternRef as WasmExternRef<E>>::new(
@@ -64,7 +64,7 @@ impl<E: WasmEngine> WasmExternRef<ValidatedEngine<E>> for ValidatedExternRef<E> 
 
     fn downcast<'a, 's: 'a, T: 'static, S: 'a>(
         &'a self,
-        store: ValidatedStoreContext<'s, S, E>,
+        store: ReproducibleStoreContext<'s, S, E>,
     ) -> anyhow::Result<&'a T> {
         WasmExternRef::downcast(&self.0, store.0)
     }
@@ -72,19 +72,19 @@ impl<E: WasmEngine> WasmExternRef<ValidatedEngine<E>> for ValidatedExternRef<E> 
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ValidatedFunc<E: WasmEngine>(E::Func);
+pub struct ReproducibleFunc<E: WasmEngine>(E::Func);
 
-impl<E: WasmEngine> WasmFunc<ValidatedEngine<E>> for ValidatedFunc<E> {
+impl<E: WasmEngine> WasmFunc<ReproducibleEngine<E>> for ReproducibleFunc<E> {
     fn new<T>(
-        mut ctx: impl AsContextMut<ValidatedEngine<E>, UserState = T>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>, UserState = T>,
         ty: FuncType,
         func: impl 'static
             + Send
             + Sync
             + Fn(
-                ValidatedStoreContextMut<T, E>,
-                &[Value<ValidatedEngine<E>>],
-                &mut [Value<ValidatedEngine<E>>],
+                ReproducibleStoreContextMut<T, E>,
+                &[Value<ReproducibleEngine<E>>],
+                &mut [Value<ReproducibleEngine<E>>],
             ) -> anyhow::Result<()>,
     ) -> Self {
         Self(<E::Func as WasmFunc<E>>::new(
@@ -92,7 +92,7 @@ impl<E: WasmEngine> WasmFunc<ValidatedEngine<E>> for ValidatedFunc<E> {
             ty,
             move |ctx, args, results| {
                 func(
-                    ValidatedStoreContextMut(ctx),
+                    ReproducibleStoreContextMut(ctx),
                     from_values(args),
                     from_values_mut(results),
                 )
@@ -100,15 +100,15 @@ impl<E: WasmEngine> WasmFunc<ValidatedEngine<E>> for ValidatedFunc<E> {
         ))
     }
 
-    fn ty(&self, ctx: impl AsContext<ValidatedEngine<E>>) -> FuncType {
+    fn ty(&self, ctx: impl AsContext<ReproducibleEngine<E>>) -> FuncType {
         WasmFunc::ty(&self.0, ctx.as_context().as_inner_context())
     }
 
     fn call<T>(
         &self,
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
-        args: &[Value<ValidatedEngine<E>>],
-        results: &mut [Value<ValidatedEngine<E>>],
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
+        args: &[Value<ReproducibleEngine<E>>],
+        results: &mut [Value<ReproducibleEngine<E>>],
     ) -> anyhow::Result<()> {
         WasmFunc::call::<T>(
             &self.0,
@@ -121,12 +121,12 @@ impl<E: WasmEngine> WasmFunc<ValidatedEngine<E>> for ValidatedFunc<E> {
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ValidatedGlobal<E: WasmEngine>(E::Global);
+pub struct ReproducibleGlobal<E: WasmEngine>(E::Global);
 
-impl<E: WasmEngine> WasmGlobal<ValidatedEngine<E>> for ValidatedGlobal<E> {
+impl<E: WasmEngine> WasmGlobal<ReproducibleEngine<E>> for ReproducibleGlobal<E> {
     fn new(
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
-        value: Value<ValidatedEngine<E>>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
+        value: Value<ReproducibleEngine<E>>,
         mutable: bool,
     ) -> Self {
         Self(<E::Global as WasmGlobal<E>>::new(
@@ -136,14 +136,14 @@ impl<E: WasmEngine> WasmGlobal<ValidatedEngine<E>> for ValidatedGlobal<E> {
         ))
     }
 
-    fn ty(&self, ctx: impl AsContext<ValidatedEngine<E>>) -> GlobalType {
+    fn ty(&self, ctx: impl AsContext<ReproducibleEngine<E>>) -> GlobalType {
         WasmGlobal::ty(&self.0, ctx.as_context().as_inner_context())
     }
 
     fn set(
         &self,
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
-        new_value: Value<ValidatedEngine<E>>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
+        new_value: Value<ReproducibleEngine<E>>,
     ) -> anyhow::Result<()> {
         WasmGlobal::set(
             &self.0,
@@ -152,7 +152,10 @@ impl<E: WasmEngine> WasmGlobal<ValidatedEngine<E>> for ValidatedGlobal<E> {
         )
     }
 
-    fn get(&self, mut ctx: impl AsContextMut<ValidatedEngine<E>>) -> Value<ValidatedEngine<E>> {
+    fn get(
+        &self,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
+    ) -> Value<ReproducibleEngine<E>> {
         from_value(WasmGlobal::get(
             &self.0,
             ctx.as_context_mut().as_inner_context_mut(),
@@ -162,13 +165,13 @@ impl<E: WasmEngine> WasmGlobal<ValidatedEngine<E>> for ValidatedGlobal<E> {
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ValidatedInstance<E: WasmEngine>(E::Instance);
+pub struct ReproducibleInstance<E: WasmEngine>(E::Instance);
 
-impl<E: WasmEngine> WasmInstance<ValidatedEngine<E>> for ValidatedInstance<E> {
+impl<E: WasmEngine> WasmInstance<ReproducibleEngine<E>> for ReproducibleInstance<E> {
     fn new(
-        mut store: impl AsContextMut<ValidatedEngine<E>>,
-        module: &ValidatedModule<E>,
-        imports: &Imports<ValidatedEngine<E>>,
+        mut store: impl AsContextMut<ReproducibleEngine<E>>,
+        module: &ReproducibleModule<E>,
+        imports: &Imports<ReproducibleEngine<E>>,
     ) -> anyhow::Result<Self> {
         let mut new_imports = Imports::new();
         new_imports.extend(
@@ -202,8 +205,8 @@ impl<E: WasmEngine> WasmInstance<ValidatedEngine<E>> for ValidatedInstance<E> {
 
     fn exports(
         &self,
-        store: impl AsContext<ValidatedEngine<E>>,
-    ) -> Box<dyn Iterator<Item = Export<ValidatedEngine<E>>>> {
+        store: impl AsContext<ReproducibleEngine<E>>,
+    ) -> Box<dyn Iterator<Item = Export<ReproducibleEngine<E>>>> {
         Box::new(
             WasmInstance::exports(&self.0, store.as_context().as_inner_context()).map(
                 |Export { name, value }| Export {
@@ -216,9 +219,9 @@ impl<E: WasmEngine> WasmInstance<ValidatedEngine<E>> for ValidatedInstance<E> {
 
     fn get_export(
         &self,
-        store: impl AsContext<ValidatedEngine<E>>,
+        store: impl AsContext<ReproducibleEngine<E>>,
         name: &str,
-    ) -> Option<Extern<ValidatedEngine<E>>> {
+    ) -> Option<Extern<ReproducibleEngine<E>>> {
         WasmInstance::get_export(&self.0, store.as_context().as_inner_context(), name)
             .map(from_extern)
     }
@@ -226,23 +229,26 @@ impl<E: WasmEngine> WasmInstance<ValidatedEngine<E>> for ValidatedInstance<E> {
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ValidatedMemory<E: WasmEngine>(E::Memory);
+pub struct ReproducibleMemory<E: WasmEngine>(E::Memory);
 
-impl<E: WasmEngine> WasmMemory<ValidatedEngine<E>> for ValidatedMemory<E> {
-    fn new(mut ctx: impl AsContextMut<ValidatedEngine<E>>, ty: MemoryType) -> anyhow::Result<Self> {
+impl<E: WasmEngine> WasmMemory<ReproducibleEngine<E>> for ReproducibleMemory<E> {
+    fn new(
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
+        ty: MemoryType,
+    ) -> anyhow::Result<Self> {
         Ok(Self(<E::Memory as WasmMemory<E>>::new(
             ctx.as_context_mut().as_inner_context_mut(),
             ty,
         )?))
     }
 
-    fn ty(&self, ctx: impl AsContext<ValidatedEngine<E>>) -> MemoryType {
+    fn ty(&self, ctx: impl AsContext<ReproducibleEngine<E>>) -> MemoryType {
         WasmMemory::ty(&self.0, ctx.as_context().as_inner_context())
     }
 
     fn grow(
         &self,
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
         additional: u32,
     ) -> anyhow::Result<u32> {
         WasmMemory::grow(
@@ -252,13 +258,13 @@ impl<E: WasmEngine> WasmMemory<ValidatedEngine<E>> for ValidatedMemory<E> {
         )
     }
 
-    fn current_pages(&self, ctx: impl AsContext<ValidatedEngine<E>>) -> u32 {
+    fn current_pages(&self, ctx: impl AsContext<ReproducibleEngine<E>>) -> u32 {
         WasmMemory::current_pages(&self.0, ctx.as_context().as_inner_context())
     }
 
     fn read(
         &self,
-        ctx: impl AsContext<ValidatedEngine<E>>,
+        ctx: impl AsContext<ReproducibleEngine<E>>,
         offset: usize,
         buffer: &mut [u8],
     ) -> anyhow::Result<()> {
@@ -267,7 +273,7 @@ impl<E: WasmEngine> WasmMemory<ValidatedEngine<E>> for ValidatedMemory<E> {
 
     fn write(
         &self,
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
         offset: usize,
         buffer: &[u8],
     ) -> anyhow::Result<()> {
@@ -362,10 +368,10 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ValidatedModule<E: WasmEngine>(E::Module);
+pub struct ReproducibleModule<E: WasmEngine>(E::Module);
 
-impl<E: WasmEngine> WasmModule<ValidatedEngine<E>> for ValidatedModule<E> {
-    fn new(engine: &ValidatedEngine<E>, mut stream: impl std::io::Read) -> anyhow::Result<Self> {
+impl<E: WasmEngine> WasmModule<ReproducibleEngine<E>> for ReproducibleModule<E> {
+    fn new(engine: &ReproducibleEngine<E>, mut stream: impl std::io::Read) -> anyhow::Result<Self> {
         let features = wasmparser::WasmFeatures::from(wasmparser::WasmFeaturesInflated {
             // MUST: floats are required and we are running the NaN
             //       canonicalisation transform to make them deterministic
@@ -405,15 +411,15 @@ impl<E: WasmEngine> WasmModule<ValidatedEngine<E>> for ValidatedModule<E> {
 
 struct StoreData<T, E: WasmEngine> {
     data: T,
-    instruction_counter: Option<ValidatedGlobal<E>>,
+    instruction_counter: Option<ReproducibleGlobal<E>>,
 }
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ValidatedStore<T, E: WasmEngine>(E::Store<StoreData<T, E>>);
+pub struct ReproducibleStore<T, E: WasmEngine>(E::Store<StoreData<T, E>>);
 
-impl<T, E: WasmEngine> WasmStore<T, ValidatedEngine<E>> for ValidatedStore<T, E> {
-    fn new(engine: &ValidatedEngine<E>, data: T) -> Self {
+impl<T, E: WasmEngine> WasmStore<T, ReproducibleEngine<E>> for ReproducibleStore<T, E> {
+    fn new(engine: &ReproducibleEngine<E>, data: T) -> Self {
         Self(<E::Store<StoreData<T, E>> as WasmStore<
             StoreData<T, E>,
             E,
@@ -426,8 +432,8 @@ impl<T, E: WasmEngine> WasmStore<T, ValidatedEngine<E>> for ValidatedStore<T, E>
         ))
     }
 
-    fn engine(&self) -> &ValidatedEngine<E> {
-        ValidatedEngine::from_ref(WasmStore::engine(&self.0))
+    fn engine(&self) -> &ReproducibleEngine<E> {
+        ReproducibleEngine::from_ref(WasmStore::engine(&self.0))
     }
 
     fn data(&self) -> &T {
@@ -443,28 +449,28 @@ impl<T, E: WasmEngine> WasmStore<T, ValidatedEngine<E>> for ValidatedStore<T, E>
     }
 }
 
-impl<T, E: WasmEngine> AsContext<ValidatedEngine<E>> for ValidatedStore<T, E> {
+impl<T, E: WasmEngine> AsContext<ReproducibleEngine<E>> for ReproducibleStore<T, E> {
     type UserState = T;
 
-    fn as_context(&self) -> ValidatedStoreContext<'_, Self::UserState, E> {
-        ValidatedStoreContext(AsContext::as_context(&self.0))
+    fn as_context(&self) -> ReproducibleStoreContext<'_, Self::UserState, E> {
+        ReproducibleStoreContext(AsContext::as_context(&self.0))
     }
 }
 
-impl<T, E: WasmEngine> AsContextMut<ValidatedEngine<E>> for ValidatedStore<T, E> {
-    fn as_context_mut(&mut self) -> ValidatedStoreContextMut<'_, Self::UserState, E> {
-        ValidatedStoreContextMut(AsContextMut::as_context_mut(&mut self.0))
+impl<T, E: WasmEngine> AsContextMut<ReproducibleEngine<E>> for ReproducibleStore<T, E> {
+    fn as_context_mut(&mut self) -> ReproducibleStoreContextMut<'_, Self::UserState, E> {
+        ReproducibleStoreContextMut(AsContextMut::as_context_mut(&mut self.0))
     }
 }
 
 #[repr(transparent)]
-pub struct ValidatedStoreContext<'a, T: 'a, E: WasmEngine>(E::StoreContext<'a, StoreData<T, E>>);
+pub struct ReproducibleStoreContext<'a, T: 'a, E: WasmEngine>(E::StoreContext<'a, StoreData<T, E>>);
 
-impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ValidatedEngine<E>>
-    for ValidatedStoreContext<'a, T, E>
+impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ReproducibleEngine<E>>
+    for ReproducibleStoreContext<'a, T, E>
 {
-    fn engine(&self) -> &ValidatedEngine<E> {
-        ValidatedEngine::from_ref(WasmStoreContext::engine(&self.0))
+    fn engine(&self) -> &ReproducibleEngine<E> {
+        ReproducibleEngine::from_ref(WasmStoreContext::engine(&self.0))
     }
 
     fn data(&self) -> &T {
@@ -472,30 +478,32 @@ impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ValidatedEngine<E>>
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> AsContext<ValidatedEngine<E>> for ValidatedStoreContext<'a, T, E> {
+impl<'a, T: 'a, E: WasmEngine> AsContext<ReproducibleEngine<E>>
+    for ReproducibleStoreContext<'a, T, E>
+{
     type UserState = T;
 
-    fn as_context(&self) -> ValidatedStoreContext<'_, Self::UserState, E> {
-        ValidatedStoreContext(AsContext::as_context(&self.0))
+    fn as_context(&self) -> ReproducibleStoreContext<'_, Self::UserState, E> {
+        ReproducibleStoreContext(AsContext::as_context(&self.0))
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> ValidatedStoreContext<'a, T, E> {
+impl<'a, T: 'a, E: WasmEngine> ReproducibleStoreContext<'a, T, E> {
     fn as_inner_context(&self) -> E::StoreContext<'_, StoreData<T, E>> {
         self.0.as_context()
     }
 }
 
 #[repr(transparent)]
-pub struct ValidatedStoreContextMut<'a, T: 'a, E: WasmEngine>(
+pub struct ReproducibleStoreContextMut<'a, T: 'a, E: WasmEngine>(
     E::StoreContextMut<'a, StoreData<T, E>>,
 );
 
-impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ValidatedEngine<E>>
-    for ValidatedStoreContextMut<'a, T, E>
+impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ReproducibleEngine<E>>
+    for ReproducibleStoreContextMut<'a, T, E>
 {
-    fn engine(&self) -> &ValidatedEngine<E> {
-        ValidatedEngine::from_ref(WasmStoreContext::engine(&self.0))
+    fn engine(&self) -> &ReproducibleEngine<E> {
+        ReproducibleEngine::from_ref(WasmStoreContext::engine(&self.0))
     }
 
     fn data(&self) -> &T {
@@ -503,42 +511,42 @@ impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ValidatedEngine<E>>
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> WasmStoreContextMut<'a, T, ValidatedEngine<E>>
-    for ValidatedStoreContextMut<'a, T, E>
+impl<'a, T: 'a, E: WasmEngine> WasmStoreContextMut<'a, T, ReproducibleEngine<E>>
+    for ReproducibleStoreContextMut<'a, T, E>
 {
     fn data_mut(&mut self) -> &mut T {
         &mut WasmStoreContextMut::data_mut(&mut self.0).data
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> AsContext<ValidatedEngine<E>>
-    for ValidatedStoreContextMut<'a, T, E>
+impl<'a, T: 'a, E: WasmEngine> AsContext<ReproducibleEngine<E>>
+    for ReproducibleStoreContextMut<'a, T, E>
 {
     type UserState = T;
 
-    fn as_context(&self) -> ValidatedStoreContext<'_, Self::UserState, E> {
-        ValidatedStoreContext(AsContext::as_context(&self.0))
+    fn as_context(&self) -> ReproducibleStoreContext<'_, Self::UserState, E> {
+        ReproducibleStoreContext(AsContext::as_context(&self.0))
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> AsContextMut<ValidatedEngine<E>>
-    for ValidatedStoreContextMut<'a, T, E>
+impl<'a, T: 'a, E: WasmEngine> AsContextMut<ReproducibleEngine<E>>
+    for ReproducibleStoreContextMut<'a, T, E>
 {
-    fn as_context_mut(&mut self) -> ValidatedStoreContextMut<'_, Self::UserState, E> {
-        ValidatedStoreContextMut(AsContextMut::as_context_mut(&mut self.0))
+    fn as_context_mut(&mut self) -> ReproducibleStoreContextMut<'_, Self::UserState, E> {
+        ReproducibleStoreContextMut(AsContextMut::as_context_mut(&mut self.0))
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> ValidatedStoreContextMut<'a, T, E> {
+impl<'a, T: 'a, E: WasmEngine> ReproducibleStoreContextMut<'a, T, E> {
     fn as_inner_context_mut(&mut self) -> E::StoreContextMut<'_, StoreData<T, E>> {
         self.0.as_context_mut()
     }
 
-    fn get_instruction_counter_global(&mut self) -> &ValidatedGlobal<E> {
+    fn get_instruction_counter_global(&mut self) -> &ReproducibleGlobal<E> {
         let mut this = self;
 
         // NLL cannot prove this to be safe, but Polonius can
-        polonius_the_crab::polonius!(|this| -> &'polonius ValidatedGlobal<E> {
+        polonius_the_crab::polonius!(|this| -> &'polonius ReproducibleGlobal<E> {
             let data: &mut StoreData<T, E> = WasmStoreContextMut::data_mut(&mut this.0);
             if let Some(global) = &data.instruction_counter {
                 polonius_the_crab::polonius_return!(global);
@@ -554,13 +562,13 @@ impl<'a, T: 'a, E: WasmEngine> ValidatedStoreContextMut<'a, T, E> {
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ValidatedTable<E: WasmEngine>(E::Table);
+pub struct ReproducibleTable<E: WasmEngine>(E::Table);
 
-impl<E: WasmEngine> WasmTable<ValidatedEngine<E>> for ValidatedTable<E> {
+impl<E: WasmEngine> WasmTable<ReproducibleEngine<E>> for ReproducibleTable<E> {
     fn new(
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
         ty: TableType,
-        init: Value<ValidatedEngine<E>>,
+        init: Value<ReproducibleEngine<E>>,
     ) -> anyhow::Result<Self> {
         Ok(Self(<E::Table as WasmTable<E>>::new(
             ctx.as_context_mut().as_inner_context_mut(),
@@ -569,19 +577,19 @@ impl<E: WasmEngine> WasmTable<ValidatedEngine<E>> for ValidatedTable<E> {
         )?))
     }
 
-    fn ty(&self, ctx: impl AsContext<ValidatedEngine<E>>) -> TableType {
+    fn ty(&self, ctx: impl AsContext<ReproducibleEngine<E>>) -> TableType {
         WasmTable::ty(&self.0, ctx.as_context().as_inner_context())
     }
 
-    fn size(&self, ctx: impl AsContext<ValidatedEngine<E>>) -> u32 {
+    fn size(&self, ctx: impl AsContext<ReproducibleEngine<E>>) -> u32 {
         WasmTable::size(&self.0, ctx.as_context().as_inner_context())
     }
 
     fn grow(
         &self,
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
         delta: u32,
-        init: Value<ValidatedEngine<E>>,
+        init: Value<ReproducibleEngine<E>>,
     ) -> anyhow::Result<u32> {
         WasmTable::grow(
             &self.0,
@@ -593,17 +601,17 @@ impl<E: WasmEngine> WasmTable<ValidatedEngine<E>> for ValidatedTable<E> {
 
     fn get(
         &self,
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
         index: u32,
-    ) -> Option<Value<ValidatedEngine<E>>> {
+    ) -> Option<Value<ReproducibleEngine<E>>> {
         WasmTable::get(&self.0, ctx.as_context_mut().as_inner_context_mut(), index).map(from_value)
     }
 
     fn set(
         &self,
-        mut ctx: impl AsContextMut<ValidatedEngine<E>>,
+        mut ctx: impl AsContextMut<ReproducibleEngine<E>>,
         index: u32,
-        value: Value<ValidatedEngine<E>>,
+        value: Value<ReproducibleEngine<E>>,
     ) -> anyhow::Result<()> {
         WasmTable::set(
             &self.0,
@@ -614,7 +622,7 @@ impl<E: WasmEngine> WasmTable<ValidatedEngine<E>> for ValidatedTable<E> {
     }
 }
 
-const fn as_values<E: WasmEngine>(values: &[Value<ValidatedEngine<E>>]) -> &[Value<E>] {
+const fn as_values<E: WasmEngine>(values: &[Value<ReproducibleEngine<E>>]) -> &[Value<E>] {
     // Safety: all of our WASM runtime type wrappers are transparent newtypes
     #[expect(unsafe_code)]
     unsafe {
@@ -622,7 +630,7 @@ const fn as_values<E: WasmEngine>(values: &[Value<ValidatedEngine<E>>]) -> &[Val
     }
 }
 
-fn as_values_mut<E: WasmEngine>(values: &mut [Value<ValidatedEngine<E>>]) -> &mut [Value<E>] {
+fn as_values_mut<E: WasmEngine>(values: &mut [Value<ReproducibleEngine<E>>]) -> &mut [Value<E>] {
     // Safety: all of our WASM runtime type wrappers are transparent newtypes
     #[expect(unsafe_code)]
     unsafe {
@@ -630,7 +638,7 @@ fn as_values_mut<E: WasmEngine>(values: &mut [Value<ValidatedEngine<E>>]) -> &mu
     }
 }
 
-const fn from_values<E: WasmEngine>(values: &[Value<E>]) -> &[Value<ValidatedEngine<E>>] {
+const fn from_values<E: WasmEngine>(values: &[Value<E>]) -> &[Value<ReproducibleEngine<E>>] {
     // Safety: all of our WASM runtime type wrappers are transparent newtypes
     #[expect(unsafe_code)]
     unsafe {
@@ -638,7 +646,7 @@ const fn from_values<E: WasmEngine>(values: &[Value<E>]) -> &[Value<ValidatedEng
     }
 }
 
-fn from_values_mut<E: WasmEngine>(values: &mut [Value<E>]) -> &mut [Value<ValidatedEngine<E>>] {
+fn from_values_mut<E: WasmEngine>(values: &mut [Value<E>]) -> &mut [Value<ReproducibleEngine<E>>] {
     // Safety: all of our WASM runtime type wrappers are transparent newtypes
     #[expect(unsafe_code)]
     unsafe {
@@ -646,7 +654,7 @@ fn from_values_mut<E: WasmEngine>(values: &mut [Value<E>]) -> &mut [Value<Valida
     }
 }
 
-fn into_value<E: WasmEngine>(value: Value<ValidatedEngine<E>>) -> Value<E> {
+fn into_value<E: WasmEngine>(value: Value<ReproducibleEngine<E>>) -> Value<E> {
     match value {
         Value::I32(v) => Value::I32(v),
         Value::I64(v) => Value::I64(v),
@@ -657,18 +665,18 @@ fn into_value<E: WasmEngine>(value: Value<ValidatedEngine<E>>) -> Value<E> {
     }
 }
 
-fn from_value<E: WasmEngine>(value: Value<E>) -> Value<ValidatedEngine<E>> {
+fn from_value<E: WasmEngine>(value: Value<E>) -> Value<ReproducibleEngine<E>> {
     match value {
         Value::I32(v) => Value::I32(v),
         Value::I64(v) => Value::I64(v),
         Value::F32(v) => Value::F32(v),
         Value::F64(v) => Value::F64(v),
-        Value::FuncRef(v) => Value::FuncRef(v.map(ValidatedFunc)),
-        Value::ExternRef(v) => Value::ExternRef(v.map(ValidatedExternRef)),
+        Value::FuncRef(v) => Value::FuncRef(v.map(ReproducibleFunc)),
+        Value::ExternRef(v) => Value::ExternRef(v.map(ReproducibleExternRef)),
     }
 }
 
-fn into_extern<E: WasmEngine>(value: Extern<ValidatedEngine<E>>) -> Extern<E> {
+fn into_extern<E: WasmEngine>(value: Extern<ReproducibleEngine<E>>) -> Extern<E> {
     match value {
         Extern::Global(v) => Extern::Global(v.0),
         Extern::Table(v) => Extern::Table(v.0),
@@ -677,11 +685,11 @@ fn into_extern<E: WasmEngine>(value: Extern<ValidatedEngine<E>>) -> Extern<E> {
     }
 }
 
-fn from_extern<E: WasmEngine>(value: Extern<E>) -> Extern<ValidatedEngine<E>> {
+fn from_extern<E: WasmEngine>(value: Extern<E>) -> Extern<ReproducibleEngine<E>> {
     match value {
-        Extern::Global(v) => Extern::Global(ValidatedGlobal(v)),
-        Extern::Table(v) => Extern::Table(ValidatedTable(v)),
-        Extern::Memory(v) => Extern::Memory(ValidatedMemory(v)),
-        Extern::Func(v) => Extern::Func(ValidatedFunc(v)),
+        Extern::Global(v) => Extern::Global(ReproducibleGlobal(v)),
+        Extern::Table(v) => Extern::Table(ReproducibleTable(v)),
+        Extern::Memory(v) => Extern::Memory(ReproducibleMemory(v)),
+        Extern::Func(v) => Extern::Func(ReproducibleFunc(v)),
     }
 }

@@ -56,5 +56,5 @@ fn read_codec_instruction_counter<'py>(
         ));
     };
 
-    Ok(instruction_counter)
+    Ok(instruction_counter.0)
 }

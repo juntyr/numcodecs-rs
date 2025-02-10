@@ -1,3 +1,4 @@
+use std::num::Wrapping;
 use std::sync::{Arc, Mutex};
 
 use numcodecs::{
@@ -11,29 +12,45 @@ use wasm_runtime_layer::{backend::WasmEngine, Engine};
 
 use crate::transform::instcnt::PerfWitInterfaces;
 use crate::transform::transform_wasm_component;
-use crate::{engine::ValidatedEngine, logging, stdio};
+use crate::{engine::ReproducibleEngine, logging, stdio};
 
 #[derive(Debug, thiserror::Error)]
+/// Errors that can occur when using the [`ReproducibleWasmCodec`]
 pub enum ReproducibleWasmCodecError {
-    #[error("{codec_id} codec was poisoned")]
-    Poisoned { codec_id: Arc<str> },
-    #[error("{codec_id} codec's WASM host runtime raised an error")]
-    Runtime {
+    /// The codec's lock was poisoned
+    #[error("{codec_id} codec's lock was poisoned")]
+    Poisoned {
+        /// The codec's id
         codec_id: Arc<str>,
+    },
+    /// The codec's WebAssembly runtime raised an error
+    #[error("{codec_id} codec's WebAssembly runtime raised an error")]
+    Runtime {
+        /// The codec's id
+        codec_id: Arc<str>,
+        /// The runtime error
         source: RuntimeError,
     },
+    /// The codec's implementation raised an error
     #[error("{codec_id} codec's implementation raised an error")]
-    Guest {
+    Codec {
+        /// The codec's id
         codec_id: Arc<str>,
+        /// The codec error
         source: CodecError,
     },
 }
 
+/// Codec instantiated inside a WebAssembly component.
+///
+/// The codec is loaded such that its execution is reproducible across any
+/// platform. Importantly, each codec owns its own component instance such that
+/// two codecs cannot interfere.
 pub struct ReproducibleWasmCodec<E: WasmEngine>
 where
-    Store<(), ValidatedEngine<E>>: Send,
+    Store<(), ReproducibleEngine<E>>: Send,
 {
-    store: Mutex<Store<(), ValidatedEngine<E>>>,
+    store: Mutex<Store<(), ReproducibleEngine<E>>>,
     instance: Instance,
     codec: WasmCodec,
     ty: ReproducibleWasmCodecType<E>,
@@ -42,8 +59,17 @@ where
 
 impl<E: WasmEngine> ReproducibleWasmCodec<E>
 where
-    Store<(), ValidatedEngine<E>>: Send,
+    Store<(), ReproducibleEngine<E>>: Send,
 {
+    /// Try cloning the codec by recreating it from its configuration.
+    ///
+    /// `ReproducibleWasmCodec` implements [`Clone`] by calling this method and
+    /// panicking if it fails.
+    ///
+    /// # Errors
+    ///
+    /// Errors if serializing the codec configuration, constructing the new
+    /// codec, or interacting with the component fails.
     pub fn try_clone(&self) -> Result<Self, serde_json::Error> {
         let mut config = self.get_config(serde_json::value::Serializer)?;
 
@@ -56,6 +82,16 @@ where
         Ok(codec)
     }
 
+    /// Try dropping the codec.
+    ///
+    /// `ReproducibleWasmCodec` implements [`Drop`] by calling this method and
+    /// ignoring any errors.
+    // That's not quite true but the effect is the same
+    ///
+    /// # Errors
+    ///
+    /// Errors if dropping the codec's resource or component, or interacting
+    /// with the component fails.
     pub fn try_drop(mut self) -> Result<(), ReproducibleWasmCodecError> {
         // keep in sync with drop
         let mut store = self
@@ -78,7 +114,17 @@ where
     }
 
     #[expect(clippy::significant_drop_tightening)]
-    pub fn instruction_counter(&self) -> Result<u64, ReproducibleWasmCodecError> {
+    /// Read the codec's instruction counter, which is based on the number of
+    /// WebAssembly bytecode instructions executed.
+    ///
+    /// The instruction counter is never reset and wraps around. Comparisons of
+    /// the counter values before and after, e.g. a call to [`Self::encode`],
+    /// should thus use wrapping arithmetic.
+    ///
+    /// # Errors
+    ///
+    /// Errors if interacting with the component fails.
+    pub fn instruction_counter(&self) -> Result<Wrapping<u64>, ReproducibleWasmCodecError> {
         let mut store = self
             .store
             .lock()
@@ -94,13 +140,13 @@ where
                 source: RuntimeError::from(err),
             })?;
 
-        Ok(cnt)
+        Ok(Wrapping(cnt))
     }
 }
 
 impl<E: WasmEngine> Clone for ReproducibleWasmCodec<E>
 where
-    Store<(), ValidatedEngine<E>>: Send,
+    Store<(), ReproducibleEngine<E>>: Send,
 {
     fn clone(&self) -> Self {
         #[expect(clippy::expect_used)]
@@ -111,7 +157,7 @@ where
 
 impl<E: WasmEngine> Drop for ReproducibleWasmCodec<E>
 where
-    Store<(), ValidatedEngine<E>>: Send,
+    Store<(), ReproducibleEngine<E>>: Send,
 {
     fn drop(&mut self) {
         // keep in sync with try_drop
@@ -129,7 +175,7 @@ where
 
 impl<E: WasmEngine> Codec for ReproducibleWasmCodec<E>
 where
-    Store<(), ValidatedEngine<E>>: Send,
+    Store<(), ReproducibleEngine<E>>: Send,
 {
     type Error = ReproducibleWasmCodecError;
 
@@ -149,7 +195,7 @@ where
                 codec_id: self.ty.codec_id.clone(),
                 source: err,
             })?
-            .map_err(|err| ReproducibleWasmCodecError::Guest {
+            .map_err(|err| ReproducibleWasmCodecError::Codec {
                 codec_id: self.ty.codec_id.clone(),
                 source: err,
             })?;
@@ -173,7 +219,7 @@ where
                 codec_id: self.ty.codec_id.clone(),
                 source: err,
             })?
-            .map_err(|err| ReproducibleWasmCodecError::Guest {
+            .map_err(|err| ReproducibleWasmCodecError::Codec {
                 codec_id: self.ty.codec_id.clone(),
                 source: err,
             })?;
@@ -200,7 +246,7 @@ where
                 codec_id: self.ty.codec_id.clone(),
                 source: err,
             })?
-            .map_err(|err| ReproducibleWasmCodecError::Guest {
+            .map_err(|err| ReproducibleWasmCodecError::Codec {
                 codec_id: self.ty.codec_id.clone(),
                 source: err,
             })?;
@@ -211,7 +257,7 @@ where
 
 impl<E: WasmEngine> DynCodec for ReproducibleWasmCodec<E>
 where
-    Store<(), ValidatedEngine<E>>: Send,
+    Store<(), ReproducibleEngine<E>>: Send,
 {
     type Type = ReproducibleWasmCodecType<E>;
 
@@ -237,9 +283,10 @@ where
     }
 }
 
+/// Type object for a codec instantiated inside a WebAssembly component.
 pub struct ReproducibleWasmCodecType<E: WasmEngine>
 where
-    Store<(), ValidatedEngine<E>>: Send,
+    Store<(), ReproducibleEngine<E>>: Send,
 {
     pub(super) codec_id: Arc<str>,
     pub(super) codec_config_schema: Arc<Schema>,
@@ -252,7 +299,11 @@ where
                 &Component,
                 &str,
             ) -> Result<
-                (Store<(), ValidatedEngine<E>>, Instance, WasmCodecComponent),
+                (
+                    Store<(), ReproducibleEngine<E>>,
+                    Instance,
+                    WasmCodecComponent,
+                ),
                 ReproducibleWasmCodecError,
             >,
     >,
@@ -260,15 +311,22 @@ where
 
 impl<E: WasmEngine> ReproducibleWasmCodecType<E>
 where
-    Store<(), ValidatedEngine<E>>: Send,
+    Store<(), ReproducibleEngine<E>>: Send,
 {
+    /// Load a [`DynCodecType`] from a binary `wasm_component`, which will be
+    /// executed in the provided core WebAssembly `engine`.
+    ///
+    /// # Errors
+    ///
+    /// Errors if the `wasm_component` does not export the `numcodecs:abc/codec`
+    /// interface or if interacting with the component fails.
     pub fn new(
         engine: E,
         wasm_component: impl Into<Vec<u8>>,
     ) -> Result<Self, ReproducibleWasmCodecError>
     where
         E: Send + Sync,
-        Store<(), ValidatedEngine<E>>: Send + Sync,
+        Store<(), ReproducibleEngine<E>>: Send + Sync,
     {
         let wasm_component = transform_wasm_component(wasm_component).map_err(|err| {
             ReproducibleWasmCodecError::Runtime {
@@ -277,7 +335,7 @@ where
             }
         })?;
 
-        let engine = Engine::new(ValidatedEngine::new(engine));
+        let engine = Engine::new(ReproducibleEngine::new(engine));
         let component = Component::new(&engine, &wasm_component).map_err(|err| {
             ReproducibleWasmCodecError::Runtime {
                 codec_id: Arc::from("<unknown>"),
@@ -343,7 +401,7 @@ where
 
 impl<E: WasmEngine> DynCodecType for ReproducibleWasmCodecType<E>
 where
-    Store<(), ValidatedEngine<E>>: Send,
+    Store<(), ReproducibleEngine<E>>: Send,
 {
     type Codec = ReproducibleWasmCodec<E>;
 
