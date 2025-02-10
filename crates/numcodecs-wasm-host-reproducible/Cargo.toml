@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs-wasm-host-reproducible"
-version = "0.1.0"
+version = "0.1.0+wasi0.2.3"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
