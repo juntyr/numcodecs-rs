@@ -3,14 +3,17 @@ use std::sync::OnceLock;
 use semver::Version;
 use wasm_component_layer::{InterfaceIdentifier, PackageIdentifier, PackageName, Value};
 
-use crate::error::{GuestError, RuntimeError};
+use crate::error::{CodecError, RuntimeError};
 
+/// WebAssembly Interface Type (WIT) interfaces for `numcodecs`
 #[non_exhaustive]
 pub struct NumcodecsWitInterfaces {
+    /// The `numcodecs:abc/codec` interface
     pub codec: InterfaceIdentifier,
 }
 
 impl NumcodecsWitInterfaces {
+    /// Get the once-computed interfaces
     #[must_use]
     pub fn get() -> &'static Self {
         static NUMCODECS_WIT_INTERFACES: OnceLock<NumcodecsWitInterfaces> = OnceLock::new();
@@ -27,7 +30,7 @@ impl NumcodecsWitInterfaces {
     }
 }
 
-pub fn guest_error_from_wasm(err: Option<&Value>) -> Result<GuestError, RuntimeError> {
+pub fn guest_error_from_wasm(err: Option<&Value>) -> Result<CodecError, RuntimeError> {
     let Some(Value::Record(record)) = err else {
         return Err(RuntimeError::from(anyhow::anyhow!(
             "unexpected err value {err:?}"
@@ -59,5 +62,5 @@ pub fn guest_error_from_wasm(err: Option<&Value>) -> Result<GuestError, RuntimeE
         )));
     };
 
-    Ok(GuestError::new(message, chain))
+    Ok(CodecError::new(message, chain))
 }

@@ -12,6 +12,12 @@ use crate::{
     wit::{guest_error_from_wasm, NumcodecsWitInterfaces},
 };
 
+/// WebAssembly component that exports the `numcodecs:abc/codec` interface.
+///
+/// `WasmCodecComponent` does not implement the
+/// [`DynCodecType`][numcodecs::DynCodecType] trait itself so that it can expose
+/// un-opinionated bindings. However, it provides methods with that can be used
+/// to implement the trait on a wrapper.
 pub struct WasmCodecComponent {
     // precomputed properties
     pub(crate) codec_id: Arc<str>,
@@ -29,7 +35,23 @@ pub struct WasmCodecComponent {
 
 impl WasmCodecComponent {
     // NOTE: the WasmCodecComponent never calls Instance::drop
-    pub fn new(instance: Instance, mut ctx: impl AsContextMut) -> Result<Self, RuntimeError> {
+    /// Import the `numcodecs:abc/codec` interface from a WebAssembly component
+    /// `instance`.
+    ///
+    /// The `ctx` must refer to the same store in which the `instance` was
+    /// instantiated.
+    ///
+    /// # Warning
+    /// The `WasmCodecComponent` does *not* own the provided `instance` and
+    /// *never* calls [`Instance::drop`]. It is the responsibility of the code
+    /// creating the `WasmCodecComponent` to destroy the `instance` after the
+    /// component, and all codecs created from it, have been destroyed.
+    ///
+    /// # Errors
+    ///
+    /// Errors if the `instance` does not export the `numcodecs:abc/codec`
+    /// interface or if interacting with the component fails.
+    pub fn new(mut ctx: impl AsContextMut, instance: Instance) -> Result<Self, RuntimeError> {
         fn load_func(interface: &ExportInstance, name: &str) -> Result<Func, RuntimeError> {
             let Some(func) = interface.func(name) else {
                 return Err(RuntimeError::from(anyhow::Error::msg(format!(
@@ -79,17 +101,33 @@ impl WasmCodecComponent {
     }
 }
 
+/// Methods for implementing the [`DynCodecType`][numcodecs::DynCodecType] trait
 impl WasmCodecComponent {
+    /// Codec identifier.
     #[must_use]
     pub fn codec_id(&self) -> &str {
         &self.codec_id
     }
 
+    /// JSON schema for the codec's configuration.
     #[must_use]
     pub fn codec_config_schema(&self) -> &Schema {
         &self.codec_config_schema
     }
 
+    /// Instantiate a codec of this type from a serialized `config`uration.
+    ///
+    /// The `config` must *not* contain an `id` field. If the `config` *may*
+    /// contain one, use the
+    /// [`codec_from_config_with_id`][numcodecs::codec_from_config_with_id]
+    /// helper function.
+    ///
+    /// The `config` *must* be compatible with JSON encoding.
+    ///
+    /// # Errors
+    ///
+    /// Errors if constructing the codec or interacting with the component
+    /// fails.
     pub fn codec_from_config<'de, D: Deserializer<'de>>(
         &self,
         mut ctx: impl AsContextMut,

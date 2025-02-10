@@ -16,7 +16,6 @@ keywords = ["numcodecs", "compression", "encoding", "wasm-component", "wasm-bind
 
 [dependencies]
 anyhow = { workspace = true }
-# core-error = { workspace = true }
 ndarray = { workspace = true, features = ["std"] }
 numcodecs = { workspace = true }
 schemars = { workspace = true }

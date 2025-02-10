@@ -11,10 +11,16 @@ use wasm_component_layer::{
 
 use crate::{
     component::WasmCodecComponent,
-    error::{GuestError, RuntimeError},
+    error::{CodecError, RuntimeError},
     wit::guest_error_from_wasm,
 };
 
+/// Codec instantiated inside a WebAssembly component.
+///
+/// `WasmCodec` does not implement the [`Codec`][numcodecs::Codec],
+/// [`DynCodec`][numcodecs::DynCodec], [`Clone`], or [`Drop`] traits itself so
+/// that it can expose un-opinionated bindings. However, it provides methods
+/// that can be used to implement these traits on a wrapper.
 pub struct WasmCodec {
     // codec
     pub(crate) resource: ResourceOwn,
@@ -32,13 +38,24 @@ pub struct WasmCodec {
     pub(crate) instance: Instance,
 }
 
+/// Methods for implementing the [`Codec`][numcodecs::Codec] trait
 impl WasmCodec {
     #[expect(clippy::needless_pass_by_value)]
+    /// Encodes the `data` and returns the result.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors with a
+    /// - [`CodecError`] if encoding the buffer fails.
+    /// - [`RuntimeError`] if interacting with the component fails.
     pub fn encode(
         &self,
         ctx: impl AsContextMut,
         data: AnyCowArray,
-    ) -> Result<Result<AnyArray, GuestError>, RuntimeError> {
+    ) -> Result<Result<AnyArray, CodecError>, RuntimeError> {
         self.process(
             ctx,
             data.view(),
@@ -49,11 +66,21 @@ impl WasmCodec {
     }
 
     #[expect(clippy::needless_pass_by_value)]
+    /// Decodes the `encoded` data and returns the result.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors with a
+    /// - [`CodecError`] if decoding the buffer fails.
+    /// - [`RuntimeError`] if interacting with the component fails.
     pub fn decode(
         &self,
         ctx: impl AsContextMut,
         encoded: AnyCowArray,
-    ) -> Result<Result<AnyArray, GuestError>, RuntimeError> {
+    ) -> Result<Result<AnyArray, CodecError>, RuntimeError> {
         self.process(
             ctx,
             encoded.view(),
@@ -63,12 +90,25 @@ impl WasmCodec {
         )
     }
 
+    /// Decodes the `encoded` data and writes the result into the provided
+    /// `decoded` output.
+    ///
+    /// The output must have the correct type and shape.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors with a
+    /// - [`CodecError`] if decoding the buffer fails.
+    /// - [`RuntimeError`] if interacting with the component fails.
     pub fn decode_into(
         &self,
         ctx: impl AsContextMut,
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
-    ) -> Result<Result<(), GuestError>, RuntimeError> {
+    ) -> Result<Result<(), CodecError>, RuntimeError> {
         self.process(
             ctx,
             encoded,
@@ -85,7 +125,9 @@ impl WasmCodec {
     }
 }
 
+/// Methods for implementing the [`DynCodec`][numcodecs::DynCodec] trait
 impl WasmCodec {
+    /// Returns the component object for this codec.
     #[must_use]
     pub fn ty(&self) -> WasmCodecComponent {
         WasmCodecComponent {
@@ -100,6 +142,15 @@ impl WasmCodec {
         }
     }
 
+    /// Serializes the configuration parameters for this codec.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors if serializing the codec configuration or interacting with the
+    /// component fails.
     pub fn get_config<S: Serializer>(
         &self,
         mut ctx: impl AsContextMut,
@@ -145,7 +196,17 @@ impl WasmCodec {
     }
 }
 
+/// Methods for implementing the [`Clone`] trait
 impl WasmCodec {
+    /// Try cloning the codec by recreating it from its configuration.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors if serializing the codec configuration, constructing the new
+    /// codec, or interacting with the component fails.
     pub fn try_clone(&self, mut ctx: impl AsContextMut) -> Result<Self, serde_json::Error> {
         let mut config = self.get_config(&mut ctx, serde_json::value::Serializer)?;
 
@@ -158,6 +219,16 @@ impl WasmCodec {
         Ok(codec)
     }
 
+    /// Try cloning the codec into a different context by recreating it from
+    /// its configuration.
+    ///
+    /// The `ctx_from` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors if serializing the codec configuration, constructing the new
+    /// codec, or interacting with the component fails.
     pub fn try_clone_into(
         &self,
         ctx_from: impl AsContextMut,
@@ -173,8 +244,19 @@ impl WasmCodec {
 
         Ok(codec)
     }
+}
 
-    pub fn drop(&self, ctx: impl AsContextMut) -> Result<(), RuntimeError> {
+/// Methods for implementing the [`Drop`] trait
+impl WasmCodec {
+    /// Try dropping the codec.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors if the codec's resource is borrowed or has already been dropped.
+    pub fn try_drop(&self, ctx: impl AsContextMut) -> Result<(), RuntimeError> {
         self.resource.drop(ctx).map_err(RuntimeError::from)
     }
 }
@@ -187,7 +269,7 @@ impl WasmCodec {
         output_prototype: Option<(AnyArrayDType, &[usize])>,
         process: impl FnOnce(&mut C, &[Value], &mut [Value]) -> anyhow::Result<()>,
         with_result: impl for<'a> FnOnce(AnyArrayView<'a>) -> Result<O, RuntimeError>,
-    ) -> Result<Result<O, GuestError>, RuntimeError> {
+    ) -> Result<Result<O, CodecError>, RuntimeError> {
         let resource = self.resource.borrow(&mut ctx)?;
 
         let array = Self::array_into_wasm(data)?;

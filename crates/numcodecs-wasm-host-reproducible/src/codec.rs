@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use numcodecs::{
     AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec, DynCodecType,
 };
-use numcodecs_wasm_host::{GuestError, RuntimeError, WasmCodec, WasmCodecComponent};
+use numcodecs_wasm_host::{CodecError, RuntimeError, WasmCodec, WasmCodecComponent};
 use schemars::Schema;
 use serde::Serializer;
 use wasm_component_layer::{AsContextMut, Component, Instance, Linker, Store, TypedFunc};
@@ -22,10 +22,10 @@ pub enum ReproducibleWasmCodecError {
         codec_id: Arc<str>,
         source: RuntimeError,
     },
-    #[error("{codec_id} codec's WASM guest raised an error")]
+    #[error("{codec_id} codec's implementation raised an error")]
     Guest {
         codec_id: Arc<str>,
-        source: GuestError,
+        source: CodecError,
     },
 }
 
@@ -67,7 +67,7 @@ where
 
         let result =
             self.codec
-                .drop(&mut store)
+                .try_drop(&mut store)
                 .map_err(|source| ReproducibleWasmCodecError::Runtime {
                     codec_id: self.ty.codec_id.clone(),
                     source,
@@ -119,7 +119,7 @@ where
             return;
         };
 
-        let result = self.codec.drop(&mut store);
+        let result = self.codec.try_drop(&mut store);
         std::mem::drop(result);
 
         let results = self.instance.drop(store);
@@ -310,7 +310,7 @@ where
             })?;
 
             let component =
-                WasmCodecComponent::new(instance.clone(), &mut store).map_err(|source| {
+                WasmCodecComponent::new(&mut store, instance.clone()).map_err(|source| {
                     ReproducibleWasmCodecError::Runtime {
                         codec_id: Arc::from(codec_id),
                         source,
