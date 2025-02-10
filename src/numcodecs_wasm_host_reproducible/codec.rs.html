@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (a9730c3b5 2025-02-05)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (124cc9219 2025-02-09)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -469,7 +469,7 @@
 <span class="kw">use </span>numcodecs::{
     <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodec.html">DynCodec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodecType.html">DynCodecType</a>,
 };
-<span class="kw">use </span>numcodecs_wasm_host::{GuestError, RuntimeError, WasmCodec, WasmCodecComponent};
+<span class="kw">use </span>numcodecs_wasm_host::{CodecError, RuntimeError, WasmCodec, WasmCodecComponent};
 <span class="kw">use </span>schemars::Schema;
 <span class="kw">use </span><a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Serializer.html">serde::Serializer</a>;
 <span class="kw">use </span>wasm_component_layer::{AsContextMut, Component, Instance, Linker, Store, TypedFunc};
@@ -488,10 +488,10 @@
         codec_id: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;,
         source: RuntimeError,
     },
-    <span class="attr">#[error(<span class="string">"{codec_id} codec's WASM guest raised an error"</span>)]
+    <span class="attr">#[error(<span class="string">"{codec_id} codec's implementation raised an error"</span>)]
     </span>Guest {
         codec_id: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;,
-        source: GuestError,
+        source: CodecError,
     },
 }
 
@@ -533,7 +533,7 @@
 
         <span class="kw">let </span>result =
             <a class="self" href="#59">self</a>.codec
-                .drop(<span class="kw-2">&amp;mut </span><a href="#61">store</a>)
+                .try_drop(<span class="kw-2">&amp;mut </span><a href="#61">store</a>)
                 .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|source| <a href="#21-24">ReproducibleWasmCodecError::Runtime</a> {
                     codec_id: <a class="self" href="#59">self</a>.ty.codec_id.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
                     <a href="#71">source</a>,
@@ -585,7 +585,7 @@
             <span class="kw">return</span>;
         };
 
-        <span class="kw">let </span>result = <a class="self" href="#116">self</a>.codec.drop(<span class="kw-2">&amp;mut </span><a href="#118">store</a>);
+        <span class="kw">let </span>result = <a class="self" href="#116">self</a>.codec.try_drop(<span class="kw-2">&amp;mut </span><a href="#118">store</a>);
         <a href="https://doc.rust-lang.org/nightly/core/mem/fn.drop.html">std::mem::drop</a>(<a href="#122">result</a>);
 
         <span class="kw">let </span>results = <a class="self" href="#116">self</a>.instance.drop(<a href="#118">store</a>);
@@ -776,7 +776,7 @@
             })<span class="question-mark">?</span>;
 
             <span class="kw">let </span>component =
-                WasmCodecComponent::new(<a href="#305">instance</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(), <span class="kw-2">&amp;mut </span><a href="#289">store</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|source| {
+                WasmCodecComponent::new(<span class="kw-2">&amp;mut </span><a href="#289">store</a>, <a href="#305">instance</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>()).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|source| {
                     <a href="#21-24">ReproducibleWasmCodecError::Runtime</a> {
                         codec_id: <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Arc::from</a>(<a href="#288">codec_id</a>),
                         <a href="#313">source</a>,

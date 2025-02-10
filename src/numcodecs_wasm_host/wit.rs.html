@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/wit.rs`."><title>wit.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (a9730c3b5 2025-02-05)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/wit.rs`."><title>wit.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (124cc9219 2025-02-09)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -99,24 +99,30 @@
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a></pre></div><pre class="rust"><code><span class="kw">use </span><a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html">std::sync::OnceLock</a>;
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a></pre></div><pre class="rust"><code><span class="kw">use </span><a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html">std::sync::OnceLock</a>;
 
 <span class="kw">use </span><a href="https://docs.rs/semver/1.0.25/semver/struct.Version.html">semver::Version</a>;
 <span class="kw">use </span>wasm_component_layer::{InterfaceIdentifier, PackageIdentifier, PackageName, Value};
 
-<span class="kw">use </span><span class="kw">crate</span>::error::{<a href="error.rs.html#9-12">GuestError</a>, <a href="error.rs.html#5">RuntimeError</a>};
+<span class="kw">use </span><span class="kw">crate</span>::error::{<a href="error.rs.html#16-19">CodecError</a>, <a href="error.rs.html#6">RuntimeError</a>};
 
-<span class="attr">#[non_exhaustive]
+<span class="doccomment">/// WebAssembly Interface Type (WIT) interfaces for `numcodecs`
+</span><span class="attr">#[non_exhaustive]
 </span><span class="kw">pub struct </span><a href="../../numcodecs_wasm_host/struct.NumcodecsWitInterfaces.html">NumcodecsWitInterfaces</a> {
-    <span class="kw">pub </span>codec: InterfaceIdentifier,
+    <span class="doccomment">/// The `numcodecs:abc/codec` interface
+    </span><span class="kw">pub </span>codec: InterfaceIdentifier,
 }
 
-<span class="kw">impl </span><a href="#9-11">NumcodecsWitInterfaces</a> {
-    <span class="attr">#[must_use]
+<span class="kw">impl </span><a href="#10-13">NumcodecsWitInterfaces</a> {
+    <span class="doccomment">/// Get the once-computed interfaces
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>get() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self </span>{
-        <span class="kw">static </span>NUMCODECS_WIT_INTERFACES: <a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html">OnceLock</a>&lt;<a href="#9-11">NumcodecsWitInterfaces</a>&gt; = <a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.new">OnceLock::new</a>();
+        <span class="kw">static </span>NUMCODECS_WIT_INTERFACES: <a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html">OnceLock</a>&lt;<a href="#10-13">NumcodecsWitInterfaces</a>&gt; = <a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.new">OnceLock::new</a>();
 
-        <a href="#16">NUMCODECS_WIT_INTERFACES</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| <span class="self">Self </span>{
+        <a href="#19">NUMCODECS_WIT_INTERFACES</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| <span class="self">Self </span>{
             codec: InterfaceIdentifier::new(
                 PackageIdentifier::new(
                     PackageName::new(<span class="string">"numcodecs"</span>, <span class="string">"abc"</span>),
@@ -128,29 +134,29 @@
     }
 }
 
-<span class="kw">pub fn </span>guest_error_from_wasm(err: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span>Value&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="error.rs.html#9-12">GuestError</a>, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::Record(record)) = <a href="#30">err</a> <span class="kw">else </span>{
+<span class="kw">pub fn </span>guest_error_from_wasm(err: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span>Value&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="error.rs.html#16-19">CodecError</a>, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::Record(record)) = <a href="#33">err</a> <span class="kw">else </span>{
         <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a class="macro" href="https://docs.rs/anyhow/1.0.95/anyhow/macro.anyhow.html">anyhow::anyhow!</a>(
             <span class="string">"unexpected err value {err:?}"
         </span>)));
     };
 
-    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::String(message)) = <a href="#31">record</a>.field(<span class="string">"message"</span>) <span class="kw">else </span>{
+    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::String(message)) = <a href="#34">record</a>.field(<span class="string">"message"</span>) <span class="kw">else </span>{
         <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a class="macro" href="https://docs.rs/anyhow/1.0.95/anyhow/macro.anyhow.html">anyhow::anyhow!</a>(
             <span class="string">"numcodecs:abc/codec::error is missing the `message` field"
         </span>)));
     };
 
-    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(chain)) = <a href="#31">record</a>.field(<span class="string">"chain"</span>) <span class="kw">else </span>{
+    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(chain)) = <a href="#34">record</a>.field(<span class="string">"chain"</span>) <span class="kw">else </span>{
         <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a class="macro" href="https://docs.rs/anyhow/1.0.95/anyhow/macro.anyhow.html">anyhow::anyhow!</a>(
             <span class="string">"numcodecs:abc/codec::error is missing the `chain` field"
         </span>)));
     };
 
-    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(chain) = <a href="#43">chain</a>
+    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(chain) = <a href="#46">chain</a>
         .iter()
-        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|msg| <span class="kw">match </span><a href="#51">msg</a> {
-            Value::String(msg) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#52">msg</a>),
+        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|msg| <span class="kw">match </span><a href="#54">msg</a> {
+            Value::String(msg) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#55">msg</a>),
             <span class="kw">_ </span>=&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(()),
         })
         .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()
@@ -160,6 +166,6 @@
         </span>)));
     };
 
-    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="error.rs.html#15-28">GuestError::new</a>(<a href="#37">message</a>, <a href="#49">chain</a>))
+    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="error.rs.html#22-35">CodecError::new</a>(<a href="#40">message</a>, <a href="#52">chain</a>))
 }
 </code></pre></div></section></main></body></html>

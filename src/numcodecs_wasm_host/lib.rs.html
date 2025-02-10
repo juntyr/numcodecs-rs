@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (a9730c3b5 2025-02-05)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (124cc9219 2025-02-09)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -51,19 +51,53 @@
 <a href="#12" id="12">12</a>
 <a href="#13" id="13">13</a>
 <a href="#14" id="14">14</a>
-<a href="#15" id="15">15</a></pre></div><pre class="rust"><code><span class="attr">#![allow(missing_docs)] </span><span class="comment">// FIXME
-</span><span class="attr">#![allow(clippy::missing_errors_doc)] </span><span class="comment">// FIXME
+<a href="#15" id="15">15</a>
+<a href="#16" id="16">16</a>
+<a href="#17" id="17">17</a>
+<a href="#18" id="18">18</a>
+<a href="#19" id="19">19</a>
+<a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
+<a href="#22" id="22">22</a>
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+//!
+//! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
+//! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
+//!
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
+//! [repo]: https://github.com/juntyr/numcodecs-rs
+//!
+//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-wasm-host
+//! [crates.io]: https://crates.io/crates/numcodecs-wasm-host
+//!
+//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-wasm-host
+//! [docs.rs]: https://docs.rs/numcodecs-wasm-host/
+//!
+//! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_wasm_host
+//!
+//! wasm32 host-side bindings for the [`numcodecs`] API, which allows you to
+//! import a codec from a WASM component.
 
-// postcard depends on embedded-io 0.4 and 0.6
+</span><span class="comment">// postcard depends on embedded-io 0.4 and 0.6
 </span><span class="attr">#![allow(clippy::multiple_crate_versions)]
 
-</span><span class="kw">mod </span><a href="codec.rs.html#1-523">codec</a>;
-<span class="kw">mod </span><a href="component.rs.html#1-146">component</a>;
-<span class="kw">mod </span><a href="error.rs.html#1-29">error</a>;
-<span class="kw">mod </span><a href="wit.rs.html#1-63">wit</a>;
+</span><span class="kw">mod </span><a href="codec.rs.html#1-605">codec</a>;
+<span class="kw">mod </span><a href="component.rs.html#1-184">component</a>;
+<span class="kw">mod </span><a href="error.rs.html#1-36">error</a>;
+<span class="kw">mod </span><a href="wit.rs.html#1-66">wit</a>;
 
-<span class="kw">pub use </span><a href="codec.rs.html#18-33">codec::WasmCodec</a>;
-<span class="kw">pub use </span><a href="component.rs.html#15-28">component::WasmCodecComponent</a>;
-<span class="kw">pub use </span>error::{<a href="error.rs.html#9-12">GuestError</a>, <a href="error.rs.html#5">RuntimeError</a>};
-<span class="kw">pub use </span><a href="wit.rs.html#9-11">wit::NumcodecsWitInterfaces</a>;
+<span class="kw">pub use </span><a href="codec.rs.html#24-39">codec::WasmCodec</a>;
+<span class="kw">pub use </span><a href="component.rs.html#21-34">component::WasmCodecComponent</a>;
+<span class="kw">pub use </span>error::{<a href="error.rs.html#16-19">CodecError</a>, <a href="error.rs.html#6">RuntimeError</a>};
+<span class="kw">pub use </span><a href="wit.rs.html#10-13">wit::NumcodecsWitInterfaces</a>;
 </code></pre></div></section></main></body></html>

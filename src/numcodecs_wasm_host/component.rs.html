@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/component.rs`."><title>component.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (a9730c3b5 2025-02-05)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/component.rs`."><title>component.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (124cc9219 2025-02-09)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -182,7 +182,45 @@
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a></pre></div><pre class="rust"><code><span class="kw">use </span><a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">std::sync::Arc</a>;
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a></pre></div><pre class="rust"><code><span class="kw">use </span><a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">std::sync::Arc</a>;
 
 <span class="kw">use </span>schemars::Schema;
 <span class="kw">use </span><a href="https://docs.rs/serde/1.0.217/serde/de/trait.Deserializer.html">serde::Deserializer</a>;
@@ -191,12 +229,18 @@
 };
 
 <span class="kw">use crate</span>::{
-    <a href="codec.rs.html#18-33">codec::WasmCodec</a>,
-    <a href="error.rs.html#5">error::RuntimeError</a>,
-    wit::{<a href="wit.rs.html#30-63">guest_error_from_wasm</a>, <a href="wit.rs.html#9-11">NumcodecsWitInterfaces</a>},
+    <a href="codec.rs.html#24-39">codec::WasmCodec</a>,
+    <a href="error.rs.html#6">error::RuntimeError</a>,
+    wit::{<a href="wit.rs.html#33-66">guest_error_from_wasm</a>, <a href="wit.rs.html#10-13">NumcodecsWitInterfaces</a>},
 };
 
-<span class="kw">pub struct </span><a href="../../numcodecs_wasm_host/struct.WasmCodecComponent.html">WasmCodecComponent</a> {
+<span class="doccomment">/// WebAssembly component that exports the `numcodecs:abc/codec` interface.
+///
+/// `WasmCodecComponent` does not implement the
+/// [`DynCodecType`][numcodecs::DynCodecType] trait itself so that it can expose
+/// un-opinionated bindings. However, it provides methods with that can be used
+/// to implement the trait on a wrapper.
+</span><span class="kw">pub struct </span><a href="../../numcodecs_wasm_host/struct.WasmCodecComponent.html">WasmCodecComponent</a> {
     <span class="comment">// precomputed properties
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) codec_id: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;Schema&gt;,
@@ -211,106 +255,138 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) instance: Instance,
 }
 
-<span class="kw">impl </span><a href="#15-28">WasmCodecComponent</a> {
+<span class="kw">impl </span><a href="#21-34">WasmCodecComponent</a> {
     <span class="comment">// NOTE: the WasmCodecComponent never calls Instance::drop
-    </span><span class="kw">pub fn </span>new(instance: Instance, <span class="kw-2">mut </span>ctx: <span class="kw">impl </span>AsContextMut) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-        <span class="kw">fn </span>load_func(interface: <span class="kw-2">&amp;</span>ExportInstance, name: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;Func, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-            <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(func) = <a href="#33">interface</a>.func(<a href="#33">name</a>) <span class="kw">else </span>{
+    </span><span class="doccomment">/// Import the `numcodecs:abc/codec` interface from a WebAssembly component
+    /// `instance`.
+    ///
+    /// The `ctx` must refer to the same store in which the `instance` was
+    /// instantiated.
+    ///
+    /// # Warning
+    /// The `WasmCodecComponent` does *not* own the provided `instance` and
+    /// *never* calls [`Instance::drop`]. It is the responsibility of the code
+    /// creating the `WasmCodecComponent` to destroy the `instance` after the
+    /// component, and all codecs created from it, have been destroyed.
+    ///
+    /// # Errors
+    ///
+    /// Errors if the `instance` does not export the `numcodecs:abc/codec`
+    /// interface or if interacting with the component fails.
+    </span><span class="kw">pub fn </span>new(<span class="kw-2">mut </span>ctx: <span class="kw">impl </span>AsContextMut, instance: Instance) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+        <span class="kw">fn </span>load_func(interface: <span class="kw-2">&amp;</span>ExportInstance, name: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;Func, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+            <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(func) = <a href="#55">interface</a>.func(<a href="#55">name</a>) <span class="kw">else </span>{
                 <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a href="https://docs.rs/anyhow/1.0.95/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                     <span class="string">"WASM component interface does not contain a function named `{name}`"
                 </span>))));
             };
 
-            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#34">func</a>)
+            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#56">func</a>)
         }
 
         <span class="kw">fn </span>load_typed_func&lt;P: ComponentList, R: ComponentList&gt;(
             interface: <span class="kw-2">&amp;</span>ExportInstance,
             name: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
-        ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;TypedFunc&lt;P, R&gt;, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-            <a href="#33-41">load_func</a>(<a href="#44">interface</a>, <a href="#45">name</a>)<span class="question-mark">?
+        ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;TypedFunc&lt;P, R&gt;, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+            <a href="#55-63">load_func</a>(<a href="#66">interface</a>, <a href="#67">name</a>)<span class="question-mark">?
                 </span>.typed()
                 .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(RuntimeError::from)
         }
 
-        <span class="kw">let </span>interfaces = <a href="wit.rs.html#15-27">NumcodecsWitInterfaces::get</a>();
+        <span class="kw">let </span>interfaces = <a href="wit.rs.html#18-30">NumcodecsWitInterfaces::get</a>();
 
-        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(codecs_interface) = <a href="#32">instance</a>.exports().instance(<span class="kw-2">&amp;</span><a href="#52">interfaces</a>.codec) <span class="kw">else </span>{
+        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(codecs_interface) = <a href="#54">instance</a>.exports().instance(<span class="kw-2">&amp;</span><a href="#74">interfaces</a>.codec) <span class="kw">else </span>{
             <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a href="https://docs.rs/anyhow/1.0.95/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"WASM component does not contain an interface named `{}`"</span>,
                 interfaces.codec
             ))));
         };
 
-        <span class="kw">let </span>codec_id = <a href="#43-50">load_typed_func</a>(<a href="#54">codecs_interface</a>, <span class="string">"codec-id"</span>)<span class="question-mark">?</span>;
-        <span class="kw">let </span>codec_id = <a href="#61">codec_id</a>.call(<span class="kw-2">&amp;mut </span><a href="#32">ctx</a>, ())<span class="question-mark">?</span>;
+        <span class="kw">let </span>codec_id = <a href="#65-72">load_typed_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"codec-id"</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>codec_id = <a href="#83">codec_id</a>.call(<span class="kw-2">&amp;mut </span><a href="#54">ctx</a>, ())<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>codec_config_schema = <a href="#43-50">load_typed_func</a>(<a href="#54">codecs_interface</a>, <span class="string">"codec-config-schema"</span>)<span class="question-mark">?</span>;
-        <span class="kw">let </span>codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; = <a href="#64">codec_config_schema</a>.call(<span class="kw-2">&amp;mut </span><a href="#32">ctx</a>, ())<span class="question-mark">?</span>;
+        <span class="kw">let </span>codec_config_schema = <a href="#65-72">load_typed_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"codec-config-schema"</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; = <a href="#86">codec_config_schema</a>.call(<span class="kw-2">&amp;mut </span><a href="#54">ctx</a>, ())<span class="question-mark">?</span>;
         <span class="kw">let </span>codec_config_schema: Schema =
-            <a href="https://docs.rs/serde_json/1.0.138/serde_json/de/fn.from_str.html">serde_json::from_str</a>(<span class="kw-2">&amp;</span><a href="#65">codec_config_schema</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>;
+            <a href="https://docs.rs/serde_json/1.0.138/serde_json/de/fn.from_str.html">serde_json::from_str</a>(<span class="kw-2">&amp;</span><a href="#87">codec_config_schema</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>;
 
         <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="self">Self </span>{
-            <a href="#62">codec_id</a>,
-            codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#method.new">Arc::new</a>(<a href="#66">codec_config_schema</a>),
-            from_config: <a href="#33-41">load_func</a>(<a href="#54">codecs_interface</a>, <span class="string">"[static]codec.from-config"</span>)<span class="question-mark">?</span>,
-            encode: <a href="#33-41">load_func</a>(<a href="#54">codecs_interface</a>, <span class="string">"[method]codec.encode"</span>)<span class="question-mark">?</span>,
-            decode: <a href="#33-41">load_func</a>(<a href="#54">codecs_interface</a>, <span class="string">"[method]codec.decode"</span>)<span class="question-mark">?</span>,
-            decode_into: <a href="#33-41">load_func</a>(<a href="#54">codecs_interface</a>, <span class="string">"[method]codec.decode-into"</span>)<span class="question-mark">?</span>,
-            get_config: <a href="#33-41">load_func</a>(<a href="#54">codecs_interface</a>, <span class="string">"[method]codec.get-config"</span>)<span class="question-mark">?</span>,
-            <a href="#32">instance</a>,
+            <a href="#84">codec_id</a>,
+            codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#method.new">Arc::new</a>(<a href="#88">codec_config_schema</a>),
+            from_config: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[static]codec.from-config"</span>)<span class="question-mark">?</span>,
+            encode: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[method]codec.encode"</span>)<span class="question-mark">?</span>,
+            decode: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[method]codec.decode"</span>)<span class="question-mark">?</span>,
+            decode_into: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[method]codec.decode-into"</span>)<span class="question-mark">?</span>,
+            get_config: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[method]codec.get-config"</span>)<span class="question-mark">?</span>,
+            <a href="#54">instance</a>,
         })
     }
 }
 
-<span class="kw">impl </span><a href="#15-28">WasmCodecComponent</a> {
-    <span class="attr">#[must_use]
+<span class="doccomment">/// Methods for implementing the [`DynCodecType`][numcodecs::DynCodecType] trait
+</span><span class="kw">impl </span><a href="#21-34">WasmCodecComponent</a> {
+    <span class="doccomment">/// Codec identifier.
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>codec_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
-        <span class="kw-2">&amp;</span><a class="self" href="#84">self</a>.codec_id
+        <span class="kw-2">&amp;</span><a class="self" href="#108">self</a>.codec_id
     }
 
-    <span class="attr">#[must_use]
+    <span class="doccomment">/// JSON schema for the codec's configuration.
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>codec_config_schema(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Schema {
-        <span class="kw-2">&amp;</span><a class="self" href="#89">self</a>.codec_config_schema
+        <span class="kw-2">&amp;</span><a class="self" href="#114">self</a>.codec_config_schema
     }
 
-    <span class="kw">pub fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: <a href="https://docs.rs/serde/1.0.217/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
+    <span class="doccomment">/// Instantiate a codec of this type from a serialized `config`uration.
+    ///
+    /// The `config` must *not* contain an `id` field. If the `config` *may*
+    /// contain one, use the
+    /// [`codec_from_config_with_id`][numcodecs::codec_from_config_with_id]
+    /// helper function.
+    ///
+    /// The `config` *must* be compatible with JSON encoding.
+    ///
+    /// # Errors
+    ///
+    /// Errors if constructing the codec or interacting with the component
+    /// fails.
+    </span><span class="kw">pub fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: <a href="https://docs.rs/serde/1.0.217/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="kw-2">mut </span>ctx: <span class="kw">impl </span>AsContextMut,
         config: D,
-    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="codec.rs.html#18-33">WasmCodec</a>, D::Error&gt; {
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="codec.rs.html#24-39">WasmCodec</a>, D::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>config_bytes = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>();
-        <a href="https://docs.rs/serde-transcode/1.0.1/serde_transcode/fn.transcode.html">serde_transcode::transcode</a>(<a href="#96">config</a>, <span class="kw-2">&amp;mut </span><a href="https://docs.rs/serde_json/1.0.138/serde_json/ser/struct.Serializer.html#method.new">serde_json::Serializer::new</a>(<span class="kw-2">&amp;mut </span><a href="#98">config_bytes</a>))
+        <a href="https://docs.rs/serde-transcode/1.0.1/serde_transcode/fn.transcode.html">serde_transcode::transcode</a>(<a href="#134">config</a>, <span class="kw-2">&amp;mut </span><a href="https://docs.rs/serde_json/1.0.138/serde_json/ser/struct.Serializer.html#method.new">serde_json::Serializer::new</a>(<span class="kw-2">&amp;mut </span><a href="#136">config_bytes</a>))
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
-        <span class="kw">let </span>config = <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.from_utf8">String::from_utf8</a>(<a href="#98">config_bytes</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>config = <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.from_utf8">String::from_utf8</a>(<a href="#136">config_bytes</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>args = Value::String(<a href="#101">config</a>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>());
+        <span class="kw">let </span>args = Value::String(<a href="#139">config</a>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>());
         <span class="kw">let </span><span class="kw-2">mut </span>result = Value::U8(<span class="number">0</span>);
 
-        <a class="self" href="#94">self</a>.from_config
+        <a class="self" href="#132">self</a>.from_config
             .call(
-                <span class="kw-2">&amp;mut </span><a href="#95">ctx</a>,
-                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_ref.html">std::slice::from_ref</a>(<span class="kw-2">&amp;</span><a href="#103">args</a>),
-                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_mut.html">std::slice::from_mut</a>(<span class="kw-2">&amp;mut </span><a href="#104">result</a>),
+                <span class="kw-2">&amp;mut </span><a href="#133">ctx</a>,
+                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_ref.html">std::slice::from_ref</a>(<span class="kw-2">&amp;</span><a href="#141">args</a>),
+                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_mut.html">std::slice::from_mut</a>(<span class="kw-2">&amp;mut </span><a href="#142">result</a>),
             )
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>codec = <span class="kw">match </span><a href="#104">result</a> {
-            Value::Result(result) =&gt; <span class="kw">match </span><span class="kw-2">&amp;*</span><a href="#115">result</a> {
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(Value::Own(resource))) =&gt; <a href="codec.rs.html#18-33">WasmCodec</a> {
-                    resource: <a href="#116">resource</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-                    codec_id: <a class="self" href="#94">self</a>.codec_id.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-                    codec_config_schema: <a class="self" href="#94">self</a>.codec_config_schema.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-                    from_config: <a class="self" href="#94">self</a>.from_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-                    encode: <a class="self" href="#94">self</a>.encode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-                    decode: <a class="self" href="#94">self</a>.decode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-                    decode_into: <a class="self" href="#94">self</a>.decode_into.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-                    get_config: <a class="self" href="#94">self</a>.get_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-                    instance: <a class="self" href="#94">self</a>.instance.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+        <span class="kw">let </span>codec = <span class="kw">match </span><a href="#142">result</a> {
+            Value::Result(result) =&gt; <span class="kw">match </span><span class="kw-2">&amp;*</span><a href="#153">result</a> {
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(Value::Own(resource))) =&gt; <a href="codec.rs.html#24-39">WasmCodec</a> {
+                    resource: <a href="#154">resource</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+                    codec_id: <a class="self" href="#132">self</a>.codec_id.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+                    codec_config_schema: <a class="self" href="#132">self</a>.codec_config_schema.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+                    from_config: <a class="self" href="#132">self</a>.from_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+                    encode: <a class="self" href="#132">self</a>.encode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+                    decode: <a class="self" href="#132">self</a>.decode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+                    decode_into: <a class="self" href="#132">self</a>.decode_into.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+                    get_config: <a class="self" href="#132">self</a>.get_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+                    instance: <a class="self" href="#132">self</a>.instance.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
                 },
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">match </span><a href="wit.rs.html#30-63">guest_error_from_wasm</a>(<a href="#127">err</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>()) {
-                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a href="#128">err</a>)),
-                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a href="#129">err</a>)),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">match </span><a href="wit.rs.html#33-66">guest_error_from_wasm</a>(<a href="#165">err</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>()) {
+                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a href="#166">err</a>)),
+                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a href="#167">err</a>)),
                 },
                 result =&gt; {
                     <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
@@ -325,7 +401,7 @@
             }
         };
 
-        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#114">codec</a>)
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#152">codec</a>)
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (a9730c3b5 2025-02-05)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (124cc9219 2025-02-09)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -559,7 +559,89 @@
 <a href="#520" id="520">520</a>
 <a href="#521" id="521">521</a>
 <a href="#522" id="522">522</a>
-<a href="#523" id="523">523</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::{<a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>, <a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html">OnceLock</a>};
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::{<a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>, <a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html">OnceLock</a>};
 
 <span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>};
 <span class="kw">use </span>numcodecs::{<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>};
@@ -571,12 +653,18 @@
 };
 
 <span class="kw">use crate</span>::{
-    <a href="component.rs.html#15-28">component::WasmCodecComponent</a>,
-    error::{<a href="error.rs.html#9-12">GuestError</a>, <a href="error.rs.html#5">RuntimeError</a>},
-    <a href="wit.rs.html#30-63">wit::guest_error_from_wasm</a>,
+    <a href="component.rs.html#21-34">component::WasmCodecComponent</a>,
+    error::{<a href="error.rs.html#16-19">CodecError</a>, <a href="error.rs.html#6">RuntimeError</a>},
+    <a href="wit.rs.html#33-66">wit::guest_error_from_wasm</a>,
 };
 
-<span class="kw">pub struct </span><a href="../../numcodecs_wasm_host/struct.WasmCodec.html">WasmCodec</a> {
+<span class="doccomment">/// Codec instantiated inside a WebAssembly component.
+///
+/// `WasmCodec` does not implement the [`Codec`][numcodecs::Codec],
+/// [`DynCodec`][numcodecs::DynCodec], [`Clone`], or [`Drop`] traits itself so
+/// that it can expose un-opinionated bindings. However, it provides methods
+/// that can be used to implement these traits on a wrapper.
+</span><span class="kw">pub struct </span><a href="../../numcodecs_wasm_host/struct.WasmCodec.html">WasmCodec</a> {
     <span class="comment">// codec
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) resource: ResourceOwn,
     <span class="comment">// precomputed properties
@@ -593,52 +681,86 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) instance: Instance,
 }
 
-<span class="kw">impl </span><a href="#18-33">WasmCodec</a> {
+<span class="doccomment">/// Methods for implementing the [`Codec`][numcodecs::Codec] trait
+</span><span class="kw">impl </span><a href="#24-39">WasmCodec</a> {
     <span class="attr">#[expect(clippy::needless_pass_by_value)]
+    </span><span class="doccomment">/// Encodes the `data` and returns the result.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors with a
+    /// - [`CodecError`] if encoding the buffer fails.
+    /// - [`RuntimeError`] if interacting with the component fails.
     </span><span class="kw">pub fn </span>encode(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         ctx: <span class="kw">impl </span>AsContextMut,
         data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>,
-    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="error.rs.html#9-12">GuestError</a>&gt;, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-        <a class="self" href="#38">self</a>.<a href="#183-230">process</a>(
-            <a href="#39">ctx</a>,
-            <a href="#40">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.view">view</a>(),
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="error.rs.html#16-19">CodecError</a>&gt;, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+        <a class="self" href="#55">self</a>.<a href="#265-312">process</a>(
+            <a href="#56">ctx</a>,
+            <a href="#57">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.view">view</a>(),
             <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
-            |ctx, arguments, results| <a class="self" href="#38">self</a>.encode.call(<a href="#46">ctx</a>, <a href="#46">arguments</a>, <a href="#46">results</a>),
-            |encoded| <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#47">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.into_owned">into_owned</a>()),
+            |ctx, arguments, results| <a class="self" href="#55">self</a>.encode.call(<a href="#63">ctx</a>, <a href="#63">arguments</a>, <a href="#63">results</a>),
+            |encoded| <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#64">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.into_owned">into_owned</a>()),
         )
     }
 
     <span class="attr">#[expect(clippy::needless_pass_by_value)]
+    </span><span class="doccomment">/// Decodes the `encoded` data and returns the result.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors with a
+    /// - [`CodecError`] if decoding the buffer fails.
+    /// - [`RuntimeError`] if interacting with the component fails.
     </span><span class="kw">pub fn </span>decode(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         ctx: <span class="kw">impl </span>AsContextMut,
         encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>,
-    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="error.rs.html#9-12">GuestError</a>&gt;, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-        <a class="self" href="#53">self</a>.<a href="#183-230">process</a>(
-            <a href="#54">ctx</a>,
-            <a href="#55">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.view">view</a>(),
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="error.rs.html#16-19">CodecError</a>&gt;, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+        <a class="self" href="#80">self</a>.<a href="#265-312">process</a>(
+            <a href="#81">ctx</a>,
+            <a href="#82">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.view">view</a>(),
             <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
-            |ctx, arguments, results| <a class="self" href="#53">self</a>.decode.call(<a href="#61">ctx</a>, <a href="#61">arguments</a>, <a href="#61">results</a>),
-            |decoded| <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#62">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.into_owned">into_owned</a>()),
+            |ctx, arguments, results| <a class="self" href="#80">self</a>.decode.call(<a href="#88">ctx</a>, <a href="#88">arguments</a>, <a href="#88">results</a>),
+            |decoded| <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#89">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.into_owned">into_owned</a>()),
         )
     }
 
-    <span class="kw">pub fn </span>decode_into(
+    <span class="doccomment">/// Decodes the `encoded` data and writes the result into the provided
+    /// `decoded` output.
+    ///
+    /// The output must have the correct type and shape.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors with a
+    /// - [`CodecError`] if decoding the buffer fails.
+    /// - [`RuntimeError`] if interacting with the component fails.
+    </span><span class="kw">pub fn </span>decode_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         ctx: <span class="kw">impl </span>AsContextMut,
         encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
         <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
-    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="error.rs.html#9-12">GuestError</a>&gt;, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-        <a class="self" href="#67">self</a>.<a href="#183-230">process</a>(
-            <a href="#68">ctx</a>,
-            <a href="#69">encoded</a>,
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="error.rs.html#16-19">CodecError</a>&gt;, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+        <a class="self" href="#107">self</a>.<a href="#265-312">process</a>(
+            <a href="#108">ctx</a>,
+            <a href="#109">encoded</a>,
             <span class="attr">#[expect(clippy::unnecessary_to_owned)] </span><span class="comment">// we need the lifetime extension
-            </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>((<a href="#70">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(), <span class="kw-2">&amp;</span><a href="#70">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>())),
-            |ctx, arguments, results| <a class="self" href="#67">self</a>.decode_into.call(<a href="#77">ctx</a>, <a href="#77">arguments</a>, <a href="#77">results</a>),
+            </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>((<a href="#110">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(), <span class="kw-2">&amp;</span><a href="#110">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>())),
+            |ctx, arguments, results| <a class="self" href="#107">self</a>.decode_into.call(<a href="#117">ctx</a>, <a href="#117">arguments</a>, <a href="#117">results</a>),
             |decoded_in| {
-                <a href="#70">decoded</a>
-                    .<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#78">decoded_in</a>)
+                <a href="#110">decoded</a>
+                    .<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#118">decoded_in</a>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(RuntimeError::from)
             },
@@ -646,48 +768,59 @@
     }
 }
 
-<span class="kw">impl </span><a href="#18-33">WasmCodec</a> {
-    <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="component.rs.html#15-28">WasmCodecComponent</a> {
-        <a href="component.rs.html#15-28">WasmCodecComponent</a> {
-            codec_id: <a class="self" href="#90">self</a>.codec_id.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-            codec_config_schema: <a class="self" href="#90">self</a>.codec_config_schema.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-            from_config: <a class="self" href="#90">self</a>.from_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-            encode: <a class="self" href="#90">self</a>.encode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-            decode: <a class="self" href="#90">self</a>.decode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-            decode_into: <a class="self" href="#90">self</a>.decode_into.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-            get_config: <a class="self" href="#90">self</a>.get_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-            instance: <a class="self" href="#90">self</a>.instance.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+<span class="doccomment">/// Methods for implementing the [`DynCodec`][numcodecs::DynCodec] trait
+</span><span class="kw">impl </span><a href="#24-39">WasmCodec</a> {
+    <span class="doccomment">/// Returns the component object for this codec.
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="component.rs.html#21-34">WasmCodecComponent</a> {
+        <a href="component.rs.html#21-34">WasmCodecComponent</a> {
+            codec_id: <a class="self" href="#132">self</a>.codec_id.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+            codec_config_schema: <a class="self" href="#132">self</a>.codec_config_schema.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+            from_config: <a class="self" href="#132">self</a>.from_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+            encode: <a class="self" href="#132">self</a>.encode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+            decode: <a class="self" href="#132">self</a>.decode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+            decode_into: <a class="self" href="#132">self</a>.decode_into.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+            get_config: <a class="self" href="#132">self</a>.get_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+            instance: <a class="self" href="#132">self</a>.instance.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
         }
     }
 
-    <span class="kw">pub fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Serializer.html">Serializer</a>&gt;(
+    <span class="doccomment">/// Serializes the configuration parameters for this codec.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors if serializing the codec configuration or interacting with the
+    /// component fails.
+    </span><span class="kw">pub fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Serializer.html">Serializer</a>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="kw-2">mut </span>ctx: <span class="kw">impl </span>AsContextMut,
         serializer: S,
     ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
-        <span class="kw">let </span>resource = <span class="self"><a href="#104">self</a>
+        <span class="kw">let </span>resource = <span class="self"><a href="#155">self</a>
             </span>.resource
-            .borrow(<span class="kw-2">&amp;mut </span><a href="#105">ctx</a>)
+            .borrow(<span class="kw-2">&amp;mut </span><a href="#156">ctx</a>)
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>arg = Value::Borrow(<a href="#108">resource</a>);
+        <span class="kw">let </span>arg = Value::Borrow(<a href="#159">resource</a>);
         <span class="kw">let </span><span class="kw-2">mut </span>result = Value::U8(<span class="number">0</span>);
 
-        <a class="self" href="#104">self</a>.get_config
+        <a class="self" href="#155">self</a>.get_config
             .call(
-                <span class="kw-2">&amp;mut </span><a href="#105">ctx</a>,
-                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_ref.html">std::slice::from_ref</a>(<span class="kw-2">&amp;</span><a href="#113">arg</a>),
-                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_mut.html">std::slice::from_mut</a>(<span class="kw-2">&amp;mut </span><a href="#114">result</a>),
+                <span class="kw-2">&amp;mut </span><a href="#156">ctx</a>,
+                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_ref.html">std::slice::from_ref</a>(<span class="kw-2">&amp;</span><a href="#164">arg</a>),
+                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_mut.html">std::slice::from_mut</a>(<span class="kw-2">&amp;mut </span><a href="#165">result</a>),
             )
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>config = <span class="kw">match </span><a href="#114">result</a> {
-            Value::Result(result) =&gt; <span class="kw">match </span><span class="kw-2">&amp;*</span><a href="#125">result</a> {
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(Value::String(config))) =&gt; <a href="#126">config</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">match </span><a href="wit.rs.html#30-63">guest_error_from_wasm</a>(<a href="#127">err</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>()) {
-                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>(<a href="#128">err</a>)),
-                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>(<a href="#129">err</a>)),
+        <span class="kw">let </span>config = <span class="kw">match </span><a href="#165">result</a> {
+            Value::Result(result) =&gt; <span class="kw">match </span><span class="kw-2">&amp;*</span><a href="#176">result</a> {
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(Value::String(config))) =&gt; <a href="#177">config</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">match </span><a href="wit.rs.html#33-66">guest_error_from_wasm</a>(<a href="#178">err</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>()) {
+                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>(<a href="#179">err</a>)),
+                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>(<a href="#180">err</a>)),
                 },
                 result =&gt; {
                     <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.217/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
@@ -702,66 +835,97 @@
             }
         };
 
-        <a href="https://docs.rs/serde-transcode/1.0.1/serde_transcode/fn.transcode.html">serde_transcode::transcode</a>(<span class="kw-2">&amp;mut </span><a href="https://docs.rs/serde_json/1.0.138/serde_json/de/struct.Deserializer.html#method.from_str">serde_json::Deserializer::from_str</a>(<span class="kw-2">&amp;</span><a href="#124">config</a>), <a href="#106">serializer</a>)
+        <a href="https://docs.rs/serde-transcode/1.0.1/serde_transcode/fn.transcode.html">serde_transcode::transcode</a>(<span class="kw-2">&amp;mut </span><a href="https://docs.rs/serde_json/1.0.138/serde_json/de/struct.Deserializer.html#method.from_str">serde_json::Deserializer::from_str</a>(<span class="kw-2">&amp;</span><a href="#175">config</a>), <a href="#157">serializer</a>)
     }
 }
 
-<span class="kw">impl </span><a href="#18-33">WasmCodec</a> {
-    <span class="kw">pub fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>ctx: <span class="kw">impl </span>AsContextMut) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="https://docs.rs/serde_json/1.0.138/serde_json/error/struct.Error.html">serde_json::Error</a>&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>config = <a class="self" href="#149">self</a>.<a href="#103-145">get_config</a>(<span class="kw-2">&amp;mut </span><a href="#149">ctx</a>, <a href="https://docs.rs/serde_json/1.0.138/serde_json/value/ser/struct.Serializer.html">serde_json::value::Serializer</a>)<span class="question-mark">?</span>;
+<span class="doccomment">/// Methods for implementing the [`Clone`] trait
+</span><span class="kw">impl </span><a href="#24-39">WasmCodec</a> {
+    <span class="doccomment">/// Try cloning the codec by recreating it from its configuration.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors if serializing the codec configuration, constructing the new
+    /// codec, or interacting with the component fails.
+    </span><span class="kw">pub fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>ctx: <span class="kw">impl </span>AsContextMut) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="https://docs.rs/serde_json/1.0.138/serde_json/error/struct.Error.html">serde_json::Error</a>&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>config = <a class="self" href="#210">self</a>.<a href="#154-196">get_config</a>(<span class="kw-2">&amp;mut </span><a href="#210">ctx</a>, <a href="https://docs.rs/serde_json/1.0.138/serde_json/value/ser/struct.Serializer.html">serde_json::value::Serializer</a>)<span class="question-mark">?</span>;
 
-        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(config) = <a href="#150">config</a>.<a href="https://docs.rs/serde_json/1.0.138/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
-            <a href="#152">config</a>.<a href="https://docs.rs/serde_json/1.0.138/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>);
+        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(config) = <a href="#211">config</a>.<a href="https://docs.rs/serde_json/1.0.138/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
+            <a href="#213">config</a>.<a href="https://docs.rs/serde_json/1.0.138/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>);
         }
 
-        <span class="kw">let </span>codec: <span class="self">Self </span>= <a class="self" href="#149">self</a>.<a href="#90-101">ty</a>().<a href="component.rs.html#93-145">codec_from_config</a>(<a href="#149">ctx</a>, <a href="#150">config</a>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>codec: <span class="self">Self </span>= <a class="self" href="#210">self</a>.<a href="#132-143">ty</a>().<a href="component.rs.html#131-183">codec_from_config</a>(<a href="#210">ctx</a>, <a href="#211">config</a>)<span class="question-mark">?</span>;
 
-        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#156">codec</a>)
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#217">codec</a>)
     }
 
-    <span class="kw">pub fn </span>try_clone_into(
+    <span class="doccomment">/// Try cloning the codec into a different context by recreating it from
+    /// its configuration.
+    ///
+    /// The `ctx_from` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors if serializing the codec configuration, constructing the new
+    /// codec, or interacting with the component fails.
+    </span><span class="kw">pub fn </span>try_clone_into(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         ctx_from: <span class="kw">impl </span>AsContextMut,
         ctx_into: <span class="kw">impl </span>AsContextMut,
     ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="https://docs.rs/serde_json/1.0.138/serde_json/error/struct.Error.html">serde_json::Error</a>&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>config = <a class="self" href="#162">self</a>.<a href="#103-145">get_config</a>(<a href="#163">ctx_from</a>, <a href="https://docs.rs/serde_json/1.0.138/serde_json/value/ser/struct.Serializer.html">serde_json::value::Serializer</a>)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>config = <a class="self" href="#233">self</a>.<a href="#154-196">get_config</a>(<a href="#234">ctx_from</a>, <a href="https://docs.rs/serde_json/1.0.138/serde_json/value/ser/struct.Serializer.html">serde_json::value::Serializer</a>)<span class="question-mark">?</span>;
 
-        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(config) = <a href="#166">config</a>.<a href="https://docs.rs/serde_json/1.0.138/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
-            <a href="#168">config</a>.<a href="https://docs.rs/serde_json/1.0.138/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>);
+        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(config) = <a href="#237">config</a>.<a href="https://docs.rs/serde_json/1.0.138/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
+            <a href="#239">config</a>.<a href="https://docs.rs/serde_json/1.0.138/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>);
         }
 
-        <span class="kw">let </span>codec: <span class="self">Self </span>= <a class="self" href="#162">self</a>.<a href="#90-101">ty</a>().<a href="component.rs.html#93-145">codec_from_config</a>(<a href="#164">ctx_into</a>, <a href="#166">config</a>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>codec: <span class="self">Self </span>= <a class="self" href="#233">self</a>.<a href="#132-143">ty</a>().<a href="component.rs.html#131-183">codec_from_config</a>(<a href="#235">ctx_into</a>, <a href="#237">config</a>)<span class="question-mark">?</span>;
 
-        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#172">codec</a>)
-    }
-
-    <span class="kw">pub fn </span>drop(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw">impl </span>AsContextMut) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="error.rs.html#5">RuntimeError</a>&gt; {
-        <a class="self" href="#177">self</a>.resource.drop(<a href="#177">ctx</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(RuntimeError::from)
+        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#243">codec</a>)
     }
 }
 
-<span class="kw">impl </span><a href="#18-33">WasmCodec</a> {
+<span class="doccomment">/// Methods for implementing the [`Drop`] trait
+</span><span class="kw">impl </span><a href="#24-39">WasmCodec</a> {
+    <span class="doccomment">/// Try dropping the codec.
+    ///
+    /// The `ctx` must refer to the same store in which the component was
+    /// instantiated.
+    ///
+    /// # Errors
+    ///
+    /// Errors if the codec's resource is borrowed or has already been dropped.
+    </span><span class="kw">pub fn </span>try_drop(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw">impl </span>AsContextMut) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="error.rs.html#6">RuntimeError</a>&gt; {
+        <a class="self" href="#259">self</a>.resource.drop(<a href="#259">ctx</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(RuntimeError::from)
+    }
+}
+
+<span class="kw">impl </span><a href="#24-39">WasmCodec</a> {
     <span class="kw">fn </span>process&lt;O, C: AsContextMut&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="kw-2">mut </span>ctx: C,
         data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
         output_prototype: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>])&gt;,
         process: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html">FnOnce</a>(<span class="kw-2">&amp;mut </span>C, <span class="kw-2">&amp;</span>[Value], <span class="kw-2">&amp;mut </span>[Value]) -&gt; <a href="https://docs.rs/anyhow/1.0.95/anyhow/type.Result.html">anyhow::Result</a>&lt;()&gt;,
-        with_result: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html">FnOnce</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>&lt;<span class="lifetime">'a</span>&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;O, <a href="error.rs.html#5">RuntimeError</a>&gt;,
-    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;O, <a href="error.rs.html#9-12">GuestError</a>&gt;, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-        <span class="kw">let </span>resource = <a class="self" href="#184">self</a>.resource.borrow(<span class="kw-2">&amp;mut </span><a href="#185">ctx</a>)<span class="question-mark">?</span>;
+        with_result: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html">FnOnce</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>&lt;<span class="lifetime">'a</span>&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;O, <a href="error.rs.html#6">RuntimeError</a>&gt;,
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;O, <a href="error.rs.html#16-19">CodecError</a>&gt;, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+        <span class="kw">let </span>resource = <a class="self" href="#266">self</a>.resource.borrow(<span class="kw-2">&amp;mut </span><a href="#267">ctx</a>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>array = <a href="#280-370"><span class="self">Self</span>::array_into_wasm</a>(<a href="#186">data</a>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>array = <a href="#362-452"><span class="self">Self</span>::array_into_wasm</a>(<a href="#268">data</a>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>output_prototype = <a href="#187">output_prototype</a>
-            .<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(|(dtype, shape)| <a href="#407-441"><span class="self">Self</span>::array_prototype_into_wasm</a>(<a href="#196">dtype</a>, <a href="#196">shape</a>))
+        <span class="kw">let </span>output_prototype = <a href="#269">output_prototype</a>
+            .<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(|(dtype, shape)| <a href="#489-523"><span class="self">Self</span>::array_prototype_into_wasm</a>(<a href="#278">dtype</a>, <a href="#278">shape</a>))
             .<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.transpose">transpose</a>()<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>result = Value::U8(<span class="number">0</span>);
 
-        <a href="#188">process</a>(
-            <span class="kw-2">&amp;mut </span><a href="#185">ctx</a>,
-            <span class="kw-2">&amp;</span><span class="kw">match </span><a href="#195">output_prototype</a> {
+        <a href="#270">process</a>(
+            <span class="kw-2">&amp;mut </span><a href="#267">ctx</a>,
+            <span class="kw-2">&amp;</span><span class="kw">match </span><a href="#277">output_prototype</a> {
                 <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None"><a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a> </a>=&gt; <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[Value::Borrow(resource), Value::Record(array)],
                 <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(output) =&gt; <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[
                     Value::Borrow(resource),
@@ -769,17 +933,17 @@
                     Value::Record(output),
                 ],
             },
-            <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_mut.html">std::slice::from_mut</a>(<span class="kw-2">&amp;mut </span><a href="#199">result</a>),
+            <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_mut.html">std::slice::from_mut</a>(<span class="kw-2">&amp;mut </span><a href="#281">result</a>),
         )<span class="question-mark">?</span>;
 
-        <span class="kw">match </span><a href="#199">result</a> {
-            Value::Result(result) =&gt; <span class="kw">match </span><span class="kw-2">&amp;*</span><a href="#215">result</a> {
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(Value::Record(record))) <span class="kw">if </span><span class="kw-2">&amp;</span><a href="#216">record</a>.ty() == <a href="#258-277"><span class="self">Self</span>::any_array_ty</a>() =&gt; {
-                    <a href="#443-522"><span class="self">Self</span>::with_array_view_from_wasm_record</a>(<a href="#216">record</a>, |array| {
-                        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#189">with_result</a>(<a href="#217">array</a>)<span class="question-mark">?</span>))
+        <span class="kw">match </span><a href="#281">result</a> {
+            Value::Result(result) =&gt; <span class="kw">match </span><span class="kw-2">&amp;*</span><a href="#297">result</a> {
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(Value::Record(record))) <span class="kw">if </span><span class="kw-2">&amp;</span><a href="#298">record</a>.ty() == <a href="#340-359"><span class="self">Self</span>::any_array_ty</a>() =&gt; {
+                    <a href="#525-604"><span class="self">Self</span>::with_array_view_from_wasm_record</a>(<a href="#298">record</a>, |array| {
+                        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#271">with_result</a>(<a href="#299">array</a>)<span class="question-mark">?</span>))
                     })
                 }
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <a href="wit.rs.html#30-63">guest_error_from_wasm</a>(<a href="#221">err</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>()).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map">map</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <a href="wit.rs.html#33-66">guest_error_from_wasm</a>(<a href="#303">err</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>()).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map">map</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>),
                 result =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a href="https://docs.rs/anyhow/1.0.95/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                     <span class="string">"unexpected process result value {result:?}"
                 </span>)))),
@@ -796,7 +960,7 @@
         <span class="attr">#[expect(clippy::expect_used)]
         </span><span class="comment">// FIXME: use OnceLock::get_or_try_init,
         //        blocked on https://github.com/rust-lang/rust/issues/109737
-        </span><a href="#233">ANY_ARRAY_DATA_TY</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| {
+        </span><a href="#315">ANY_ARRAY_DATA_TY</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| {
             VariantType::new(
                 <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
                 [
@@ -822,13 +986,13 @@
         <span class="attr">#[expect(clippy::expect_used)]
         </span><span class="comment">// FIXME: use OnceLock::get_or_try_init,
         //        blocked on https://github.com/rust-lang/rust/issues/109737
-        </span><a href="#259">ANY_ARRAY_TY</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| {
+        </span><a href="#341">ANY_ARRAY_TY</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| {
             RecordType::new(
                 <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
                 [
                     (
                         <span class="string">"data"</span>,
-                        ValueType::Variant(<a href="#232-256"><span class="self">Self</span>::any_array_data_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>()),
+                        ValueType::Variant(<a href="#314-338"><span class="self">Self</span>::any_array_data_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>()),
                     ),
                     (<span class="string">"shape"</span>, ValueType::List(ListType::new(ValueType::U32))),
                 ],
@@ -838,7 +1002,7 @@
     }
 
     <span class="attr">#[expect(clippy::needless_pass_by_value)]
-    </span><span class="kw">fn </span>array_into_wasm(array: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;Record, <a href="error.rs.html#5">RuntimeError</a>&gt; {
+    </span><span class="kw">fn </span>array_into_wasm(array: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;Record, <a href="error.rs.html#6">RuntimeError</a>&gt; {
         <span class="kw">fn </span>list_from_standard_layout&lt;<span class="lifetime">'a</span>, T: <span class="lifetime">'static </span>+ <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
             array: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
         ) -&gt; List
@@ -846,65 +1010,65 @@
             </span>List: <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html">From</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]&gt; + <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html">From</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;[T]&gt;&gt;,
         {
             <span class="attr">#[expect(clippy::option_if_let_else)]
-            </span><span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(slice) = <a href="#282">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">List::from</a>(<a href="#288">slice</a>)
+            </span><span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(slice) = <a href="#364">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_slice">as_slice</a>() {
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">List::from</a>(<a href="#370">slice</a>)
             } <span class="kw">else </span>{
-                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">List::from</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Arc::from</a>(<a href="#282">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;T&gt;&gt;()))
+                <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">List::from</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Arc::from</a>(<a href="#364">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;T&gt;&gt;()))
             }
         }
 
-        <span class="kw">let </span>any_array_data_ty = <a href="#232-256"><span class="self">Self</span>::any_array_data_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>();
+        <span class="kw">let </span>any_array_data_ty = <a href="#314-338"><span class="self">Self</span>::any_array_data_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>();
 
-        <span class="kw">let </span>data = <span class="kw">match </span><span class="kw-2">&amp;</span><a href="#280">array</a> {
+        <span class="kw">let </span>data = <span class="kw">match </span><span class="kw-2">&amp;</span><a href="#362">array</a> {
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">0</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#298">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#380">array</a>))),
             ),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArrayView::U16</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">1</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#303">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#385">array</a>))),
             ),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArrayView::U32</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">2</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#308">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#390">array</a>))),
             ),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArrayView::U64</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">3</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#313">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#395">array</a>))),
             ),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyArrayView::I8</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">4</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#318">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#400">array</a>))),
             ),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArrayView::I16</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">5</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#323">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#405">array</a>))),
             ),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArrayView::I32</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">6</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#328">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#410">array</a>))),
             ),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArrayView::I64</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">7</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#333">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#415">array</a>))),
             ),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArrayView::F32</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">8</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#338">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#420">array</a>))),
             ),
             <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArrayView::F64</a>(array) =&gt; Variant::new(
-                <a href="#295">any_array_data_ty</a>,
+                <a href="#377">any_array_data_ty</a>,
                 <span class="number">9</span>,
-                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#281-293">list_from_standard_layout</a>(<a href="#343">array</a>))),
+                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(<a href="#363-375">list_from_standard_layout</a>(<a href="#425">array</a>))),
             ),
             array =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/anyhow/1.0.95/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"unknown array dtype type {}"</span>,
@@ -912,19 +1076,19 @@
             ))),
         }<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>shape = <a href="#280">array</a>
+        <span class="kw">let </span>shape = <a href="#362">array</a>
             .<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>()
             .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
-            .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|s| <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#tymethod.try_from">u32::try_from</a>(<span class="kw-2">*</span><a href="#357">s</a>))
+            .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|s| <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#tymethod.try_from">u32::try_from</a>(<span class="kw-2">*</span><a href="#439">s</a>))
             .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>;
-        <span class="kw">let </span>shape = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">List::from</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Arc::from</a>(<a href="#354">shape</a>));
+        <span class="kw">let </span>shape = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">List::from</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Arc::from</a>(<a href="#436">shape</a>));
 
         Record::new(
-            <a href="#258-277"><span class="self">Self</span>::any_array_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+            <a href="#340-359"><span class="self">Self</span>::any_array_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
             [
-                (<span class="string">"data"</span>, Value::Variant(<a href="#297">data</a>)),
-                (<span class="string">"shape"</span>, Value::List(<a href="#360">shape</a>)),
+                (<span class="string">"data"</span>, Value::Variant(<a href="#379">data</a>)),
+                (<span class="string">"shape"</span>, Value::List(<a href="#442">shape</a>)),
             ],
         )
         .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(RuntimeError::from)
@@ -936,7 +1100,7 @@
         <span class="attr">#[expect(clippy::expect_used)]
         </span><span class="comment">// FIXME: use OnceLock::get_or_try_init,
         //        blocked on https://github.com/rust-lang/rust/issues/109737
-        </span><a href="#373">ANY_ARRAY_DTYPE_TY</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| {
+        </span><a href="#455">ANY_ARRAY_DTYPE_TY</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| {
             EnumType::new(
                 <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
                 [
@@ -953,11 +1117,11 @@
         <span class="attr">#[expect(clippy::expect_used)]
         </span><span class="comment">// FIXME: use OnceLock::get_or_try_init,
         //        blocked on https://github.com/rust-lang/rust/issues/109737
-        </span><a href="#390">ANY_ARRAY_PROTOTYPE_TY</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| {
+        </span><a href="#472">ANY_ARRAY_PROTOTYPE_TY</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| {
             RecordType::new(
                 <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
                 [
-                    (<span class="string">"dtype"</span>, ValueType::Enum(<a href="#372-387"><span class="self">Self</span>::any_array_dtype_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>())),
+                    (<span class="string">"dtype"</span>, ValueType::Enum(<a href="#454-469"><span class="self">Self</span>::any_array_dtype_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>())),
                     (<span class="string">"shape"</span>, ValueType::List(ListType::new(ValueType::U32))),
                 ],
             )
@@ -968,49 +1132,49 @@
     <span class="kw">fn </span>array_prototype_into_wasm(
         dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
         shape: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>],
-    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;Record, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-        <span class="kw">let </span>any_array_dtype_ty = <a href="#372-387"><span class="self">Self</span>::any_array_dtype_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>();
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;Record, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+        <span class="kw">let </span>any_array_dtype_ty = <a href="#454-469"><span class="self">Self</span>::any_array_dtype_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>();
 
-        <span class="kw">let </span>dtype = <span class="kw">match </span><a href="#408">dtype</a> {
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.U8">AnyArrayDType::U8</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">0</span>),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.U16">AnyArrayDType::U16</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">1</span>),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.U32">AnyArrayDType::U32</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">2</span>),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.U64">AnyArrayDType::U64</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">3</span>),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I8">AnyArrayDType::I8</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">4</span>),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I16">AnyArrayDType::I16</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">5</span>),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I32">AnyArrayDType::I32</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">6</span>),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">7</span>),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F32">AnyArrayDType::F32</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">8</span>),
-            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F64">AnyArrayDType::F64</a> =&gt; Enum::new(<a href="#411">any_array_dtype_ty</a>, <span class="number">9</span>),
+        <span class="kw">let </span>dtype = <span class="kw">match </span><a href="#490">dtype</a> {
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.U8">AnyArrayDType::U8</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">0</span>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.U16">AnyArrayDType::U16</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">1</span>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.U32">AnyArrayDType::U32</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">2</span>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.U64">AnyArrayDType::U64</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">3</span>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I8">AnyArrayDType::I8</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">4</span>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I16">AnyArrayDType::I16</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">5</span>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I32">AnyArrayDType::I32</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">6</span>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.I64">AnyArrayDType::I64</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">7</span>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F32">AnyArrayDType::F32</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">8</span>),
+            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#variant.F64">AnyArrayDType::F64</a> =&gt; Enum::new(<a href="#493">any_array_dtype_ty</a>, <span class="number">9</span>),
             dtype =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/anyhow/1.0.95/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"unknown array dtype type {dtype}"
             </span>))),
         }<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>shape = <a href="#409">shape</a>
+        <span class="kw">let </span>shape = <a href="#491">shape</a>
             .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
-            .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|s| <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#tymethod.try_from">u32::try_from</a>(<span class="kw-2">*</span><a href="#431">s</a>))
+            .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|s| <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#tymethod.try_from">u32::try_from</a>(<span class="kw-2">*</span><a href="#513">s</a>))
             .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>;
-        <span class="kw">let </span>shape = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">List::from</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Arc::from</a>(<a href="#429">shape</a>));
+        <span class="kw">let </span>shape = <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">List::from</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Arc::from</a>(<a href="#511">shape</a>));
 
         Record::new(
-            <a href="#389-405"><span class="self">Self</span>::any_array_prototype_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-            [(<span class="string">"dtype"</span>, Value::Enum(<a href="#413">dtype</a>)), (<span class="string">"shape"</span>, Value::List(<a href="#434">shape</a>))],
+            <a href="#471-487"><span class="self">Self</span>::any_array_prototype_ty</a>().<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+            [(<span class="string">"dtype"</span>, Value::Enum(<a href="#495">dtype</a>)), (<span class="string">"shape"</span>, Value::List(<a href="#516">shape</a>))],
         )
         .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(RuntimeError::from)
     }
 
     <span class="kw">fn </span>with_array_view_from_wasm_record&lt;O&gt;(
         record: <span class="kw-2">&amp;</span>Record,
-        with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html">FnOnce</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>&lt;<span class="lifetime">'a</span>&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;O, <a href="error.rs.html#5">RuntimeError</a>&gt;,
-    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;O, <a href="error.rs.html#5">RuntimeError</a>&gt; {
-        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(shape)) = <a href="#444">record</a>.field(<span class="string">"shape"</span>) <span class="kw">else </span>{
+        with: <span class="kw">impl for</span>&lt;<span class="lifetime">'a</span>&gt; <a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html">FnOnce</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>&lt;<span class="lifetime">'a</span>&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;O, <a href="error.rs.html#6">RuntimeError</a>&gt;,
+    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;O, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(shape)) = <a href="#526">record</a>.field(<span class="string">"shape"</span>) <span class="kw">else </span>{
             <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a href="https://docs.rs/anyhow/1.0.95/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"process result record {record:?} is missing shape field"
             </span>))));
         };
-        <span class="kw">let </span>shape = <a href="#447">shape</a>
+        <span class="kw">let </span>shape = <a href="#529">shape</a>
             .typed::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;()<span class="question-mark">?
             </span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
             .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>()
@@ -1018,57 +1182,57 @@
             .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>::&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::Variant(data)) = <a href="#444">record</a>.field(<span class="string">"data"</span>) <span class="kw">else </span>{
+        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::Variant(data)) = <a href="#526">record</a>.field(<span class="string">"data"</span>) <span class="kw">else </span>{
             <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a href="https://docs.rs/anyhow/1.0.95/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"process result record {record:?} is missing data field"
             </span>))));
         };
-        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(values)) = <a href="#460">data</a>.value() <span class="kw">else </span>{
+        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::List(values)) = <a href="#542">data</a>.value() <span class="kw">else </span>{
             <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a href="https://docs.rs/anyhow/1.0.95/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
                 <span class="string">"process result buffer has an invalid variant type {:?}"</span>,
                 data.value().map(|v| v.ty())
             ))));
         };
 
-        <span class="kw">let </span>array = <span class="kw">match </span><a href="#460">data</a>.discriminant() {
+        <span class="kw">let </span>array = <span class="kw">match </span><a href="#542">data</a>.discriminant() {
             <span class="number">0 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             <span class="number">1 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArrayView::U16</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             <span class="number">2 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArrayView::U32</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             <span class="number">3 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArrayView::U64</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             <span class="number">4 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I8">AnyArrayView::I8</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             <span class="number">5 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArrayView::I16</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             <span class="number">6 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArrayView::I32</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             <span class="number">7 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArrayView::I64</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             <span class="number">8 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArrayView::F32</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             <span class="number">9 </span>=&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArrayView::F64</a>(
-                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#452">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#465">values</a>.typed()<span class="question-mark">?</span>)
+                <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#534">shape</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.as_slice">as_slice</a>(), <a href="#547">values</a>.typed()<span class="question-mark">?</span>)
                     .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>,
             ),
             discriminant =&gt; {
@@ -1079,7 +1243,7 @@
             }
         };
 
-        <a href="#445">with</a>(<a href="#472">array</a>)
+        <a href="#527">with</a>(<a href="#554">array</a>)
     }
 }
 </code></pre></div></section></main></body></html>

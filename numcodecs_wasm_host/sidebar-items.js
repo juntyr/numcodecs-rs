@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["GuestError","NumcodecsWitInterfaces","RuntimeError","WasmCodec","WasmCodecComponent"]};
+window.SIDEBAR_ITEMS = {"struct":["CodecError","NumcodecsWitInterfaces","RuntimeError","WasmCodec","WasmCodecComponent"]};
