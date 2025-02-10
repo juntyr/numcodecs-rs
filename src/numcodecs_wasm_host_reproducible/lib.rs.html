@@ -50,18 +50,56 @@
 <a href="#11" id="11">11</a>
 <a href="#12" id="12">12</a>
 <a href="#13" id="13">13</a>
-<a href="#14" id="14">14</a></pre></div><pre class="rust"><code><span class="attr">#![allow(missing_docs)] </span><span class="comment">// FIXME
-</span><span class="attr">#![allow(clippy::missing_errors_doc)] </span><span class="comment">// FIXME
+<a href="#14" id="14">14</a>
+<a href="#15" id="15">15</a>
+<a href="#16" id="16">16</a>
+<a href="#17" id="17">17</a>
+<a href="#18" id="18">18</a>
+<a href="#19" id="19">19</a>
+<a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
+<a href="#22" id="22">22</a>
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a></pre></div><pre class="rust"><code><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+//!
+//! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
+//! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
+//!
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
+//! [repo]: https://github.com/juntyr/numcodecs-rs
+//!
+//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-wasm-host-reproducible
+//! [crates.io]: https://crates.io/crates/numcodecs-wasm-host-reproducible
+//!
+//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-wasm-host-reproducible
+//! [docs.rs]: https://docs.rs/numcodecs-wasm-host-reproducible/
+//!
+//! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_wasm_host_reproducible
+//!
+//! Import a [`numcodecs`]-API-compatible [`DynCodec`][numcodecs::DynCodec]
+//! from a WASM component inside a reproducible and fully sandboxed WebAssembly
+//! runtime.
+
 </span><span class="attr">#![allow(clippy::multiple_crate_versions)] </span><span class="comment">// FIXME
 
 </span><span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>log;
 
-<span class="kw">mod </span><a href="codec.rs.html#1-428">codec</a>;
-<span class="kw">mod </span><a href="engine.rs.html#1-687">engine</a>;
+<span class="kw">mod </span><a href="codec.rs.html#1-486">codec</a>;
+<span class="kw">mod </span><a href="engine.rs.html#1-695">engine</a>;
 <span class="kw">mod </span><a href="logging.rs.html#1-86">logging</a>;
 <span class="kw">mod </span><a href="stdio.rs.html#1-129">stdio</a>;
 <span class="kw">mod </span><a href="transform/mod.rs.html#1-453">transform</a>;
 
-<span class="kw">pub use </span>codec::{<a href="codec.rs.html#32-41">ReproducibleWasmCodec</a>, <a href="codec.rs.html#17-30">ReproducibleWasmCodecError</a>, <a href="codec.rs.html#240-259">ReproducibleWasmCodecType</a>};
+<span class="kw">pub use </span>codec::{<a href="codec.rs.html#49-58">ReproducibleWasmCodec</a>, <a href="codec.rs.html#19-42">ReproducibleWasmCodecError</a>, <a href="codec.rs.html#287-310">ReproducibleWasmCodecType</a>};
 </code></pre></div></section></main></body></html>
