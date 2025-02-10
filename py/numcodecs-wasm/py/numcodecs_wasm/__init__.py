@@ -38,6 +38,9 @@ class WasmCodecMeta(type):
         Bytes of the WebAssembly component, from which the class is created.
     """
 
+    def __init__(self, clsname, bases, attrs, wasm: bytes):
+        pass
+
     def __new__(cls, clsname, bases, attrs, wasm: bytes):
         assert len(bases) == 0
         assert sorted(attrs.keys()) == ["__module__", "__qualname__"]
