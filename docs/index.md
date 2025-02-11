@@ -4,7 +4,7 @@
 [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 
 [PyPi Release]: https://img.shields.io/pypi/v/numcodecs-wasm.svg
-[pypi]: https://pypi.python.org/pypi/numcodecs-wasmx
+[pypi]: https://pypi.python.org/pypi/numcodecs-wasm
 
 # numcodecs-wasm
 

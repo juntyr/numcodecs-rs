@@ -1,4 +1,4 @@
-[![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![PyPi Release]][pypi] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+[![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![PyPi Release]][pypi] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs] [![Read the Docs]][rtdocs]
 
 [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -17,6 +17,9 @@
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_round
+
+[Read the Docs]: https://img.shields.io/readthedocs/numcodecs-wasm?label=readthedocs
+[rtdocs]: https://numcodecs-wasm.readthedocs.io/en/stable/api/numcodecs_wasm_round/
 
 # numcodecs-round
 
