@@ -346,12 +346,6 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
         // NO-CORE: components must have been translated into core WASM
         //          modules by now
         component_model_nested_names: false,
-        // NO-CORE: components must have been translated into core WASM
-        //          modules by now
-        component_model_more_flags: false,
-        // NO-CORE: components must have been translated into core WASM
-        //          modules by now
-        component_model_multiple_returns: false,
         // (unsure): disabled for now, needs further research
         legacy_exceptions: false,
         // (unsure): disabled for now, depends on reference types and gc,

@@ -238,7 +238,7 @@ impl InstructionCounterInjecterReencoder {
     }
 
     #[expect(clippy::too_many_lines)]
-    const fn instruction_needs_counter_update(instr: &wasmparser::Operator) -> Option<bool> {
+    fn instruction_needs_counter_update(instr: &wasmparser::Operator) -> Option<bool> {
         #[expect(clippy::match_same_arms)]
         match instr {
             // === MVP ===
@@ -935,7 +935,16 @@ impl InstructionCounterInjecterReencoder {
             | wasmparser::Operator::I64MulWideS
             | wasmparser::Operator::I64MulWideU => Some(false),
             // === FIXME ===
+            #[cfg(not(test))]
             _ => panic!("unsupported instruction"),
+            #[cfg(test)]
+            #[allow(unsafe_code)]
+            _ => {
+                extern "C" {
+                    fn instruction_counter_unhandled_operator() -> !;
+                }
+                unsafe { instruction_counter_unhandled_operator() }
+            }
         }
     }
 }

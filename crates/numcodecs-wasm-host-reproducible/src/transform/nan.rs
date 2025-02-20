@@ -278,7 +278,7 @@ impl NaNCanonicaliserReencoder {
     }
 
     #[expect(clippy::too_many_lines)]
-    const fn may_produce_non_deterministic_nan(
+    fn may_produce_non_deterministic_nan(
         instr: &wasmparser::Operator,
     ) -> Result<Option<MaybeNaNKind>, NonDeterministicWasmFeature> {
         #[expect(clippy::match_same_arms)]
@@ -997,7 +997,16 @@ impl NaNCanonicaliserReencoder {
             | wasmparser::Operator::I64MulWideS
             | wasmparser::Operator::I64MulWideU => Ok(None),
             // === FIXME ===
+            #[cfg(not(test))]
             _ => panic!("unsupported instruction"),
+            #[cfg(test)]
+            #[allow(unsafe_code)]
+            _ => {
+                extern "C" {
+                    fn nan_canonicaliser_unhandled_operator() -> !;
+                }
+                unsafe { nan_canonicaliser_unhandled_operator() }
+            }
         }
     }
 }

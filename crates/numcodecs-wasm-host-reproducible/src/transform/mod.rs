@@ -320,7 +320,7 @@ fn create_numcodecs_wasm_perf_component() -> Result<Vec<u8>, Error> {
                 name: String::from(instruction_counter),
                 kind: wit_parser::FunctionKind::Freestanding,
                 params: Vec::new(),
-                results: wit_parser::Results::Anon(wit_parser::Type::U64),
+                result: Some(wit_parser::Type::U64),
                 docs: wit_parser::Docs { contents: None },
                 stability: wit_parser::Stability::Unknown,
             },
