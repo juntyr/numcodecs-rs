@@ -17,7 +17,7 @@
 //!
 //! Zstandard codec implementation for the [`numcodecs`] API.
 
-#![cfg_attr(not(target_arch = "wasm32"), expect(clippy::multiple_crate_versions))] // embedded-io
+#![allow(clippy::multiple_crate_versions)] // embedded-io
 
 use std::{borrow::Cow, io};
 

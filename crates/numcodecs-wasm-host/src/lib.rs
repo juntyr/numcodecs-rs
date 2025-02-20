@@ -19,7 +19,7 @@
 //! import a codec from a WASM component.
 
 // postcard depends on embedded-io 0.4 and 0.6
-#![cfg_attr(not(target_arch = "wasm32"), expect(clippy::multiple_crate_versions))]
+#![allow(clippy::multiple_crate_versions)]
 
 mod codec;
 mod component;
