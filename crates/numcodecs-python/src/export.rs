@@ -90,7 +90,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
     Ok(codec_class)
 }
 
-#[allow(clippy::redundant_pub_crate)]
+#[expect(clippy::redundant_pub_crate)]
 #[pyclass(frozen, module = "numcodecs._rust", name = "_RustCodecType")]
 /// Rust-implemented codec type container.
 pub(crate) struct RustCodecType {
@@ -176,7 +176,7 @@ impl<T: DynCodecType> AnyCodecType for T {
     }
 }
 
-#[allow(clippy::redundant_pub_crate)]
+#[expect(clippy::redundant_pub_crate)]
 #[pyclass(subclass, frozen, module = "numcodecs._rust")]
 /// Rust-implemented codec abstract base class.
 ///

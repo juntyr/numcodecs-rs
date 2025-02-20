@@ -16,7 +16,7 @@ pub struct Block<B: Backend> {
 }
 
 impl<B: Backend> Block<B> {
-    #[allow(clippy::let_and_return)]
+    #[expect(clippy::let_and_return)]
     pub fn forward(&self, x: Tensor<B, 2, Float>) -> Tensor<B, 2, Float> {
         let x = self.bn2_1.forward(x);
         let x = self.gu2_2.forward(x);
@@ -51,7 +51,7 @@ pub struct Model<B: Backend> {
 }
 
 impl<B: Backend> Model<B> {
-    #[allow(clippy::let_and_return)]
+    #[expect(clippy::let_and_return)]
     pub fn forward(&self, x: Tensor<B, 2, Float>) -> Tensor<B, 2, Float> {
         let x = self.ln1.forward(x);
 
@@ -81,7 +81,7 @@ impl ModelConfig {
         Model {
             ln1: LinearConfig::new(self.fourier_features.get() * 2, self.fourier_features.get())
                 .init(device),
-            #[allow(clippy::useless_conversion)] // (1..num_blocks).into_iter()
+            #[expect(clippy::useless_conversion)] // (1..num_blocks).into_iter()
             bl2: (1..self.num_blocks.get())
                 .into_iter()
                 .map(|_| block.init(device))

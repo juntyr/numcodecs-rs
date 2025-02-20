@@ -307,7 +307,7 @@ pub fn project_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     Ok(projected)
 }
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Applies random projection to the input `data` and outputs into the
 /// `projected` array.
 ///
@@ -356,7 +356,7 @@ pub fn project_into<T: FloatExt, S: Data<Elem = T>>(
         for (data_i, projected_ij) in data.rows().into_iter().zip(projected_j) {
             let mut acc = T::ZERO;
 
-            #[allow(clippy::indexing_slicing)]
+            #[expect(clippy::indexing_slicing)]
             // data_i is of shape (d) and all l's are in 0..d
             for &(l, p) in &skip_projection_column {
                 acc += data_i[l] * p;
@@ -441,7 +441,7 @@ pub fn reconstruct_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimension>
     }
 }
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Applies the (approximate) inverse of random projection to the `projected`
 /// array to reconstruct the input data with dimensionality `d` and returns the
 /// resulting reconstructed array.
@@ -486,7 +486,7 @@ pub fn reconstruct<T: FloatExt, S: Data<Elem = T>>(
         for (projected_i, reconstructed_il) in projected.rows().into_iter().zip(reconstructed_l) {
             let mut acc = T::ZERO;
 
-            #[allow(clippy::indexing_slicing)]
+            #[expect(clippy::indexing_slicing)]
             // projected_i is of shape (k) and all j's are in 0..k
             for &(j, p) in &skip_projection_row {
                 acc += projected_i[j] * p;
@@ -591,7 +591,7 @@ pub fn reconstruct_into_with_projection<T: FloatExt, S: Data<Elem = T>, D: Dimen
     }
 }
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Applies the (approximate) inverse of random projection to the `projected`
 /// array to reconstruct the input data outputs into the `reconstructed` array.
 ///
@@ -640,7 +640,7 @@ pub fn reconstruct_into<T: FloatExt, S: Data<Elem = T>>(
         for (projected_i, reconstructed_il) in projected.rows().into_iter().zip(reconstructed_l) {
             let mut acc = T::ZERO;
 
-            #[allow(clippy::indexing_slicing)]
+            #[expect(clippy::indexing_slicing)]
             // projected_i is of shape (k) and all j's are in 0..k
             for &(j, p) in &skip_projection_row {
                 acc += projected_i[j] * p;
@@ -671,11 +671,11 @@ pub fn johnson_lindenstrauss_min_k(
     n_samples: usize,
     OpenClosedUnit(epsilon): OpenClosedUnit<f64>,
 ) -> usize {
-    #[allow(clippy::suboptimal_flops)]
+    #[expect(clippy::suboptimal_flops)]
     let denominator = (epsilon * epsilon * 0.5) - (epsilon * epsilon * epsilon / 3.0);
-    #[allow(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss)]
     let min_k = (n_samples as f64).ln() * 4.0 / denominator;
-    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     let min_k = min_k as usize;
     min_k
 }
@@ -760,12 +760,12 @@ const fn seahash_diffuse(mut x: u64) -> u64 {
     x
 }
 
-#[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
+#[expect(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 /// Floating point number in `$[0.0, 1.0)$`
 pub struct ClosedOpenUnit<T: FloatExt>(T);
 
-#[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
+#[expect(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 /// Floating point number in `$(0.0, 1.0]$`
 pub struct OpenClosedUnit<T: FloatExt>(T);
@@ -840,23 +840,23 @@ impl FloatExt for f32 {
     const HALF: Self = 0.5;
     const TWO: Self = 2.0;
 
-    #[allow(clippy::cast_possible_truncation)]
+    #[expect(clippy::cast_possible_truncation)]
     fn from_f64(x: f64) -> Self {
         x as Self
     }
 
-    #[allow(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss)]
     fn from_usize(n: usize) -> Self {
         n as Self
     }
 
-    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn into_usize(self) -> usize {
         self as usize
     }
 
     fn u01x2(hash: u64) -> (ClosedOpenUnit<Self>, OpenClosedUnit<Self>) {
-        #[allow(clippy::cast_possible_truncation)] // split u64 into (u32, u32)
+        #[expect(clippy::cast_possible_truncation)] // split u64 into (u32, u32)
         let (low, high) = (
             (hash & u64::from(u32::MAX)) as u32,
             ((hash >> 32) & u64::from(u32::MAX)) as u32,
@@ -864,12 +864,12 @@ impl FloatExt for f32 {
 
         // https://prng.di.unimi.it -> Generating uniform doubles in the unit interval [0.0, 1.0)
         // the hash is shifted to only cover the mantissa
-        #[allow(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss)]
         let u0 = ClosedOpenUnit(((high >> 8) as Self) * Self::from_bits(0x3380_0000_u32)); // 0x1.0p-24
 
         // https://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
         // the hash is shifted to only cover the mantissa
-        #[allow(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss)]
         let u1 = OpenClosedUnit((((low >> 8) + 1) as Self) * Self::from_bits(0x3380_0000_u32)); // 0x1.0p-24
 
         (u0, u1)
@@ -884,12 +884,12 @@ impl FloatExt for f64 {
         x
     }
 
-    #[allow(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss)]
     fn from_usize(n: usize) -> Self {
         n as Self
     }
 
-    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn into_usize(self) -> usize {
         self as usize
     }
@@ -897,7 +897,7 @@ impl FloatExt for f64 {
     fn u01x2(hash: u64) -> (ClosedOpenUnit<Self>, OpenClosedUnit<Self>) {
         // https://prng.di.unimi.it -> Generating uniform doubles in the unit interval [0.0, 1.0)
         // the hash is shifted to only cover the mantissa
-        #[allow(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss)]
         let u0 =
             ClosedOpenUnit(((hash >> 11) as Self) * Self::from_bits(0x3CA0_0000_0000_0000_u64)); // 0x1.0p-53
 
@@ -905,7 +905,7 @@ impl FloatExt for f64 {
 
         // https://prng.di.unimi.it -> Generating uniform doubles in the unit interval (0.0, 1.0]
         // the hash is shifted to only cover the mantissa
-        #[allow(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss)]
         let u1 = OpenClosedUnit(
             (((hash >> 11) + 1) as Self) * Self::from_bits(0x3CA0_0000_0000_0000_u64),
         ); // 0x1.0p-53
@@ -915,7 +915,7 @@ impl FloatExt for f64 {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[expect(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use ndarray_rand::rand_distr::{Distribution, Normal};
     use ndarray_rand::RandomExt;
@@ -986,7 +986,7 @@ mod tests {
         );
     }
 
-    #[allow(clippy::needless_pass_by_value)]
+    #[expect(clippy::needless_pass_by_value)]
     fn test_error_decline<T: FloatExt + std::fmt::Display>(
         shape: (usize, usize),
         distribution: impl Distribution<T>,
@@ -1030,7 +1030,7 @@ mod tests {
         .expect("projecting must not fail");
         let reconstructed = reconstruct_with_projection(projected, seed, projection)
             .expect("reconstruction must not fail");
-        #[allow(clippy::let_and_return)]
+        #[expect(clippy::let_and_return)]
         reconstructed
     }
 

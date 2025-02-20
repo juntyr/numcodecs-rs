@@ -1,4 +1,4 @@
-#![allow(missing_docs)]
+#![expect(missing_docs)]
 
 use ::{
     ndarray as _, postcard as _, schemars as _, serde as _, serde_json as _, sz3 as _,

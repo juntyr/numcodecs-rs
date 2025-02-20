@@ -1,4 +1,4 @@
-#![allow(unsafe_code)] // FFI
+#![expect(unsafe_code)] // FFI
 
 use std::{marker::PhantomData, mem::ManuallyDrop};
 
@@ -14,7 +14,7 @@ pub struct ZfpField<'a, T: ZfpCompressible> {
 }
 
 impl<'a, T: ZfpCompressible> ZfpField<'a, T> {
-    #[allow(clippy::needless_pass_by_value)]
+    #[expect(clippy::needless_pass_by_value)]
     pub fn new<D: Dimension>(data: ArrayView<'a, T, D>) -> Result<Self, ZfpCodecError> {
         let pointer: *mut std::ffi::c_void = data.as_ptr().cast::<std::ffi::c_void>().cast_mut();
 
@@ -80,7 +80,7 @@ impl<T: ZfpCompressible> ZfpCompressionStream<T> {
                 max_prec,
                 min_exp,
             } => {
-                #[allow(clippy::cast_possible_wrap)]
+                #[expect(clippy::cast_possible_wrap)]
                 const ZFP_TRUE: zfp_sys::zfp_bool = zfp_sys::zfp_true as zfp_sys::zfp_bool;
 
                 if unsafe {
@@ -110,7 +110,7 @@ impl<T: ZfpCompressible> ZfpCompressionStream<T> {
                     unsafe { zfp_sys::zfp_stream_set_accuracy(stream.stream, *tolerance) };
             }
             ZfpCompressionMode::Reversible => {
-                #[allow(clippy::let_unit_value)] // Enforce unit return type
+                #[expect(clippy::let_unit_value)] // Enforce unit return type
                 let () = unsafe { zfp_sys::zfp_stream_set_reversible(stream.stream) };
             }
         }

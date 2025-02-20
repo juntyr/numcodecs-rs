@@ -45,7 +45,7 @@ impl Codec for RoundCodec {
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation)]
             AnyCowArray::F32(data) => Ok(AnyArray::F32(round(
                 data,
                 Positive(self.precision.0 as f32),
@@ -90,7 +90,7 @@ impl StaticCodec for RoundCodec {
     }
 }
 
-#[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
+#[expect(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 /// Positive floating point number
 pub struct Positive<T: Float>(T);

@@ -164,7 +164,7 @@ pub fn exp<T: Float, S: Data<Elem = T>, D: Dimension>(
     Ok(data)
 }
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Compute `${e}^{x}$` over the elements of the input `data` array and write
 /// them into the `out`put array.
 ///

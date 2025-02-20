@@ -21,7 +21,7 @@ pub type AnyCowArray<'a> = AnyArrayBase<CowRepr<'a, ()>>;
 
 /// Numeric n-dimensional arrays with dynamic shapes.
 #[non_exhaustive]
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum AnyArrayBase<T: AnyRawData> {
     U8(ArrayBase<T::U8, IxDyn>),
     U16(ArrayBase<T::U16, IxDyn>),
@@ -120,7 +120,7 @@ impl<T: AnyRawData> AnyArrayBase<T> {
     /// Returns the `U`-typed array in `Some(_)` iff the dtype of `U` matches
     /// the dtype of this array. Returns `None` otherwise.
     pub const fn as_typed<U: ArrayDType>(&self) -> Option<&ArrayBase<U::RawData<T>, IxDyn>> {
-        #[allow(unsafe_code)]
+        #[expect(unsafe_code)]
         // Safety: the match ensures that a is of the required type,
         //         but cannot express that in the type system directly
         match (self, U::DTYPE) {
@@ -142,7 +142,7 @@ impl<T: AnyRawData> AnyArrayBase<T> {
     /// Returns the `U`-typed array in `Some(_)` iff the dtype of `U` matches
     /// the dtype of this array. Returns `None` otherwise.
     pub fn as_typed_mut<U: ArrayDType>(&mut self) -> Option<&mut ArrayBase<U::RawData<T>, IxDyn>> {
-        #[allow(unsafe_code)]
+        #[expect(unsafe_code)]
         // Safety: the match ensures that a is of the required type,
         //         but cannot express that in the type system directly
         match (self, U::DTYPE) {
@@ -236,9 +236,9 @@ where
     /// Otherwise, the data is cloned and put into standard order first.
     pub fn as_bytes(&self) -> Cow<[u8]> {
         fn array_into_bytes<T: Copy, S: Data<Elem = T>>(x: &ArrayBase<S, IxDyn>) -> Cow<[u8]> {
-            #[allow(clippy::option_if_let_else)]
+            #[expect(clippy::option_if_let_else)]
             if let Some(x) = x.as_slice() {
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 // Safety: casting to a byte slice is only safe since this
                 //         private helper function is only called for plain-
                 //         old-data types and the slice's length is adjusted
@@ -249,7 +249,7 @@ where
                 let x = x.into_iter().copied().collect::<Vec<T>>();
                 let mut x = ManuallyDrop::new(x);
                 let (ptr, len, capacity) = (x.as_mut_ptr(), x.len(), x.capacity());
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 // Safety: transmuting to a byte vec is only safe since this
                 //         private helper function is only called for plain-
                 //         old-data types and the vec's length and capacity
@@ -325,7 +325,7 @@ where
             with: impl FnOnce(&mut [u8]) -> O,
         ) -> O {
             if let Some(x) = x.as_slice_mut() {
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 // Safety: casting to a byte slice is only safe since this
                 //         private helper function is only called for plain-
                 //         old-data types and the slice's length is adjusted
@@ -338,7 +338,7 @@ where
             } else {
                 let mut x_vec: Vec<T> = x.into_iter().map(|x| *x).collect::<Vec<T>>();
 
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 // Safety: casting to a byte slice is only safe since this
                 //         private helper function is only called for plain-
                 //         old-data types and the slice's length is adjusted
@@ -403,7 +403,7 @@ where
             src: &ArrayBase<S1, D1>,
             dst: &mut ArrayBase<S2, D2>,
         ) -> Result<(), AnyArrayAssignError> {
-            #[allow(clippy::unit_arg)]
+            #[expect(clippy::unit_arg)]
             if src.shape() == dst.shape() {
                 Ok(dst.assign(src))
             } else {
@@ -463,7 +463,7 @@ impl AnyArray {
         with: impl FnOnce(&mut [u8]) -> T,
     ) -> (Self, T) {
         fn standard_array_as_bytes_mut<T: Copy>(x: &mut ArrayD<T>) -> &mut [u8] {
-            #[allow(unsafe_code)]
+            #[expect(unsafe_code)]
             // Safety: casting to a byte slice is only safe since this
             //         private helper function is only called for plain-
             //         old-data types, the slice's length is adjusted,
@@ -602,7 +602,7 @@ where
 }
 
 /// Array-representation support for all dtypes included in [`AnyArrayBase`].
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub trait AnyRawData {
     type U8: RawData<Elem = u8>;
     type U16: RawData<Elem = u16>;
@@ -656,7 +656,7 @@ impl<
     "f64", "float64"
 ]))]
 #[non_exhaustive]
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum AnyArrayDType {
     #[serde(rename = "u8", alias = "uint8")]
     U8,

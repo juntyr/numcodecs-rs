@@ -239,7 +239,6 @@ impl InstructionCounterInjecterReencoder {
 
     #[expect(clippy::too_many_lines)]
     fn instruction_needs_counter_update(instr: &wasmparser::Operator) -> Option<bool> {
-        #[expect(clippy::match_same_arms)]
         match instr {
             // === MVP ===
             // we cannot recover from an unreachable instruction, so instruction
@@ -936,9 +935,10 @@ impl InstructionCounterInjecterReencoder {
             | wasmparser::Operator::I64MulWideU => Some(false),
             // === FIXME ===
             #[cfg(not(test))]
+            #[expect(clippy::panic)]
             _ => panic!("unsupported instruction"),
             #[cfg(test)]
-            #[allow(unsafe_code)]
+            #[expect(unsafe_code)]
             _ => {
                 extern "C" {
                     fn instruction_counter_unhandled_operator() -> !;

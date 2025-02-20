@@ -1,4 +1,4 @@
-#![allow(missing_docs)]
+#![expect(missing_docs)]
 
 use ndarray::{Array1, ArrayView1};
 use numcodecs::{AnyArray, AnyArrayView, AnyCowArray, Codec, DynCodec, DynCodecType};
@@ -78,7 +78,7 @@ fn rust_api() -> Result<(), PyErr> {
     assert_eq!(codec.ty().codec_id(), "crc32");
 
     // clone the codec
-    #[allow(clippy::redundant_clone)]
+    #[expect(clippy::redundant_clone)]
     let codec = codec.clone();
 
     // create a codec using the type object

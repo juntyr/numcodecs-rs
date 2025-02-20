@@ -106,7 +106,7 @@ pub fn into_wit_error<T: Error>(err: T) -> wit::Error {
     error
 }
 
-#[allow(clippy::cast_possible_truncation)]
+#[expect(clippy::cast_possible_truncation)]
 #[must_use]
 fn usize_as_u32_slice(slice: &[usize]) -> Vec<u32> {
     slice.iter().map(|x| *x as u32).collect()

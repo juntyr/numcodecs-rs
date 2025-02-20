@@ -204,7 +204,7 @@ impl PyCodecAdapter {
     ) -> Result<T, PyErr> {
         let this = self.codec.bind(py).clone().into_any();
 
-        #[allow(unsafe_code)] // FIXME: we trust Python code to not store this array
+        #[expect(unsafe_code)] // FIXME: we trust Python code to not store this array
         let ndarray = unsafe {
             match &view {
                 AnyArrayBase::U8(v) => PyArray::borrow_from_array(v, this).into_any(),
@@ -245,7 +245,7 @@ impl PyCodecAdapter {
     ) -> Result<T, PyErr> {
         let this = self.codec.bind(py).clone().into_any();
 
-        #[allow(unsafe_code)] // FIXME: we trust Python code to not store this array
+        #[expect(unsafe_code)] // FIXME: we trust Python code to not store this array
         let ndarray = unsafe {
             match &view_mut {
                 AnyArrayBase::U8(v) => PyArray::borrow_from_array(v, this).into_any(),
@@ -320,7 +320,7 @@ impl PyCodecAdapter {
             src: &Bound<PyArray<T, D1>>,
             dst: &mut ArrayBase<S2, D2>,
         ) -> Result<(), PyErr> {
-            #[allow(clippy::unit_arg)]
+            #[expect(clippy::unit_arg)]
             if src.shape() == dst.shape() {
                 Ok(dst.assign(&src.try_readonly()?.as_array()))
             } else {
@@ -334,7 +334,6 @@ impl PyCodecAdapter {
 
         let ndarray = numpy_asarray(py, array_like)?;
 
-        #[allow(clippy::unit_arg)]
         if let Ok(d) = ndarray.downcast::<PyArrayDyn<u8>>() {
             if let AnyArrayBase::U8(ref mut view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
@@ -392,7 +391,7 @@ impl PyCodecAdapter {
 
 impl Clone for PyCodecAdapter {
     fn clone(&self) -> Self {
-        #[allow(clippy::expect_used)] // clone is *not* fallible
+        #[expect(clippy::expect_used)] // clone is *not* fallible
         Python::with_gil(|py| {
             self.try_clone(py)
                 .expect("cloning a PyCodec should not fail")

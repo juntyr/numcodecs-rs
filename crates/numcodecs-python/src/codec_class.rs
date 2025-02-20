@@ -64,7 +64,7 @@ impl<'py> PyCodecClassMethods<'py> for Bound<'py, PyCodecClass> {
     }
 
     fn as_type(&self) -> &Bound<'py, PyType> {
-        #[allow(unsafe_code)]
+        #[expect(unsafe_code)]
         // Safety: PyCodecClass is a wrapper around PyType
         unsafe {
             self.downcast_unchecked()
@@ -78,7 +78,7 @@ impl Sealed for Bound<'_, PyCodecClass> {}
 impl DerefToPyAny for PyCodecClass {}
 
 #[doc(hidden)]
-#[allow(unsafe_code)]
+#[expect(unsafe_code)]
 unsafe impl PyTypeInfo for PyCodecClass {
     const MODULE: Option<&'static str> = Some("numcodecs.abc");
     const NAME: &'static str = "Codec";

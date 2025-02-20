@@ -57,7 +57,7 @@ impl Codec for UniformNoiseCodec {
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation)]
             AnyCowArray::F32(data) => Ok(AnyArray::F32(add_uniform_noise(
                 data,
                 self.scale as f32,

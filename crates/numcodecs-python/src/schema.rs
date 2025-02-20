@@ -212,7 +212,6 @@ pub fn signature_from_schema(schema: &Schema) -> String {
     signature
 }
 
-#[allow(clippy::too_many_lines)] // FIXME
 fn parameters_from_schema(schema: &Schema) -> Parameters {
     // schema = true means that any parameters are allowed
     if schema.as_bool() == Some(true) {
@@ -288,7 +287,7 @@ fn extend_parameters_from_one_of_schema<'a>(
         for (generation, schema) in variants.iter().enumerate() {
             // if any variant allows additional parameters, the top-level also
             //  allows additional parameters
-            #[allow(clippy::unnested_or_patterns)]
+            #[expect(clippy::unnested_or_patterns)]
             if let Some(schema) = schema.as_object() {
                 *additional |= !matches!(
                     (
@@ -421,7 +420,7 @@ impl<'a> Parameter<'a> {
 struct VariantParameter<'a> {
     generation: usize,
     parameter: Parameter<'a>,
-    #[allow(clippy::type_complexity)]
+    #[expect(clippy::type_complexity)]
     tag_docs: Option<Vec<(&'a Value, Option<Cow<'a, str>>)>>,
 }
 
@@ -442,7 +441,6 @@ impl<'a> VariantParameter<'a> {
         let tag_docs = match r#const {
             // a tag parameter must be introduced in the first generation
             Some(r#const) if generation == 0 => {
-                #[allow(clippy::or_fun_call)]
                 let docs = parameter.docs.take().or(variant_docs);
                 Some(vec![(r#const, docs)])
             }
@@ -478,7 +476,6 @@ impl<'a> VariantParameter<'a> {
         if let Some(tag_docs) = &mut self.tag_docs {
             // we're building docs for a tag-like parameter
             if let Some(r#const) = r#const {
-                #[allow(clippy::or_fun_call)]
                 tag_docs.push((r#const, parameter.docs.or(variant_docs)));
             } else {
                 // mixing tag and non-tag parameter => no docs
@@ -585,7 +582,7 @@ value : ..., optional
         );
     }
 
-    #[allow(dead_code)]
+    #[expect(dead_code)]
     #[derive(JsonSchema)]
     #[schemars(deny_unknown_fields)]
     /// A codec that does something on encoding and decoding.
@@ -600,7 +597,7 @@ value : ..., optional
         config: Config,
     }
 
-    #[allow(dead_code)]
+    #[expect(dead_code)]
     #[derive(JsonSchema)]
     #[schemars(tag = "mode")]
     #[schemars(deny_unknown_fields)]

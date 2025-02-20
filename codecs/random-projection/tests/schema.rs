@@ -1,4 +1,4 @@
-#![allow(missing_docs)]
+#![expect(missing_docs)]
 
 use numcodecs::{DynCodecType, StaticCodecType};
 use numcodecs_random_projection::RandomProjectionCodec;

@@ -17,7 +17,7 @@
 //!
 //! Zstandard codec implementation for the [`numcodecs`] API.
 
-#![allow(clippy::multiple_crate_versions)] // embedded-io
+#![expect(clippy::multiple_crate_versions)] // embedded-io
 
 use std::{borrow::Cow, io};
 
@@ -203,7 +203,7 @@ pub struct ZstdHeaderError(postcard::Error);
 /// Opaque error for when encoding or decoding with Zstandard fails
 pub struct ZstdCodingError(io::Error);
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Compress the `array` using Zstandard with the provided `level`.
 ///
 /// # Errors
@@ -307,7 +307,7 @@ pub fn decompress_into(encoded: &[u8], mut decoded: AnyArrayViewMut) -> Result<(
 }
 
 fn decompress_into_bytes(mut encoded: &[u8], mut decoded: &mut [u8]) -> Result<(), ZstdCodecError> {
-    #[allow(clippy::needless_borrows_for_generic_args)]
+    #[expect(clippy::needless_borrows_for_generic_args)]
     // we want to check encoded and decoded for full consumption after the decoding
     zstd::stream::copy_decode(&mut encoded, &mut decoded).map_err(|err| {
         ZstdCodecError::ZstdDecodeFailed {

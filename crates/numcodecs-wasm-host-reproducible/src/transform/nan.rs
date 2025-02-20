@@ -281,7 +281,6 @@ impl NaNCanonicaliserReencoder {
     fn may_produce_non_deterministic_nan(
         instr: &wasmparser::Operator,
     ) -> Result<Option<MaybeNaNKind>, NonDeterministicWasmFeature> {
-        #[expect(clippy::match_same_arms)]
         match instr {
             // === MVP ===
             // non-float operation
@@ -998,9 +997,10 @@ impl NaNCanonicaliserReencoder {
             | wasmparser::Operator::I64MulWideU => Ok(None),
             // === FIXME ===
             #[cfg(not(test))]
+            #[expect(clippy::panic)]
             _ => panic!("unsupported instruction"),
             #[cfg(test)]
-            #[allow(unsafe_code)]
+            #[expect(unsafe_code)]
             _ => {
                 extern "C" {
                     fn nan_canonicaliser_unhandled_operator() -> !;

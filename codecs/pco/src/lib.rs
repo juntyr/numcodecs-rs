@@ -17,7 +17,7 @@
 //!
 //! Pcodec implementation for the [`numcodecs`] API.
 
-#![allow(clippy::multiple_crate_versions)] // embedded-io
+#![expect(clippy::multiple_crate_versions)] // embedded-io
 
 use std::{borrow::Cow, fmt, num::NonZeroUsize};
 
@@ -62,7 +62,7 @@ pub struct Pcodec {
 /// * Level 0 achieves only a small amount of compression.
 /// * Level 8 achieves very good compression.
 /// * Level 12 achieves marginally better compression than 8.
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum PcoCompressionLevel {
     Level0 = 0,
     Level1 = 1,
@@ -155,7 +155,7 @@ pub enum PcoDeltaSpec {
 /// Pco delta encoding order.
 ///
 /// The order ranges from 0 to 7 inclusive.
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum PcoDeltaEncodingOrder {
     Order0 = 0,
     Order1 = 1,
@@ -421,7 +421,7 @@ pub struct PcoHeaderError(postcard::Error);
 /// Opaque error for when encoding or decoding with pco fails
 pub struct PcoCodingError(pco::errors::PcoError);
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Compresses the input `data` array using pco with the given compression
 /// `level`, `mode`, `delta` encoding, and `paging` mode.
 ///
@@ -449,7 +449,7 @@ pub fn compress<T: PcoElement, S: Data<Elem = T>, D: Dimension>(
     })?;
 
     let data_owned;
-    #[allow(clippy::option_if_let_else)]
+    #[expect(clippy::option_if_let_else)]
     let data = if let Some(slice) = data.as_slice() {
         slice
     } else {
@@ -691,7 +691,7 @@ struct CompressionHeader<'a> {
 
 /// Dtypes that pco can compress and decompress
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum PcoDType {
     #[serde(rename = "u16", alias = "uint16")]
     U16,

@@ -54,7 +54,7 @@ impl ReinterpretCodec {
         encode_dtype: AnyArrayDType,
         decode_dtype: AnyArrayDType,
     ) -> Result<Self, ReinterpretCodecError> {
-        #[allow(clippy::match_same_arms)]
+        #[expect(clippy::match_same_arms)]
         match (decode_dtype, encode_dtype) {
             // performing no conversion always works
             (ty_a, ty_b) if ty_a == ty_b => (),
@@ -126,7 +126,7 @@ impl Codec for ReinterpretCodec {
                 if let Some(last) = shape.last_mut() {
                     *last *= data.dtype().size();
                 }
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 // Safety: the shape is extended to match the expansion into bytes
                 let encoded =
                     unsafe { Array::from_shape_vec_unchecked(shape, data.as_bytes().into_owned()) };
@@ -223,7 +223,6 @@ impl Codec for ReinterpretCodec {
         Ok(decoded)
     }
 
-    #[allow(clippy::too_many_lines)]
     fn decode_into(
         &self,
         encoded: AnyArrayView,
@@ -398,14 +397,14 @@ pub fn reinterpret_array<T: Copy, U, S: Data<Elem = T>, D: Dimension>(
 
     let data = data.into_iter().map(reinterpret).collect();
 
-    #[allow(unsafe_code)]
+    #[expect(unsafe_code)]
     // Safety: we have preserved the shape, which comes from a valid array
     let array = unsafe { Array::from_shape_vec_unchecked(shape, data) };
 
     array
 }
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Reinterpret the data elements of the `encoded` array using the provided
 /// `reinterpret` closure into the `decoded` array.
 ///

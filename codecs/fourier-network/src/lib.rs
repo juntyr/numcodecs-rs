@@ -17,7 +17,7 @@
 //!
 //! Fourier feature neural network codec implementation for the [`numcodecs`] API.
 
-#![allow(clippy::multiple_crate_versions)]
+#![expect(clippy::multiple_crate_versions)]
 
 use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 
@@ -183,7 +183,7 @@ impl StaticCodec for FourierNetworkCodec {
     }
 }
 
-#[allow(clippy::derive_partial_eq_without_eq)] // floats are not Eq
+#[expect(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 /// Positive floating point number
 pub struct Positive<T: FloatTrait>(T);
@@ -290,7 +290,7 @@ pub trait FloatExt:
 impl FloatExt for f32 {
     type Precision = FullPrecisionSettings;
 
-    #[allow(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss)]
     fn from_usize(x: usize) -> Self {
         x as Self
     }
@@ -299,15 +299,15 @@ impl FloatExt for f32 {
 impl FloatExt for f64 {
     type Precision = DoublePrecisionSettings;
 
-    #[allow(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss)]
     fn from_usize(x: usize) -> Self {
         x as Self
     }
 }
 
-#[allow(clippy::similar_names)] // train_xs and train_ys
-#[allow(clippy::missing_panics_doc)] // only panics on implementation bugs
-#[allow(clippy::too_many_arguments)] // FIXME
+#[expect(clippy::similar_names)] // train_xs and train_ys
+#[expect(clippy::missing_panics_doc)] // only panics on implementation bugs
+#[expect(clippy::too_many_arguments)] // FIXME
 /// Encodes the `data` by training a fourier feature neural network.
 ///
 /// The `fourier_features` are randomly sampled from a normal distribution with
@@ -362,7 +362,7 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<F
     let train_ys_shape = [data.len(), 1];
     let mut train_ys = data.into_owned();
     train_ys.mapv_inplace(|x| (x - mean) / stdv);
-    #[allow(clippy::unwrap_used)] // reshape with one extra new axis cannot fail
+    #[expect(clippy::unwrap_used)] // reshape with one extra new axis cannot fail
     let train_ys = train_ys
         .into_shape_clone((train_ys_shape, Order::RowMajor))
         .unwrap();
@@ -406,7 +406,7 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<F
     Ok(Array::from_vec(encoded))
 }
 
-#[allow(clippy::missing_panics_doc)] // only panics on implementation bugs
+#[expect(clippy::missing_panics_doc)] // only panics on implementation bugs
 /// Decodes the `encoded` data into the `decoded` output array by making a
 /// prediction using the fourier feature neural network.
 ///
@@ -466,10 +466,10 @@ pub fn decode_into<T: FloatExt, S: Data<Elem = u8>, D: Dimension, B: Backend<Flo
     let test_xs = fourier_mapping(test_xs, b_t);
 
     let prediction = model.forward(test_xs).into_data();
-    #[allow(clippy::unwrap_used)] // same generic type, check must succeed
+    #[expect(clippy::unwrap_used)] // same generic type, check must succeed
     let prediction = prediction.as_slice().unwrap();
 
-    #[allow(clippy::unwrap_used)] // prediction shape is flattened
+    #[expect(clippy::unwrap_used)] // prediction shape is flattened
     decoded.assign(&ArrayView::from_shape(decoded.shape(), prediction).unwrap());
     decoded.mapv_inplace(|x| (x * stdv) + mean);
 
@@ -485,7 +485,7 @@ fn flat_grid_like<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: Backend<Float
         .iter()
         .copied()
         .map(|s| {
-            #[allow(clippy::useless_conversion)] // (0..s).into_iter()
+            #[expect(clippy::useless_conversion)] // (0..s).into_iter()
             (0..s)
                 .into_iter()
                 .map(move |x| <T as FloatExt>::from_usize(x) / <T as FloatExt>::from_usize(s))
@@ -506,8 +506,8 @@ fn fourier_mapping<B: Backend>(
     Tensor::cat(vec![xs_proj.clone().sin(), xs_proj.cos()], 1)
 }
 
-#[allow(clippy::similar_names)] // train_xs and train_ys
-#[allow(clippy::too_many_arguments)] // FIXME
+#[expect(clippy::similar_names)] // train_xs and train_ys
+#[expect(clippy::too_many_arguments)] // FIXME
 fn train<T: FloatExt, B: AutodiffBackend<FloatElem = T>>(
     device: &B::Device,
     train_xs: &Tensor<B, 2, Float>,
@@ -530,7 +530,7 @@ fn train<T: FloatExt, B: AutodiffBackend<FloatElem = T>>(
     let mut best_model_checkpoint = model.clone().into_record().into_item::<T::Precision>();
 
     for epoch in 1..=num_epochs {
-        #[allow(clippy::option_if_let_else)]
+        #[expect(clippy::option_if_let_else)]
         let (train_xs_batches, train_ys_batches) = match num_batches {
             Some(num_batches) => {
                 let shuffle = Tensor::<B, 1, Float>::random(
@@ -599,7 +599,7 @@ fn train<T: FloatExt, B: AutodiffBackend<FloatElem = T>>(
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
+#[expect(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

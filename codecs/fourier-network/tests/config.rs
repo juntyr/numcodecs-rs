@@ -1,4 +1,4 @@
-#![allow(missing_docs)]
+#![expect(missing_docs)]
 
 use numcodecs::StaticCodec;
 use numcodecs_fourier_network::FourierNetworkCodec;

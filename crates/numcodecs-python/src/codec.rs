@@ -7,7 +7,7 @@ use pyo3::{
     PyTypeInfo,
 };
 
-#[allow(unused_imports)] // FIXME: use expect, only used in docs
+#[expect(unused_imports)] // FIXME: use expect, only used in docs
 use crate::PyCodecClassMethods;
 use crate::{sealed::Sealed, PyCodecClass};
 
@@ -103,7 +103,7 @@ impl<'py> PyCodecMethods<'py> for Bound<'py, PyCodec> {
             .extract()
     }
 
-    #[allow(clippy::expect_used)]
+    #[expect(clippy::expect_used)]
     fn class(&self) -> Bound<'py, PyCodecClass> {
         // extracting a codec guarantees that its class is a codec class
         self.as_any()
@@ -119,7 +119,7 @@ impl Sealed for Bound<'_, PyCodec> {}
 impl DerefToPyAny for PyCodec {}
 
 #[doc(hidden)]
-#[allow(unsafe_code)]
+#[expect(unsafe_code)]
 unsafe impl PyTypeInfo for PyCodec {
     const MODULE: Option<&'static str> = Some("numcodecs.abc");
     const NAME: &'static str = "Codec";
@@ -130,7 +130,7 @@ unsafe impl PyTypeInfo for PyCodec {
 
         let ty = CODEC_TYPE.import(py, "numcodecs.abc", "Codec");
 
-        #[allow(clippy::expect_used)]
+        #[expect(clippy::expect_used)]
         let ty = ty.expect("failed to access the `numpy.abc.Codec` type object");
 
         ty.as_type_ptr()

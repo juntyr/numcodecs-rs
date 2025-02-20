@@ -50,7 +50,7 @@ impl Codec for FixedOffsetScaleCodec {
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation)]
             AnyCowArray::F32(data) => Ok(AnyArray::F32(scale(
                 data,
                 self.offset as f32,
@@ -65,7 +65,7 @@ impl Codec for FixedOffsetScaleCodec {
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match encoded {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation)]
             AnyCowArray::F32(encoded) => Ok(AnyArray::F32(unscale(
                 encoded,
                 self.offset as f32,
@@ -86,7 +86,7 @@ impl Codec for FixedOffsetScaleCodec {
         decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
         match (encoded, decoded) {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation)]
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
                 unscale_into(encoded, decoded, self.offset as f32, self.scale as f32)
             }
@@ -163,7 +163,7 @@ pub fn unscale<T: Float, S: Data<Elem = T>, D: Dimension>(
     data
 }
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Compute `$(x \cdot s) + o$` over the elements of the input `data` array and
 /// write them into the `out`put array.
 ///

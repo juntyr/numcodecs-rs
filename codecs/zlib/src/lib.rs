@@ -17,7 +17,7 @@
 //!
 //! Zlib codec implementation for the [`numcodecs`] API.
 
-#![allow(clippy::multiple_crate_versions)] // embedded-io
+#![expect(clippy::multiple_crate_versions)] // embedded-io
 
 use std::borrow::Cow;
 
@@ -46,7 +46,7 @@ pub struct ZlibCodec {
 /// Zlib compression level.
 ///
 /// The level ranges from 0, no compression, to 9, best compression.
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum ZlibLevel {
     ZNoCompression = 0,
     ZBestSpeed = 1,
@@ -182,7 +182,7 @@ pub struct ZlibHeaderError(postcard::Error);
 /// Opaque error for when decoding with Zlib fails
 pub struct ZlibDecodeError(miniz_oxide::inflate::DecompressError);
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Compress the `array` using Zlib with the provided `level`.
 ///
 /// # Errors
@@ -221,7 +221,7 @@ pub fn compress(array: AnyArrayView, level: ZlibLevel) -> Result<Vec<u8>, ZlibCo
         let (Some(data_left), Some(encoded_left)) =
             (data.get(in_pos..), encoded.get_mut(out_pos..))
         else {
-            #[allow(clippy::panic)] // this would be a bug and cannot be user-caused
+            #[expect(clippy::panic)] // this would be a bug and cannot be user-caused
             {
                 panic!("Zlib encode bug: input or output is out of bounds")
             }
@@ -254,7 +254,7 @@ pub fn compress(array: AnyArrayView, level: ZlibLevel) -> Result<Vec<u8>, ZlibCo
 
                 return Ok(encoded);
             }
-            #[allow(clippy::panic)] // this would be a bug and cannot be user-caused
+            #[expect(clippy::panic)] // this would be a bug and cannot be user-caused
             err => panic!("Zlib encode bug: {err:?}"),
         }
     }

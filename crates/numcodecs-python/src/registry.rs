@@ -1,6 +1,6 @@
 use pyo3::{prelude::*, sync::GILOnceCell, types::PyDict};
 
-#[allow(unused_imports)] // FIXME: use expect, only used in docs
+#[expect(unused_imports)] // FIXME: use expect, only used in docs
 use crate::PyCodecClassMethods;
 use crate::{PyCodec, PyCodecClass};
 

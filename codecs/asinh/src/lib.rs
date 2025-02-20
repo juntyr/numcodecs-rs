@@ -54,7 +54,7 @@ impl Codec for AsinhCodec {
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation)]
             AnyCowArray::F32(data) => Ok(AnyArray::F32(asinh(data, self.linear_width as f32)?)),
             AnyCowArray::F64(data) => Ok(AnyArray::F64(asinh(data, self.linear_width)?)),
             encoded => Err(AsinhCodecError::UnsupportedDtype(encoded.dtype())),
@@ -63,7 +63,7 @@ impl Codec for AsinhCodec {
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match encoded {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation)]
             AnyCowArray::F32(encoded) => {
                 Ok(AnyArray::F32(sinh(encoded, self.linear_width as f32)?))
             }
@@ -78,7 +78,7 @@ impl Codec for AsinhCodec {
         decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
         match (encoded, decoded) {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation)]
             (AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) => {
                 sinh_into(encoded, decoded, self.linear_width as f32)
             }
@@ -175,7 +175,7 @@ pub fn sinh<T: Float, S: Data<Elem = T>, D: Dimension>(
     Ok(data)
 }
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Compute `$w \cdot \text{sinh}\left( \frac{x}{w} \right)$` over the
 /// elements of the input `data` array and write them into the `out`put array.
 ///

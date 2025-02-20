@@ -17,7 +17,7 @@
 //!
 //! Linear Quantization codec implementation for the [`numcodecs`] API.
 
-#![allow(clippy::multiple_crate_versions)] // FIXME: twofloat -> hexf -> syn 1.0
+#![expect(clippy::multiple_crate_versions)] // FIXME: twofloat -> hexf -> syn 1.0
 
 use std::{borrow::Cow, fmt};
 
@@ -49,7 +49,7 @@ pub struct LinearQuantizeCodec {
 /// Data types which the [`LinearQuantizeCodec`] can quantize
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[schemars(extend("enum" = ["f32", "float32", "f64", "float64"]))]
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum LinearQuantizeDType {
     #[serde(rename = "f32", alias = "float32")]
     F32,
@@ -74,7 +74,7 @@ impl fmt::Display for LinearQuantizeDType {
 #[derive(Copy, Clone, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
 #[repr(u8)]
 #[rustfmt::skip]
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum LinearQuantizeBins {
     _1B1 = 1, _1B2, _1B3, _1B4, _1B5, _1B6, _1B7, _1B8,
     _1B9, _1B10, _1B11, _1B12, _1B13, _1B14, _1B15, _1B16,
@@ -89,7 +89,7 @@ pub enum LinearQuantizeBins {
 impl Codec for LinearQuantizeCodec {
     type Error = LinearQuantizeCodecError;
 
-    #[allow(clippy::too_many_lines)]
+    #[expect(clippy::too_many_lines)]
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         let encoded = match (&data, self.dtype) {
             (AnyCowArray::F32(data), LinearQuantizeDType::F32) => match self.bits as u8 {
@@ -97,7 +97,7 @@ impl Codec for LinearQuantizeCodec {
                     Array1::from_vec(quantize(data, |x| {
                         let max = f32::from(u8::MAX >> (8 - bits));
                         let x = x.mul_add(scale_for_bits::<f32>(bits), 0.5).clamp(0.0, max);
-                        #[allow(unsafe_code)]
+                        #[expect(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
                             x.to_int_unchecked::<u8>()
@@ -109,7 +109,7 @@ impl Codec for LinearQuantizeCodec {
                     Array1::from_vec(quantize(data, |x| {
                         let max = f32::from(u16::MAX >> (16 - bits));
                         let x = x.mul_add(scale_for_bits::<f32>(bits), 0.5).clamp(0.0, max);
-                        #[allow(unsafe_code)]
+                        #[expect(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
                             x.to_int_unchecked::<u16>()
@@ -124,7 +124,7 @@ impl Codec for LinearQuantizeCodec {
                         let x = f64::from(x)
                             .mul_add(scale_for_bits::<f64>(bits), 0.5)
                             .clamp(0.0, max);
-                        #[allow(unsafe_code)]
+                        #[expect(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
                             x.to_int_unchecked::<u32>()
@@ -140,7 +140,7 @@ impl Codec for LinearQuantizeCodec {
                             + TwoFloat::from(0.5))
                         .max(TwoFloat::from(0.0))
                         .min(max);
-                        #[allow(unsafe_code)]
+                        #[expect(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
                             u64::try_from(x).unwrap_unchecked()
@@ -154,7 +154,7 @@ impl Codec for LinearQuantizeCodec {
                     Array1::from_vec(quantize(data, |x| {
                         let max = f64::from(u8::MAX >> (8 - bits));
                         let x = x.mul_add(scale_for_bits::<f64>(bits), 0.5).clamp(0.0, max);
-                        #[allow(unsafe_code)]
+                        #[expect(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
                             x.to_int_unchecked::<u8>()
@@ -166,7 +166,7 @@ impl Codec for LinearQuantizeCodec {
                     Array1::from_vec(quantize(data, |x| {
                         let max = f64::from(u16::MAX >> (16 - bits));
                         let x = x.mul_add(scale_for_bits::<f64>(bits), 0.5).clamp(0.0, max);
-                        #[allow(unsafe_code)]
+                        #[expect(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
                             x.to_int_unchecked::<u16>()
@@ -178,7 +178,7 @@ impl Codec for LinearQuantizeCodec {
                     Array1::from_vec(quantize(data, |x| {
                         let max = f64::from(u32::MAX >> (32 - bits));
                         let x = x.mul_add(scale_for_bits::<f64>(bits), 0.5).clamp(0.0, max);
-                        #[allow(unsafe_code)]
+                        #[expect(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
                             x.to_int_unchecked::<u32>()
@@ -194,7 +194,7 @@ impl Codec for LinearQuantizeCodec {
                             + TwoFloat::from(0.5))
                         .max(TwoFloat::from(0.0))
                         .min(max);
-                        #[allow(unsafe_code)]
+                        #[expect(unsafe_code)]
                         // Safety: x is clamped beforehand
                         unsafe {
                             u64::try_from(x).unwrap_unchecked()
@@ -215,7 +215,7 @@ impl Codec for LinearQuantizeCodec {
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
-        #[allow(clippy::option_if_let_else)]
+        #[expect(clippy::option_if_let_else)]
         fn as_standard_order<T: Copy, S: Data<Elem = T>, D: Dimension>(
             array: &ArrayBase<S, D>,
         ) -> Cow<[T]> {
@@ -247,7 +247,7 @@ impl Codec for LinearQuantizeCodec {
                 AnyArray::F32(reconstruct(&as_standard_order(encoded), |x| {
                     // we need to use f64 here to have sufficient precision
                     let x = f64::from(x) / scale_for_bits::<f64>(self.bits as u8);
-                    #[allow(clippy::cast_possible_truncation)]
+                    #[expect(clippy::cast_possible_truncation)]
                     let x = x as f32;
                     x
                 })?)
@@ -299,7 +299,7 @@ impl Codec for LinearQuantizeCodec {
         fn as_standard_order<T: Copy, S: Data<Elem = T>, D: Dimension>(
             array: &ArrayBase<S, D>,
         ) -> Cow<[T]> {
-            #[allow(clippy::option_if_let_else)]
+            #[expect(clippy::option_if_let_else)]
             if let Some(data) = array.as_slice() {
                 Cow::Borrowed(data)
             } else {
@@ -330,7 +330,7 @@ impl Codec for LinearQuantizeCodec {
                         reconstruct_into(&as_standard_order(encoded), decoded, |x| {
                             // we need to use f64 here to have sufficient precision
                             let x = f64::from(x) / scale_for_bits::<f64>(self.bits as u8);
-                            #[allow(clippy::cast_possible_truncation)]
+                            #[expect(clippy::cast_possible_truncation)]
                             let x = x as f32;
                             x
                         })
@@ -525,7 +525,7 @@ pub fn quantize<
     })?;
 
     let mut encoded: Vec<Q> = vec![Q::ZERO; header.len().div_ceil(std::mem::size_of::<Q>())];
-    #[allow(unsafe_code)]
+    #[expect(unsafe_code)]
     // Safety: encoded is at least header.len() bytes long and properly aligned for Q
     unsafe {
         std::ptr::copy_nonoverlapping(header.as_ptr(), encoded.as_mut_ptr().cast(), header.len());
@@ -556,7 +556,7 @@ pub fn reconstruct<T: Float + DeserializeOwned, Q: Unsigned>(
     encoded: &[Q],
     floatify: impl Fn(Q) -> T,
 ) -> Result<ArrayD<T>, LinearQuantizeCodecError> {
-    #[allow(unsafe_code)]
+    #[expect(unsafe_code)]
     // Safety: data is data.len()*size_of::<Q> bytes long and properly aligned for Q
     let (header, remaining) = postcard::take_from_bytes::<CompressionHeader<T>>(unsafe {
         std::slice::from_raw_parts(encoded.as_ptr().cast(), std::mem::size_of_val(encoded))
@@ -580,7 +580,6 @@ pub fn reconstruct<T: Float + DeserializeOwned, Q: Unsigned>(
     Ok(decoded)
 }
 
-#[allow(clippy::needless_pass_by_value)]
 /// Reconstruct the linear-quantized `encoded` array using the `floatify`
 /// closure into the `decoded` array.
 ///
@@ -596,7 +595,7 @@ pub fn reconstruct_into<T: Float + DeserializeOwned, Q: Unsigned>(
     mut decoded: ArrayViewMutD<T>,
     floatify: impl Fn(Q) -> T,
 ) -> Result<(), LinearQuantizeCodecError> {
-    #[allow(unsafe_code)]
+    #[expect(unsafe_code)]
     // Safety: data is data.len()*size_of::<Q> bytes long and properly aligned for Q
     let (header, remaining) = postcard::take_from_bytes::<CompressionHeader<T>>(unsafe {
         std::slice::from_raw_parts(encoded.as_ptr().cast(), std::mem::size_of_val(encoded))
@@ -671,7 +670,7 @@ mod tests {
         for bits in 1..=16 {
             let codec = LinearQuantizeCodec {
                 dtype: LinearQuantizeDType::F32,
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
             };
 
@@ -704,16 +703,16 @@ mod tests {
         for bits in 1..=64 {
             let codec = LinearQuantizeCodec {
                 dtype: LinearQuantizeDType::F32,
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
             };
 
-            #[allow(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss)]
             let mut data: Vec<f32> = (0..(u64::MAX >> (64 - bits)))
                 .step_by(1 << (bits.max(8) - 8))
                 .map(|x| x as f32)
                 .collect();
-            #[allow(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss)]
             data.push((u64::MAX >> (64 - bits)) as f32);
 
             let encoded = codec.encode(AnyCowArray::F32(CowArray::from(&data).into_dyn()))?;
@@ -739,7 +738,7 @@ mod tests {
         for bits in 1..=32 {
             let codec = LinearQuantizeCodec {
                 dtype: LinearQuantizeDType::F64,
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
             };
 
@@ -772,16 +771,16 @@ mod tests {
         for bits in 1..=64 {
             let codec = LinearQuantizeCodec {
                 dtype: LinearQuantizeDType::F64,
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
             };
 
-            #[allow(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss)]
             let mut data: Vec<f64> = (0..(u64::MAX >> (64 - bits)))
                 .step_by(1 << (bits.max(8) - 8))
                 .map(|x| x as f64)
                 .collect();
-            #[allow(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss)]
             data.push((u64::MAX >> (64 - bits)) as f64);
 
             let encoded = codec.encode(AnyCowArray::F64(CowArray::from(&data).into_dyn()))?;
@@ -809,7 +808,7 @@ mod tests {
 
             let codec = LinearQuantizeCodec {
                 dtype: LinearQuantizeDType::F64,
-                #[allow(unsafe_code)]
+                #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
             };
 

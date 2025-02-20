@@ -247,7 +247,7 @@ pub enum SwizzleReshapeCodecError {
     },
 }
 
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 /// Swizzle and reshape the input `data` array with the new `axes`.
 ///
 /// # Errors
@@ -272,7 +272,7 @@ pub fn swizzle_reshape<T: Copy, S: Data<Elem = T>>(
     let swizzled: ArrayBase<S, ndarray::Dim<ndarray::IxDynImpl>> = data.permuted_axes(permutation);
     assert_eq!(swizzled.shape(), swizzled_shape, "incorrect swizzled shape");
 
-    #[allow(clippy::expect_used)] // only panics on an implementation bug
+    #[expect(clippy::expect_used)] // only panics on an implementation bug
     let reshaped = swizzled
         .into_owned()
         .into_shape_clone(new_shape)
@@ -312,7 +312,7 @@ pub fn undo_swizzle_reshape<T: Copy, S: Data<Elem = T>>(
     let SwizzleReshapeAxes { permutation, .. } = validate_into_axes_shape(&encoded, axes)?;
 
     let mut inverse_permutation = vec![0; permutation.len()];
-    #[allow(clippy::indexing_slicing)] // all are guaranteed to be in range
+    #[expect(clippy::indexing_slicing)] // all are guaranteed to be in range
     for (i, p) in permutation.into_iter().enumerate() {
         inverse_permutation[p] = i;
     }
@@ -324,8 +324,8 @@ pub fn undo_swizzle_reshape<T: Copy, S: Data<Elem = T>>(
     Ok(unswizzled.into_owned())
 }
 
-#[allow(clippy::missing_panics_doc)]
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::missing_panics_doc)]
+#[expect(clippy::needless_pass_by_value)]
 /// Reverts the swizzle and reshape of the `encoded` array with the `axes` and
 /// outputs it into the `decoded` array.
 ///
@@ -362,12 +362,12 @@ pub fn undo_swizzle_reshape_into<T: Copy>(
     }
 
     let mut inverse_permutation = vec![0; decoded.ndim()];
-    #[allow(clippy::indexing_slicing)] // all are guaranteed to be in range
+    #[expect(clippy::indexing_slicing)] // all are guaranteed to be in range
     for (i, p) in permutation.into_iter().enumerate() {
         inverse_permutation[p] = i;
     }
 
-    #[allow(clippy::expect_used)] // only panics on an implementation bug
+    #[expect(clippy::expect_used)] // only panics on an implementation bug
     let unshaped = encoded
         .to_shape(swizzled_shape)
         .expect("new decoding shape should have the correct number of elements");
@@ -541,7 +541,7 @@ impl JsonSchema for Rest {
 }
 
 #[cfg(test)]
-#[allow(clippy::expect_used)]
+#[expect(clippy::expect_used)]
 mod tests {
     use ndarray::array;
 
@@ -789,7 +789,7 @@ mod tests {
         );
     }
 
-    #[allow(clippy::needless_pass_by_value)]
+    #[expect(clippy::needless_pass_by_value)]
     fn roundtrip(data: Array<i32, IxDyn>, axes: &[AxisGroup], swizzle_shape: &[usize]) {
         let swizzled = swizzle_reshape(data.view(), axes).expect("swizzle should not fail");
 

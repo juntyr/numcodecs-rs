@@ -17,7 +17,7 @@
 //!
 //! SZ3 codec implementation for the [`numcodecs`] API.
 
-#![allow(clippy::multiple_crate_versions)] // embedded-io
+#![expect(clippy::multiple_crate_versions)] // embedded-io
 
 use std::{borrow::Cow, fmt};
 
@@ -134,7 +134,7 @@ pub enum Sz3Predictor {
     LorenzoRegression,
 }
 
-#[allow(clippy::unnecessary_wraps)]
+#[expect(clippy::unnecessary_wraps)]
 const fn default_predictor() -> Option<Sz3Predictor> {
     Some(Sz3Predictor::CubicInterpolationLorenzo)
 }
@@ -151,7 +151,7 @@ pub enum Sz3Encoder {
     Arithmetic,
 }
 
-#[allow(clippy::unnecessary_wraps)]
+#[expect(clippy::unnecessary_wraps)]
 const fn default_encoder() -> Option<Sz3Encoder> {
     Some(Sz3Encoder::Huffman)
 }
@@ -165,7 +165,7 @@ pub enum Sz3LosslessCompressor {
     Zstd,
 }
 
-#[allow(clippy::unnecessary_wraps)]
+#[expect(clippy::unnecessary_wraps)]
 const fn default_lossless_compressor() -> Option<Sz3LosslessCompressor> {
     Some(Sz3LosslessCompressor::Zstd)
 }
@@ -335,7 +335,7 @@ pub struct Sz3HeaderError(postcard::Error);
 /// Opaque error for when encoding or decoding with SZ3 fails
 pub struct Sz3CodingError(sz3::SZ3Error);
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 /// Compresses the input `data` array using SZ3, which consists of an optional
 /// `predictor`, an `error_bound`, an optional `encoder`, and an optional
 /// `lossless` compressor.
@@ -369,7 +369,7 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
         return Ok(encoded_bytes);
     }
 
-    #[allow(clippy::option_if_let_else)]
+    #[expect(clippy::option_if_let_else)]
     let data_cow = if let Some(data) = data.as_slice() {
         Cow::Borrowed(data)
     } else {
@@ -564,7 +564,7 @@ struct CompressionHeader<'a> {
 
 /// Dtypes that SZ3 can compress and decompress
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum Sz3DType {
     #[serde(rename = "i32", alias = "int32")]
     I32,

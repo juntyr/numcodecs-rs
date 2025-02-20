@@ -229,7 +229,7 @@ impl Float for f64 {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
+#[expect(clippy::unwrap_used)]
 mod tests {
     use ndarray::{Array1, ArrayView1};
 
@@ -343,7 +343,7 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::cast_possible_truncation)]
+    #[expect(clippy::cast_possible_truncation)]
     fn full_mantissa() {
         fn full<T: Float>(x: T) -> T {
             T::from_binary(T::to_binary(x) + T::MANTISSA_MASK)
