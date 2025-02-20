@@ -110,7 +110,6 @@ impl<T: ZfpCompressible> ZfpCompressionStream<T> {
                     unsafe { zfp_sys::zfp_stream_set_accuracy(stream.stream, *tolerance) };
             }
             ZfpCompressionMode::Reversible => {
-                #[expect(clippy::let_unit_value)] // Enforce unit return type
                 let () = unsafe { zfp_sys::zfp_stream_set_reversible(stream.stream) };
             }
         }

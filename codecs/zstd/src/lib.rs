@@ -307,7 +307,6 @@ pub fn decompress_into(encoded: &[u8], mut decoded: AnyArrayViewMut) -> Result<(
 }
 
 fn decompress_into_bytes(mut encoded: &[u8], mut decoded: &mut [u8]) -> Result<(), ZstdCodecError> {
-    #[expect(clippy::needless_borrows_for_generic_args)]
     // we want to check encoded and decoded for full consumption after the decoding
     zstd::stream::copy_decode(&mut encoded, &mut decoded).map_err(|err| {
         ZstdCodecError::ZstdDecodeFailed {
