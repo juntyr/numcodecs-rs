@@ -38,7 +38,7 @@
 
 </head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_python/</div>registry.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>pyo3::{<a href="https://docs.rs/pyo3/0.23/pyo3/prelude/index.html">prelude</a>::<span class="kw-2">*</span>, <a href="https://docs.rs/pyo3/0.23/pyo3/sync/struct.GILOnceCell.html">sync::GILOnceCell</a>, <a href="https://docs.rs/pyo3/0.23/pyo3/types/dict/struct.PyDict.html">types::PyDict</a>};
 <a href=#2 id=2 data-nosnippet>2</a>
-<a href=#3 id=3 data-nosnippet>3</a><span class="attr">#[allow(unused_imports)] </span><span class="comment">// FIXME: use expect, only used in docs
+<a href=#3 id=3 data-nosnippet>3</a><span class="attr">#[expect(unused_imports)] </span><span class="comment">// FIXME: use expect, only used in docs
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="kw">use </span><a href="codec_class.rs.html#22-44"><span class="kw">crate</span>::PyCodecClassMethods</a>;
 <a href=#5 id=5 data-nosnippet>5</a><span class="kw">use crate</span>::{<a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>};
 <a href=#6 id=6 data-nosnippet>6</a>

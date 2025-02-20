@@ -285,7 +285,7 @@
 <a href=#247 id=247 data-nosnippet>247</a>    },
 <a href=#248 id=248 data-nosnippet>248</a>}
 <a href=#249 id=249 data-nosnippet>249</a>
-<a href=#250 id=250 data-nosnippet>250</a><span class="attr">#[allow(clippy::missing_panics_doc)]
+<a href=#250 id=250 data-nosnippet>250</a><span class="attr">#[expect(clippy::missing_panics_doc)]
 <a href=#251 id=251 data-nosnippet>251</a></span><span class="doccomment">/// Swizzle and reshape the input `data` array with the new `axes`.
 <a href=#252 id=252 data-nosnippet>252</a>///
 <a href=#253 id=253 data-nosnippet>253</a>/// # Errors
@@ -310,7 +310,7 @@
 <a href=#272 id=272 data-nosnippet>272</a>    <span class="kw">let </span>swizzled: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dim/struct.Dim.html">ndarray::Dim</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dynindeximpl/struct.IxDynImpl.html">ndarray::IxDynImpl</a>&gt;&gt; = <a href="#263">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.permuted_axes">permuted_axes</a>(<a href="#267">permutation</a>);
 <a href=#273 id=273 data-nosnippet>273</a>    <a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.assert_eq.html">assert_eq!</a>(swizzled.shape(), swizzled_shape, <span class="string">"incorrect swizzled shape"</span>);
 <a href=#274 id=274 data-nosnippet>274</a>
-<a href=#275 id=275 data-nosnippet>275</a>    <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// only panics on an implementation bug
+<a href=#275 id=275 data-nosnippet>275</a>    <span class="attr">#[expect(clippy::expect_used)] </span><span class="comment">// only panics on an implementation bug
 <a href=#276 id=276 data-nosnippet>276</a>    </span><span class="kw">let </span>reshaped = <a href="#272">swizzled</a>
 <a href=#277 id=277 data-nosnippet>277</a>        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>()
 <a href=#278 id=278 data-nosnippet>278</a>        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_shape_clone">into_shape_clone</a>(<a href="#269">new_shape</a>)
@@ -350,7 +350,7 @@
 <a href=#312 id=312 data-nosnippet>312</a>    <span class="kw">let </span><a href="#381-385">SwizzleReshapeAxes</a> { permutation, .. } = <a href="#387-493">validate_into_axes_shape</a>(<span class="kw-2">&amp;</span><a href="#302">encoded</a>, <a href="#303">axes</a>)<span class="question-mark">?</span>;
 <a href=#313 id=313 data-nosnippet>313</a>
 <a href=#314 id=314 data-nosnippet>314</a>    <span class="kw">let </span><span class="kw-2">mut </span>inverse_permutation = <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[<span class="number">0</span>; <a href="#312">permutation</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>()];
-<a href=#315 id=315 data-nosnippet>315</a>    <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// all are guaranteed to be in range
+<a href=#315 id=315 data-nosnippet>315</a>    <span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// all are guaranteed to be in range
 <a href=#316 id=316 data-nosnippet>316</a>    </span><span class="kw">for </span>(i, p) <span class="kw">in </span>permutation.into_iter().enumerate() {
 <a href=#317 id=317 data-nosnippet>317</a>        inverse_permutation[p] = i;
 <a href=#318 id=318 data-nosnippet>318</a>    }
@@ -362,8 +362,8 @@
 <a href=#324 id=324 data-nosnippet>324</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#322">unswizzled</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())
 <a href=#325 id=325 data-nosnippet>325</a>}
 <a href=#326 id=326 data-nosnippet>326</a>
-<a href=#327 id=327 data-nosnippet>327</a><span class="attr">#[allow(clippy::missing_panics_doc)]
-<a href=#328 id=328 data-nosnippet>328</a>#[allow(clippy::needless_pass_by_value)]
+<a href=#327 id=327 data-nosnippet>327</a><span class="attr">#[expect(clippy::missing_panics_doc)]
+<a href=#328 id=328 data-nosnippet>328</a>#[expect(clippy::needless_pass_by_value)]
 <a href=#329 id=329 data-nosnippet>329</a></span><span class="doccomment">/// Reverts the swizzle and reshape of the `encoded` array with the `axes` and
 <a href=#330 id=330 data-nosnippet>330</a>/// outputs it into the `decoded` array.
 <a href=#331 id=331 data-nosnippet>331</a>///
@@ -400,12 +400,12 @@
 <a href=#362 id=362 data-nosnippet>362</a>    }
 <a href=#363 id=363 data-nosnippet>363</a>
 <a href=#364 id=364 data-nosnippet>364</a>    <span class="kw">let </span><span class="kw-2">mut </span>inverse_permutation = <a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[<span class="number">0</span>; <a href="#346">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.ndim">ndim</a>()];
-<a href=#365 id=365 data-nosnippet>365</a>    <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// all are guaranteed to be in range
+<a href=#365 id=365 data-nosnippet>365</a>    <span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// all are guaranteed to be in range
 <a href=#366 id=366 data-nosnippet>366</a>    </span><span class="kw">for </span>(i, p) <span class="kw">in </span>permutation.into_iter().enumerate() {
 <a href=#367 id=367 data-nosnippet>367</a>        inverse_permutation[p] = i;
 <a href=#368 id=368 data-nosnippet>368</a>    }
 <a href=#369 id=369 data-nosnippet>369</a>
-<a href=#370 id=370 data-nosnippet>370</a>    <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// only panics on an implementation bug
+<a href=#370 id=370 data-nosnippet>370</a>    <span class="attr">#[expect(clippy::expect_used)] </span><span class="comment">// only panics on an implementation bug
 <a href=#371 id=371 data-nosnippet>371</a>    </span><span class="kw">let </span>unshaped = <a href="#345">encoded</a>
 <a href=#372 id=372 data-nosnippet>372</a>        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.to_shape">to_shape</a>(<a href="#351">swizzled_shape</a>)
 <a href=#373 id=373 data-nosnippet>373</a>        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.expect">expect</a>(<span class="string">"new decoding shape should have the correct number of elements"</span>);
@@ -579,7 +579,7 @@
 <a href=#541 id=541 data-nosnippet>541</a>}
 <a href=#542 id=542 data-nosnippet>542</a>
 <a href=#543 id=543 data-nosnippet>543</a><span class="attr">#[cfg(test)]
-<a href=#544 id=544 data-nosnippet>544</a>#[allow(clippy::expect_used)]
+<a href=#544 id=544 data-nosnippet>544</a>#[expect(clippy::expect_used)]
 <a href=#545 id=545 data-nosnippet>545</a></span><span class="kw">mod </span>tests {
 <a href=#546 id=546 data-nosnippet>546</a>    <span class="kw">use </span>ndarray::array;
 <a href=#547 id=547 data-nosnippet>547</a>
@@ -827,7 +827,7 @@
 <a href=#789 id=789 data-nosnippet>789</a>        );
 <a href=#790 id=790 data-nosnippet>790</a>    }
 <a href=#791 id=791 data-nosnippet>791</a>
-<a href=#792 id=792 data-nosnippet>792</a>    <span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#792 id=792 data-nosnippet>792</a>    <span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#793 id=793 data-nosnippet>793</a>    </span><span class="kw">fn </span>roundtrip(data: Array&lt;i32, IxDyn&gt;, axes: <span class="kw-2">&amp;</span>[AxisGroup], swizzle_shape: <span class="kw-2">&amp;</span>[usize]) {
 <a href=#794 id=794 data-nosnippet>794</a>        <span class="kw">let </span>swizzled = swizzle_reshape(data.view(), axes).expect(<span class="string">"swizzle should not fail"</span>);
 <a href=#795 id=795 data-nosnippet>795</a>

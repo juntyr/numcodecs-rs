@@ -345,7 +345,7 @@
 <a href=#307 id=307 data-nosnippet>307</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#281">projected</a>)
 <a href=#308 id=308 data-nosnippet>308</a>}
 <a href=#309 id=309 data-nosnippet>309</a>
-<a href=#310 id=310 data-nosnippet>310</a><span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#310 id=310 data-nosnippet>310</a><span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#311 id=311 data-nosnippet>311</a></span><span class="doccomment">/// Applies random projection to the input `data` and outputs into the
 <a href=#312 id=312 data-nosnippet>312</a>/// `projected` array.
 <a href=#313 id=313 data-nosnippet>313</a>///
@@ -394,7 +394,7 @@
 <a href=#356 id=356 data-nosnippet>356</a>        <span class="kw">for </span>(data_i, projected_ij) <span class="kw">in </span>data.rows().into_iter().zip(projected_j) {
 <a href=#357 id=357 data-nosnippet>357</a>            <span class="kw">let </span><span class="kw-2">mut </span>acc = T::ZERO;
 <a href=#358 id=358 data-nosnippet>358</a>
-<a href=#359 id=359 data-nosnippet>359</a>            <span class="attr">#[allow(clippy::indexing_slicing)]
+<a href=#359 id=359 data-nosnippet>359</a>            <span class="attr">#[expect(clippy::indexing_slicing)]
 <a href=#360 id=360 data-nosnippet>360</a>            </span><span class="comment">// data_i is of shape (d) and all l's are in 0..d
 <a href=#361 id=361 data-nosnippet>361</a>            </span><span class="kw">for </span><span class="kw-2">&amp;</span>(l, p) <span class="kw">in </span><span class="kw-2">&amp;</span>skip_projection_column {
 <a href=#362 id=362 data-nosnippet>362</a>                acc += data_i[l] * p;
@@ -479,7 +479,7 @@
 <a href=#441 id=441 data-nosnippet>441</a>    }
 <a href=#442 id=442 data-nosnippet>442</a>}
 <a href=#443 id=443 data-nosnippet>443</a>
-<a href=#444 id=444 data-nosnippet>444</a><span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#444 id=444 data-nosnippet>444</a><span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#445 id=445 data-nosnippet>445</a></span><span class="doccomment">/// Applies the (approximate) inverse of random projection to the `projected`
 <a href=#446 id=446 data-nosnippet>446</a>/// array to reconstruct the input data with dimensionality `d` and returns the
 <a href=#447 id=447 data-nosnippet>447</a>/// resulting reconstructed array.
@@ -524,7 +524,7 @@
 <a href=#486 id=486 data-nosnippet>486</a>        <span class="kw">for </span>(projected_i, reconstructed_il) <span class="kw">in </span>projected.rows().into_iter().zip(reconstructed_l) {
 <a href=#487 id=487 data-nosnippet>487</a>            <span class="kw">let </span><span class="kw-2">mut </span>acc = T::ZERO;
 <a href=#488 id=488 data-nosnippet>488</a>
-<a href=#489 id=489 data-nosnippet>489</a>            <span class="attr">#[allow(clippy::indexing_slicing)]
+<a href=#489 id=489 data-nosnippet>489</a>            <span class="attr">#[expect(clippy::indexing_slicing)]
 <a href=#490 id=490 data-nosnippet>490</a>            </span><span class="comment">// projected_i is of shape (k) and all j's are in 0..k
 <a href=#491 id=491 data-nosnippet>491</a>            </span><span class="kw">for </span><span class="kw-2">&amp;</span>(j, p) <span class="kw">in </span><span class="kw-2">&amp;</span>skip_projection_row {
 <a href=#492 id=492 data-nosnippet>492</a>                acc += projected_i[j] * p;
@@ -629,7 +629,7 @@
 <a href=#591 id=591 data-nosnippet>591</a>    }
 <a href=#592 id=592 data-nosnippet>592</a>}
 <a href=#593 id=593 data-nosnippet>593</a>
-<a href=#594 id=594 data-nosnippet>594</a><span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#594 id=594 data-nosnippet>594</a><span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#595 id=595 data-nosnippet>595</a></span><span class="doccomment">/// Applies the (approximate) inverse of random projection to the `projected`
 <a href=#596 id=596 data-nosnippet>596</a>/// array to reconstruct the input data outputs into the `reconstructed` array.
 <a href=#597 id=597 data-nosnippet>597</a>///
@@ -678,7 +678,7 @@
 <a href=#640 id=640 data-nosnippet>640</a>        <span class="kw">for </span>(projected_i, reconstructed_il) <span class="kw">in </span>projected.rows().into_iter().zip(reconstructed_l) {
 <a href=#641 id=641 data-nosnippet>641</a>            <span class="kw">let </span><span class="kw-2">mut </span>acc = T::ZERO;
 <a href=#642 id=642 data-nosnippet>642</a>
-<a href=#643 id=643 data-nosnippet>643</a>            <span class="attr">#[allow(clippy::indexing_slicing)]
+<a href=#643 id=643 data-nosnippet>643</a>            <span class="attr">#[expect(clippy::indexing_slicing)]
 <a href=#644 id=644 data-nosnippet>644</a>            </span><span class="comment">// projected_i is of shape (k) and all j's are in 0..k
 <a href=#645 id=645 data-nosnippet>645</a>            </span><span class="kw">for </span><span class="kw-2">&amp;</span>(j, p) <span class="kw">in </span><span class="kw-2">&amp;</span>skip_projection_row {
 <a href=#646 id=646 data-nosnippet>646</a>                acc += projected_i[j] * p;
@@ -709,11 +709,11 @@
 <a href=#671 id=671 data-nosnippet>671</a>    n_samples: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
 <a href=#672 id=672 data-nosnippet>672</a>    <a href="#771">OpenClosedUnit</a>(epsilon): <a href="#771">OpenClosedUnit</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;,
 <a href=#673 id=673 data-nosnippet>673</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
-<a href=#674 id=674 data-nosnippet>674</a>    <span class="attr">#[allow(clippy::suboptimal_flops)]
+<a href=#674 id=674 data-nosnippet>674</a>    <span class="attr">#[expect(clippy::suboptimal_flops)]
 <a href=#675 id=675 data-nosnippet>675</a>    </span><span class="kw">let </span>denominator = (<a href="#672">epsilon</a> * <a href="#672">epsilon</a> * <span class="number">0.5</span>) - (<a href="#672">epsilon</a> * <a href="#672">epsilon</a> * <a href="#672">epsilon</a> / <span class="number">3.0</span>);
-<a href=#676 id=676 data-nosnippet>676</a>    <span class="attr">#[allow(clippy::cast_precision_loss)]
+<a href=#676 id=676 data-nosnippet>676</a>    <span class="attr">#[expect(clippy::cast_precision_loss)]
 <a href=#677 id=677 data-nosnippet>677</a>    </span><span class="kw">let </span>min_k = (<a href="#671">n_samples</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>).<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.ln">ln</a>() * <span class="number">4.0 </span>/ <a href="#675">denominator</a>;
-<a href=#678 id=678 data-nosnippet>678</a>    <span class="attr">#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+<a href=#678 id=678 data-nosnippet>678</a>    <span class="attr">#[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 <a href=#679 id=679 data-nosnippet>679</a>    </span><span class="kw">let </span>min_k = <a href="#677">min_k</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
 <a href=#680 id=680 data-nosnippet>680</a>    <a href="#679">min_k</a>
 <a href=#681 id=681 data-nosnippet>681</a>}
@@ -798,12 +798,12 @@
 <a href=#760 id=760 data-nosnippet>760</a>    <a href="#741">x</a>
 <a href=#761 id=761 data-nosnippet>761</a>}
 <a href=#762 id=762 data-nosnippet>762</a>
-<a href=#763 id=763 data-nosnippet>763</a><span class="attr">#[allow(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
+<a href=#763 id=763 data-nosnippet>763</a><span class="attr">#[expect(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
 <a href=#764 id=764 data-nosnippet>764</a></span><span class="attr">#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 <a href=#765 id=765 data-nosnippet>765</a></span><span class="doccomment">/// Floating point number in `$[0.0, 1.0)$`
 <a href=#766 id=766 data-nosnippet>766</a></span><span class="kw">pub struct </span><a href="../../numcodecs_random_projection/struct.ClosedOpenUnit.html">ClosedOpenUnit</a>&lt;T: <a href="#813-837">FloatExt</a>&gt;(T);
 <a href=#767 id=767 data-nosnippet>767</a>
-<a href=#768 id=768 data-nosnippet>768</a><span class="attr">#[allow(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
+<a href=#768 id=768 data-nosnippet>768</a><span class="attr">#[expect(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
 <a href=#769 id=769 data-nosnippet>769</a></span><span class="attr">#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 <a href=#770 id=770 data-nosnippet>770</a></span><span class="doccomment">/// Floating point number in `$(0.0, 1.0]$`
 <a href=#771 id=771 data-nosnippet>771</a></span><span class="kw">pub struct </span><a href="../../numcodecs_random_projection/struct.OpenClosedUnit.html">OpenClosedUnit</a>&lt;T: <a href="#813-837">FloatExt</a>&gt;(T);
@@ -878,23 +878,23 @@
 <a href=#840 id=840 data-nosnippet>840</a>    <span class="kw">const </span>HALF: <span class="self">Self </span>= <span class="number">0.5</span>;
 <a href=#841 id=841 data-nosnippet>841</a>    <span class="kw">const </span>TWO: <span class="self">Self </span>= <span class="number">2.0</span>;
 <a href=#842 id=842 data-nosnippet>842</a>
-<a href=#843 id=843 data-nosnippet>843</a>    <span class="attr">#[allow(clippy::cast_possible_truncation)]
+<a href=#843 id=843 data-nosnippet>843</a>    <span class="attr">#[expect(clippy::cast_possible_truncation)]
 <a href=#844 id=844 data-nosnippet>844</a>    </span><span class="kw">fn </span>from_f64(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>) -&gt; <span class="self">Self </span>{
 <a href=#845 id=845 data-nosnippet>845</a>        <a href="#844">x</a> <span class="kw">as </span><span class="self">Self
 <a href=#846 id=846 data-nosnippet>846</a>    </span>}
 <a href=#847 id=847 data-nosnippet>847</a>
-<a href=#848 id=848 data-nosnippet>848</a>    <span class="attr">#[allow(clippy::cast_precision_loss)]
+<a href=#848 id=848 data-nosnippet>848</a>    <span class="attr">#[expect(clippy::cast_precision_loss)]
 <a href=#849 id=849 data-nosnippet>849</a>    </span><span class="kw">fn </span>from_usize(n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="self">Self </span>{
 <a href=#850 id=850 data-nosnippet>850</a>        <a href="#849">n</a> <span class="kw">as </span><span class="self">Self
 <a href=#851 id=851 data-nosnippet>851</a>    </span>}
 <a href=#852 id=852 data-nosnippet>852</a>
-<a href=#853 id=853 data-nosnippet>853</a>    <span class="attr">#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+<a href=#853 id=853 data-nosnippet>853</a>    <span class="attr">#[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 <a href=#854 id=854 data-nosnippet>854</a>    </span><span class="kw">fn </span>into_usize(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
 <a href=#855 id=855 data-nosnippet>855</a>        <span class="self"><a href="#854">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>
 <a href=#856 id=856 data-nosnippet>856</a>    }
 <a href=#857 id=857 data-nosnippet>857</a>
 <a href=#858 id=858 data-nosnippet>858</a>    <span class="kw">fn </span>u01x2(hash: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; (<a href="#766">ClosedOpenUnit</a>&lt;<span class="self">Self</span>&gt;, <a href="#771">OpenClosedUnit</a>&lt;<span class="self">Self</span>&gt;) {
-<a href=#859 id=859 data-nosnippet>859</a>        <span class="attr">#[allow(clippy::cast_possible_truncation)] </span><span class="comment">// split u64 into (u32, u32)
+<a href=#859 id=859 data-nosnippet>859</a>        <span class="attr">#[expect(clippy::cast_possible_truncation)] </span><span class="comment">// split u64 into (u32, u32)
 <a href=#860 id=860 data-nosnippet>860</a>        </span><span class="kw">let </span>(low, high) = (
 <a href=#861 id=861 data-nosnippet>861</a>            (<a href="#858">hash</a> &amp; <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u64::from</a>(u32::MAX)) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
 <a href=#862 id=862 data-nosnippet>862</a>            ((<a href="#858">hash</a> &gt;&gt; <span class="number">32</span>) &amp; <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">u64::from</a>(u32::MAX)) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
@@ -902,12 +902,12 @@
 <a href=#864 id=864 data-nosnippet>864</a>
 <a href=#865 id=865 data-nosnippet>865</a>        <span class="comment">// https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval [0.0, 1.0)
 <a href=#866 id=866 data-nosnippet>866</a>        // the hash is shifted to only cover the mantissa
-<a href=#867 id=867 data-nosnippet>867</a>        </span><span class="attr">#[allow(clippy::cast_precision_loss)]
+<a href=#867 id=867 data-nosnippet>867</a>        </span><span class="attr">#[expect(clippy::cast_precision_loss)]
 <a href=#868 id=868 data-nosnippet>868</a>        </span><span class="kw">let </span>u0 = <a href="#766">ClosedOpenUnit</a>(((<a href="#860">high</a> &gt;&gt; <span class="number">8</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3380_0000_u32</span>)); <span class="comment">// 0x1.0p-24
 <a href=#869 id=869 data-nosnippet>869</a>
 <a href=#870 id=870 data-nosnippet>870</a>        // https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval (0.0, 1.0]
 <a href=#871 id=871 data-nosnippet>871</a>        // the hash is shifted to only cover the mantissa
-<a href=#872 id=872 data-nosnippet>872</a>        </span><span class="attr">#[allow(clippy::cast_precision_loss)]
+<a href=#872 id=872 data-nosnippet>872</a>        </span><span class="attr">#[expect(clippy::cast_precision_loss)]
 <a href=#873 id=873 data-nosnippet>873</a>        </span><span class="kw">let </span>u1 = <a href="#771">OpenClosedUnit</a>((((<a href="#860">low</a> &gt;&gt; <span class="number">8</span>) + <span class="number">1</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3380_0000_u32</span>)); <span class="comment">// 0x1.0p-24
 <a href=#874 id=874 data-nosnippet>874</a>
 <a href=#875 id=875 data-nosnippet>875</a>        </span>(<a href="#868">u0</a>, <a href="#873">u1</a>)
@@ -922,12 +922,12 @@
 <a href=#884 id=884 data-nosnippet>884</a>        <a href="#883">x</a>
 <a href=#885 id=885 data-nosnippet>885</a>    }
 <a href=#886 id=886 data-nosnippet>886</a>
-<a href=#887 id=887 data-nosnippet>887</a>    <span class="attr">#[allow(clippy::cast_precision_loss)]
+<a href=#887 id=887 data-nosnippet>887</a>    <span class="attr">#[expect(clippy::cast_precision_loss)]
 <a href=#888 id=888 data-nosnippet>888</a>    </span><span class="kw">fn </span>from_usize(n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="self">Self </span>{
 <a href=#889 id=889 data-nosnippet>889</a>        <a href="#888">n</a> <span class="kw">as </span><span class="self">Self
 <a href=#890 id=890 data-nosnippet>890</a>    </span>}
 <a href=#891 id=891 data-nosnippet>891</a>
-<a href=#892 id=892 data-nosnippet>892</a>    <span class="attr">#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+<a href=#892 id=892 data-nosnippet>892</a>    <span class="attr">#[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 <a href=#893 id=893 data-nosnippet>893</a>    </span><span class="kw">fn </span>into_usize(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
 <a href=#894 id=894 data-nosnippet>894</a>        <span class="self"><a href="#893">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>
 <a href=#895 id=895 data-nosnippet>895</a>    }
@@ -935,7 +935,7 @@
 <a href=#897 id=897 data-nosnippet>897</a>    <span class="kw">fn </span>u01x2(hash: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; (<a href="#766">ClosedOpenUnit</a>&lt;<span class="self">Self</span>&gt;, <a href="#771">OpenClosedUnit</a>&lt;<span class="self">Self</span>&gt;) {
 <a href=#898 id=898 data-nosnippet>898</a>        <span class="comment">// https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval [0.0, 1.0)
 <a href=#899 id=899 data-nosnippet>899</a>        // the hash is shifted to only cover the mantissa
-<a href=#900 id=900 data-nosnippet>900</a>        </span><span class="attr">#[allow(clippy::cast_precision_loss)]
+<a href=#900 id=900 data-nosnippet>900</a>        </span><span class="attr">#[expect(clippy::cast_precision_loss)]
 <a href=#901 id=901 data-nosnippet>901</a>        </span><span class="kw">let </span>u0 =
 <a href=#902 id=902 data-nosnippet>902</a>            <a href="#766">ClosedOpenUnit</a>(((<a href="#897">hash</a> &gt;&gt; <span class="number">11</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3CA0_0000_0000_0000_u64</span>)); <span class="comment">// 0x1.0p-53
 <a href=#903 id=903 data-nosnippet>903</a>
@@ -943,7 +943,7 @@
 <a href=#905 id=905 data-nosnippet>905</a>
 <a href=#906 id=906 data-nosnippet>906</a>        <span class="comment">// https://prng.di.unimi.it -&gt; Generating uniform doubles in the unit interval (0.0, 1.0]
 <a href=#907 id=907 data-nosnippet>907</a>        // the hash is shifted to only cover the mantissa
-<a href=#908 id=908 data-nosnippet>908</a>        </span><span class="attr">#[allow(clippy::cast_precision_loss)]
+<a href=#908 id=908 data-nosnippet>908</a>        </span><span class="attr">#[expect(clippy::cast_precision_loss)]
 <a href=#909 id=909 data-nosnippet>909</a>        </span><span class="kw">let </span>u1 = <a href="#771">OpenClosedUnit</a>(
 <a href=#910 id=910 data-nosnippet>910</a>            (((<a href="#904">hash</a> &gt;&gt; <span class="number">11</span>) + <span class="number">1</span>) <span class="kw">as </span><span class="self">Self</span>) * <a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.from_bits"><span class="self">Self</span>::from_bits</a>(<span class="number">0x3CA0_0000_0000_0000_u64</span>),
 <a href=#911 id=911 data-nosnippet>911</a>        ); <span class="comment">// 0x1.0p-53
@@ -953,7 +953,7 @@
 <a href=#915 id=915 data-nosnippet>915</a>}
 <a href=#916 id=916 data-nosnippet>916</a>
 <a href=#917 id=917 data-nosnippet>917</a><span class="attr">#[cfg(test)]
-<a href=#918 id=918 data-nosnippet>918</a>#[allow(clippy::unwrap_used, clippy::expect_used)]
+<a href=#918 id=918 data-nosnippet>918</a>#[expect(clippy::unwrap_used, clippy::expect_used)]
 <a href=#919 id=919 data-nosnippet>919</a></span><span class="kw">mod </span>tests {
 <a href=#920 id=920 data-nosnippet>920</a>    <span class="kw">use </span>ndarray_rand::rand_distr::{Distribution, Normal};
 <a href=#921 id=921 data-nosnippet>921</a>    <span class="kw">use </span>ndarray_rand::RandomExt;
@@ -1024,7 +1024,7 @@
 <a href=#986 id=986 data-nosnippet>986</a>        );
 <a href=#987 id=987 data-nosnippet>987</a>    }
 <a href=#988 id=988 data-nosnippet>988</a>
-<a href=#989 id=989 data-nosnippet>989</a>    <span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#989 id=989 data-nosnippet>989</a>    <span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#990 id=990 data-nosnippet>990</a>    </span><span class="kw">fn </span>test_error_decline&lt;T: FloatExt + std::fmt::Display&gt;(
 <a href=#991 id=991 data-nosnippet>991</a>        shape: (usize, usize),
 <a href=#992 id=992 data-nosnippet>992</a>        distribution: <span class="kw">impl </span>Distribution&lt;T&gt;,
@@ -1068,7 +1068,7 @@
 <a href=#1030 id=1030 data-nosnippet>1030</a>        .expect(<span class="string">"projecting must not fail"</span>);
 <a href=#1031 id=1031 data-nosnippet>1031</a>        <span class="kw">let </span>reconstructed = reconstruct_with_projection(projected, seed, projection)
 <a href=#1032 id=1032 data-nosnippet>1032</a>            .expect(<span class="string">"reconstruction must not fail"</span>);
-<a href=#1033 id=1033 data-nosnippet>1033</a>        <span class="attr">#[allow(clippy::let_and_return)]
+<a href=#1033 id=1033 data-nosnippet>1033</a>        <span class="attr">#[expect(clippy::let_and_return)]
 <a href=#1034 id=1034 data-nosnippet>1034</a>        </span>reconstructed
 <a href=#1035 id=1035 data-nosnippet>1035</a>    }
 <a href=#1036 id=1036 data-nosnippet>1036</a>

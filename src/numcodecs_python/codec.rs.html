@@ -45,7 +45,7 @@
 <a href=#7 id=7 data-nosnippet>7</a>    <a href="https://docs.rs/pyo3/0.23/pyo3/type_object/trait.PyTypeInfo.html">PyTypeInfo</a>,
 <a href=#8 id=8 data-nosnippet>8</a>};
 <a href=#9 id=9 data-nosnippet>9</a>
-<a href=#10 id=10 data-nosnippet>10</a><span class="attr">#[allow(unused_imports)] </span><span class="comment">// FIXME: use expect, only used in docs
+<a href=#10 id=10 data-nosnippet>10</a><span class="attr">#[expect(unused_imports)] </span><span class="comment">// FIXME: use expect, only used in docs
 <a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">use </span><a href="codec_class.rs.html#22-44"><span class="kw">crate</span>::PyCodecClassMethods</a>;
 <a href=#12 id=12 data-nosnippet>12</a><span class="kw">use crate</span>::{<a href="lib.rs.html#41">sealed::Sealed</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>};
 <a href=#13 id=13 data-nosnippet>13</a>
@@ -141,7 +141,7 @@
 <a href=#103 id=103 data-nosnippet>103</a>            </span>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()
 <a href=#104 id=104 data-nosnippet>104</a>    }
 <a href=#105 id=105 data-nosnippet>105</a>
-<a href=#106 id=106 data-nosnippet>106</a>    <span class="attr">#[allow(clippy::expect_used)]
+<a href=#106 id=106 data-nosnippet>106</a>    <span class="attr">#[expect(clippy::expect_used)]
 <a href=#107 id=107 data-nosnippet>107</a>    </span><span class="kw">fn </span>class(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<span class="lifetime">'py</span>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt; {
 <a href=#108 id=108 data-nosnippet>108</a>        <span class="comment">// extracting a codec guarantees that its class is a codec class
 <a href=#109 id=109 data-nosnippet>109</a>        </span><a class="self" href="#107">self</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html#method.as_any">as_any</a>()
@@ -157,7 +157,7 @@
 <a href=#119 id=119 data-nosnippet>119</a></span><span class="kw">impl </span><a href="https://docs.rs/pyo3/0.23/pyo3/types/trait.DerefToPyAny.html">DerefToPyAny</a> <span class="kw">for </span><a href="#20-22">PyCodec</a> {}
 <a href=#120 id=120 data-nosnippet>120</a>
 <a href=#121 id=121 data-nosnippet>121</a><span class="attr">#[doc(hidden)]
-<a href=#122 id=122 data-nosnippet>122</a>#[allow(unsafe_code)]
+<a href=#122 id=122 data-nosnippet>122</a>#[expect(unsafe_code)]
 <a href=#123 id=123 data-nosnippet>123</a></span><span class="kw">unsafe impl </span><a href="https://docs.rs/pyo3/0.23/pyo3/type_object/trait.PyTypeInfo.html">PyTypeInfo</a> <span class="kw">for </span><a href="#20-22">PyCodec</a> {
 <a href=#124 id=124 data-nosnippet>124</a>    <span class="kw">const </span>MODULE: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<span class="string">"numcodecs.abc"</span>);
 <a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"Codec"</span>;
@@ -168,7 +168,7 @@
 <a href=#130 id=130 data-nosnippet>130</a>
 <a href=#131 id=131 data-nosnippet>131</a>        <span class="kw">let </span>ty = <a href="#129">CODEC_TYPE</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/sync/struct.GILOnceCell.html#method.import">import</a>(<a href="#128">py</a>, <span class="string">"numcodecs.abc"</span>, <span class="string">"Codec"</span>);
 <a href=#132 id=132 data-nosnippet>132</a>
-<a href=#133 id=133 data-nosnippet>133</a>        <span class="attr">#[allow(clippy::expect_used)]
+<a href=#133 id=133 data-nosnippet>133</a>        <span class="attr">#[expect(clippy::expect_used)]
 <a href=#134 id=134 data-nosnippet>134</a>        </span><span class="kw">let </span>ty = <a href="#131">ty</a>.<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.expect">expect</a>(<span class="string">"failed to access the `numpy.abc.Codec` type object"</span>);
 <a href=#135 id=135 data-nosnippet>135</a>
 <a href=#136 id=136 data-nosnippet>136</a>        <a href="#134">ty</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/typeobject/trait.PyTypeMethods.html#tymethod.as_type_ptr">as_type_ptr</a>()

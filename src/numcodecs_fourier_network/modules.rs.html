@@ -54,7 +54,7 @@
 <a href=#16 id=16 data-nosnippet>16</a>}
 <a href=#17 id=17 data-nosnippet>17</a>
 <a href=#18 id=18 data-nosnippet>18</a><span class="kw">impl</span>&lt;B: Backend&gt; <a href="#12-16">Block</a>&lt;B&gt; {
-<a href=#19 id=19 data-nosnippet>19</a>    <span class="attr">#[allow(clippy::let_and_return)]
+<a href=#19 id=19 data-nosnippet>19</a>    <span class="attr">#[expect(clippy::let_and_return)]
 <a href=#20 id=20 data-nosnippet>20</a>    </span><span class="kw">pub fn </span>forward(<span class="kw-2">&amp;</span><span class="self">self</span>, x: Tensor&lt;B, <span class="number">2</span>, Float&gt;) -&gt; Tensor&lt;B, <span class="number">2</span>, Float&gt; {
 <a href=#21 id=21 data-nosnippet>21</a>        <span class="kw">let </span>x = <a class="self" href="#20">self</a>.bn2_1.forward(<a href="#20">x</a>);
 <a href=#22 id=22 data-nosnippet>22</a>        <span class="kw">let </span>x = <a class="self" href="#20">self</a>.gu2_2.forward(<a href="#21">x</a>);
@@ -89,7 +89,7 @@
 <a href=#51 id=51 data-nosnippet>51</a>}
 <a href=#52 id=52 data-nosnippet>52</a>
 <a href=#53 id=53 data-nosnippet>53</a><span class="kw">impl</span>&lt;B: Backend&gt; <a href="#45-51">Model</a>&lt;B&gt; {
-<a href=#54 id=54 data-nosnippet>54</a>    <span class="attr">#[allow(clippy::let_and_return)]
+<a href=#54 id=54 data-nosnippet>54</a>    <span class="attr">#[expect(clippy::let_and_return)]
 <a href=#55 id=55 data-nosnippet>55</a>    </span><span class="kw">pub fn </span>forward(<span class="kw-2">&amp;</span><span class="self">self</span>, x: Tensor&lt;B, <span class="number">2</span>, Float&gt;) -&gt; Tensor&lt;B, <span class="number">2</span>, Float&gt; {
 <a href=#56 id=56 data-nosnippet>56</a>        <span class="kw">let </span>x = <a class="self" href="#55">self</a>.ln1.forward(<a href="#55">x</a>);
 <a href=#57 id=57 data-nosnippet>57</a>
@@ -119,7 +119,7 @@
 <a href=#81 id=81 data-nosnippet>81</a>        <a href="#45-51">Model</a> {
 <a href=#82 id=82 data-nosnippet>82</a>            ln1: LinearConfig::new(<a class="self" href="#78">self</a>.fourier_features.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>() * <span class="number">2</span>, <a class="self" href="#78">self</a>.fourier_features.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>())
 <a href=#83 id=83 data-nosnippet>83</a>                .init(<a href="#78">device</a>),
-<a href=#84 id=84 data-nosnippet>84</a>            <span class="attr">#[allow(clippy::useless_conversion)] </span><span class="comment">// (1..num_blocks).into_iter()
+<a href=#84 id=84 data-nosnippet>84</a>            <span class="attr">#[expect(clippy::useless_conversion)] </span><span class="comment">// (1..num_blocks).into_iter()
 <a href=#85 id=85 data-nosnippet>85</a>            </span>bl2: (<span class="number">1</span>..<a class="self" href="#78">self</a>.num_blocks.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>())
 <a href=#86 id=86 data-nosnippet>86</a>                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>()
 <a href=#87 id=87 data-nosnippet>87</a>                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|<span class="kw">_</span>| <a href="#79">block</a>.<a href="#34-41">init</a>(<a href="#78">device</a>))

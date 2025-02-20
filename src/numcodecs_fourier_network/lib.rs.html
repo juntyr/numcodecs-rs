@@ -55,7 +55,7 @@
 <a href=#17 id=17 data-nosnippet>17</a>//!
 <a href=#18 id=18 data-nosnippet>18</a>//! Fourier feature neural network codec implementation for the [`numcodecs`] API.
 <a href=#19 id=19 data-nosnippet>19</a>
-<a href=#20 id=20 data-nosnippet>20</a></span><span class="attr">#![allow(clippy::multiple_crate_versions)]
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="attr">#![expect(clippy::multiple_crate_versions)]
 <a href=#21 id=21 data-nosnippet>21</a>
 <a href=#22 id=22 data-nosnippet>22</a></span><span class="kw">use </span>std::{<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">borrow::Cow</a>, <a href="https://doc.rust-lang.org/nightly/core/num/nonzero/type.NonZeroUsize.html">num::NonZeroUsize</a>, <a href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.AddAssign.html">ops::AddAssign</a>};
 <a href=#23 id=23 data-nosnippet>23</a>
@@ -221,7 +221,7 @@
 <a href=#183 id=183 data-nosnippet>183</a>    }
 <a href=#184 id=184 data-nosnippet>184</a>}
 <a href=#185 id=185 data-nosnippet>185</a>
-<a href=#186 id=186 data-nosnippet>186</a><span class="attr">#[allow(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
+<a href=#186 id=186 data-nosnippet>186</a><span class="attr">#[expect(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
 <a href=#187 id=187 data-nosnippet>187</a></span><span class="attr">#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
 <a href=#188 id=188 data-nosnippet>188</a></span><span class="doccomment">/// Positive floating point number
 <a href=#189 id=189 data-nosnippet>189</a></span><span class="kw">pub struct </span><a href="../../numcodecs_fourier_network/struct.Positive.html">Positive</a>&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">FloatTrait</a>&gt;(T);
@@ -328,7 +328,7 @@
 <a href=#290 id=290 data-nosnippet>290</a><span class="kw">impl </span><a href="#280-288">FloatExt</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
 <a href=#291 id=291 data-nosnippet>291</a>    <span class="kw">type </span>Precision = FullPrecisionSettings;
 <a href=#292 id=292 data-nosnippet>292</a>
-<a href=#293 id=293 data-nosnippet>293</a>    <span class="attr">#[allow(clippy::cast_precision_loss)]
+<a href=#293 id=293 data-nosnippet>293</a>    <span class="attr">#[expect(clippy::cast_precision_loss)]
 <a href=#294 id=294 data-nosnippet>294</a>    </span><span class="kw">fn </span>from_usize(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="self">Self </span>{
 <a href=#295 id=295 data-nosnippet>295</a>        <a href="#294">x</a> <span class="kw">as </span><span class="self">Self
 <a href=#296 id=296 data-nosnippet>296</a>    </span>}
@@ -337,15 +337,15 @@
 <a href=#299 id=299 data-nosnippet>299</a><span class="kw">impl </span><a href="#280-288">FloatExt</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
 <a href=#300 id=300 data-nosnippet>300</a>    <span class="kw">type </span>Precision = DoublePrecisionSettings;
 <a href=#301 id=301 data-nosnippet>301</a>
-<a href=#302 id=302 data-nosnippet>302</a>    <span class="attr">#[allow(clippy::cast_precision_loss)]
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="attr">#[expect(clippy::cast_precision_loss)]
 <a href=#303 id=303 data-nosnippet>303</a>    </span><span class="kw">fn </span>from_usize(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="self">Self </span>{
 <a href=#304 id=304 data-nosnippet>304</a>        <a href="#303">x</a> <span class="kw">as </span><span class="self">Self
 <a href=#305 id=305 data-nosnippet>305</a>    </span>}
 <a href=#306 id=306 data-nosnippet>306</a>}
 <a href=#307 id=307 data-nosnippet>307</a>
-<a href=#308 id=308 data-nosnippet>308</a><span class="attr">#[allow(clippy::similar_names)] </span><span class="comment">// train_xs and train_ys
-<a href=#309 id=309 data-nosnippet>309</a></span><span class="attr">#[allow(clippy::missing_panics_doc)] </span><span class="comment">// only panics on implementation bugs
-<a href=#310 id=310 data-nosnippet>310</a></span><span class="attr">#[allow(clippy::too_many_arguments)] </span><span class="comment">// FIXME
+<a href=#308 id=308 data-nosnippet>308</a><span class="attr">#[expect(clippy::similar_names)] </span><span class="comment">// train_xs and train_ys
+<a href=#309 id=309 data-nosnippet>309</a></span><span class="attr">#[expect(clippy::missing_panics_doc)] </span><span class="comment">// only panics on implementation bugs
+<a href=#310 id=310 data-nosnippet>310</a></span><span class="attr">#[expect(clippy::too_many_arguments)] </span><span class="comment">// FIXME
 <a href=#311 id=311 data-nosnippet>311</a></span><span class="doccomment">/// Encodes the `data` by training a fourier feature neural network.
 <a href=#312 id=312 data-nosnippet>312</a>///
 <a href=#313 id=313 data-nosnippet>313</a>/// The `fourier_features` are randomly sampled from a normal distribution with
@@ -400,7 +400,7 @@
 <a href=#362 id=362 data-nosnippet>362</a>    <span class="kw">let </span>train_ys_shape = [<a href="#332">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>(), <span class="number">1</span>];
 <a href=#363 id=363 data-nosnippet>363</a>    <span class="kw">let </span><span class="kw-2">mut </span>train_ys = <a href="#332">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
 <a href=#364 id=364 data-nosnippet>364</a>    <a href="#363">train_ys</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(|x| (<a href="#364">x</a> - <a href="#341">mean</a>) / <a href="#345">stdv</a>);
-<a href=#365 id=365 data-nosnippet>365</a>    <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// reshape with one extra new axis cannot fail
+<a href=#365 id=365 data-nosnippet>365</a>    <span class="attr">#[expect(clippy::unwrap_used)] </span><span class="comment">// reshape with one extra new axis cannot fail
 <a href=#366 id=366 data-nosnippet>366</a>    </span><span class="kw">let </span>train_ys = <a href="#363">train_ys</a>
 <a href=#367 id=367 data-nosnippet>367</a>        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_shape_clone">into_shape_clone</a>((<a href="#362">train_ys_shape</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/order/enum.Order.html#variant.RowMajor">Order::RowMajor</a>))
 <a href=#368 id=368 data-nosnippet>368</a>        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>();
@@ -444,7 +444,7 @@
 <a href=#406 id=406 data-nosnippet>406</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_vec">Array::from_vec</a>(<a href="#402">encoded</a>))
 <a href=#407 id=407 data-nosnippet>407</a>}
 <a href=#408 id=408 data-nosnippet>408</a>
-<a href=#409 id=409 data-nosnippet>409</a><span class="attr">#[allow(clippy::missing_panics_doc)] </span><span class="comment">// only panics on implementation bugs
+<a href=#409 id=409 data-nosnippet>409</a><span class="attr">#[expect(clippy::missing_panics_doc)] </span><span class="comment">// only panics on implementation bugs
 <a href=#410 id=410 data-nosnippet>410</a></span><span class="doccomment">/// Decodes the `encoded` data into the `decoded` output array by making a
 <a href=#411 id=411 data-nosnippet>411</a>/// prediction using the fourier feature neural network.
 <a href=#412 id=412 data-nosnippet>412</a>///
@@ -504,10 +504,10 @@
 <a href=#466 id=466 data-nosnippet>466</a>    <span class="kw">let </span>test_xs = <a href="#500-507">fourier_mapping</a>(<a href="#465">test_xs</a>, <a href="#461">b_t</a>);
 <a href=#467 id=467 data-nosnippet>467</a>
 <a href=#468 id=468 data-nosnippet>468</a>    <span class="kw">let </span>prediction = <a href="#460">model</a>.<a href="modules.rs.html#55-68">forward</a>(<a href="#466">test_xs</a>).into_data();
-<a href=#469 id=469 data-nosnippet>469</a>    <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// same generic type, check must succeed
+<a href=#469 id=469 data-nosnippet>469</a>    <span class="attr">#[expect(clippy::unwrap_used)] </span><span class="comment">// same generic type, check must succeed
 <a href=#470 id=470 data-nosnippet>470</a>    </span><span class="kw">let </span>prediction = <a href="#468">prediction</a>.as_slice().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>();
 <a href=#471 id=471 data-nosnippet>471</a>
-<a href=#472 id=472 data-nosnippet>472</a>    <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// prediction shape is flattened
+<a href=#472 id=472 data-nosnippet>472</a>    <span class="attr">#[expect(clippy::unwrap_used)] </span><span class="comment">// prediction shape is flattened
 <a href=#473 id=473 data-nosnippet>473</a>    </span><a href="#426">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape">ArrayView::from_shape</a>(<a href="#426">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>(), <a href="#470">prediction</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>());
 <a href=#474 id=474 data-nosnippet>474</a>    <a href="#426">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.mapv_inplace">mapv_inplace</a>(|x| (<a href="#474">x</a> * <a href="#463">stdv</a>) + <a href="#462">mean</a>);
 <a href=#475 id=475 data-nosnippet>475</a>
@@ -523,7 +523,7 @@
 <a href=#485 id=485 data-nosnippet>485</a>        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
 <a href=#486 id=486 data-nosnippet>486</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>()
 <a href=#487 id=487 data-nosnippet>487</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(|s| {
-<a href=#488 id=488 data-nosnippet>488</a>            <span class="attr">#[allow(clippy::useless_conversion)] </span><span class="comment">// (0..s).into_iter()
+<a href=#488 id=488 data-nosnippet>488</a>            <span class="attr">#[expect(clippy::useless_conversion)] </span><span class="comment">// (0..s).into_iter()
 <a href=#489 id=489 data-nosnippet>489</a>            </span>(<span class="number">0</span>..<a href="#487">s</a>)
 <a href=#490 id=490 data-nosnippet>490</a>                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>()
 <a href=#491 id=491 data-nosnippet>491</a>                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(<span class="kw">move </span>|x| &lt;T <span class="kw">as </span>FloatExt&gt;::from_usize(<a href="#491">x</a>) / &lt;T <span class="kw">as </span>FloatExt&gt;::from_usize(<a href="#487">s</a>))
@@ -544,8 +544,8 @@
 <a href=#506 id=506 data-nosnippet>506</a>    Tensor::cat(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[xs_proj.clone().sin(), xs_proj.cos()], <span class="number">1</span>)
 <a href=#507 id=507 data-nosnippet>507</a>}
 <a href=#508 id=508 data-nosnippet>508</a>
-<a href=#509 id=509 data-nosnippet>509</a><span class="attr">#[allow(clippy::similar_names)] </span><span class="comment">// train_xs and train_ys
-<a href=#510 id=510 data-nosnippet>510</a></span><span class="attr">#[allow(clippy::too_many_arguments)] </span><span class="comment">// FIXME
+<a href=#509 id=509 data-nosnippet>509</a><span class="attr">#[expect(clippy::similar_names)] </span><span class="comment">// train_xs and train_ys
+<a href=#510 id=510 data-nosnippet>510</a></span><span class="attr">#[expect(clippy::too_many_arguments)] </span><span class="comment">// FIXME
 <a href=#511 id=511 data-nosnippet>511</a></span><span class="kw">fn </span>train&lt;T: <a href="#280-288">FloatExt</a>, B: AutodiffBackend&lt;FloatElem = T&gt;&gt;(
 <a href=#512 id=512 data-nosnippet>512</a>    device: <span class="kw-2">&amp;</span>B::Device,
 <a href=#513 id=513 data-nosnippet>513</a>    train_xs: <span class="kw-2">&amp;</span>Tensor&lt;B, <span class="number">2</span>, Float&gt;,
@@ -568,7 +568,7 @@
 <a href=#530 id=530 data-nosnippet>530</a>    <span class="kw">let </span><span class="kw-2">mut </span>best_model_checkpoint = <a href="#525">model</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>().into_record().into_item::&lt;T::Precision&gt;();
 <a href=#531 id=531 data-nosnippet>531</a>
 <a href=#532 id=532 data-nosnippet>532</a>    <span class="kw">for </span>epoch <span class="kw">in </span><span class="number">1</span>..=num_epochs {
-<a href=#533 id=533 data-nosnippet>533</a>        <span class="attr">#[allow(clippy::option_if_let_else)]
+<a href=#533 id=533 data-nosnippet>533</a>        <span class="attr">#[expect(clippy::option_if_let_else)]
 <a href=#534 id=534 data-nosnippet>534</a>        </span><span class="kw">let </span>(train_xs_batches, train_ys_batches) = <span class="kw">match </span>num_batches {
 <a href=#535 id=535 data-nosnippet>535</a>            <span class="prelude-val">Some</span>(num_batches) =&gt; {
 <a href=#536 id=536 data-nosnippet>536</a>                <span class="kw">let </span>shuffle = Tensor::&lt;B, <span class="number">1</span>, Float&gt;::random(
@@ -637,7 +637,7 @@
 <a href=#599 id=599 data-nosnippet>599</a>}
 <a href=#600 id=600 data-nosnippet>600</a>
 <a href=#601 id=601 data-nosnippet>601</a><span class="attr">#[cfg(test)]
-<a href=#602 id=602 data-nosnippet>602</a>#[allow(clippy::unwrap_used)]
+<a href=#602 id=602 data-nosnippet>602</a>#[expect(clippy::unwrap_used)]
 <a href=#603 id=603 data-nosnippet>603</a></span><span class="kw">mod </span>tests {
 <a href=#604 id=604 data-nosnippet>604</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#605 id=605 data-nosnippet>605</a>

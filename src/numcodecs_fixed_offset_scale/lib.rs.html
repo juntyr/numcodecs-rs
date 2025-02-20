@@ -88,7 +88,7 @@
 <a href=#50 id=50 data-nosnippet>50</a>
 <a href=#51 id=51 data-nosnippet>51</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
 <a href=#52 id=52 data-nosnippet>52</a>        <span class="kw">match </span><a href="#51">data</a> {
-<a href=#53 id=53 data-nosnippet>53</a>            <span class="attr">#[allow(clippy::cast_possible_truncation)]
+<a href=#53 id=53 data-nosnippet>53</a>            <span class="attr">#[expect(clippy::cast_possible_truncation)]
 <a href=#54 id=54 data-nosnippet>54</a>            </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#141-152">scale</a>(
 <a href=#55 id=55 data-nosnippet>55</a>                <a href="#54">data</a>,
 <a href=#56 id=56 data-nosnippet>56</a>                <a class="self" href="#51">self</a>.offset <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>,
@@ -103,7 +103,7 @@
 <a href=#65 id=65 data-nosnippet>65</a>
 <a href=#66 id=66 data-nosnippet>66</a>    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
 <a href=#67 id=67 data-nosnippet>67</a>        <span class="kw">match </span><a href="#66">encoded</a> {
-<a href=#68 id=68 data-nosnippet>68</a>            <span class="attr">#[allow(clippy::cast_possible_truncation)]
+<a href=#68 id=68 data-nosnippet>68</a>            <span class="attr">#[expect(clippy::cast_possible_truncation)]
 <a href=#69 id=69 data-nosnippet>69</a>            </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(encoded) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#155-164">unscale</a>(
 <a href=#70 id=70 data-nosnippet>70</a>                <a href="#69">encoded</a>,
 <a href=#71 id=71 data-nosnippet>71</a>                <a class="self" href="#66">self</a>.offset <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>,
@@ -124,7 +124,7 @@
 <a href=#86 id=86 data-nosnippet>86</a>        decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
 <a href=#87 id=87 data-nosnippet>87</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
 <a href=#88 id=88 data-nosnippet>88</a>        <span class="kw">match </span>(<a href="#85">encoded</a>, <a href="#86">decoded</a>) {
-<a href=#89 id=89 data-nosnippet>89</a>            <span class="attr">#[allow(clippy::cast_possible_truncation)]
+<a href=#89 id=89 data-nosnippet>89</a>            <span class="attr">#[expect(clippy::cast_possible_truncation)]
 <a href=#90 id=90 data-nosnippet>90</a>            </span>(AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
 <a href=#91 id=91 data-nosnippet>91</a>                <a href="#175-196">unscale_into</a>(<a href="#90">encoded</a>, <a href="#90">decoded</a>, <a class="self" href="#84">self</a>.offset <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a class="self" href="#84">self</a>.scale <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)
 <a href=#92 id=92 data-nosnippet>92</a>            }
@@ -201,7 +201,7 @@
 <a href=#163 id=163 data-nosnippet>163</a>    <a href="#160">data</a>
 <a href=#164 id=164 data-nosnippet>164</a>}
 <a href=#165 id=165 data-nosnippet>165</a>
-<a href=#166 id=166 data-nosnippet>166</a><span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#166 id=166 data-nosnippet>166</a><span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#167 id=167 data-nosnippet>167</a></span><span class="doccomment">/// Compute `$(x \cdot s) + o$` over the elements of the input `data` array and
 <a href=#168 id=168 data-nosnippet>168</a>/// write them into the `out`put array.
 <a href=#169 id=169 data-nosnippet>169</a>///

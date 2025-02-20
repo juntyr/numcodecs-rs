@@ -95,7 +95,7 @@
 <a href=#57 id=57 data-nosnippet>57</a>
 <a href=#58 id=58 data-nosnippet>58</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
 <a href=#59 id=59 data-nosnippet>59</a>        <span class="kw">match </span><a href="#58">data</a> {
-<a href=#60 id=60 data-nosnippet>60</a>            <span class="attr">#[allow(clippy::cast_possible_truncation)]
+<a href=#60 id=60 data-nosnippet>60</a>            <span class="attr">#[expect(clippy::cast_possible_truncation)]
 <a href=#61 id=61 data-nosnippet>61</a>            </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#131-161">add_uniform_noise</a>(
 <a href=#62 id=62 data-nosnippet>62</a>                <a href="#61">data</a>,
 <a href=#63 id=63 data-nosnippet>63</a>                <a class="self" href="#58">self</a>.scale <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>,

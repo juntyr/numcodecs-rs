@@ -55,7 +55,7 @@
 <a href=#17 id=17 data-nosnippet>17</a>//!
 <a href=#18 id=18 data-nosnippet>18</a>//! Zstandard codec implementation for the [`numcodecs`] API.
 <a href=#19 id=19 data-nosnippet>19</a>
-<a href=#20 id=20 data-nosnippet>20</a></span><span class="attr">#![allow(clippy::multiple_crate_versions)] </span><span class="comment">// embedded-io
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="attr">#![expect(clippy::multiple_crate_versions)] </span><span class="comment">// embedded-io
 <a href=#21 id=21 data-nosnippet>21</a>
 <a href=#22 id=22 data-nosnippet>22</a></span><span class="kw">use </span>std::{<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">borrow::Cow</a>, <a href="https://doc.rust-lang.org/nightly/std/io/index.html">io</a>};
 <a href=#23 id=23 data-nosnippet>23</a>
@@ -241,7 +241,7 @@
 <a href=#203 id=203 data-nosnippet>203</a></span><span class="doccomment">/// Opaque error for when encoding or decoding with Zstandard fails
 <a href=#204 id=204 data-nosnippet>204</a></span><span class="kw">pub struct </span><a href="../../numcodecs_zstd/struct.ZstdCodingError.html">ZstdCodingError</a>(<a href="https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html">io::Error</a>);
 <a href=#205 id=205 data-nosnippet>205</a>
-<a href=#206 id=206 data-nosnippet>206</a><span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#206 id=206 data-nosnippet>206</a><span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#207 id=207 data-nosnippet>207</a></span><span class="doccomment">/// Compress the `array` using Zstandard with the provided `level`.
 <a href=#208 id=208 data-nosnippet>208</a>///
 <a href=#209 id=209 data-nosnippet>209</a>/// # Errors
@@ -345,7 +345,7 @@
 <a href=#307 id=307 data-nosnippet>307</a>}
 <a href=#308 id=308 data-nosnippet>308</a>
 <a href=#309 id=309 data-nosnippet>309</a><span class="kw">fn </span>decompress_into_bytes(<span class="kw-2">mut </span>encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], <span class="kw-2">mut </span>decoded: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#139-194">ZstdCodecError</a>&gt; {
-<a href=#310 id=310 data-nosnippet>310</a>    <span class="attr">#[allow(clippy::needless_borrows_for_generic_args)]
+<a href=#310 id=310 data-nosnippet>310</a>    <span class="attr">#[expect(clippy::needless_borrows_for_generic_args)]
 <a href=#311 id=311 data-nosnippet>311</a>    </span><span class="comment">// we want to check encoded and decoded for full consumption after the decoding
 <a href=#312 id=312 data-nosnippet>312</a>    </span>zstd::stream::copy_decode(<span class="kw-2">&amp;mut </span><a href="#309">encoded</a>, <span class="kw-2">&amp;mut </span><a href="#309">decoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
 <a href=#313 id=313 data-nosnippet>313</a>        <a href="#183-186">ZstdCodecError::ZstdDecodeFailed</a> {

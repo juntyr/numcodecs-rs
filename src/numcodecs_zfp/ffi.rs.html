@@ -36,7 +36,7 @@
     });
 </script>
 
-</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_zfp/</div>ffi.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![allow(unsafe_code)] </span><span class="comment">// FFI
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_zfp/</div>ffi.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![expect(unsafe_code)] </span><span class="comment">// FFI
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>std::{<a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">marker::PhantomData</a>, <a href="https://doc.rust-lang.org/nightly/core/mem/manually_drop/struct.ManuallyDrop.html">mem::ManuallyDrop</a>};
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -52,7 +52,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>}
 <a href=#15 id=15 data-nosnippet>15</a>
 <a href=#16 id=16 data-nosnippet>16</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#375-377">ZfpCompressible</a>&gt; <a href="#10-14">ZfpField</a>&lt;<span class="lifetime">'a</span>, T&gt; {
-<a href=#17 id=17 data-nosnippet>17</a>    <span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#17 id=17 data-nosnippet>17</a>    <span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#18 id=18 data-nosnippet>18</a>    </span><span class="kw">pub fn </span>new&lt;D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(data: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>&lt;<span class="lifetime">'a</span>, T, D&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="lib.rs.html#174-231">ZfpCodecError</a>&gt; {
 <a href=#19 id=19 data-nosnippet>19</a>        <span class="kw">let </span>pointer: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">std::ffi::c_void</a> = <a href="#18">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_ptr">as_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast">cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">std::ffi::c_void</a>&gt;().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast_mut">cast_mut</a>();
 <a href=#20 id=20 data-nosnippet>20</a>
@@ -118,7 +118,7 @@
 <a href=#80 id=80 data-nosnippet>80</a>                max_prec,
 <a href=#81 id=81 data-nosnippet>81</a>                min_exp,
 <a href=#82 id=82 data-nosnippet>82</a>            } =&gt; {
-<a href=#83 id=83 data-nosnippet>83</a>                <span class="attr">#[allow(clippy::cast_possible_wrap)]
+<a href=#83 id=83 data-nosnippet>83</a>                <span class="attr">#[expect(clippy::cast_possible_wrap)]
 <a href=#84 id=84 data-nosnippet>84</a>                </span><span class="kw">const </span>ZFP_TRUE: zfp_sys::zfp_bool = zfp_sys::zfp_true <span class="kw">as </span>zfp_sys::zfp_bool;
 <a href=#85 id=85 data-nosnippet>85</a>
 <a href=#86 id=86 data-nosnippet>86</a>                <span class="kw">if unsafe </span>{
@@ -148,7 +148,7 @@
 <a href=#110 id=110 data-nosnippet>110</a>                    <span class="kw">unsafe </span>{ zfp_sys::zfp_stream_set_accuracy(<a href="#71">stream</a>.stream, <span class="kw-2">*</span><a href="#108">tolerance</a>) };
 <a href=#111 id=111 data-nosnippet>111</a>            }
 <a href=#112 id=112 data-nosnippet>112</a>            <a href="lib.rs.html#88">ZfpCompressionMode::Reversible</a> =&gt; {
-<a href=#113 id=113 data-nosnippet>113</a>                <span class="attr">#[allow(clippy::let_unit_value)] </span><span class="comment">// Enforce unit return type
+<a href=#113 id=113 data-nosnippet>113</a>                <span class="attr">#[expect(clippy::let_unit_value)] </span><span class="comment">// Enforce unit return type
 <a href=#114 id=114 data-nosnippet>114</a>                </span><span class="kw">let </span>() = <span class="kw">unsafe </span>{ zfp_sys::zfp_stream_set_reversible(<a href="#71">stream</a>.stream) };
 <a href=#115 id=115 data-nosnippet>115</a>            }
 <a href=#116 id=116 data-nosnippet>116</a>        }

@@ -91,8 +91,8 @@
 <a href=#53 id=53 data-nosnippet>53</a>    </span><span class="kw">pub fn </span>try_new(
 <a href=#54 id=54 data-nosnippet>54</a>        encode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
 <a href=#55 id=55 data-nosnippet>55</a>        decode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#56 id=56 data-nosnippet>56</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="#342-387">ReinterpretCodecError</a>&gt; {
-<a href=#57 id=57 data-nosnippet>57</a>        <span class="attr">#[allow(clippy::match_same_arms)]
+<a href=#56 id=56 data-nosnippet>56</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="#341-386">ReinterpretCodecError</a>&gt; {
+<a href=#57 id=57 data-nosnippet>57</a>        <span class="attr">#[expect(clippy::match_same_arms)]
 <a href=#58 id=58 data-nosnippet>58</a>        </span><span class="kw">match </span>(<a href="#55">decode_dtype</a>, <a href="#54">encode_dtype</a>) {
 <a href=#59 id=59 data-nosnippet>59</a>            <span class="comment">// performing no conversion always works
 <a href=#60 id=60 data-nosnippet>60</a>            </span>(ty_a, ty_b) <span class="kw">if </span><a href="#60">ty_a</a> == <a href="#60">ty_b</a> =&gt; (),
@@ -103,7 +103,7 @@
 <a href=#65 id=65 data-nosnippet>65</a>            | (AnyArrayDType::I32 | AnyArrayDType::F32, AnyArrayDType::U32)
 <a href=#66 id=66 data-nosnippet>66</a>            | (AnyArrayDType::I64 | AnyArrayDType::F64, AnyArrayDType::U64) =&gt; (),
 <a href=#67 id=67 data-nosnippet>67</a>            (decode_dtype, encode_dtype) =&gt; {
-<a href=#68 id=68 data-nosnippet>68</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#346-351">ReinterpretCodecError::InvalidReinterpret</a> {
+<a href=#68 id=68 data-nosnippet>68</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#345-350">ReinterpretCodecError::InvalidReinterpret</a> {
 <a href=#69 id=69 data-nosnippet>69</a>                    <a href="#67">decode_dtype</a>,
 <a href=#70 id=70 data-nosnippet>70</a>                    <a href="#67">encode_dtype</a>,
 <a href=#71 id=71 data-nosnippet>71</a>                })
@@ -147,11 +147,11 @@
 <a href=#109 id=109 data-nosnippet>109</a>}
 <a href=#110 id=110 data-nosnippet>110</a>
 <a href=#111 id=111 data-nosnippet>111</a><span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
-<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">type </span>Error = <a href="#342-387">ReinterpretCodecError</a>;
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">type </span>Error = <a href="#341-386">ReinterpretCodecError</a>;
 <a href=#113 id=113 data-nosnippet>113</a>
 <a href=#114 id=114 data-nosnippet>114</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
 <a href=#115 id=115 data-nosnippet>115</a>        <span class="kw">if </span>data.dtype() != <span class="self">self</span>.decode_dtype {
-<a href=#116 id=116 data-nosnippet>116</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#355-360">ReinterpretCodecError::MismatchedEncodeDType</a> {
+<a href=#116 id=116 data-nosnippet>116</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#354-359">ReinterpretCodecError::MismatchedEncodeDType</a> {
 <a href=#117 id=117 data-nosnippet>117</a>                configured: <a class="self" href="#114">self</a>.decode_dtype,
 <a href=#118 id=118 data-nosnippet>118</a>                provided: <a href="#114">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
 <a href=#119 id=119 data-nosnippet>119</a>            });
@@ -164,35 +164,35 @@
 <a href=#126 id=126 data-nosnippet>126</a>                <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(last) = <a href="#125">shape</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.last_mut">last_mut</a>() {
 <a href=#127 id=127 data-nosnippet>127</a>                    <span class="kw-2">*</span><a href="#126">last</a> <span class="kw-2">*</span>= <a href="#124">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>().<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#method.size">size</a>();
 <a href=#128 id=128 data-nosnippet>128</a>                }
-<a href=#129 id=129 data-nosnippet>129</a>                <span class="attr">#[allow(unsafe_code)]
+<a href=#129 id=129 data-nosnippet>129</a>                <span class="attr">#[expect(unsafe_code)]
 <a href=#130 id=130 data-nosnippet>130</a>                </span><span class="comment">// Safety: the shape is extended to match the expansion into bytes
 <a href=#131 id=131 data-nosnippet>131</a>                </span><span class="kw">let </span>encoded =
 <a href=#132 id=132 data-nosnippet>132</a>                    <span class="kw">unsafe </span>{ <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec_unchecked">Array::from_shape_vec_unchecked</a>(<a href="#125">shape</a>, <a href="#124">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>().<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#method.into_owned">into_owned</a>()) };
 <a href=#133 id=133 data-nosnippet>133</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArray::U8</a>(<a href="#131">encoded</a>)
 <a href=#134 id=134 data-nosnippet>134</a>            }
 <a href=#135 id=135 data-nosnippet>135</a>            (AnyCowArray::I16(data), AnyArrayDType::U16) =&gt; {
-<a href=#136 id=136 data-nosnippet>136</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArray::U16</a>(<a href="#392-406">reinterpret_array</a>(<a href="#135">data</a>, |x| {
+<a href=#136 id=136 data-nosnippet>136</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U16">AnyArray::U16</a>(<a href="#391-405">reinterpret_array</a>(<a href="#135">data</a>, |x| {
 <a href=#137 id=137 data-nosnippet>137</a>                    <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">u16::from_ne_bytes</a>(<a href="#136">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>())
 <a href=#138 id=138 data-nosnippet>138</a>                }))
 <a href=#139 id=139 data-nosnippet>139</a>            }
 <a href=#140 id=140 data-nosnippet>140</a>            (AnyCowArray::I32(data), AnyArrayDType::U32) =&gt; {
-<a href=#141 id=141 data-nosnippet>141</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(<a href="#392-406">reinterpret_array</a>(<a href="#140">data</a>, |x| {
+<a href=#141 id=141 data-nosnippet>141</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(<a href="#391-405">reinterpret_array</a>(<a href="#140">data</a>, |x| {
 <a href=#142 id=142 data-nosnippet>142</a>                    <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">u32::from_ne_bytes</a>(<a href="#141">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>())
 <a href=#143 id=143 data-nosnippet>143</a>                }))
 <a href=#144 id=144 data-nosnippet>144</a>            }
 <a href=#145 id=145 data-nosnippet>145</a>            (AnyCowArray::F32(data), AnyArrayDType::U32) =&gt; {
-<a href=#146 id=146 data-nosnippet>146</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(<a href="#392-406">reinterpret_array</a>(<a href="#145">data</a>, f32::to_bits))
+<a href=#146 id=146 data-nosnippet>146</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U32">AnyArray::U32</a>(<a href="#391-405">reinterpret_array</a>(<a href="#145">data</a>, f32::to_bits))
 <a href=#147 id=147 data-nosnippet>147</a>            }
 <a href=#148 id=148 data-nosnippet>148</a>            (AnyCowArray::I64(data), AnyArrayDType::U64) =&gt; {
-<a href=#149 id=149 data-nosnippet>149</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(<a href="#392-406">reinterpret_array</a>(<a href="#148">data</a>, |x| {
+<a href=#149 id=149 data-nosnippet>149</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(<a href="#391-405">reinterpret_array</a>(<a href="#148">data</a>, |x| {
 <a href=#150 id=150 data-nosnippet>150</a>                    <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">u64::from_ne_bytes</a>(<a href="#149">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>())
 <a href=#151 id=151 data-nosnippet>151</a>                }))
 <a href=#152 id=152 data-nosnippet>152</a>            }
 <a href=#153 id=153 data-nosnippet>153</a>            (AnyCowArray::F64(data), AnyArrayDType::U64) =&gt; {
-<a href=#154 id=154 data-nosnippet>154</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(<a href="#392-406">reinterpret_array</a>(<a href="#153">data</a>, f64::to_bits))
+<a href=#154 id=154 data-nosnippet>154</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U64">AnyArray::U64</a>(<a href="#391-405">reinterpret_array</a>(<a href="#153">data</a>, f64::to_bits))
 <a href=#155 id=155 data-nosnippet>155</a>            }
 <a href=#156 id=156 data-nosnippet>156</a>            (data, dtype) =&gt; {
-<a href=#157 id=157 data-nosnippet>157</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#346-351">ReinterpretCodecError::InvalidReinterpret</a> {
+<a href=#157 id=157 data-nosnippet>157</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#345-350">ReinterpretCodecError::InvalidReinterpret</a> {
 <a href=#158 id=158 data-nosnippet>158</a>                    decode_dtype: <a href="#156">data</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
 <a href=#159 id=159 data-nosnippet>159</a>                    encode_dtype: <a href="#156">dtype</a>,
 <a href=#160 id=160 data-nosnippet>160</a>                });
@@ -204,7 +204,7 @@
 <a href=#166 id=166 data-nosnippet>166</a>
 <a href=#167 id=167 data-nosnippet>167</a>    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
 <a href=#168 id=168 data-nosnippet>168</a>        <span class="kw">if </span>encoded.dtype() != <span class="self">self</span>.encode_dtype {
-<a href=#169 id=169 data-nosnippet>169</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#364-369">ReinterpretCodecError::MismatchedDecodeDType</a> {
+<a href=#169 id=169 data-nosnippet>169</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#363-368">ReinterpretCodecError::MismatchedDecodeDType</a> {
 <a href=#170 id=170 data-nosnippet>170</a>                configured: <a class="self" href="#167">self</a>.encode_dtype,
 <a href=#171 id=171 data-nosnippet>171</a>                provided: <a href="#167">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
 <a href=#172 id=172 data-nosnippet>172</a>            });
@@ -216,7 +216,7 @@
 <a href=#178 id=178 data-nosnippet>178</a>                <span class="kw">let </span><span class="kw-2">mut </span>shape = <a href="#177">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>();
 <a href=#179 id=179 data-nosnippet>179</a>
 <a href=#180 id=180 data-nosnippet>180</a>                <span class="kw">if </span>(encoded.len() % dtype.size()) != <span class="number">0 </span>{
-<a href=#181 id=181 data-nosnippet>181</a>                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#374-379">ReinterpretCodecError::InvalidEncodedShape</a> { <a href="#178">shape</a>, <a href="#177">dtype</a> });
+<a href=#181 id=181 data-nosnippet>181</a>                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#373-378">ReinterpretCodecError::InvalidEncodedShape</a> { <a href="#178">shape</a>, <a href="#177">dtype</a> });
 <a href=#182 id=182 data-nosnippet>182</a>                }
 <a href=#183 id=183 data-nosnippet>183</a>
 <a href=#184 id=184 data-nosnippet>184</a>                <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(last) = <a href="#178">shape</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.last_mut">last_mut</a>() {
@@ -230,28 +230,28 @@
 <a href=#192 id=192 data-nosnippet>192</a>                <a href="#188">decoded</a>
 <a href=#193 id=193 data-nosnippet>193</a>            }
 <a href=#194 id=194 data-nosnippet>194</a>            (AnyCowArray::U16(encoded), AnyArrayDType::I16) =&gt; {
-<a href=#195 id=195 data-nosnippet>195</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArray::I16</a>(<a href="#392-406">reinterpret_array</a>(<a href="#194">encoded</a>, |x| {
+<a href=#195 id=195 data-nosnippet>195</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I16">AnyArray::I16</a>(<a href="#391-405">reinterpret_array</a>(<a href="#194">encoded</a>, |x| {
 <a href=#196 id=196 data-nosnippet>196</a>                    <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">i16::from_ne_bytes</a>(<a href="#195">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>())
 <a href=#197 id=197 data-nosnippet>197</a>                }))
 <a href=#198 id=198 data-nosnippet>198</a>            }
 <a href=#199 id=199 data-nosnippet>199</a>            (AnyCowArray::U32(encoded), AnyArrayDType::I32) =&gt; {
-<a href=#200 id=200 data-nosnippet>200</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="#392-406">reinterpret_array</a>(<a href="#199">encoded</a>, |x| {
+<a href=#200 id=200 data-nosnippet>200</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="#391-405">reinterpret_array</a>(<a href="#199">encoded</a>, |x| {
 <a href=#201 id=201 data-nosnippet>201</a>                    <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">i32::from_ne_bytes</a>(<a href="#200">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>())
 <a href=#202 id=202 data-nosnippet>202</a>                }))
 <a href=#203 id=203 data-nosnippet>203</a>            }
 <a href=#204 id=204 data-nosnippet>204</a>            (AnyCowArray::U32(encoded), AnyArrayDType::F32) =&gt; {
-<a href=#205 id=205 data-nosnippet>205</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#392-406">reinterpret_array</a>(<a href="#204">encoded</a>, f32::from_bits))
+<a href=#205 id=205 data-nosnippet>205</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#391-405">reinterpret_array</a>(<a href="#204">encoded</a>, f32::from_bits))
 <a href=#206 id=206 data-nosnippet>206</a>            }
 <a href=#207 id=207 data-nosnippet>207</a>            (AnyCowArray::U64(encoded), AnyArrayDType::U64) =&gt; {
-<a href=#208 id=208 data-nosnippet>208</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="#392-406">reinterpret_array</a>(<a href="#207">encoded</a>, |x| {
+<a href=#208 id=208 data-nosnippet>208</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="#391-405">reinterpret_array</a>(<a href="#207">encoded</a>, |x| {
 <a href=#209 id=209 data-nosnippet>209</a>                    <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">i64::from_ne_bytes</a>(<a href="#208">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>())
 <a href=#210 id=210 data-nosnippet>210</a>                }))
 <a href=#211 id=211 data-nosnippet>211</a>            }
 <a href=#212 id=212 data-nosnippet>212</a>            (AnyCowArray::U64(encoded), AnyArrayDType::F64) =&gt; {
-<a href=#213 id=213 data-nosnippet>213</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#392-406">reinterpret_array</a>(<a href="#212">encoded</a>, f64::from_bits))
+<a href=#213 id=213 data-nosnippet>213</a>                <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#391-405">reinterpret_array</a>(<a href="#212">encoded</a>, f64::from_bits))
 <a href=#214 id=214 data-nosnippet>214</a>            }
 <a href=#215 id=215 data-nosnippet>215</a>            (encoded, dtype) =&gt; {
-<a href=#216 id=216 data-nosnippet>216</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#346-351">ReinterpretCodecError::InvalidReinterpret</a> {
+<a href=#216 id=216 data-nosnippet>216</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#345-350">ReinterpretCodecError::InvalidReinterpret</a> {
 <a href=#217 id=217 data-nosnippet>217</a>                    decode_dtype: <a href="#215">dtype</a>,
 <a href=#218 id=218 data-nosnippet>218</a>                    encode_dtype: <a href="#215">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
 <a href=#219 id=219 data-nosnippet>219</a>                });
@@ -261,229 +261,228 @@
 <a href=#223 id=223 data-nosnippet>223</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#175">decoded</a>)
 <a href=#224 id=224 data-nosnippet>224</a>    }
 <a href=#225 id=225 data-nosnippet>225</a>
-<a href=#226 id=226 data-nosnippet>226</a>    <span class="attr">#[allow(clippy::too_many_lines)]
-<a href=#227 id=227 data-nosnippet>227</a>    </span><span class="kw">fn </span>decode_into(
-<a href=#228 id=228 data-nosnippet>228</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
-<a href=#229 id=229 data-nosnippet>229</a>        encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
-<a href=#230 id=230 data-nosnippet>230</a>        <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
-<a href=#231 id=231 data-nosnippet>231</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
-<a href=#232 id=232 data-nosnippet>232</a>        <span class="kw">if </span>encoded.dtype() != <span class="self">self</span>.encode_dtype {
-<a href=#233 id=233 data-nosnippet>233</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#364-369">ReinterpretCodecError::MismatchedDecodeDType</a> {
-<a href=#234 id=234 data-nosnippet>234</a>                configured: <a class="self" href="#228">self</a>.encode_dtype,
-<a href=#235 id=235 data-nosnippet>235</a>                provided: <a href="#229">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
-<a href=#236 id=236 data-nosnippet>236</a>            });
-<a href=#237 id=237 data-nosnippet>237</a>        }
-<a href=#238 id=238 data-nosnippet>238</a>
-<a href=#239 id=239 data-nosnippet>239</a>        <span class="kw">match </span>(<a href="#229">encoded</a>, <a class="self" href="#228">self</a>.decode_dtype) {
-<a href=#240 id=240 data-nosnippet>240</a>            (encoded, dtype) <span class="kw">if </span><a href="#240">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>() == <a href="#240">dtype</a> =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#230">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#240">encoded</a>)<span class="question-mark">?</span>),
-<a href=#241 id=241 data-nosnippet>241</a>            (AnyArrayView::U8(encoded), dtype) =&gt; {
-<a href=#242 id=242 data-nosnippet>242</a>                <span class="kw">if </span>decoded.dtype() != dtype {
-<a href=#243 id=243 data-nosnippet>243</a>                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#382-386">ReinterpretCodecError::MismatchedDecodeIntoArray</a> {
-<a href=#244 id=244 data-nosnippet>244</a>                        source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
-<a href=#245 id=245 data-nosnippet>245</a>                            src: <a href="#241">dtype</a>,
-<a href=#246 id=246 data-nosnippet>246</a>                            dst: <a href="#230">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
-<a href=#247 id=247 data-nosnippet>247</a>                        },
-<a href=#248 id=248 data-nosnippet>248</a>                    });
-<a href=#249 id=249 data-nosnippet>249</a>                }
-<a href=#250 id=250 data-nosnippet>250</a>
-<a href=#251 id=251 data-nosnippet>251</a>                <span class="kw">let </span><span class="kw-2">mut </span>shape = <a href="#241">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>();
-<a href=#252 id=252 data-nosnippet>252</a>
-<a href=#253 id=253 data-nosnippet>253</a>                <span class="kw">if </span>(encoded.len() % dtype.size()) != <span class="number">0 </span>{
-<a href=#254 id=254 data-nosnippet>254</a>                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#374-379">ReinterpretCodecError::InvalidEncodedShape</a> { <a href="#251">shape</a>, <a href="#241">dtype</a> });
-<a href=#255 id=255 data-nosnippet>255</a>                }
-<a href=#256 id=256 data-nosnippet>256</a>
-<a href=#257 id=257 data-nosnippet>257</a>                <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(last) = <a href="#251">shape</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.last_mut">last_mut</a>() {
-<a href=#258 id=258 data-nosnippet>258</a>                    <span class="kw-2">*</span><a href="#257">last</a> /= <a href="#241">dtype</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#method.size">size</a>();
-<a href=#259 id=259 data-nosnippet>259</a>                }
-<a href=#260 id=260 data-nosnippet>260</a>
-<a href=#261 id=261 data-nosnippet>261</a>                <span class="kw">if </span>decoded.shape() != shape {
-<a href=#262 id=262 data-nosnippet>262</a>                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#382-386">ReinterpretCodecError::MismatchedDecodeIntoArray</a> {
-<a href=#263 id=263 data-nosnippet>263</a>                        source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
-<a href=#264 id=264 data-nosnippet>264</a>                            src: <a href="#251">shape</a>,
-<a href=#265 id=265 data-nosnippet>265</a>                            dst: <a href="#230">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
-<a href=#266 id=266 data-nosnippet>266</a>                        },
-<a href=#267 id=267 data-nosnippet>267</a>                    });
-<a href=#268 id=268 data-nosnippet>268</a>                }
-<a href=#269 id=269 data-nosnippet>269</a>
-<a href=#270 id=270 data-nosnippet>270</a>                <span class="kw">let </span>() = <a href="#230">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.with_bytes_mut">with_bytes_mut</a>(|bytes| {
-<a href=#271 id=271 data-nosnippet>271</a>                    <a href="#270">bytes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.copy_from_slice">copy_from_slice</a>(<span class="kw-2">&amp;</span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(<a href="#241">encoded</a>).<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>());
-<a href=#272 id=272 data-nosnippet>272</a>                });
-<a href=#273 id=273 data-nosnippet>273</a>
-<a href=#274 id=274 data-nosnippet>274</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
-<a href=#275 id=275 data-nosnippet>275</a>            }
-<a href=#276 id=276 data-nosnippet>276</a>            (AnyArrayView::U16(encoded), AnyArrayDType::I16) =&gt; {
-<a href=#277 id=277 data-nosnippet>277</a>                <a href="#419-451">reinterpret_array_into</a>(<a href="#276">encoded</a>, |x| <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">i16::from_ne_bytes</a>(<a href="#277">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>()), <a href="#230">decoded</a>)
-<a href=#278 id=278 data-nosnippet>278</a>            }
-<a href=#279 id=279 data-nosnippet>279</a>            (AnyArrayView::U32(encoded), AnyArrayDType::I32) =&gt; {
-<a href=#280 id=280 data-nosnippet>280</a>                <a href="#419-451">reinterpret_array_into</a>(<a href="#279">encoded</a>, |x| <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">i32::from_ne_bytes</a>(<a href="#280">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>()), <a href="#230">decoded</a>)
-<a href=#281 id=281 data-nosnippet>281</a>            }
-<a href=#282 id=282 data-nosnippet>282</a>            (AnyArrayView::U32(encoded), AnyArrayDType::F32) =&gt; {
-<a href=#283 id=283 data-nosnippet>283</a>                <a href="#419-451">reinterpret_array_into</a>(<a href="#282">encoded</a>, f32::from_bits, <a href="#230">decoded</a>)
-<a href=#284 id=284 data-nosnippet>284</a>            }
-<a href=#285 id=285 data-nosnippet>285</a>            (AnyArrayView::U64(encoded), AnyArrayDType::U64) =&gt; {
-<a href=#286 id=286 data-nosnippet>286</a>                <a href="#419-451">reinterpret_array_into</a>(<a href="#285">encoded</a>, |x| <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">i64::from_ne_bytes</a>(<a href="#286">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>()), <a href="#230">decoded</a>)
-<a href=#287 id=287 data-nosnippet>287</a>            }
-<a href=#288 id=288 data-nosnippet>288</a>            (AnyArrayView::U64(encoded), AnyArrayDType::F64) =&gt; {
-<a href=#289 id=289 data-nosnippet>289</a>                <a href="#419-451">reinterpret_array_into</a>(<a href="#288">encoded</a>, f64::from_bits, <a href="#230">decoded</a>)
-<a href=#290 id=290 data-nosnippet>290</a>            }
-<a href=#291 id=291 data-nosnippet>291</a>            (encoded, dtype) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#346-351">ReinterpretCodecError::InvalidReinterpret</a> {
-<a href=#292 id=292 data-nosnippet>292</a>                decode_dtype: <a href="#291">dtype</a>,
-<a href=#293 id=293 data-nosnippet>293</a>                encode_dtype: <a href="#291">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
-<a href=#294 id=294 data-nosnippet>294</a>            }),
-<a href=#295 id=295 data-nosnippet>295</a>        }<span class="question-mark">?</span>;
-<a href=#296 id=296 data-nosnippet>296</a>
-<a href=#297 id=297 data-nosnippet>297</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
-<a href=#298 id=298 data-nosnippet>298</a>    }
-<a href=#299 id=299 data-nosnippet>299</a>}
-<a href=#300 id=300 data-nosnippet>300</a>
-<a href=#301 id=301 data-nosnippet>301</a><span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
-<a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"reinterpret"</span>;
-<a href=#303 id=303 data-nosnippet>303</a>
-<a href=#304 id=304 data-nosnippet>304</a>    <span class="kw">type </span>Config&lt;<span class="lifetime">'de</span>&gt; = <span class="self">Self</span>;
-<a href=#305 id=305 data-nosnippet>305</a>
-<a href=#306 id=306 data-nosnippet>306</a>    <span class="kw">fn </span>from_config(config: <span class="self">Self</span>::Config&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self </span>{
-<a href=#307 id=307 data-nosnippet>307</a>        <a href="#306">config</a>
-<a href=#308 id=308 data-nosnippet>308</a>    }
-<a href=#309 id=309 data-nosnippet>309</a>
-<a href=#310 id=310 data-nosnippet>310</a>    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;<span class="self">Self</span>&gt; {
-<a href=#311 id=311 data-nosnippet>311</a>        <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#310">self</a>)
-<a href=#312 id=312 data-nosnippet>312</a>    }
-<a href=#313 id=313 data-nosnippet>313</a>}
-<a href=#314 id=314 data-nosnippet>314</a>
-<a href=#315 id=315 data-nosnippet>315</a><span class="kw">impl </span><a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
-<a href=#316 id=316 data-nosnippet>316</a>    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
-<a href=#317 id=317 data-nosnippet>317</a>        <a href="#335-338">ReinterpretCodecConfig</a> {
-<a href=#318 id=318 data-nosnippet>318</a>            encode_dtype: <a class="self" href="#316">self</a>.encode_dtype,
-<a href=#319 id=319 data-nosnippet>319</a>            decode_dtype: <a class="self" href="#316">self</a>.decode_dtype,
-<a href=#320 id=320 data-nosnippet>320</a>        }
-<a href=#321 id=321 data-nosnippet>321</a>        .<a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#316">serializer</a>)
-<a href=#322 id=322 data-nosnippet>322</a>    }
-<a href=#323 id=323 data-nosnippet>323</a>}
-<a href=#324 id=324 data-nosnippet>324</a>
-<a href=#325 id=325 data-nosnippet>325</a><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
-<a href=#326 id=326 data-nosnippet>326</a>    <span class="kw">fn </span>deserialize&lt;D: <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, D::Error&gt; {
-<a href=#327 id=327 data-nosnippet>327</a>        <span class="kw">let </span>config = <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserialize.html#tymethod.deserialize">ReinterpretCodecConfig::deserialize</a>(<a href="#326">deserializer</a>)<span class="question-mark">?</span>;
-<a href=#328 id=328 data-nosnippet>328</a>
-<a href=#329 id=329 data-nosnippet>329</a>        <a href="#53-79"><span class="self">Self</span>::try_new</a>(<a href="#327">config</a>.encode_dtype, <a href="#327">config</a>.decode_dtype).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.218/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)
-<a href=#330 id=330 data-nosnippet>330</a>    }
-<a href=#331 id=331 data-nosnippet>331</a>}
-<a href=#332 id=332 data-nosnippet>332</a>
-<a href=#333 id=333 data-nosnippet>333</a><span class="attr">#[derive(Clone, Serialize, Deserialize)]
-<a href=#334 id=334 data-nosnippet>334</a>#[serde(rename = <span class="string">"ReinterpretCodec"</span>)]
-<a href=#335 id=335 data-nosnippet>335</a></span><span class="kw">struct </span>ReinterpretCodecConfig {
-<a href=#336 id=336 data-nosnippet>336</a>    encode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#337 id=337 data-nosnippet>337</a>    decode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#338 id=338 data-nosnippet>338</a>}
-<a href=#339 id=339 data-nosnippet>339</a>
-<a href=#340 id=340 data-nosnippet>340</a><span class="attr">#[derive(Debug, Error)]
-<a href=#341 id=341 data-nosnippet>341</a></span><span class="doccomment">/// Errors that may occur when applying the [`ReinterpretCodec`].
-<a href=#342 id=342 data-nosnippet>342</a></span><span class="kw">pub enum </span><a href="../../numcodecs_reinterpret/enum.ReinterpretCodecError.html">ReinterpretCodecError</a> {
-<a href=#343 id=343 data-nosnippet>343</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot cannot bitcast the `decode_dtype` as
-<a href=#344 id=344 data-nosnippet>344</a>    /// `encode_dtype`
-<a href=#345 id=345 data-nosnippet>345</a>    </span><span class="attr">#[error(<span class="string">"Reinterpret cannot bitcast {decode_dtype} as {encode_dtype}"</span>)]
-<a href=#346 id=346 data-nosnippet>346</a>    </span>InvalidReinterpret {
-<a href=#347 id=347 data-nosnippet>347</a>        <span class="doccomment">/// Dtype of the configured `decode_dtype`
-<a href=#348 id=348 data-nosnippet>348</a>        </span>decode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#349 id=349 data-nosnippet>349</a>        <span class="doccomment">/// Dtype of the configured `encode_dtype`
-<a href=#350 id=350 data-nosnippet>350</a>        </span>encode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#351 id=351 data-nosnippet>351</a>    },
-<a href=#352 id=352 data-nosnippet>352</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot encode the provided dtype which differs
-<a href=#353 id=353 data-nosnippet>353</a>    /// from the configured dtype
-<a href=#354 id=354 data-nosnippet>354</a>    </span><span class="attr">#[error(<span class="string">"Reinterpret cannot encode the provided dtype {provided} which differs from the configured dtype {configured}"</span>)]
-<a href=#355 id=355 data-nosnippet>355</a>    </span>MismatchedEncodeDType {
-<a href=#356 id=356 data-nosnippet>356</a>        <span class="doccomment">/// Dtype of the `configured` `decode_dtype`
-<a href=#357 id=357 data-nosnippet>357</a>        </span>configured: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#358 id=358 data-nosnippet>358</a>        <span class="doccomment">/// Dtype of the `provided` array from which the data is to be encoded
-<a href=#359 id=359 data-nosnippet>359</a>        </span>provided: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#360 id=360 data-nosnippet>360</a>    },
-<a href=#361 id=361 data-nosnippet>361</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot decode the provided dtype which differs
-<a href=#362 id=362 data-nosnippet>362</a>    /// from the configured dtype
-<a href=#363 id=363 data-nosnippet>363</a>    </span><span class="attr">#[error(<span class="string">"Reinterpret cannot decode the provided dtype {provided} which differs from the configured dtype {configured}"</span>)]
-<a href=#364 id=364 data-nosnippet>364</a>    </span>MismatchedDecodeDType {
-<a href=#365 id=365 data-nosnippet>365</a>        <span class="doccomment">/// Dtype of the `configured` `encode_dtype`
-<a href=#366 id=366 data-nosnippet>366</a>        </span>configured: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#367 id=367 data-nosnippet>367</a>        <span class="doccomment">/// Dtype of the `provided` array from which the data is to be decoded
-<a href=#368 id=368 data-nosnippet>368</a>        </span>provided: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#369 id=369 data-nosnippet>369</a>    },
-<a href=#370 id=370 data-nosnippet>370</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot decode a byte array with `shape` into an array of `dtype`s
-<a href=#371 id=371 data-nosnippet>371</a>    </span><span class="attr">#[error(
-<a href=#372 id=372 data-nosnippet>372</a>        <span class="string">"Reinterpret cannot decode a byte array of shape {shape:?} into an array of {dtype}-s"
-<a href=#373 id=373 data-nosnippet>373</a>    </span>)]
-<a href=#374 id=374 data-nosnippet>374</a>    </span>InvalidEncodedShape {
-<a href=#375 id=375 data-nosnippet>375</a>        <span class="doccomment">/// Shape of the encoded array
-<a href=#376 id=376 data-nosnippet>376</a>        </span>shape: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
-<a href=#377 id=377 data-nosnippet>377</a>        <span class="doccomment">/// Dtype of the array into which the encoded data is to be decoded
-<a href=#378 id=378 data-nosnippet>378</a>        </span>dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
-<a href=#379 id=379 data-nosnippet>379</a>    },
-<a href=#380 id=380 data-nosnippet>380</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot decode into the provided array
-<a href=#381 id=381 data-nosnippet>381</a>    </span><span class="attr">#[error(<span class="string">"Reinterpret cannot decode into the provided array"</span>)]
-<a href=#382 id=382 data-nosnippet>382</a>    </span>MismatchedDecodeIntoArray {
-<a href=#383 id=383 data-nosnippet>383</a>        <span class="doccomment">/// The source of the error
-<a href=#384 id=384 data-nosnippet>384</a>        </span><span class="attr">#[from]
-<a href=#385 id=385 data-nosnippet>385</a>        </span>source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
-<a href=#386 id=386 data-nosnippet>386</a>    },
-<a href=#387 id=387 data-nosnippet>387</a>}
-<a href=#388 id=388 data-nosnippet>388</a>
-<a href=#389 id=389 data-nosnippet>389</a><span class="doccomment">/// Reinterpret the data elements of the `array` using the provided `reinterpret`
-<a href=#390 id=390 data-nosnippet>390</a>/// closure. The shape of the data is preserved.
-<a href=#391 id=391 data-nosnippet>391</a></span><span class="attr">#[inline]
-<a href=#392 id=392 data-nosnippet>392</a></span><span class="kw">pub fn </span><a href="../../numcodecs_reinterpret/fn.reinterpret_array.html">reinterpret_array</a>&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, U, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
-<a href=#393 id=393 data-nosnippet>393</a>    array: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
-<a href=#394 id=394 data-nosnippet>394</a>    reinterpret: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.Fn.html">Fn</a>(T) -&gt; U,
-<a href=#395 id=395 data-nosnippet>395</a>) -&gt; <a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;U, D&gt; {
-<a href=#396 id=396 data-nosnippet>396</a>    <span class="kw">let </span>array = <a href="#393">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
-<a href=#397 id=397 data-nosnippet>397</a>    <span class="kw">let </span>(shape, data) = (<a href="#396">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.raw_dim">raw_dim</a>(), <a href="#396">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_raw_vec_and_offset">into_raw_vec_and_offset</a>().<span class="number">0</span>);
-<a href=#398 id=398 data-nosnippet>398</a>
-<a href=#399 id=399 data-nosnippet>399</a>    <span class="kw">let </span>data = <a href="#397">data</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(<a href="#394">reinterpret</a>).<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>();
-<a href=#400 id=400 data-nosnippet>400</a>
-<a href=#401 id=401 data-nosnippet>401</a>    <span class="attr">#[allow(unsafe_code)]
-<a href=#402 id=402 data-nosnippet>402</a>    </span><span class="comment">// Safety: we have preserved the shape, which comes from a valid array
-<a href=#403 id=403 data-nosnippet>403</a>    </span><span class="kw">let </span>array = <span class="kw">unsafe </span>{ <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec_unchecked">Array::from_shape_vec_unchecked</a>(<a href="#397">shape</a>, <a href="#399">data</a>) };
-<a href=#404 id=404 data-nosnippet>404</a>
-<a href=#405 id=405 data-nosnippet>405</a>    <a href="#403">array</a>
-<a href=#406 id=406 data-nosnippet>406</a>}
-<a href=#407 id=407 data-nosnippet>407</a>
-<a href=#408 id=408 data-nosnippet>408</a><span class="attr">#[allow(clippy::needless_pass_by_value)]
-<a href=#409 id=409 data-nosnippet>409</a></span><span class="doccomment">/// Reinterpret the data elements of the `encoded` array using the provided
-<a href=#410 id=410 data-nosnippet>410</a>/// `reinterpret` closure into the `decoded` array.
-<a href=#411 id=411 data-nosnippet>411</a>///
-<a href=#412 id=412 data-nosnippet>412</a>/// # Errors
-<a href=#413 id=413 data-nosnippet>413</a>///
-<a href=#414 id=414 data-nosnippet>414</a>/// Errors with
-<a href=#415 id=415 data-nosnippet>415</a>/// - [`ReinterpretCodecError::MismatchedDecodeIntoArray`] if `decoded` does not
-<a href=#416 id=416 data-nosnippet>416</a>///   contain an array with elements of type `U` or its shape does not match the
-<a href=#417 id=417 data-nosnippet>417</a>///   `encoded` array's shape
-<a href=#418 id=418 data-nosnippet>418</a></span><span class="attr">#[inline]
-<a href=#419 id=419 data-nosnippet>419</a></span><span class="kw">pub fn </span><a href="../../numcodecs_reinterpret/fn.reinterpret_array_into.html">reinterpret_array_into</a>&lt;<span class="lifetime">'a</span>, T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, U: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/trait.ArrayDType.html">ArrayDType</a>, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
-<a href=#420 id=420 data-nosnippet>420</a>    encoded: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>&lt;T, D&gt;,
-<a href=#421 id=421 data-nosnippet>421</a>    reinterpret: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.Fn.html">Fn</a>(T) -&gt; U,
-<a href=#422 id=422 data-nosnippet>422</a>    <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>&lt;<span class="lifetime">'a</span>&gt;,
-<a href=#423 id=423 data-nosnippet>423</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#342-387">ReinterpretCodecError</a>&gt;
-<a href=#424 id=424 data-nosnippet>424</a><span class="kw">where
-<a href=#425 id=425 data-nosnippet>425</a>    </span>U::RawData&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ViewRepr.html">ViewRepr</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>()&gt;&gt;: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.DataMut.html">DataMut</a>,
-<a href=#426 id=426 data-nosnippet>426</a>{
-<a href=#427 id=427 data-nosnippet>427</a>    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(decoded) = <a href="#422">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_typed_mut">as_typed_mut</a>::&lt;U&gt;() <span class="kw">else </span>{
-<a href=#428 id=428 data-nosnippet>428</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#382-386">ReinterpretCodecError::MismatchedDecodeIntoArray</a> {
-<a href=#429 id=429 data-nosnippet>429</a>            source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
-<a href=#430 id=430 data-nosnippet>430</a>                src: U::DTYPE,
-<a href=#431 id=431 data-nosnippet>431</a>                dst: <a href="#422">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
-<a href=#432 id=432 data-nosnippet>432</a>            },
-<a href=#433 id=433 data-nosnippet>433</a>        });
-<a href=#434 id=434 data-nosnippet>434</a>    };
-<a href=#435 id=435 data-nosnippet>435</a>
-<a href=#436 id=436 data-nosnippet>436</a>    <span class="kw">if </span>encoded.shape() != decoded.shape() {
-<a href=#437 id=437 data-nosnippet>437</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#382-386">ReinterpretCodecError::MismatchedDecodeIntoArray</a> {
-<a href=#438 id=438 data-nosnippet>438</a>            source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
-<a href=#439 id=439 data-nosnippet>439</a>                src: <a href="#420">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
-<a href=#440 id=440 data-nosnippet>440</a>                dst: <a href="#427">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
-<a href=#441 id=441 data-nosnippet>441</a>            },
-<a href=#442 id=442 data-nosnippet>442</a>        });
-<a href=#443 id=443 data-nosnippet>443</a>    }
-<a href=#444 id=444 data-nosnippet>444</a>
-<a href=#445 id=445 data-nosnippet>445</a>    <span class="comment">// iterate over the elements in standard order
-<a href=#446 id=446 data-nosnippet>446</a>    </span><span class="kw">for </span>(e, d) <span class="kw">in </span>encoded.iter().zip(decoded.iter_mut()) {
-<a href=#447 id=447 data-nosnippet>447</a>        <span class="kw-2">*</span>d = reinterpret(<span class="kw-2">*</span>e);
-<a href=#448 id=448 data-nosnippet>448</a>    }
-<a href=#449 id=449 data-nosnippet>449</a>
-<a href=#450 id=450 data-nosnippet>450</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
-<a href=#451 id=451 data-nosnippet>451</a>}</code></pre></div></section></main></body></html>
+<a href=#226 id=226 data-nosnippet>226</a>    <span class="kw">fn </span>decode_into(
+<a href=#227 id=227 data-nosnippet>227</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
+<a href=#228 id=228 data-nosnippet>228</a>        encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
+<a href=#229 id=229 data-nosnippet>229</a>        <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
+<a href=#230 id=230 data-nosnippet>230</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
+<a href=#231 id=231 data-nosnippet>231</a>        <span class="kw">if </span>encoded.dtype() != <span class="self">self</span>.encode_dtype {
+<a href=#232 id=232 data-nosnippet>232</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#363-368">ReinterpretCodecError::MismatchedDecodeDType</a> {
+<a href=#233 id=233 data-nosnippet>233</a>                configured: <a class="self" href="#227">self</a>.encode_dtype,
+<a href=#234 id=234 data-nosnippet>234</a>                provided: <a href="#228">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+<a href=#235 id=235 data-nosnippet>235</a>            });
+<a href=#236 id=236 data-nosnippet>236</a>        }
+<a href=#237 id=237 data-nosnippet>237</a>
+<a href=#238 id=238 data-nosnippet>238</a>        <span class="kw">match </span>(<a href="#228">encoded</a>, <a class="self" href="#227">self</a>.decode_dtype) {
+<a href=#239 id=239 data-nosnippet>239</a>            (encoded, dtype) <span class="kw">if </span><a href="#239">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>() == <a href="#239">dtype</a> =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#229">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#239">encoded</a>)<span class="question-mark">?</span>),
+<a href=#240 id=240 data-nosnippet>240</a>            (AnyArrayView::U8(encoded), dtype) =&gt; {
+<a href=#241 id=241 data-nosnippet>241</a>                <span class="kw">if </span>decoded.dtype() != dtype {
+<a href=#242 id=242 data-nosnippet>242</a>                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#381-385">ReinterpretCodecError::MismatchedDecodeIntoArray</a> {
+<a href=#243 id=243 data-nosnippet>243</a>                        source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
+<a href=#244 id=244 data-nosnippet>244</a>                            src: <a href="#240">dtype</a>,
+<a href=#245 id=245 data-nosnippet>245</a>                            dst: <a href="#229">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+<a href=#246 id=246 data-nosnippet>246</a>                        },
+<a href=#247 id=247 data-nosnippet>247</a>                    });
+<a href=#248 id=248 data-nosnippet>248</a>                }
+<a href=#249 id=249 data-nosnippet>249</a>
+<a href=#250 id=250 data-nosnippet>250</a>                <span class="kw">let </span><span class="kw-2">mut </span>shape = <a href="#240">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>();
+<a href=#251 id=251 data-nosnippet>251</a>
+<a href=#252 id=252 data-nosnippet>252</a>                <span class="kw">if </span>(encoded.len() % dtype.size()) != <span class="number">0 </span>{
+<a href=#253 id=253 data-nosnippet>253</a>                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#373-378">ReinterpretCodecError::InvalidEncodedShape</a> { <a href="#250">shape</a>, <a href="#240">dtype</a> });
+<a href=#254 id=254 data-nosnippet>254</a>                }
+<a href=#255 id=255 data-nosnippet>255</a>
+<a href=#256 id=256 data-nosnippet>256</a>                <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(last) = <a href="#250">shape</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.last_mut">last_mut</a>() {
+<a href=#257 id=257 data-nosnippet>257</a>                    <span class="kw-2">*</span><a href="#256">last</a> /= <a href="#240">dtype</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html#method.size">size</a>();
+<a href=#258 id=258 data-nosnippet>258</a>                }
+<a href=#259 id=259 data-nosnippet>259</a>
+<a href=#260 id=260 data-nosnippet>260</a>                <span class="kw">if </span>decoded.shape() != shape {
+<a href=#261 id=261 data-nosnippet>261</a>                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#381-385">ReinterpretCodecError::MismatchedDecodeIntoArray</a> {
+<a href=#262 id=262 data-nosnippet>262</a>                        source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
+<a href=#263 id=263 data-nosnippet>263</a>                            src: <a href="#250">shape</a>,
+<a href=#264 id=264 data-nosnippet>264</a>                            dst: <a href="#229">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+<a href=#265 id=265 data-nosnippet>265</a>                        },
+<a href=#266 id=266 data-nosnippet>266</a>                    });
+<a href=#267 id=267 data-nosnippet>267</a>                }
+<a href=#268 id=268 data-nosnippet>268</a>
+<a href=#269 id=269 data-nosnippet>269</a>                <span class="kw">let </span>() = <a href="#229">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.with_bytes_mut">with_bytes_mut</a>(|bytes| {
+<a href=#270 id=270 data-nosnippet>270</a>                    <a href="#269">bytes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.copy_from_slice">copy_from_slice</a>(<span class="kw-2">&amp;</span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.U8">AnyArrayView::U8</a>(<a href="#240">encoded</a>).<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>());
+<a href=#271 id=271 data-nosnippet>271</a>                });
+<a href=#272 id=272 data-nosnippet>272</a>
+<a href=#273 id=273 data-nosnippet>273</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
+<a href=#274 id=274 data-nosnippet>274</a>            }
+<a href=#275 id=275 data-nosnippet>275</a>            (AnyArrayView::U16(encoded), AnyArrayDType::I16) =&gt; {
+<a href=#276 id=276 data-nosnippet>276</a>                <a href="#418-450">reinterpret_array_into</a>(<a href="#275">encoded</a>, |x| <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">i16::from_ne_bytes</a>(<a href="#276">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>()), <a href="#229">decoded</a>)
+<a href=#277 id=277 data-nosnippet>277</a>            }
+<a href=#278 id=278 data-nosnippet>278</a>            (AnyArrayView::U32(encoded), AnyArrayDType::I32) =&gt; {
+<a href=#279 id=279 data-nosnippet>279</a>                <a href="#418-450">reinterpret_array_into</a>(<a href="#278">encoded</a>, |x| <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">i32::from_ne_bytes</a>(<a href="#279">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>()), <a href="#229">decoded</a>)
+<a href=#280 id=280 data-nosnippet>280</a>            }
+<a href=#281 id=281 data-nosnippet>281</a>            (AnyArrayView::U32(encoded), AnyArrayDType::F32) =&gt; {
+<a href=#282 id=282 data-nosnippet>282</a>                <a href="#418-450">reinterpret_array_into</a>(<a href="#281">encoded</a>, f32::from_bits, <a href="#229">decoded</a>)
+<a href=#283 id=283 data-nosnippet>283</a>            }
+<a href=#284 id=284 data-nosnippet>284</a>            (AnyArrayView::U64(encoded), AnyArrayDType::U64) =&gt; {
+<a href=#285 id=285 data-nosnippet>285</a>                <a href="#418-450">reinterpret_array_into</a>(<a href="#284">encoded</a>, |x| <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_ne_bytes">i64::from_ne_bytes</a>(<a href="#285">x</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.to_ne_bytes">to_ne_bytes</a>()), <a href="#229">decoded</a>)
+<a href=#286 id=286 data-nosnippet>286</a>            }
+<a href=#287 id=287 data-nosnippet>287</a>            (AnyArrayView::U64(encoded), AnyArrayDType::F64) =&gt; {
+<a href=#288 id=288 data-nosnippet>288</a>                <a href="#418-450">reinterpret_array_into</a>(<a href="#287">encoded</a>, f64::from_bits, <a href="#229">decoded</a>)
+<a href=#289 id=289 data-nosnippet>289</a>            }
+<a href=#290 id=290 data-nosnippet>290</a>            (encoded, dtype) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#345-350">ReinterpretCodecError::InvalidReinterpret</a> {
+<a href=#291 id=291 data-nosnippet>291</a>                decode_dtype: <a href="#290">dtype</a>,
+<a href=#292 id=292 data-nosnippet>292</a>                encode_dtype: <a href="#290">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+<a href=#293 id=293 data-nosnippet>293</a>            }),
+<a href=#294 id=294 data-nosnippet>294</a>        }<span class="question-mark">?</span>;
+<a href=#295 id=295 data-nosnippet>295</a>
+<a href=#296 id=296 data-nosnippet>296</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
+<a href=#297 id=297 data-nosnippet>297</a>    }
+<a href=#298 id=298 data-nosnippet>298</a>}
+<a href=#299 id=299 data-nosnippet>299</a>
+<a href=#300 id=300 data-nosnippet>300</a><span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
+<a href=#301 id=301 data-nosnippet>301</a>    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"reinterpret"</span>;
+<a href=#302 id=302 data-nosnippet>302</a>
+<a href=#303 id=303 data-nosnippet>303</a>    <span class="kw">type </span>Config&lt;<span class="lifetime">'de</span>&gt; = <span class="self">Self</span>;
+<a href=#304 id=304 data-nosnippet>304</a>
+<a href=#305 id=305 data-nosnippet>305</a>    <span class="kw">fn </span>from_config(config: <span class="self">Self</span>::Config&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self </span>{
+<a href=#306 id=306 data-nosnippet>306</a>        <a href="#305">config</a>
+<a href=#307 id=307 data-nosnippet>307</a>    }
+<a href=#308 id=308 data-nosnippet>308</a>
+<a href=#309 id=309 data-nosnippet>309</a>    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;<span class="self">Self</span>&gt; {
+<a href=#310 id=310 data-nosnippet>310</a>        <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">StaticCodecConfig::from</a>(<a class="self" href="#309">self</a>)
+<a href=#311 id=311 data-nosnippet>311</a>    }
+<a href=#312 id=312 data-nosnippet>312</a>}
+<a href=#313 id=313 data-nosnippet>313</a>
+<a href=#314 id=314 data-nosnippet>314</a><span class="kw">impl </span><a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
+<a href=#315 id=315 data-nosnippet>315</a>    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
+<a href=#316 id=316 data-nosnippet>316</a>        <a href="#334-337">ReinterpretCodecConfig</a> {
+<a href=#317 id=317 data-nosnippet>317</a>            encode_dtype: <a class="self" href="#315">self</a>.encode_dtype,
+<a href=#318 id=318 data-nosnippet>318</a>            decode_dtype: <a class="self" href="#315">self</a>.decode_dtype,
+<a href=#319 id=319 data-nosnippet>319</a>        }
+<a href=#320 id=320 data-nosnippet>320</a>        .<a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#315">serializer</a>)
+<a href=#321 id=321 data-nosnippet>321</a>    }
+<a href=#322 id=322 data-nosnippet>322</a>}
+<a href=#323 id=323 data-nosnippet>323</a>
+<a href=#324 id=324 data-nosnippet>324</a><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#37-42">ReinterpretCodec</a> {
+<a href=#325 id=325 data-nosnippet>325</a>    <span class="kw">fn </span>deserialize&lt;D: <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, D::Error&gt; {
+<a href=#326 id=326 data-nosnippet>326</a>        <span class="kw">let </span>config = <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserialize.html#tymethod.deserialize">ReinterpretCodecConfig::deserialize</a>(<a href="#325">deserializer</a>)<span class="question-mark">?</span>;
+<a href=#327 id=327 data-nosnippet>327</a>
+<a href=#328 id=328 data-nosnippet>328</a>        <a href="#53-79"><span class="self">Self</span>::try_new</a>(<a href="#326">config</a>.encode_dtype, <a href="#326">config</a>.decode_dtype).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.218/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)
+<a href=#329 id=329 data-nosnippet>329</a>    }
+<a href=#330 id=330 data-nosnippet>330</a>}
+<a href=#331 id=331 data-nosnippet>331</a>
+<a href=#332 id=332 data-nosnippet>332</a><span class="attr">#[derive(Clone, Serialize, Deserialize)]
+<a href=#333 id=333 data-nosnippet>333</a>#[serde(rename = <span class="string">"ReinterpretCodec"</span>)]
+<a href=#334 id=334 data-nosnippet>334</a></span><span class="kw">struct </span>ReinterpretCodecConfig {
+<a href=#335 id=335 data-nosnippet>335</a>    encode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+<a href=#336 id=336 data-nosnippet>336</a>    decode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+<a href=#337 id=337 data-nosnippet>337</a>}
+<a href=#338 id=338 data-nosnippet>338</a>
+<a href=#339 id=339 data-nosnippet>339</a><span class="attr">#[derive(Debug, Error)]
+<a href=#340 id=340 data-nosnippet>340</a></span><span class="doccomment">/// Errors that may occur when applying the [`ReinterpretCodec`].
+<a href=#341 id=341 data-nosnippet>341</a></span><span class="kw">pub enum </span><a href="../../numcodecs_reinterpret/enum.ReinterpretCodecError.html">ReinterpretCodecError</a> {
+<a href=#342 id=342 data-nosnippet>342</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot cannot bitcast the `decode_dtype` as
+<a href=#343 id=343 data-nosnippet>343</a>    /// `encode_dtype`
+<a href=#344 id=344 data-nosnippet>344</a>    </span><span class="attr">#[error(<span class="string">"Reinterpret cannot bitcast {decode_dtype} as {encode_dtype}"</span>)]
+<a href=#345 id=345 data-nosnippet>345</a>    </span>InvalidReinterpret {
+<a href=#346 id=346 data-nosnippet>346</a>        <span class="doccomment">/// Dtype of the configured `decode_dtype`
+<a href=#347 id=347 data-nosnippet>347</a>        </span>decode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+<a href=#348 id=348 data-nosnippet>348</a>        <span class="doccomment">/// Dtype of the configured `encode_dtype`
+<a href=#349 id=349 data-nosnippet>349</a>        </span>encode_dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+<a href=#350 id=350 data-nosnippet>350</a>    },
+<a href=#351 id=351 data-nosnippet>351</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot encode the provided dtype which differs
+<a href=#352 id=352 data-nosnippet>352</a>    /// from the configured dtype
+<a href=#353 id=353 data-nosnippet>353</a>    </span><span class="attr">#[error(<span class="string">"Reinterpret cannot encode the provided dtype {provided} which differs from the configured dtype {configured}"</span>)]
+<a href=#354 id=354 data-nosnippet>354</a>    </span>MismatchedEncodeDType {
+<a href=#355 id=355 data-nosnippet>355</a>        <span class="doccomment">/// Dtype of the `configured` `decode_dtype`
+<a href=#356 id=356 data-nosnippet>356</a>        </span>configured: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+<a href=#357 id=357 data-nosnippet>357</a>        <span class="doccomment">/// Dtype of the `provided` array from which the data is to be encoded
+<a href=#358 id=358 data-nosnippet>358</a>        </span>provided: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+<a href=#359 id=359 data-nosnippet>359</a>    },
+<a href=#360 id=360 data-nosnippet>360</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot decode the provided dtype which differs
+<a href=#361 id=361 data-nosnippet>361</a>    /// from the configured dtype
+<a href=#362 id=362 data-nosnippet>362</a>    </span><span class="attr">#[error(<span class="string">"Reinterpret cannot decode the provided dtype {provided} which differs from the configured dtype {configured}"</span>)]
+<a href=#363 id=363 data-nosnippet>363</a>    </span>MismatchedDecodeDType {
+<a href=#364 id=364 data-nosnippet>364</a>        <span class="doccomment">/// Dtype of the `configured` `encode_dtype`
+<a href=#365 id=365 data-nosnippet>365</a>        </span>configured: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+<a href=#366 id=366 data-nosnippet>366</a>        <span class="doccomment">/// Dtype of the `provided` array from which the data is to be decoded
+<a href=#367 id=367 data-nosnippet>367</a>        </span>provided: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+<a href=#368 id=368 data-nosnippet>368</a>    },
+<a href=#369 id=369 data-nosnippet>369</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot decode a byte array with `shape` into an array of `dtype`s
+<a href=#370 id=370 data-nosnippet>370</a>    </span><span class="attr">#[error(
+<a href=#371 id=371 data-nosnippet>371</a>        <span class="string">"Reinterpret cannot decode a byte array of shape {shape:?} into an array of {dtype}-s"
+<a href=#372 id=372 data-nosnippet>372</a>    </span>)]
+<a href=#373 id=373 data-nosnippet>373</a>    </span>InvalidEncodedShape {
+<a href=#374 id=374 data-nosnippet>374</a>        <span class="doccomment">/// Shape of the encoded array
+<a href=#375 id=375 data-nosnippet>375</a>        </span>shape: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
+<a href=#376 id=376 data-nosnippet>376</a>        <span class="doccomment">/// Dtype of the array into which the encoded data is to be decoded
+<a href=#377 id=377 data-nosnippet>377</a>        </span>dtype: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>,
+<a href=#378 id=378 data-nosnippet>378</a>    },
+<a href=#379 id=379 data-nosnippet>379</a>    <span class="doccomment">/// [`ReinterpretCodec`] cannot decode into the provided array
+<a href=#380 id=380 data-nosnippet>380</a>    </span><span class="attr">#[error(<span class="string">"Reinterpret cannot decode into the provided array"</span>)]
+<a href=#381 id=381 data-nosnippet>381</a>    </span>MismatchedDecodeIntoArray {
+<a href=#382 id=382 data-nosnippet>382</a>        <span class="doccomment">/// The source of the error
+<a href=#383 id=383 data-nosnippet>383</a>        </span><span class="attr">#[from]
+<a href=#384 id=384 data-nosnippet>384</a>        </span>source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
+<a href=#385 id=385 data-nosnippet>385</a>    },
+<a href=#386 id=386 data-nosnippet>386</a>}
+<a href=#387 id=387 data-nosnippet>387</a>
+<a href=#388 id=388 data-nosnippet>388</a><span class="doccomment">/// Reinterpret the data elements of the `array` using the provided `reinterpret`
+<a href=#389 id=389 data-nosnippet>389</a>/// closure. The shape of the data is preserved.
+<a href=#390 id=390 data-nosnippet>390</a></span><span class="attr">#[inline]
+<a href=#391 id=391 data-nosnippet>391</a></span><span class="kw">pub fn </span><a href="../../numcodecs_reinterpret/fn.reinterpret_array.html">reinterpret_array</a>&lt;T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, U, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+<a href=#392 id=392 data-nosnippet>392</a>    array: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
+<a href=#393 id=393 data-nosnippet>393</a>    reinterpret: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.Fn.html">Fn</a>(T) -&gt; U,
+<a href=#394 id=394 data-nosnippet>394</a>) -&gt; <a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;U, D&gt; {
+<a href=#395 id=395 data-nosnippet>395</a>    <span class="kw">let </span>array = <a href="#392">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
+<a href=#396 id=396 data-nosnippet>396</a>    <span class="kw">let </span>(shape, data) = (<a href="#395">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.raw_dim">raw_dim</a>(), <a href="#395">array</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_raw_vec_and_offset">into_raw_vec_and_offset</a>().<span class="number">0</span>);
+<a href=#397 id=397 data-nosnippet>397</a>
+<a href=#398 id=398 data-nosnippet>398</a>    <span class="kw">let </span>data = <a href="#396">data</a>.<a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter">into_iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.map">map</a>(<a href="#393">reinterpret</a>).<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.collect">collect</a>();
+<a href=#399 id=399 data-nosnippet>399</a>
+<a href=#400 id=400 data-nosnippet>400</a>    <span class="attr">#[expect(unsafe_code)]
+<a href=#401 id=401 data-nosnippet>401</a>    </span><span class="comment">// Safety: we have preserved the shape, which comes from a valid array
+<a href=#402 id=402 data-nosnippet>402</a>    </span><span class="kw">let </span>array = <span class="kw">unsafe </span>{ <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.from_shape_vec_unchecked">Array::from_shape_vec_unchecked</a>(<a href="#396">shape</a>, <a href="#398">data</a>) };
+<a href=#403 id=403 data-nosnippet>403</a>
+<a href=#404 id=404 data-nosnippet>404</a>    <a href="#402">array</a>
+<a href=#405 id=405 data-nosnippet>405</a>}
+<a href=#406 id=406 data-nosnippet>406</a>
+<a href=#407 id=407 data-nosnippet>407</a><span class="attr">#[expect(clippy::needless_pass_by_value)]
+<a href=#408 id=408 data-nosnippet>408</a></span><span class="doccomment">/// Reinterpret the data elements of the `encoded` array using the provided
+<a href=#409 id=409 data-nosnippet>409</a>/// `reinterpret` closure into the `decoded` array.
+<a href=#410 id=410 data-nosnippet>410</a>///
+<a href=#411 id=411 data-nosnippet>411</a>/// # Errors
+<a href=#412 id=412 data-nosnippet>412</a>///
+<a href=#413 id=413 data-nosnippet>413</a>/// Errors with
+<a href=#414 id=414 data-nosnippet>414</a>/// - [`ReinterpretCodecError::MismatchedDecodeIntoArray`] if `decoded` does not
+<a href=#415 id=415 data-nosnippet>415</a>///   contain an array with elements of type `U` or its shape does not match the
+<a href=#416 id=416 data-nosnippet>416</a>///   `encoded` array's shape
+<a href=#417 id=417 data-nosnippet>417</a></span><span class="attr">#[inline]
+<a href=#418 id=418 data-nosnippet>418</a></span><span class="kw">pub fn </span><a href="../../numcodecs_reinterpret/fn.reinterpret_array_into.html">reinterpret_array_into</a>&lt;<span class="lifetime">'a</span>, T: <a href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html">Copy</a>, U: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/trait.ArrayDType.html">ArrayDType</a>, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+<a href=#419 id=419 data-nosnippet>419</a>    encoded: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>&lt;T, D&gt;,
+<a href=#420 id=420 data-nosnippet>420</a>    reinterpret: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.Fn.html">Fn</a>(T) -&gt; U,
+<a href=#421 id=421 data-nosnippet>421</a>    <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#422 id=422 data-nosnippet>422</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#341-386">ReinterpretCodecError</a>&gt;
+<a href=#423 id=423 data-nosnippet>423</a><span class="kw">where
+<a href=#424 id=424 data-nosnippet>424</a>    </span>U::RawData&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ViewRepr.html">ViewRepr</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>()&gt;&gt;: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.DataMut.html">DataMut</a>,
+<a href=#425 id=425 data-nosnippet>425</a>{
+<a href=#426 id=426 data-nosnippet>426</a>    <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(decoded) = <a href="#421">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_typed_mut">as_typed_mut</a>::&lt;U&gt;() <span class="kw">else </span>{
+<a href=#427 id=427 data-nosnippet>427</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#381-385">ReinterpretCodecError::MismatchedDecodeIntoArray</a> {
+<a href=#428 id=428 data-nosnippet>428</a>            source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.DTypeMismatch">AnyArrayAssignError::DTypeMismatch</a> {
+<a href=#429 id=429 data-nosnippet>429</a>                src: U::DTYPE,
+<a href=#430 id=430 data-nosnippet>430</a>                dst: <a href="#421">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
+<a href=#431 id=431 data-nosnippet>431</a>            },
+<a href=#432 id=432 data-nosnippet>432</a>        });
+<a href=#433 id=433 data-nosnippet>433</a>    };
+<a href=#434 id=434 data-nosnippet>434</a>
+<a href=#435 id=435 data-nosnippet>435</a>    <span class="kw">if </span>encoded.shape() != decoded.shape() {
+<a href=#436 id=436 data-nosnippet>436</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#381-385">ReinterpretCodecError::MismatchedDecodeIntoArray</a> {
+<a href=#437 id=437 data-nosnippet>437</a>            source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
+<a href=#438 id=438 data-nosnippet>438</a>                src: <a href="#419">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+<a href=#439 id=439 data-nosnippet>439</a>                dst: <a href="#426">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+<a href=#440 id=440 data-nosnippet>440</a>            },
+<a href=#441 id=441 data-nosnippet>441</a>        });
+<a href=#442 id=442 data-nosnippet>442</a>    }
+<a href=#443 id=443 data-nosnippet>443</a>
+<a href=#444 id=444 data-nosnippet>444</a>    <span class="comment">// iterate over the elements in standard order
+<a href=#445 id=445 data-nosnippet>445</a>    </span><span class="kw">for </span>(e, d) <span class="kw">in </span>encoded.iter().zip(decoded.iter_mut()) {
+<a href=#446 id=446 data-nosnippet>446</a>        <span class="kw-2">*</span>d = reinterpret(<span class="kw-2">*</span>e);
+<a href=#447 id=447 data-nosnippet>447</a>    }
+<a href=#448 id=448 data-nosnippet>448</a>
+<a href=#449 id=449 data-nosnippet>449</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
+<a href=#450 id=450 data-nosnippet>450</a>}</code></pre></div></section></main></body></html>

@@ -58,7 +58,7 @@
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use crate</span>::{
 <a href=#21 id=21 data-nosnippet>21</a>    schema::{<a href="schema.rs.html#133-188">docs_from_schema</a>, <a href="schema.rs.html#190-213">signature_from_schema</a>},
 <a href=#22 id=22 data-nosnippet>22</a>    <a href="utils.rs.html#4-13">utils::numpy_asarray</a>,
-<a href=#23 id=23 data-nosnippet>23</a>    <a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>, <a href="adapter.rs.html#428-432">PyCodecClassAdapter</a>, <a href="registry.rs.html#8-10">PyCodecRegistry</a>,
+<a href=#23 id=23 data-nosnippet>23</a>    <a href="codec.rs.html#20-22">PyCodec</a>, <a href="codec_class.rs.html#17-19">PyCodecClass</a>, <a href="adapter.rs.html#427-431">PyCodecClassAdapter</a>, <a href="registry.rs.html#8-10">PyCodecRegistry</a>,
 <a href=#24 id=24 data-nosnippet>24</a>};
 <a href=#25 id=25 data-nosnippet>25</a>
 <a href=#26 id=26 data-nosnippet>26</a><span class="doccomment">/// Export the [`DynCodecType`] `ty` to Python by generating a fresh
@@ -78,8 +78,8 @@
 <a href=#40 id=40 data-nosnippet>40</a>
 <a href=#41 id=41 data-nosnippet>41</a>    <span class="kw">let </span>codec_class: <a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt; =
 <a href=#42 id=42 data-nosnippet>42</a>        <span class="comment">// re-exporting a Python codec class should roundtrip
-<a href=#43 id=43 data-nosnippet>43</a>        </span><span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(adapter) = (<span class="kw-2">&amp;</span><a href="#35">ty</a> <span class="kw">as </span><span class="kw-2">&amp;</span><span class="kw">dyn </span><a href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html">Any</a>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.any.html#method.downcast_ref">downcast_ref</a>::&lt;<a href="adapter.rs.html#428-432">PyCodecClassAdapter</a>&gt;() {
-<a href=#44 id=44 data-nosnippet>44</a>            <a href="#43">adapter</a>.<a href="adapter.rs.html#459-461">as_codec_class</a>(<a href="#34">py</a>).<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>()
+<a href=#43 id=43 data-nosnippet>43</a>        </span><span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(adapter) = (<span class="kw-2">&amp;</span><a href="#35">ty</a> <span class="kw">as </span><span class="kw-2">&amp;</span><span class="kw">dyn </span><a href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html">Any</a>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.any.html#method.downcast_ref">downcast_ref</a>::&lt;<a href="adapter.rs.html#427-431">PyCodecClassAdapter</a>&gt;() {
+<a href=#44 id=44 data-nosnippet>44</a>            <a href="#43">adapter</a>.<a href="adapter.rs.html#458-460">as_codec_class</a>(<a href="#34">py</a>).<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>()
 <a href=#45 id=45 data-nosnippet>45</a>        } <span class="kw">else </span>{
 <a href=#46 id=46 data-nosnippet>46</a>            <span class="kw">let </span>codec_config_schema = <a href="#35">ty</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodecType.html#tymethod.codec_config_schema">codec_config_schema</a>();
 <a href=#47 id=47 data-nosnippet>47</a>
@@ -128,7 +128,7 @@
 <a href=#90 id=90 data-nosnippet>90</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#41">codec_class</a>)
 <a href=#91 id=91 data-nosnippet>91</a>}
 <a href=#92 id=92 data-nosnippet>92</a>
-<a href=#93 id=93 data-nosnippet>93</a><span class="attr">#[allow(clippy::redundant_pub_crate)]
+<a href=#93 id=93 data-nosnippet>93</a><span class="attr">#[expect(clippy::redundant_pub_crate)]
 <a href=#94 id=94 data-nosnippet>94</a>#[pyclass(frozen, module = <span class="string">"numcodecs._rust"</span>, name = <span class="string">"_RustCodecType"</span>)]
 <a href=#95 id=95 data-nosnippet>95</a></span><span class="doccomment">/// Rust-implemented codec type container.
 <a href=#96 id=96 data-nosnippet>96</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span><a href="#96-98">RustCodecType</a> {
@@ -214,7 +214,7 @@
 <a href=#176 id=176 data-nosnippet>176</a>    </span>}
 <a href=#177 id=177 data-nosnippet>177</a>}
 <a href=#178 id=178 data-nosnippet>178</a>
-<a href=#179 id=179 data-nosnippet>179</a><span class="attr">#[allow(clippy::redundant_pub_crate)]
+<a href=#179 id=179 data-nosnippet>179</a><span class="attr">#[expect(clippy::redundant_pub_crate)]
 <a href=#180 id=180 data-nosnippet>180</a>#[pyclass(<a href="https://docs.rs/pyo3/0.23/pyo3/impl_/pyclass/trait.PyClassImpl.html#associatedtype.PyClassMutability">subclass</a>, frozen, module = <span class="string">"numcodecs._rust"</span>)]
 <a href=#181 id=181 data-nosnippet>181</a></span><span class="doccomment">/// Rust-implemented codec abstract base class.
 <a href=#182 id=182 data-nosnippet>182</a>///

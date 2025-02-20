@@ -92,7 +92,7 @@
 <a href=#54 id=54 data-nosnippet>54</a>
 <a href=#55 id=55 data-nosnippet>55</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
 <a href=#56 id=56 data-nosnippet>56</a>        <span class="kw">match </span><a href="#55">data</a> {
-<a href=#57 id=57 data-nosnippet>57</a>            <span class="attr">#[allow(clippy::cast_possible_truncation)]
+<a href=#57 id=57 data-nosnippet>57</a>            <span class="attr">#[expect(clippy::cast_possible_truncation)]
 <a href=#58 id=58 data-nosnippet>58</a>            </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#142-154">asinh</a>(<a href="#58">data</a>, <a class="self" href="#55">self</a>.linear_width <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)<span class="question-mark">?</span>)),
 <a href=#59 id=59 data-nosnippet>59</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyCowArray::F64</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">AnyArray::F64</a>(<a href="#142-154">asinh</a>(<a href="#59">data</a>, <a class="self" href="#55">self</a>.linear_width)<span class="question-mark">?</span>)),
 <a href=#60 id=60 data-nosnippet>60</a>            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#120">AsinhCodecError::UnsupportedDtype</a>(<a href="#60">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
@@ -101,7 +101,7 @@
 <a href=#63 id=63 data-nosnippet>63</a>
 <a href=#64 id=64 data-nosnippet>64</a>    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
 <a href=#65 id=65 data-nosnippet>65</a>        <span class="kw">match </span><a href="#64">encoded</a> {
-<a href=#66 id=66 data-nosnippet>66</a>            <span class="attr">#[allow(clippy::cast_possible_truncation)]
+<a href=#66 id=66 data-nosnippet>66</a>            <span class="attr">#[expect(clippy::cast_possible_truncation)]
 <a href=#67 id=67 data-nosnippet>67</a>            </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyCowArray::F32</a>(encoded) =&gt; {
 <a href=#68 id=68 data-nosnippet>68</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">AnyArray::F32</a>(<a href="#164-176">sinh</a>(<a href="#67">encoded</a>, <a class="self" href="#64">self</a>.linear_width <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)<span class="question-mark">?</span>))
 <a href=#69 id=69 data-nosnippet>69</a>            }
@@ -116,7 +116,7 @@
 <a href=#78 id=78 data-nosnippet>78</a>        decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
 <a href=#79 id=79 data-nosnippet>79</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
 <a href=#80 id=80 data-nosnippet>80</a>        <span class="kw">match </span>(<a href="#77">encoded</a>, <a href="#78">decoded</a>) {
-<a href=#81 id=81 data-nosnippet>81</a>            <span class="attr">#[allow(clippy::cast_possible_truncation)]
+<a href=#81 id=81 data-nosnippet>81</a>            <span class="attr">#[expect(clippy::cast_possible_truncation)]
 <a href=#82 id=82 data-nosnippet>82</a>            </span>(AnyArrayView::F32(encoded), AnyArrayViewMut::F32(decoded)) =&gt; {
 <a href=#83 id=83 data-nosnippet>83</a>                <a href="#189-213">sinh_into</a>(<a href="#82">encoded</a>, <a href="#82">decoded</a>, <a class="self" href="#76">self</a>.linear_width <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)
 <a href=#84 id=84 data-nosnippet>84</a>            }
@@ -213,7 +213,7 @@
 <a href=#175 id=175 data-nosnippet>175</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#172">data</a>)
 <a href=#176 id=176 data-nosnippet>176</a>}
 <a href=#177 id=177 data-nosnippet>177</a>
-<a href=#178 id=178 data-nosnippet>178</a><span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#178 id=178 data-nosnippet>178</a><span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#179 id=179 data-nosnippet>179</a></span><span class="doccomment">/// Compute `$w \cdot \text{sinh}\left( \frac{x}{w} \right)$` over the
 <a href=#180 id=180 data-nosnippet>180</a>/// elements of the input `data` array and write them into the `out`put array.
 <a href=#181 id=181 data-nosnippet>181</a>///

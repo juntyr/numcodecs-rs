@@ -102,7 +102,7 @@
 <a href=#64 id=64 data-nosnippet>64</a>    }
 <a href=#65 id=65 data-nosnippet>65</a>
 <a href=#66 id=66 data-nosnippet>66</a>    <span class="kw">fn </span>as_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<span class="lifetime">'py</span>, <a href="https://docs.rs/pyo3/0.23/pyo3/types/typeobject/struct.PyType.html">PyType</a>&gt; {
-<a href=#67 id=67 data-nosnippet>67</a>        <span class="attr">#[allow(unsafe_code)]
+<a href=#67 id=67 data-nosnippet>67</a>        <span class="attr">#[expect(unsafe_code)]
 <a href=#68 id=68 data-nosnippet>68</a>        </span><span class="comment">// Safety: PyCodecClass is a wrapper around PyType
 <a href=#69 id=69 data-nosnippet>69</a>        </span><span class="kw">unsafe </span>{
 <a href=#70 id=70 data-nosnippet>70</a>            <a class="self" href="#66">self</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.downcast_unchecked">downcast_unchecked</a>()
@@ -116,7 +116,7 @@
 <a href=#78 id=78 data-nosnippet>78</a></span><span class="kw">impl </span><a href="https://docs.rs/pyo3/0.23/pyo3/types/trait.DerefToPyAny.html">DerefToPyAny</a> <span class="kw">for </span><a href="#17-19">PyCodecClass</a> {}
 <a href=#79 id=79 data-nosnippet>79</a>
 <a href=#80 id=80 data-nosnippet>80</a><span class="attr">#[doc(hidden)]
-<a href=#81 id=81 data-nosnippet>81</a>#[allow(unsafe_code)]
+<a href=#81 id=81 data-nosnippet>81</a>#[expect(unsafe_code)]
 <a href=#82 id=82 data-nosnippet>82</a></span><span class="kw">unsafe impl </span><a href="https://docs.rs/pyo3/0.23/pyo3/type_object/trait.PyTypeInfo.html">PyTypeInfo</a> <span class="kw">for </span><a href="#17-19">PyCodecClass</a> {
 <a href=#83 id=83 data-nosnippet>83</a>    <span class="kw">const </span>MODULE: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<span class="string">"numcodecs.abc"</span>);
 <a href=#84 id=84 data-nosnippet>84</a>    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"Codec"</span>;

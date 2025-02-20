@@ -267,7 +267,7 @@
 <a href=#229 id=229 data-nosnippet>229</a>}
 <a href=#230 id=230 data-nosnippet>230</a>
 <a href=#231 id=231 data-nosnippet>231</a><span class="attr">#[cfg(test)]
-<a href=#232 id=232 data-nosnippet>232</a>#[allow(clippy::unwrap_used)]
+<a href=#232 id=232 data-nosnippet>232</a>#[expect(clippy::unwrap_used)]
 <a href=#233 id=233 data-nosnippet>233</a></span><span class="kw">mod </span>tests {
 <a href=#234 id=234 data-nosnippet>234</a>    <span class="kw">use </span>ndarray::{Array1, ArrayView1};
 <a href=#235 id=235 data-nosnippet>235</a>
@@ -381,7 +381,7 @@
 <a href=#343 id=343 data-nosnippet>343</a>    }
 <a href=#344 id=344 data-nosnippet>344</a>
 <a href=#345 id=345 data-nosnippet>345</a>    <span class="attr">#[test]
-<a href=#346 id=346 data-nosnippet>346</a>    #[allow(clippy::cast_possible_truncation)]
+<a href=#346 id=346 data-nosnippet>346</a>    #[expect(clippy::cast_possible_truncation)]
 <a href=#347 id=347 data-nosnippet>347</a>    </span><span class="kw">fn </span>full_mantissa() {
 <a href=#348 id=348 data-nosnippet>348</a>        <span class="kw">fn </span>full&lt;T: Float&gt;(x: T) -&gt; T {
 <a href=#349 id=349 data-nosnippet>349</a>            T::from_binary(T::to_binary(x) + T::MANTISSA_MASK)
