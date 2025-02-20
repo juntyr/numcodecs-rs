@@ -18,9 +18,6 @@
 //! wasm32 host-side bindings for the [`numcodecs`] API, which allows you to
 //! import a codec from a WASM component.
 
-// postcard depends on embedded-io 0.4 and 0.6
-#![expect(clippy::multiple_crate_versions)]
-
 mod codec;
 mod component;
 mod error;
