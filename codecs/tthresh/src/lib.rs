@@ -211,7 +211,7 @@ pub fn compress<T: TthreshElement, S: Data<Elem = T>, D: Dimension>(
     };
 
     let compressed = tthresh::compress(
-        &*data_cow,
+        &data_cow,
         data.shape(),
         match error_bound {
             TthreshErrorBound::Eps { eps } => tthresh::ErrorBound::Eps(eps.0),
