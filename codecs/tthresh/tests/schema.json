@@ -1,0 +1,66 @@
+{
+  "type": "object",
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "type": "object",
+      "description": "Relative error bound",
+      "properties": {
+        "eb_eps": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "Relative error bound"
+        },
+        "eb_mode": {
+          "type": "string",
+          "const": "eps"
+        }
+      },
+      "required": [
+        "eb_mode",
+        "eb_eps"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Root mean square error bound",
+      "properties": {
+        "eb_rmse": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "Peak signal to noise ratio error bound"
+        },
+        "eb_mode": {
+          "type": "string",
+          "const": "rmse"
+        }
+      },
+      "required": [
+        "eb_mode",
+        "eb_rmse"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Peak signal-to-noise ratio error bound",
+      "properties": {
+        "eb_psnr": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "Peak signal to noise ratio error bound"
+        },
+        "eb_mode": {
+          "type": "string",
+          "const": "psnr"
+        }
+      },
+      "required": [
+        "eb_mode",
+        "eb_psnr"
+      ]
+    }
+  ],
+  "description": "Codec providing compression using tthresh",
+  "title": "TthreshCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
