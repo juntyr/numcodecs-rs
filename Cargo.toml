@@ -24,6 +24,7 @@ members = [
     "codecs/round",
     "codecs/swizzle-reshape",
     "codecs/sz3",
+    "codecs/tthresh",
     "codecs/uniform-noise",
     "codecs/zfp",
     "codecs/zlib",
@@ -63,6 +64,7 @@ numcodecs-reinterpret = { version = "0.2", path = "codecs/reinterpret", default-
 numcodecs-round = { version = "0.2", path = "codecs/round", default-features = false }
 numcodecs-swizzle-reshape = { version = "0.2", path = "codecs/swizzle-reshape", default-features = false }
 numcodecs-sz3 = { version = "0.3", path = "codecs/sz3", default-features = false }
+numcodecs-tthresh = { version = "0.1", path = "codecs/tthresh", default-features = false }
 numcodecs-uniform-noise = { version = "0.2", path = "codecs/uniform-noise", default-features = false }
 numcodecs-zfp = { version = "0.2", path = "codecs/zfp", default-features = false }
 numcodecs-zlib = { version = "0.2", path = "codecs/zlib", default-features = false }
@@ -101,6 +103,7 @@ serde_json = { version = "1.0.135", default-features = false }
 serde_repr = { version = "0.1.3", default-features = false }
 sz3 = { version = "0.3", default-features = false }
 thiserror = { version = "2.0", default-features = false }
+tthresh = { version = "0.1", default-features = false }
 twofloat = { version = "0.8", default-features = false }
 vecmap-rs = { version = "0.2", default-features = false }
 wac-graph = { version = "0.6", default-features = false }
@@ -108,8 +111,8 @@ wasi-sandboxed-component-provider = { version = "=0.2.3", default-features = fal
 wasi-logger = { version = "0.1", default-features = false }
 wasi-preview1-component-adapter-provider = { version = "30.0", default-features = false }
 wasmparser = { version = "0.226", default-features = false }
-wasmtime = { version = "29.0", default-features = false }
-wasmtime_runtime_layer = { version = "29.0", default-features = false }
+wasmtime = { version = "30.0", default-features = false }
+wasmtime_runtime_layer = { version = "30.0", default-features = false }
 wasm-encoder = { version = "0.226", default-features = false }
 wasm_runtime_layer = { version = "0.4.2", default-features = false }
 wit-bindgen = { version = "0.39", default-features = false }
