@@ -11,6 +11,7 @@ numcodecs_wasm_reinterpret
 numcodecs_wasm_round
 numcodecs_wasm_swizzle_reshape
 numcodecs_wasm_sz3
+numcodecs_wasm_tthresh
 numcodecs_wasm_uniform_noise
 numcodecs_wasm_zfp
 numcodecs_wasm_zlib
