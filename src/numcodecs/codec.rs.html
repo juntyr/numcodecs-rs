@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (617aad8c2 2025-02-24)" data-channel="nightly" data-search-js="search-f7327375.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a7bf3405.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (3ea711f17 2025-03-09)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a7bf3405.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -39,8 +39,8 @@
 </head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs/</div>codec.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::{<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">borrow::Cow</a>, <a href="https://doc.rust-lang.org/nightly/core/error/trait.Error.html">error::Error</a>, <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">marker::PhantomData</a>};
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>schemars::{generate::SchemaSettings, JsonSchema, Schema};
-<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.218/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.218/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serializer.html">Serializer</a>};
-<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span><a href="https://docs.rs/serde_json/1.0.139/serde_json/value/enum.Value.html">serde_json::Value</a>;
+<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.219/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.219/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serializer.html">Serializer</a>};
+<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">serde_json::Value</a>;
 <a href=#6 id=6 data-nosnippet>6</a>
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use crate</span>::{<a href="array.rs.html#14">AnyArray</a>, <a href="array.rs.html#16">AnyArrayView</a>, <a href="array.rs.html#18">AnyArrayViewMut</a>, <a href="array.rs.html#20">AnyCowArray</a>};
 <a href=#8 id=8 data-nosnippet>8</a>
@@ -90,7 +90,7 @@
 <a href=#52 id=52 data-nosnippet>52</a>    /// The `config` must *not* contain an `id` field.
 <a href=#53 id=53 data-nosnippet>53</a>    ///
 <a href=#54 id=54 data-nosnippet>54</a>    /// The config *must* be compatible with JSON encoding and have a schema.
-<a href=#55 id=55 data-nosnippet>55</a>    </span><span class="kw">type </span>Config&lt;<span class="lifetime">'de</span>&gt;: <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html">Serialize</a> + <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; + JsonSchema;
+<a href=#55 id=55 data-nosnippet>55</a>    </span><span class="kw">type </span>Config&lt;<span class="lifetime">'de</span>&gt;: <a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serialize.html">Serialize</a> + <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; + JsonSchema;
 <a href=#56 id=56 data-nosnippet>56</a>
 <a href=#57 id=57 data-nosnippet>57</a>    <span class="doccomment">/// Instantiate a codec from its `config`uration.
 <a href=#58 id=58 data-nosnippet>58</a>    </span><span class="kw">fn </span>from_config(config: <span class="self">Self</span>::Config&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>;
@@ -123,7 +123,7 @@
 <a href=#85 id=85 data-nosnippet>85</a>    /// # Errors
 <a href=#86 id=86 data-nosnippet>86</a>    ///
 <a href=#87 id=87 data-nosnippet>87</a>    /// Errors if serializing the codec configuration fails.
-<a href=#88 id=88 data-nosnippet>88</a>    </span><span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt;;
+<a href=#88 id=88 data-nosnippet>88</a>    </span><span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt;;
 <a href=#89 id=89 data-nosnippet>89</a>}
 <a href=#90 id=90 data-nosnippet>90</a>
 <a href=#91 id=91 data-nosnippet>91</a><span class="doccomment">/// Type object for dynamically typed compression codecs.
@@ -147,7 +147,7 @@
 <a href=#109 id=109 data-nosnippet>109</a>    /// # Errors
 <a href=#110 id=110 data-nosnippet>110</a>    ///
 <a href=#111 id=111 data-nosnippet>111</a>    /// Errors if constructing the codec fails.
-<a href=#112 id=112 data-nosnippet>112</a>    </span><span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
+<a href=#112 id=112 data-nosnippet>112</a>    </span><span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
 <a href=#113 id=113 data-nosnippet>113</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
 <a href=#114 id=114 data-nosnippet>114</a>        config: D,
 <a href=#115 id=115 data-nosnippet>115</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>::Codec, D::Error&gt;;
@@ -160,8 +160,8 @@
 <a href=#122 id=122 data-nosnippet>122</a>        <a href="#138-142">StaticCodecType::of</a>()
 <a href=#123 id=123 data-nosnippet>123</a>    }
 <a href=#124 id=124 data-nosnippet>124</a>
-<a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
-<a href=#126 id=126 data-nosnippet>126</a>        &lt;T <span class="kw">as </span>StaticCodec&gt;::get_config(<a class="self" href="#125">self</a>).<a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#125">serializer</a>)
+<a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
+<a href=#126 id=126 data-nosnippet>126</a>        &lt;T <span class="kw">as </span>StaticCodec&gt;::get_config(<a class="self" href="#125">self</a>).<a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#125">serializer</a>)
 <a href=#127 id=127 data-nosnippet>127</a>    }
 <a href=#128 id=128 data-nosnippet>128</a>}
 <a href=#129 id=129 data-nosnippet>129</a>
@@ -197,11 +197,11 @@
 <a href=#159 id=159 data-nosnippet>159</a>            .into_root_schema_for::&lt;T::Config&lt;<span class="lifetime">'static</span>&gt;&gt;()
 <a href=#160 id=160 data-nosnippet>160</a>    }
 <a href=#161 id=161 data-nosnippet>161</a>
-<a href=#162 id=162 data-nosnippet>162</a>    <span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
+<a href=#162 id=162 data-nosnippet>162</a>    <span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
 <a href=#163 id=163 data-nosnippet>163</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
 <a href=#164 id=164 data-nosnippet>164</a>        config: D,
 <a href=#165 id=165 data-nosnippet>165</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>::Codec, D::Error&gt; {
-<a href=#166 id=166 data-nosnippet>166</a>        <span class="kw">let </span>config = <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserialize.html#tymethod.deserialize">T::Config::deserialize</a>(<a href="#164">config</a>)<span class="question-mark">?</span>;
+<a href=#166 id=166 data-nosnippet>166</a>        <span class="kw">let </span>config = <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserialize.html#tymethod.deserialize">T::Config::deserialize</a>(<a href="#164">config</a>)<span class="question-mark">?</span>;
 <a href=#167 id=167 data-nosnippet>167</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#58">T::from_config</a>(<a href="#166">config</a>))
 <a href=#168 id=168 data-nosnippet>168</a>    }
 <a href=#169 id=169 data-nosnippet>169</a>}
@@ -255,19 +255,19 @@
 <a href=#217 id=217 data-nosnippet>217</a>    }
 <a href=#218 id=218 data-nosnippet>218</a>}
 <a href=#219 id=219 data-nosnippet>219</a>
-<a href=#220 id=220 data-nosnippet>220</a><span class="kw">impl</span>&lt;T: <a href="#46-65">StaticCodec</a>&gt; <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#205">StaticCodecId</a>&lt;T&gt; {
-<a href=#221 id=221 data-nosnippet>221</a>    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
-<a href=#222 id=222 data-nosnippet>222</a>        T::CODEC_ID.<a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#221">serializer</a>)
+<a href=#220 id=220 data-nosnippet>220</a><span class="kw">impl</span>&lt;T: <a href="#46-65">StaticCodec</a>&gt; <a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#205">StaticCodecId</a>&lt;T&gt; {
+<a href=#221 id=221 data-nosnippet>221</a>    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
+<a href=#222 id=222 data-nosnippet>222</a>        T::CODEC_ID.<a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#221">serializer</a>)
 <a href=#223 id=223 data-nosnippet>223</a>    }
 <a href=#224 id=224 data-nosnippet>224</a>}
 <a href=#225 id=225 data-nosnippet>225</a>
-<a href=#226 id=226 data-nosnippet>226</a><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, T: <a href="#46-65">StaticCodec</a>&gt; <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#205">StaticCodecId</a>&lt;T&gt; {
-<a href=#227 id=227 data-nosnippet>227</a>    <span class="kw">fn </span>deserialize&lt;D: <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, D::Error&gt; {
+<a href=#226 id=226 data-nosnippet>226</a><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, T: <a href="#46-65">StaticCodec</a>&gt; <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#205">StaticCodecId</a>&lt;T&gt; {
+<a href=#227 id=227 data-nosnippet>227</a>    <span class="kw">fn </span>deserialize&lt;D: <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, D::Error&gt; {
 <a href=#228 id=228 data-nosnippet>228</a>        <span class="kw">let </span>id = <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;::deserialize(<a href="#227">deserializer</a>)<span class="question-mark">?</span>;
 <a href=#229 id=229 data-nosnippet>229</a>        <span class="kw">let </span>id = <span class="kw-2">&amp;*</span><a href="#228">id</a>;
 <a href=#230 id=230 data-nosnippet>230</a>
 <a href=#231 id=231 data-nosnippet>231</a>        <span class="kw">if </span>id != T::CODEC_ID {
-<a href=#232 id=232 data-nosnippet>232</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.218/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+<a href=#232 id=232 data-nosnippet>232</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
 <a href=#233 id=233 data-nosnippet>233</a>                <span class="string">"expected codec id {:?} but found {id:?}"</span>,
 <a href=#234 id=234 data-nosnippet>234</a>                T::CODEC_ID,
 <a href=#235 id=235 data-nosnippet>235</a>            )));
@@ -286,7 +286,7 @@
 <a href=#248 id=248 data-nosnippet>248</a>/// # Errors
 <a href=#249 id=249 data-nosnippet>249</a>///
 <a href=#250 id=250 data-nosnippet>250</a>/// Errors if serializing the codec configuration fails.
-<a href=#251 id=251 data-nosnippet>251</a></span><span class="kw">pub fn </span><a href="../../numcodecs/fn.serialize_codec_config_with_id.html">serialize_codec_config_with_id</a>&lt;T: <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html">Serialize</a>, C: <a href="#70-89">DynCodec</a>, S: <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serializer.html">Serializer</a>&gt;(
+<a href=#251 id=251 data-nosnippet>251</a></span><span class="kw">pub fn </span><a href="../../numcodecs/fn.serialize_codec_config_with_id.html">serialize_codec_config_with_id</a>&lt;T: <a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serialize.html">Serialize</a>, C: <a href="#70-89">DynCodec</a>, S: <a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serializer.html">Serializer</a>&gt;(
 <a href=#252 id=252 data-nosnippet>252</a>    config: <span class="kw-2">&amp;</span>T,
 <a href=#253 id=253 data-nosnippet>253</a>    codec: <span class="kw-2">&amp;</span>C,
 <a href=#254 id=254 data-nosnippet>254</a>    serializer: S,
@@ -302,7 +302,7 @@
 <a href=#264 id=264 data-nosnippet>264</a>        id: <a href="#253">codec</a>.<a href="#75">ty</a>().<a href="#97">codec_id</a>(),
 <a href=#265 id=265 data-nosnippet>265</a>        <a href="#252">config</a>,
 <a href=#266 id=266 data-nosnippet>266</a>    }
-<a href=#267 id=267 data-nosnippet>267</a>    .<a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#254">serializer</a>)
+<a href=#267 id=267 data-nosnippet>267</a>    .<a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serialize.html#tymethod.serialize">serialize</a>(<a href="#254">serializer</a>)
 <a href=#268 id=268 data-nosnippet>268</a>}
 <a href=#269 id=269 data-nosnippet>269</a>
 <a href=#270 id=270 data-nosnippet>270</a><span class="doccomment">/// Utility function to instantiate a codec of the given `ty`, where the
@@ -314,18 +314,18 @@
 <a href=#276 id=276 data-nosnippet>276</a>/// # Errors
 <a href=#277 id=277 data-nosnippet>277</a>///
 <a href=#278 id=278 data-nosnippet>278</a>/// Errors if constructing the codec fails.
-<a href=#279 id=279 data-nosnippet>279</a></span><span class="kw">pub fn </span><a href="../../numcodecs/fn.codec_from_config_with_id.html">codec_from_config_with_id</a>&lt;<span class="lifetime">'de</span>, T: <a href="#92-116">DynCodecType</a>, D: <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
+<a href=#279 id=279 data-nosnippet>279</a></span><span class="kw">pub fn </span><a href="../../numcodecs/fn.codec_from_config_with_id.html">codec_from_config_with_id</a>&lt;<span class="lifetime">'de</span>, T: <a href="#92-116">DynCodecType</a>, D: <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
 <a href=#280 id=280 data-nosnippet>280</a>    ty: <span class="kw-2">&amp;</span>T,
 <a href=#281 id=281 data-nosnippet>281</a>    config: D,
 <a href=#282 id=282 data-nosnippet>282</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;T::Codec, D::Error&gt; {
-<a href=#283 id=283 data-nosnippet>283</a>    <span class="kw">let </span><span class="kw-2">mut </span>config = <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserialize.html#tymethod.deserialize">Value::deserialize</a>(<a href="#281">config</a>)<span class="question-mark">?</span>;
+<a href=#283 id=283 data-nosnippet>283</a>    <span class="kw">let </span><span class="kw-2">mut </span>config = <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserialize.html#tymethod.deserialize">Value::deserialize</a>(<a href="#281">config</a>)<span class="question-mark">?</span>;
 <a href=#284 id=284 data-nosnippet>284</a>
-<a href=#285 id=285 data-nosnippet>285</a>    <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(config) = <a href="#283">config</a>.<a href="https://docs.rs/serde_json/1.0.139/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
-<a href=#286 id=286 data-nosnippet>286</a>        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(id) = <a href="#285">config</a>.<a href="https://docs.rs/serde_json/1.0.139/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>) {
+<a href=#285 id=285 data-nosnippet>285</a>    <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(config) = <a href="#283">config</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
+<a href=#286 id=286 data-nosnippet>286</a>        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(id) = <a href="#285">config</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>) {
 <a href=#287 id=287 data-nosnippet>287</a>            <span class="kw">let </span>codec_id = <a href="#280">ty</a>.<a href="#97">codec_id</a>();
 <a href=#288 id=288 data-nosnippet>288</a>
 <a href=#289 id=289 data-nosnippet>289</a>            <span class="kw">if </span>!<span class="macro">matches!</span>(id, Value::String(<span class="kw-2">ref </span>id) <span class="kw">if </span>id == codec_id) {
-<a href=#290 id=290 data-nosnippet>290</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.218/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+<a href=#290 id=290 data-nosnippet>290</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
 <a href=#291 id=291 data-nosnippet>291</a>                    <span class="string">"expected codec id {codec_id:?} but found {id}"
 <a href=#292 id=292 data-nosnippet>292</a>                </span>)));
 <a href=#293 id=293 data-nosnippet>293</a>            }
@@ -333,5 +333,5 @@
 <a href=#295 id=295 data-nosnippet>295</a>    }
 <a href=#296 id=296 data-nosnippet>296</a>
 <a href=#297 id=297 data-nosnippet>297</a>    <a href="#280">ty</a>.<a href="#112-115">codec_from_config</a>(<a href="#283">config</a>)
-<a href=#298 id=298 data-nosnippet>298</a>        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.218/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)
+<a href=#298 id=298 data-nosnippet>298</a>        .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)
 <a href=#299 id=299 data-nosnippet>299</a>}</code></pre></div></section></main></body></html>

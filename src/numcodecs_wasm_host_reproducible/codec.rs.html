@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (617aad8c2 2025-02-24)" data-channel="nightly" data-search-js="search-f7327375.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a7bf3405.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/codec.rs`."><title>codec.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (3ea711f17 2025-03-09)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a7bf3405.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -44,7 +44,7 @@
 <a href=#6 id=6 data-nosnippet>6</a>};
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>numcodecs_wasm_host::{CodecError, RuntimeError, WasmCodec, WasmCodecComponent};
 <a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>schemars::Schema;
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span><a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serializer.html">serde::Serializer</a>;
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span><a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serializer.html">serde::Serializer</a>;
 <a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span>wasm_component_layer::{AsContextMut, Component, Instance, Linker, Store, TypedFunc};
 <a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span>wasm_runtime_layer::{backend::WasmEngine, Engine};
 <a href=#12 id=12 data-nosnippet>12</a>
@@ -108,11 +108,11 @@
 <a href=#70 id=70 data-nosnippet>70</a>    ///
 <a href=#71 id=71 data-nosnippet>71</a>    /// Errors if serializing the codec configuration, constructing the new
 <a href=#72 id=72 data-nosnippet>72</a>    /// codec, or interacting with the component fails.
-<a href=#73 id=73 data-nosnippet>73</a>    </span><span class="kw">pub fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="https://docs.rs/serde_json/1.0.139/serde_json/error/struct.Error.html">serde_json::Error</a>&gt; {
-<a href=#74 id=74 data-nosnippet>74</a>        <span class="kw">let </span><span class="kw-2">mut </span>config = <a class="self" href="#73">self</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodec.html#tymethod.get_config">get_config</a>(<a href="https://docs.rs/serde_json/1.0.139/serde_json/value/ser/struct.Serializer.html">serde_json::value::Serializer</a>)<span class="question-mark">?</span>;
+<a href=#73 id=73 data-nosnippet>73</a>    </span><span class="kw">pub fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="https://docs.rs/serde_json/1.0.140/serde_json/error/struct.Error.html">serde_json::Error</a>&gt; {
+<a href=#74 id=74 data-nosnippet>74</a>        <span class="kw">let </span><span class="kw-2">mut </span>config = <a class="self" href="#73">self</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodec.html#tymethod.get_config">get_config</a>(<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/ser/struct.Serializer.html">serde_json::value::Serializer</a>)<span class="question-mark">?</span>;
 <a href=#75 id=75 data-nosnippet>75</a>
-<a href=#76 id=76 data-nosnippet>76</a>        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(config) = <a href="#74">config</a>.<a href="https://docs.rs/serde_json/1.0.139/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
-<a href=#77 id=77 data-nosnippet>77</a>            <a href="#76">config</a>.<a href="https://docs.rs/serde_json/1.0.139/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>);
+<a href=#76 id=76 data-nosnippet>76</a>        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(config) = <a href="#74">config</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.as_object_mut">as_object_mut</a>() {
+<a href=#77 id=77 data-nosnippet>77</a>            <a href="#76">config</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/map/struct.Map.html#method.remove">remove</a>(<span class="string">"id"</span>);
 <a href=#78 id=78 data-nosnippet>78</a>        }
 <a href=#79 id=79 data-nosnippet>79</a>
 <a href=#80 id=80 data-nosnippet>80</a>        <span class="kw">let </span>codec: <span class="self">Self </span>= <a class="self" href="#73">self</a>.ty.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.DynCodecType.html#tymethod.codec_from_config">codec_from_config</a>(<a href="#74">config</a>)<span class="question-mark">?</span>;
@@ -308,14 +308,14 @@
 <a href=#270 id=270 data-nosnippet>270</a>        }
 <a href=#271 id=271 data-nosnippet>271</a>    }
 <a href=#272 id=272 data-nosnippet>272</a>
-<a href=#273 id=273 data-nosnippet>273</a>    <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
+<a href=#273 id=273 data-nosnippet>273</a>    <span class="kw">fn </span>get_config&lt;S: <a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
 <a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">let </span><span class="kw-2">mut </span>store = <span class="self"><a href="#273">self</a>
 <a href=#275 id=275 data-nosnippet>275</a>            </span>.store
 <a href=#276 id=276 data-nosnippet>276</a>            .<a href="https://doc.rust-lang.org/nightly/std/sync/poison/mutex/struct.Mutex.html#method.lock">lock</a>()
 <a href=#277 id=277 data-nosnippet>277</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|<span class="kw">_</span>| <a href="#22-25">ReproducibleWasmCodecError::Poisoned</a> {
 <a href=#278 id=278 data-nosnippet>278</a>                codec_id: <a class="self" href="#273">self</a>.ty.codec_id.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
 <a href=#279 id=279 data-nosnippet>279</a>            })
-<a href=#280 id=280 data-nosnippet>280</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.218/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>)<span class="question-mark">?</span>;
+<a href=#280 id=280 data-nosnippet>280</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.219/serde/ser/trait.Error.html#tymethod.custom">serde::ser::Error::custom</a>)<span class="question-mark">?</span>;
 <a href=#281 id=281 data-nosnippet>281</a>
 <a href=#282 id=282 data-nosnippet>282</a>        <a class="self" href="#273">self</a>.codec.get_config(<a href="#274">store</a>.as_context_mut(), <a href="#273">serializer</a>)
 <a href=#283 id=283 data-nosnippet>283</a>    }
@@ -447,13 +447,13 @@
 <a href=#409 id=409 data-nosnippet>409</a>        <span class="kw-2">&amp;</span><a class="self" href="#408">self</a>.codec_id
 <a href=#410 id=410 data-nosnippet>410</a>    }
 <a href=#411 id=411 data-nosnippet>411</a>
-<a href=#412 id=412 data-nosnippet>412</a>    <span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Deserializer.html">serde::Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
+<a href=#412 id=412 data-nosnippet>412</a>    <span class="kw">fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserializer.html">serde::Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
 <a href=#413 id=413 data-nosnippet>413</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
 <a href=#414 id=414 data-nosnippet>414</a>        config: D,
 <a href=#415 id=415 data-nosnippet>415</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>::Codec, D::Error&gt; {
 <a href=#416 id=416 data-nosnippet>416</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>store, instance, component) =
 <a href=#417 id=417 data-nosnippet>417</a>            (<a class="self" href="#413">self</a>.component_instantiater)(<span class="kw-2">&amp;</span><a class="self" href="#413">self</a>.component, <span class="kw-2">&amp;</span><a class="self" href="#413">self</a>.codec_id)
-<a href=#418 id=418 data-nosnippet>418</a>                .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.218/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
+<a href=#418 id=418 data-nosnippet>418</a>                .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
 <a href=#419 id=419 data-nosnippet>419</a>        <span class="kw">let </span>codec = <a href="#416">component</a>.codec_from_config(<a href="#416">store</a>.as_context_mut(), <a href="#414">config</a>)<span class="question-mark">?</span>;
 <a href=#420 id=420 data-nosnippet>420</a>
 <a href=#421 id=421 data-nosnippet>421</a>        <span class="kw">let </span><a href="transform/instcnt.rs.html#952-955">PerfWitInterfaces</a> {
@@ -461,17 +461,17 @@
 <a href=#423 id=423 data-nosnippet>423</a>            instruction_counter,
 <a href=#424 id=424 data-nosnippet>424</a>        } = <a href="transform/instcnt.rs.html#959-972">PerfWitInterfaces::get</a>();
 <a href=#425 id=425 data-nosnippet>425</a>        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(perf_interface) = <a href="#416">instance</a>.exports().instance(<a href="#422">perf_interface</a>) <span class="kw">else </span>{
-<a href=#426 id=426 data-nosnippet>426</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.218/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(
+<a href=#426 id=426 data-nosnippet>426</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(
 <a href=#427 id=427 data-nosnippet>427</a>                <span class="string">"WASM component does not contain an interface to read the instruction counter"</span>,
 <a href=#428 id=428 data-nosnippet>428</a>            ));
 <a href=#429 id=429 data-nosnippet>429</a>        };
 <a href=#430 id=430 data-nosnippet>430</a>        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(instruction_counter) = <a href="#425">perf_interface</a>.func(<a href="#423">instruction_counter</a>) <span class="kw">else </span>{
-<a href=#431 id=431 data-nosnippet>431</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.218/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(
+<a href=#431 id=431 data-nosnippet>431</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(
 <a href=#432 id=432 data-nosnippet>432</a>                <span class="string">"WASM component interface does not contain a function to read the instruction counter"
 <a href=#433 id=433 data-nosnippet>433</a>            </span>));
 <a href=#434 id=434 data-nosnippet>434</a>        };
 <a href=#435 id=435 data-nosnippet>435</a>        <span class="kw">let </span>instruction_counter = <a href="#430">instruction_counter</a>.typed().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-<a href=#436 id=436 data-nosnippet>436</a>            <a href="https://docs.rs/serde/1.0.218/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+<a href=#436 id=436 data-nosnippet>436</a>            <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
 <a href=#437 id=437 data-nosnippet>437</a>                <span class="string">"WASM component instruction counter function has the wrong signature: {err}"
 <a href=#438 id=438 data-nosnippet>438</a>            </span>))
 <a href=#439 id=439 data-nosnippet>439</a>        })<span class="question-mark">?</span>;
@@ -512,13 +512,13 @@
 <a href=#474 id=474 data-nosnippet>474</a>    };
 <a href=#475 id=475 data-nosnippet>475</a>
 <a href=#476 id=476 data-nosnippet>476</a>    <span class="kw">if </span>!errors.is_empty() {
-<a href=#477 id=477 data-nosnippet>477</a>        <a href="#472">err</a> = <a href="#472">err</a>.<a href="https://docs.rs/anyhow/1.0.96/anyhow/struct.Error.html#method.context">context</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"showing one of {} errors"</span>, errors.len() + <span class="number">1</span>));
+<a href=#477 id=477 data-nosnippet>477</a>        <a href="#472">err</a> = <a href="#472">err</a>.<a href="https://docs.rs/anyhow/1.0.97/anyhow/struct.Error.html#method.context">context</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"showing one of {} errors"</span>, errors.len() + <span class="number">1</span>));
 <a href=#478 id=478 data-nosnippet>478</a>    }
 <a href=#479 id=479 data-nosnippet>479</a>
 <a href=#480 id=480 data-nosnippet>480</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#28-33">ReproducibleWasmCodecError::Runtime</a> {
 <a href=#481 id=481 data-nosnippet>481</a>        codec_id: <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">Arc::from</a>(<a href="#463">codec_id</a>),
 <a href=#482 id=482 data-nosnippet>482</a>        source: <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(
-<a href=#483 id=483 data-nosnippet>483</a>            <a href="#472">err</a>.<a href="https://docs.rs/anyhow/1.0.96/anyhow/struct.Error.html#method.context">context</a>(<span class="string">"dropping instance and all of its resources failed"</span>),
+<a href=#483 id=483 data-nosnippet>483</a>            <a href="#472">err</a>.<a href="https://docs.rs/anyhow/1.0.97/anyhow/struct.Error.html#method.context">context</a>(<span class="string">"dropping instance and all of its resources failed"</span>),
 <a href=#484 id=484 data-nosnippet>484</a>        ),
 <a href=#485 id=485 data-nosnippet>485</a>    })
 <a href=#486 id=486 data-nosnippet>486</a>}</code></pre></div></section></main></body></html>
