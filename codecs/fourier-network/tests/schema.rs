@@ -8,6 +8,9 @@ use ::{
     serde_json as _, simple_logger as _, thiserror as _,
 };
 
+// FIXME: see https://github.com/tracel-ai/burn/issues/2876
+use ::{bincode as _, bincode_derive as _};
+
 #[test]
 fn schema() {
     let schema = format!(

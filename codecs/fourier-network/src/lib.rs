@@ -49,6 +49,9 @@ use thiserror::Error;
 #[cfg(test)]
 use ::serde_json as _;
 
+// FIXME: see https://github.com/tracel-ai/burn/issues/2876
+use ::{bincode as _, bincode_derive as _};
+
 mod modules;
 
 use modules::{Model, ModelConfig, ModelExtra, ModelRecord};

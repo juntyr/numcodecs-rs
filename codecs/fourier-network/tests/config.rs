@@ -10,6 +10,9 @@ use ::{
     simple_logger as _, thiserror as _,
 };
 
+// FIXME: see https://github.com/tracel-ai/burn/issues/2876
+use ::{bincode as _, bincode_derive as _};
+
 #[test]
 #[should_panic(expected = "missing field `fourier_features`")]
 fn empty_config() {
