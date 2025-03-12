@@ -160,7 +160,7 @@ pub struct ZfpCompressionStreamWithBitstream<'a, 'b, T: ZfpCompressible> {
     _marker: PhantomData<&'a T>,
 }
 
-impl<'a, 'b, T: ZfpCompressible> ZfpCompressionStreamWithBitstream<'a, 'b, T> {
+impl<T: ZfpCompressible> ZfpCompressionStreamWithBitstream<'_, '_, T> {
     pub fn compress(self) -> Result<(), ZfpCodecError> {
         let compressed_size = unsafe { zfp_sys::zfp_compress(self.stream, self.field) };
 
