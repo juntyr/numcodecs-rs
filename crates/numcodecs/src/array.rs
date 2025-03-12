@@ -319,52 +319,61 @@ where
     ///
     /// Otherwise, the data is cloned and put into standard order first, and
     /// later copied back into the array.
-    pub fn with_bytes_mut<O>(&mut self, with: impl FnOnce(&mut [u8]) -> O) -> O {
-        fn array_with_bytes_mut<T: Copy, S: DataMut<Elem = T>, O>(
-            x: &mut ArrayBase<S, IxDyn>,
-            with: impl FnOnce(&mut [u8]) -> O,
-        ) -> O {
-            if let Some(x) = x.as_slice_mut() {
-                #[expect(unsafe_code)]
-                // Safety: casting to a byte slice is only safe since this
-                //         private helper function is only called for plain-
-                //         old-data types and the slice's length is adjusted
-                with(unsafe {
-                    std::slice::from_raw_parts_mut(
-                        x.as_mut_ptr().cast::<u8>(),
-                        std::mem::size_of_val(x),
-                    )
-                })
-            } else {
-                let mut x_vec: Vec<T> = x.into_iter().map(|x| *x).collect::<Vec<T>>();
+    pub fn with_bytes_mut_typed<D: ArrayDType, S: DataMut<Elem = D>, O>(
+        x: &mut ArrayBase<S, IxDyn>,
+        with: impl FnOnce(&mut [u8]) -> O,
+    ) -> O {
+        if let Some(x) = x.as_slice_mut() {
+            #[expect(unsafe_code)]
+            // Safety: casting to a byte slice is only safe since this
+            //         private helper function is only called for plain-
+            //         old-data types and the slice's length is adjusted
+            with(unsafe {
+                std::slice::from_raw_parts_mut(
+                    x.as_mut_ptr().cast::<u8>(),
+                    std::mem::size_of_val(x),
+                )
+            })
+        } else {
+            let mut x_vec: Vec<D> = x.into_iter().map(|x| *x).collect::<Vec<D>>();
 
-                #[expect(unsafe_code)]
-                // Safety: casting to a byte slice is only safe since this
-                //         private helper function is only called for plain-
-                //         old-data types and the slice's length is adjusted
-                let result = with(unsafe {
-                    std::slice::from_raw_parts_mut(
-                        x_vec.as_mut_ptr().cast::<u8>(),
-                        std::mem::size_of_val(x_vec.as_slice()),
-                    )
-                });
+            #[expect(unsafe_code)]
+            // Safety: casting to a byte slice is only safe since this
+            //         private helper function is only called for plain-
+            //         old-data types and the slice's length is adjusted
+            let result = with(unsafe {
+                std::slice::from_raw_parts_mut(
+                    x_vec.as_mut_ptr().cast::<u8>(),
+                    std::mem::size_of_val(x_vec.as_slice()),
+                )
+            });
 
-                x.iter_mut().zip(x_vec).for_each(|(x, x_new)| *x = x_new);
-                result
-            }
+            x.iter_mut().zip(x_vec).for_each(|(x, x_new)| *x = x_new);
+            result
         }
+    }
 
+    #[must_use]
+    /// Provides access to the array's data as a mutable byte slice.
+    ///
+    /// If the array is contiguous and in standard order, i.e. if the element
+    /// order in memory corresponds to the logical order of the array's
+    /// elements, a mutable view of the data is returned without cloning.
+    ///
+    /// Otherwise, the data is cloned and put into standard order first, and
+    /// later copied back into the array.
+    pub fn with_bytes_mut<O>(&mut self, with: impl FnOnce(&mut [u8]) -> O) -> O {
         match self {
-            Self::U8(a) => array_with_bytes_mut(a, with),
-            Self::U16(a) => array_with_bytes_mut(a, with),
-            Self::U32(a) => array_with_bytes_mut(a, with),
-            Self::U64(a) => array_with_bytes_mut(a, with),
-            Self::I8(a) => array_with_bytes_mut(a, with),
-            Self::I16(a) => array_with_bytes_mut(a, with),
-            Self::I32(a) => array_with_bytes_mut(a, with),
-            Self::I64(a) => array_with_bytes_mut(a, with),
-            Self::F32(a) => array_with_bytes_mut(a, with),
-            Self::F64(a) => array_with_bytes_mut(a, with),
+            Self::U8(a) => Self::with_bytes_mut_typed(a, with),
+            Self::U16(a) => Self::with_bytes_mut_typed(a, with),
+            Self::U32(a) => Self::with_bytes_mut_typed(a, with),
+            Self::U64(a) => Self::with_bytes_mut_typed(a, with),
+            Self::I8(a) => Self::with_bytes_mut_typed(a, with),
+            Self::I16(a) => Self::with_bytes_mut_typed(a, with),
+            Self::I32(a) => Self::with_bytes_mut_typed(a, with),
+            Self::I64(a) => Self::with_bytes_mut_typed(a, with),
+            Self::F32(a) => Self::with_bytes_mut_typed(a, with),
+            Self::F64(a) => Self::with_bytes_mut_typed(a, with),
         }
     }
 
@@ -740,7 +749,7 @@ impl fmt::Display for AnyArrayDType {
 }
 
 /// Types which are included in [`AnyArrayDType`]
-pub trait ArrayDType: crate::sealed::Sealed {
+pub trait ArrayDType: Copy + crate::sealed::Sealed {
     /// [`AnyArrayDType`] representation of this type
     const DTYPE: AnyArrayDType;
 

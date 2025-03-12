@@ -19,6 +19,7 @@ include = ["/src", "/LICENSE", "/docs/katex.html"]
 [dependencies]
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
+postcard = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
