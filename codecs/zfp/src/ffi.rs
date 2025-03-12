@@ -318,14 +318,14 @@ pub trait ZfpCompressible: Copy + ArrayDType {
     const D_TYPE: ZfpDType;
     const Z_TYPE: zfp_sys::zfp_type;
 
-    fn is_finite(&self) -> bool;
+    fn is_finite(self) -> bool;
 }
 
 impl ZfpCompressible for i32 {
     const D_TYPE: ZfpDType = ZfpDType::I32;
     const Z_TYPE: zfp_sys::zfp_type = zfp_sys::zfp_type_zfp_type_int32;
 
-    fn is_finite(&self) -> bool {
+    fn is_finite(self) -> bool {
         true
     }
 }
@@ -334,7 +334,7 @@ impl ZfpCompressible for i64 {
     const D_TYPE: ZfpDType = ZfpDType::I64;
     const Z_TYPE: zfp_sys::zfp_type = zfp_sys::zfp_type_zfp_type_int64;
 
-    fn is_finite(&self) -> bool {
+    fn is_finite(self) -> bool {
         true
     }
 }
@@ -343,8 +343,8 @@ impl ZfpCompressible for f32 {
     const D_TYPE: ZfpDType = ZfpDType::F32;
     const Z_TYPE: zfp_sys::zfp_type = zfp_sys::zfp_type_zfp_type_float;
 
-    fn is_finite(&self) -> bool {
-        f32::is_finite(*self)
+    fn is_finite(self) -> bool {
+        Self::is_finite(self)
     }
 }
 
@@ -352,7 +352,7 @@ impl ZfpCompressible for f64 {
     const D_TYPE: ZfpDType = ZfpDType::F64;
     const Z_TYPE: zfp_sys::zfp_type = zfp_sys::zfp_type_zfp_type_double;
 
-    fn is_finite(&self) -> bool {
-        f64::is_finite(*self)
+    fn is_finite(self) -> bool {
+        Self::is_finite(self)
     }
 }
