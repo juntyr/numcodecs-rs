@@ -320,8 +320,8 @@ impl ZfpDecompressionStreamWithHeader<'_> {
             zfp_sys::zfp_field_set_pointer(
                 self.field,
                 decompressed.as_mut_ptr().cast::<std::ffi::c_void>(),
-            )
-        };
+            );
+        }
 
         if unsafe { zfp_sys::zfp_decompress(self.stream, self.field) } == 0 {
             Err(ZfpCodecError::ZfpDecodeFailed)
