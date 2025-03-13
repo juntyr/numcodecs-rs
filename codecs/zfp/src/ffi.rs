@@ -3,9 +3,11 @@
 use std::{marker::PhantomData, mem::ManuallyDrop};
 
 use ndarray::{ArrayView, ArrayViewMut, Dimension, IxDyn};
-use numcodecs::{AnyArrayViewMut, ArrayDType};
+use numcodecs::ArrayDType;
 
 use crate::{ZfpCodecError, ZfpCompressionMode, ZfpDType};
+
+const ZFP_HEADER_NO_META: u32 = zfp_sys::ZFP_HEADER_FULL & !zfp_sys::ZFP_HEADER_META;
 
 pub struct ZfpField<'a, T: ZfpCompressible> {
     field: *mut zfp_sys::zfp_field,
@@ -160,7 +162,45 @@ pub struct ZfpCompressionStreamWithBitstream<'a, 'b, T: ZfpCompressible> {
     _marker: PhantomData<&'a T>,
 }
 
-impl<T: ZfpCompressible> ZfpCompressionStreamWithBitstream<'_, '_, T> {
+impl<'a, 'b, T: ZfpCompressible> ZfpCompressionStreamWithBitstream<'a, 'b, T> {
+    pub fn write_header(
+        self,
+    ) -> Result<ZfpCompressionStreamWithBitstreamWithHeader<'a, 'b, T>, ZfpCodecError> {
+        if unsafe { zfp_sys::zfp_write_header(self.stream, self.field, ZFP_HEADER_NO_META) } == 0 {
+            return Err(ZfpCodecError::HeaderEncodeFailed);
+        }
+
+        let mut this = ManuallyDrop::new(self);
+
+        Ok(ZfpCompressionStreamWithBitstreamWithHeader {
+            stream: this.stream,
+            bitstream: this.bitstream,
+            field: this.field,
+            // Safety: self is consumed, buffer is not read inside drop,
+            //         the lifetime is carried on
+            buffer: unsafe { &mut *std::ptr::from_mut(this.buffer) },
+            _marker: PhantomData::<&'a T>,
+        })
+    }
+}
+
+impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstream<'_, '_, T> {
+    fn drop(&mut self) {
+        unsafe { zfp_sys::zfp_field_free(self.field) };
+        unsafe { zfp_sys::zfp_stream_close(self.stream) };
+        unsafe { zfp_sys::stream_close(self.bitstream) };
+    }
+}
+
+pub struct ZfpCompressionStreamWithBitstreamWithHeader<'a, 'b, T: ZfpCompressible> {
+    stream: *mut zfp_sys::zfp_stream,
+    bitstream: *mut zfp_sys::bitstream,
+    field: *mut zfp_sys::zfp_field,
+    buffer: &'b mut Vec<u8>,
+    _marker: PhantomData<&'a T>,
+}
+
+impl<T: ZfpCompressible> ZfpCompressionStreamWithBitstreamWithHeader<'_, '_, T> {
     pub fn compress(self) -> Result<(), ZfpCodecError> {
         let compressed_size = unsafe { zfp_sys::zfp_compress(self.stream, self.field) };
 
@@ -178,7 +218,7 @@ impl<T: ZfpCompressible> ZfpCompressionStreamWithBitstream<'_, '_, T> {
     }
 }
 
-impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstream<'_, '_, T> {
+impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstreamWithHeader<'_, '_, T> {
     fn drop(&mut self) {
         unsafe { zfp_sys::zfp_field_free(self.field) };
         unsafe { zfp_sys::zfp_stream_close(self.stream) };
@@ -189,7 +229,7 @@ impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstream<'_, '_, T> {
 pub struct ZfpDecompressionStream<'a> {
     stream: *mut zfp_sys::zfp_stream,
     bitstream: *mut zfp_sys::bitstream,
-    _data: &'a [u8],
+    data: &'a [u8],
 }
 
 impl<'a> ZfpDecompressionStream<'a> {
@@ -207,108 +247,93 @@ impl<'a> ZfpDecompressionStream<'a> {
         Self {
             stream,
             bitstream,
-            _data: data,
+            data,
         }
     }
 
-    pub fn decompress<T: ZfpCompressible>(
-        self,
-        mode: &ZfpCompressionMode,
-        mut decompressed: ArrayViewMut<T, IxDyn>,
-    ) -> Result<(), ZfpCodecError> {
-        let (shape, strides) = (
-            decompressed.shape().to_vec(),
-            decompressed.strides().to_vec(),
-        );
+    pub fn read_header(self) -> Result<ZfpDecompressionStreamWithHeader<'a>, ZfpCodecError> {
+        let this = ManuallyDrop::new(self);
 
-        AnyArrayViewMut::with_bytes_mut_typed(&mut decompressed, |bytes| {
-            let pointer = bytes.as_mut_ptr().cast();
+        let field = unsafe { zfp_sys::zfp_field_alloc() };
 
-            let (field, dims) = match (shape.as_slice(), strides.as_slice()) {
-                ([nx], [sx]) => unsafe {
-                    let field = zfp_sys::zfp_field_1d(pointer, T::Z_TYPE, *nx);
-                    zfp_sys::zfp_field_set_stride_1d(field, *sx);
-                    (field, 1)
-                },
-                ([ny, nx], [sy, sx]) => unsafe {
-                    let field = zfp_sys::zfp_field_2d(pointer, T::Z_TYPE, *nx, *ny);
-                    zfp_sys::zfp_field_set_stride_2d(field, *sx, *sy);
-                    (field, 2)
-                },
-                ([nz, ny, nx], [sz, sy, sx]) => unsafe {
-                    let field = zfp_sys::zfp_field_3d(pointer, T::Z_TYPE, *nx, *ny, *nz);
-                    zfp_sys::zfp_field_set_stride_3d(field, *sx, *sy, *sz);
-                    (field, 3)
-                },
-                ([nw, nz, ny, nx], [sw, sz, sy, sx]) => unsafe {
-                    let field = zfp_sys::zfp_field_4d(pointer, T::Z_TYPE, *nx, *ny, *nz, *nw);
-                    zfp_sys::zfp_field_set_stride_4d(field, *sx, *sy, *sz, *sw);
-                    (field, 4)
-                },
-                (shape, _strides) => {
-                    return Err(ZfpCodecError::ExcessiveDimensionality {
-                        shape: shape.to_vec(),
-                    })
-                }
-            };
+        let stream = ZfpDecompressionStreamWithHeader {
+            stream: this.stream,
+            bitstream: this.bitstream,
+            field,
+            _data: this.data,
+        };
 
-            match mode {
-                ZfpCompressionMode::Expert {
-                    min_bits,
-                    max_bits,
-                    max_prec,
-                    min_exp,
-                } => {
-                    #[expect(clippy::cast_possible_wrap)]
-                    const ZFP_TRUE: zfp_sys::zfp_bool = zfp_sys::zfp_true as zfp_sys::zfp_bool;
+        if unsafe { zfp_sys::zfp_read_header(this.stream, field, ZFP_HEADER_NO_META) } == 0 {
+            return Err(ZfpCodecError::HeaderDecodeFailed);
+        }
 
-                    if unsafe {
-                        zfp_sys::zfp_stream_set_params(
-                            self.stream,
-                            *min_bits,
-                            *max_bits,
-                            *max_prec,
-                            *min_exp,
-                        )
-                    } != ZFP_TRUE
-                    {
-                        unsafe { zfp_sys::zfp_field_free(field) };
-                        return Err(ZfpCodecError::InvalidExpertMode { mode: mode.clone() });
-                    }
-                }
-                ZfpCompressionMode::FixedRate { rate } => {
-                    let _actual_rate: f64 = unsafe {
-                        zfp_sys::zfp_stream_set_rate(self.stream, *rate, T::Z_TYPE, dims, 0)
-                    };
-                }
-                ZfpCompressionMode::FixedPrecision { precision } => {
-                    let _actual_precision: u32 =
-                        unsafe { zfp_sys::zfp_stream_set_precision(self.stream, *precision) };
-                }
-                ZfpCompressionMode::FixedAccuracy { tolerance } => {
-                    let _actual_tolerance: f64 =
-                        unsafe { zfp_sys::zfp_stream_set_accuracy(self.stream, *tolerance) };
-                }
-                ZfpCompressionMode::Reversible => {
-                    let () = unsafe { zfp_sys::zfp_stream_set_reversible(self.stream) };
-                }
-            }
-
-            let result = unsafe { zfp_sys::zfp_decompress(self.stream, field) };
-
-            unsafe { zfp_sys::zfp_field_free(field) };
-
-            if result == 0 {
-                Err(ZfpCodecError::ZfpDecodeFailed)
-            } else {
-                Ok(())
-            }
-        })
+        Ok(stream)
     }
 }
 
 impl Drop for ZfpDecompressionStream<'_> {
     fn drop(&mut self) {
+        unsafe { zfp_sys::zfp_stream_close(self.stream) };
+        unsafe { zfp_sys::stream_close(self.bitstream) };
+    }
+}
+
+pub struct ZfpDecompressionStreamWithHeader<'a> {
+    stream: *mut zfp_sys::zfp_stream,
+    bitstream: *mut zfp_sys::bitstream,
+    field: *mut zfp_sys::zfp_field,
+    _data: &'a [u8],
+}
+
+impl ZfpDecompressionStreamWithHeader<'_> {
+    pub fn decompress_into<T: ZfpCompressible>(
+        self,
+        mut decompressed: ArrayViewMut<T, IxDyn>,
+    ) -> Result<(), ZfpCodecError> {
+        unsafe { zfp_sys::zfp_field_set_type(self.field, T::Z_TYPE) };
+
+        match (decompressed.shape(), decompressed.strides()) {
+            ([nx], [sx]) => unsafe {
+                zfp_sys::zfp_field_set_size_1d(self.field, *nx);
+                zfp_sys::zfp_field_set_stride_1d(self.field, *sx);
+            },
+            ([ny, nx], [sy, sx]) => unsafe {
+                zfp_sys::zfp_field_set_size_2d(self.field, *nx, *ny);
+                zfp_sys::zfp_field_set_stride_2d(self.field, *sx, *sy);
+            },
+            ([nz, ny, nx], [sz, sy, sx]) => unsafe {
+                zfp_sys::zfp_field_set_size_3d(self.field, *nx, *ny, *nz);
+                zfp_sys::zfp_field_set_stride_3d(self.field, *sx, *sy, *sz);
+            },
+            ([nw, nz, ny, nx], [sw, sz, sy, sx]) => unsafe {
+                zfp_sys::zfp_field_set_size_4d(self.field, *nx, *ny, *nz, *nw);
+                zfp_sys::zfp_field_set_stride_4d(self.field, *sx, *sy, *sz, *sw);
+            },
+            (shape, _strides) => {
+                return Err(ZfpCodecError::ExcessiveDimensionality {
+                    shape: shape.to_vec(),
+                })
+            }
+        };
+
+        unsafe {
+            zfp_sys::zfp_field_set_pointer(
+                self.field,
+                decompressed.as_mut_ptr().cast::<std::ffi::c_void>(),
+            )
+        };
+
+        if unsafe { zfp_sys::zfp_decompress(self.stream, self.field) } == 0 {
+            Err(ZfpCodecError::ZfpDecodeFailed)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl Drop for ZfpDecompressionStreamWithHeader<'_> {
+    fn drop(&mut self) {
+        unsafe { zfp_sys::zfp_field_free(self.field) };
         unsafe { zfp_sys::zfp_stream_close(self.stream) };
         unsafe { zfp_sys::stream_close(self.bitstream) };
     }

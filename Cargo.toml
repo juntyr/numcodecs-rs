@@ -80,7 +80,7 @@ indexmap = { version = "2.7", default-features = false }
 itertools = { version = "0.14", default-features = false }
 log = { version = "0.4.22", default-features = false }
 simple_logger = { version = "5.0", default-features = false }
-miniz_oxide = { version = "0.8", default-features = false }
+miniz_oxide = { version = "0.8.4", default-features = false }
 ndarray = { version = "0.16.1", default-features = false } # keep in sync with numpy
 ndarray-rand = { version = "0.15", default-features = false }
 numpy = { version = "0.23", default-features = false }
@@ -115,7 +115,7 @@ wasmtime = { version = "30.0", default-features = false }
 wasmtime_runtime_layer = { version = "30.0", default-features = false }
 wasm-encoder = { version = "0.227", default-features = false }
 wasm_runtime_layer = { version = "0.4.2", default-features = false }
-wit-bindgen = { version = "0.40", default-features = false }
+wit-bindgen = { version = "0.41", default-features = false }
 wit-component = { version = "0.227", default-features = false }
 wit-parser = { version = "0.227", default-features = false }
 wyhash = { version = "0.5", default-features = false }
