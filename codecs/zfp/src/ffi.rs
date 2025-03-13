@@ -2,10 +2,12 @@
 
 use std::{marker::PhantomData, mem::ManuallyDrop};
 
-use ndarray::{ArrayView, Dimension};
-use numcodecs::{AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayViewMut};
+use ndarray::{ArrayView, ArrayViewMut, Dimension, IxDyn};
+use numcodecs::ArrayDType;
 
-use crate::{ZfpCodecError, ZfpCompressionMode};
+use crate::{ZfpCodecError, ZfpCompressionMode, ZfpDType};
+
+const ZFP_HEADER_NO_META: u32 = zfp_sys::ZFP_HEADER_FULL & !zfp_sys::ZFP_HEADER_META;
 
 pub struct ZfpField<'a, T: ZfpCompressible> {
     field: *mut zfp_sys::zfp_field,
@@ -118,17 +120,20 @@ impl<T: ZfpCompressible> ZfpCompressionStream<T> {
     }
 
     #[must_use]
-    pub fn with_bitstream<'a>(
+    pub fn with_bitstream<'a, 'b>(
         self,
         field: ZfpField<'a, T>,
-    ) -> ZfpCompressionStreamWithBitstream<'a, T> {
+        buffer: &'b mut Vec<u8>,
+    ) -> ZfpCompressionStreamWithBitstream<'a, 'b, T> {
         let this = ManuallyDrop::new(self);
         let field = ManuallyDrop::new(field);
 
         let capacity = unsafe { zfp_sys::zfp_stream_maximum_size(this.stream, field.field) };
-        let mut buffer = vec![0_u8; capacity];
+        buffer.reserve(capacity);
 
-        let bitstream = unsafe { zfp_sys::stream_open(buffer.as_mut_ptr().cast(), buffer.len()) };
+        let bitstream = unsafe {
+            zfp_sys::stream_open(buffer.spare_capacity_mut().as_mut_ptr().cast(), capacity)
+        };
 
         unsafe { zfp_sys::zfp_stream_set_bit_stream(this.stream, bitstream) };
         unsafe { zfp_sys::zfp_stream_rewind(this.stream) };
@@ -149,21 +154,19 @@ impl<T: ZfpCompressible> Drop for ZfpCompressionStream<T> {
     }
 }
 
-pub struct ZfpCompressionStreamWithBitstream<'a, T: ZfpCompressible> {
+pub struct ZfpCompressionStreamWithBitstream<'a, 'b, T: ZfpCompressible> {
     stream: *mut zfp_sys::zfp_stream,
     bitstream: *mut zfp_sys::bitstream,
     field: *mut zfp_sys::zfp_field,
-    buffer: Vec<u8>,
+    buffer: &'b mut Vec<u8>,
     _marker: PhantomData<&'a T>,
 }
 
-impl<'a, T: ZfpCompressible> ZfpCompressionStreamWithBitstream<'a, T> {
-    pub fn write_full_header(
+impl<'a, 'b, T: ZfpCompressible> ZfpCompressionStreamWithBitstream<'a, 'b, T> {
+    pub fn write_header(
         self,
-    ) -> Result<ZfpCompressionStreamWithBitstreamWithHeader<'a, T>, ZfpCodecError> {
-        if unsafe { zfp_sys::zfp_write_header(self.stream, self.field, zfp_sys::ZFP_HEADER_FULL) }
-            == 0
-        {
+    ) -> Result<ZfpCompressionStreamWithBitstreamWithHeader<'a, 'b, T>, ZfpCodecError> {
+        if unsafe { zfp_sys::zfp_write_header(self.stream, self.field, ZFP_HEADER_NO_META) } == 0 {
             return Err(ZfpCodecError::HeaderEncodeFailed);
         }
 
@@ -173,13 +176,15 @@ impl<'a, T: ZfpCompressible> ZfpCompressionStreamWithBitstream<'a, T> {
             stream: this.stream,
             bitstream: this.bitstream,
             field: this.field,
-            buffer: std::mem::take(&mut this.buffer),
+            // Safety: self is consumed, buffer is not read inside drop,
+            //         the lifetime is carried on
+            buffer: unsafe { &mut *std::ptr::from_mut(this.buffer) },
             _marker: PhantomData::<&'a T>,
         })
     }
 }
 
-impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstream<'_, T> {
+impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstream<'_, '_, T> {
     fn drop(&mut self) {
         unsafe { zfp_sys::zfp_field_free(self.field) };
         unsafe { zfp_sys::zfp_stream_close(self.stream) };
@@ -187,30 +192,33 @@ impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstream<'_, T> {
     }
 }
 
-pub struct ZfpCompressionStreamWithBitstreamWithHeader<'a, T: ZfpCompressible> {
+pub struct ZfpCompressionStreamWithBitstreamWithHeader<'a, 'b, T: ZfpCompressible> {
     stream: *mut zfp_sys::zfp_stream,
     bitstream: *mut zfp_sys::bitstream,
     field: *mut zfp_sys::zfp_field,
-    buffer: Vec<u8>,
+    buffer: &'b mut Vec<u8>,
     _marker: PhantomData<&'a T>,
 }
 
-impl<T: ZfpCompressible> ZfpCompressionStreamWithBitstreamWithHeader<'_, T> {
-    pub fn compress(mut self) -> Result<Vec<u8>, ZfpCodecError> {
+impl<T: ZfpCompressible> ZfpCompressionStreamWithBitstreamWithHeader<'_, '_, T> {
+    pub fn compress(self) -> Result<(), ZfpCodecError> {
         let compressed_size = unsafe { zfp_sys::zfp_compress(self.stream, self.field) };
 
         if compressed_size == 0 {
             return Err(ZfpCodecError::ZfpEncodeFailed);
         }
 
-        let mut compressed = std::mem::take(&mut self.buffer);
-        compressed.truncate(compressed_size);
+        // Safety: compressed_size bytes of the spare capacity have now been
+        //         written to and initialized
+        unsafe {
+            self.buffer.set_len(self.buffer.len() + compressed_size);
+        }
 
-        Ok(compressed)
+        Ok(())
     }
 }
 
-impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstreamWithHeader<'_, T> {
+impl<T: ZfpCompressible> Drop for ZfpCompressionStreamWithBitstreamWithHeader<'_, '_, T> {
     fn drop(&mut self) {
         unsafe { zfp_sys::zfp_field_free(self.field) };
         unsafe { zfp_sys::zfp_stream_close(self.stream) };
@@ -243,7 +251,7 @@ impl<'a> ZfpDecompressionStream<'a> {
         }
     }
 
-    pub fn read_full_header(self) -> Result<ZfpDecompressionStreamWithHeader<'a>, ZfpCodecError> {
+    pub fn read_header(self) -> Result<ZfpDecompressionStreamWithHeader<'a>, ZfpCodecError> {
         let this = ManuallyDrop::new(self);
 
         let field = unsafe { zfp_sys::zfp_field_alloc() };
@@ -255,7 +263,7 @@ impl<'a> ZfpDecompressionStream<'a> {
             _data: this.data,
         };
 
-        if unsafe { zfp_sys::zfp_read_header(this.stream, field, zfp_sys::ZFP_HEADER_FULL) } == 0 {
+        if unsafe { zfp_sys::zfp_read_header(this.stream, field, ZFP_HEADER_NO_META) } == 0 {
             return Err(ZfpCodecError::HeaderDecodeFailed);
         }
 
@@ -278,88 +286,48 @@ pub struct ZfpDecompressionStreamWithHeader<'a> {
 }
 
 impl ZfpDecompressionStreamWithHeader<'_> {
-    pub fn decompress(self) -> Result<AnyArray, ZfpCodecError> {
-        let dtype = match unsafe { (*self.field).type_ } {
-            zfp_sys::zfp_type_zfp_type_int32 => AnyArrayDType::I32,
-            zfp_sys::zfp_type_zfp_type_int64 => AnyArrayDType::I64,
-            zfp_sys::zfp_type_zfp_type_float => AnyArrayDType::F32,
-            zfp_sys::zfp_type_zfp_type_double => AnyArrayDType::F64,
-            dtype => return Err(ZfpCodecError::DecodeUnknownDtype(dtype)),
+    pub fn decompress_into<T: ZfpCompressible>(
+        self,
+        mut decompressed: ArrayViewMut<T, IxDyn>,
+    ) -> Result<(), ZfpCodecError> {
+        unsafe { zfp_sys::zfp_field_set_type(self.field, T::Z_TYPE) };
+
+        match (decompressed.shape(), decompressed.strides()) {
+            ([nx], [sx]) => unsafe {
+                zfp_sys::zfp_field_set_size_1d(self.field, *nx);
+                zfp_sys::zfp_field_set_stride_1d(self.field, *sx);
+            },
+            ([ny, nx], [sy, sx]) => unsafe {
+                zfp_sys::zfp_field_set_size_2d(self.field, *nx, *ny);
+                zfp_sys::zfp_field_set_stride_2d(self.field, *sx, *sy);
+            },
+            ([nz, ny, nx], [sz, sy, sx]) => unsafe {
+                zfp_sys::zfp_field_set_size_3d(self.field, *nx, *ny, *nz);
+                zfp_sys::zfp_field_set_stride_3d(self.field, *sx, *sy, *sz);
+            },
+            ([nw, nz, ny, nx], [sw, sz, sy, sx]) => unsafe {
+                zfp_sys::zfp_field_set_size_4d(self.field, *nx, *ny, *nz, *nw);
+                zfp_sys::zfp_field_set_stride_4d(self.field, *sx, *sy, *sz, *sw);
+            },
+            (shape, _strides) => {
+                return Err(ZfpCodecError::ExcessiveDimensionality {
+                    shape: shape.to_vec(),
+                })
+            }
         };
 
-        let shape = vec![
-            unsafe { (*self.field).nw },
-            unsafe { (*self.field).nz },
-            unsafe { (*self.field).ny },
-            unsafe { (*self.field).nx },
-        ]
-        .into_iter()
-        .filter(|s| *s > 0)
-        .collect::<Vec<usize>>();
-
-        let (decompressed, result) = AnyArray::with_zeros_bytes(dtype, &shape, |bytes| {
-            unsafe {
-                zfp_sys::zfp_field_set_pointer(self.field, bytes.as_mut_ptr().cast());
-            }
-
-            if unsafe { zfp_sys::zfp_decompress(self.stream, self.field) } == 0 {
-                Err(ZfpCodecError::ZfpDecodeFailed)
-            } else {
-                Ok(())
-            }
-        });
-
-        result.map(|()| decompressed)
-    }
-
-    pub fn decompress_into(self, mut decompressed: AnyArrayViewMut) -> Result<(), ZfpCodecError> {
-        let dtype = match unsafe { (*self.field).type_ } {
-            zfp_sys::zfp_type_zfp_type_int32 => AnyArrayDType::I32,
-            zfp_sys::zfp_type_zfp_type_int64 => AnyArrayDType::I64,
-            zfp_sys::zfp_type_zfp_type_float => AnyArrayDType::F32,
-            zfp_sys::zfp_type_zfp_type_double => AnyArrayDType::F64,
-            dtype => return Err(ZfpCodecError::DecodeUnknownDtype(dtype)),
-        };
-
-        if decompressed.dtype() != dtype {
-            return Err(ZfpCodecError::MismatchedDecodeIntoArray {
-                source: AnyArrayAssignError::DTypeMismatch {
-                    src: dtype,
-                    dst: decompressed.dtype(),
-                },
-            });
+        unsafe {
+            zfp_sys::zfp_field_set_pointer(
+                self.field,
+                decompressed.as_mut_ptr().cast::<std::ffi::c_void>(),
+            );
         }
 
-        let shape = vec![
-            unsafe { (*self.field).nw },
-            unsafe { (*self.field).nz },
-            unsafe { (*self.field).ny },
-            unsafe { (*self.field).nx },
-        ]
-        .into_iter()
-        .filter(|s| *s > 0)
-        .collect::<Vec<usize>>();
-
-        if decompressed.shape() != shape {
-            return Err(ZfpCodecError::MismatchedDecodeIntoArray {
-                source: AnyArrayAssignError::ShapeMismatch {
-                    src: shape,
-                    dst: decompressed.shape().to_vec(),
-                },
-            });
+        if unsafe { zfp_sys::zfp_decompress(self.stream, self.field) } == 0 {
+            Err(ZfpCodecError::ZfpDecodeFailed)
+        } else {
+            Ok(())
         }
-
-        decompressed.with_bytes_mut(|bytes| {
-            unsafe {
-                zfp_sys::zfp_field_set_pointer(self.field, bytes.as_mut_ptr().cast());
-            }
-
-            if unsafe { zfp_sys::zfp_decompress(self.stream, self.field) } == 0 {
-                Err(ZfpCodecError::ZfpDecodeFailed)
-            } else {
-                Ok(())
-            }
-        })
     }
 }
 
@@ -371,22 +339,45 @@ impl Drop for ZfpDecompressionStreamWithHeader<'_> {
     }
 }
 
-pub trait ZfpCompressible: Copy {
+pub trait ZfpCompressible: Copy + ArrayDType {
+    const D_TYPE: ZfpDType;
     const Z_TYPE: zfp_sys::zfp_type;
+
+    fn is_finite(self) -> bool;
 }
 
 impl ZfpCompressible for i32 {
+    const D_TYPE: ZfpDType = ZfpDType::I32;
     const Z_TYPE: zfp_sys::zfp_type = zfp_sys::zfp_type_zfp_type_int32;
+
+    fn is_finite(self) -> bool {
+        true
+    }
 }
 
 impl ZfpCompressible for i64 {
+    const D_TYPE: ZfpDType = ZfpDType::I64;
     const Z_TYPE: zfp_sys::zfp_type = zfp_sys::zfp_type_zfp_type_int64;
+
+    fn is_finite(self) -> bool {
+        true
+    }
 }
 
 impl ZfpCompressible for f32 {
+    const D_TYPE: ZfpDType = ZfpDType::F32;
     const Z_TYPE: zfp_sys::zfp_type = zfp_sys::zfp_type_zfp_type_float;
+
+    fn is_finite(self) -> bool {
+        Self::is_finite(self)
+    }
 }
 
 impl ZfpCompressible for f64 {
+    const D_TYPE: ZfpDType = ZfpDType::F64;
     const Z_TYPE: zfp_sys::zfp_type = zfp_sys::zfp_type_zfp_type_double;
+
+    fn is_finite(self) -> bool {
+        Self::is_finite(self)
+    }
 }

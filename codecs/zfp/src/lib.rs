@@ -17,7 +17,11 @@
 //!
 //! ZFP codec implementation for the [`numcodecs`] API.
 
-use ndarray::{Array1, ArrayView, Dimension};
+#![allow(clippy::multiple_crate_versions)] // embedded-io
+
+use std::{borrow::Cow, fmt};
+
+use ndarray::{Array, Array1, ArrayView, Dimension, Zip};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -190,9 +194,19 @@ pub enum ZfpCodecError {
         /// The unexpected compression mode
         mode: ZfpCompressionMode,
     },
+    /// [`ZfpCodec`] does not support non-finite (infinite or NaN) floating
+    /// point data  in non-reversible lossy compression
+    #[error("Zfp does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression")]
+    NonFiniteData,
     /// [`ZfpCodec`] failed to encode the header
     #[error("Zfp failed to encode the header")]
     HeaderEncodeFailed,
+    /// [`ZfpCodec`] failed to encode the array metadata header
+    #[error("Zfp failed to encode the array metadata header")]
+    MetaHeaderEncodeFailed {
+        /// Opaque source error
+        source: ZfpHeaderError,
+    },
     /// [`ZfpCodec`] failed to encode the data
     #[error("Zfp failed to encode the data")]
     ZfpEncodeFailed,
@@ -215,6 +229,12 @@ pub enum ZfpCodecError {
     /// [`ZfpCodec`] failed to decode the header
     #[error("Zfp failed to decode the header")]
     HeaderDecodeFailed,
+    /// [`ZfpCodec`] failed to decode the array metadata header
+    #[error("Zfp failed to decode the array metadata header")]
+    MetaHeaderDecodeFailed {
+        /// Opaque source error
+        source: ZfpHeaderError,
+    },
     /// [`ZfpCodec`] cannot decode into the provided array
     #[error("ZfpCodec cannot decode into the provided array")]
     MismatchedDecodeIntoArray {
@@ -222,42 +242,71 @@ pub enum ZfpCodecError {
         #[from]
         source: AnyArrayAssignError,
     },
-    /// [`ZfpCodec`] failed to decode the data with the unknown dtype
-    #[error("Zfp failed to decode the data with an unknown dtype #{0}")]
-    DecodeUnknownDtype(u32),
     /// [`ZfpCodec`] failed to decode the data
     #[error("Zfp failed to decode the data")]
     ZfpDecodeFailed,
 }
+
+#[derive(Debug, Error)]
+#[error(transparent)]
+/// Opaque error for when encoding or decoding the header fails
+pub struct ZfpHeaderError(postcard::Error);
 
 /// Compress the `data` array using ZFP with the provided `mode`.
 ///
 /// # Errors
 ///
 /// Errors with
+/// - [`ZfpCodecError::NonFiniteData`] if any data element is non-finite
+///   (infinite or NaN) and a non-reversible lossy compression `mode` is used
 /// - [`ZfpCodecError::ExcessiveDimensionality`] if data is more than
 ///   4-dimensional
 /// - [`ZfpCodecError::InvalidExpertMode`] if the `mode` has invalid expert mode
 ///   parameters
 /// - [`ZfpCodecError::HeaderEncodeFailed`] if encoding the ZFP header failed
+/// - [`ZfpCodecError::MetaHeaderEncodeFailed`] if encoding the array metadata
+///   header failed
 /// - [`ZfpCodecError::ZfpEncodeFailed`] if an opaque encoding error occurred
 pub fn compress<T: ffi::ZfpCompressible, D: Dimension>(
     data: ArrayView<T, D>,
     mode: &ZfpCompressionMode,
 ) -> Result<Vec<u8>, ZfpCodecError> {
+    if !matches!(mode, ZfpCompressionMode::Reversible) && !Zip::from(&data).all(|x| x.is_finite()) {
+        return Err(ZfpCodecError::NonFiniteData);
+    }
+
+    let mut encoded = postcard::to_extend(
+        &CompressionHeader {
+            dtype: <T as ffi::ZfpCompressible>::D_TYPE,
+            shape: Cow::Borrowed(data.shape()),
+        },
+        Vec::new(),
+    )
+    .map_err(|err| ZfpCodecError::MetaHeaderEncodeFailed {
+        source: ZfpHeaderError(err),
+    })?;
+
+    // ZFP cannot handle zero-length dimensions
+    if data.is_empty() {
+        return Ok(encoded);
+    }
+
     // Setup zfp structs to begin compression
-    let field = ffi::ZfpField::new(data)?;
+    // Squeeze the data to avoid wasting ZFP dimensions on axes of length 1
+    let field = ffi::ZfpField::new(data.into_dyn().squeeze())?;
     let stream = ffi::ZfpCompressionStream::new(&field, mode)?;
 
     // Allocate space based on the maximum size potentially required by zfp to
     //  store the compressed array
-    let stream = stream.with_bitstream(field);
+    let stream = stream.with_bitstream(field, &mut encoded);
 
-    // Write the full header so we can reconstruct the array on decompression
-    let stream = stream.write_full_header()?;
+    // Write the header so we can reconstruct ZFP's mode on decompression
+    let stream = stream.write_header()?;
 
     // Compress the field into the allocated output array
-    stream.compress()
+    stream.compress()?;
+
+    Ok(encoded)
 }
 
 /// Decompress the `encoded` data into an array using ZFP.
@@ -265,19 +314,58 @@ pub fn compress<T: ffi::ZfpCompressible, D: Dimension>(
 /// # Errors
 ///
 /// Errors with
-/// - [`ZfpCodecError::HeaderDecodeFailed`] if decoding the header failed
-/// - [`ZfpCodecError::DecodeUnknownDtype`] if the encoded data uses an unknown
-///   dtype
+/// - [`ZfpCodecError::HeaderDecodeFailed`] if decoding the ZFP header failed
+/// - [`ZfpCodecError::MetaHeaderDecodeFailed`] if decoding the array metadata
+///   header failed
 /// - [`ZfpCodecError::ZfpDecodeFailed`] if an opaque decoding error occurred
 pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZfpCodecError> {
+    let (header, encoded) =
+        postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
+            ZfpCodecError::MetaHeaderDecodeFailed {
+                source: ZfpHeaderError(err),
+            }
+        })?;
+
+    // Return empty data for zero-size arrays
+    if header.shape.iter().copied().product::<usize>() == 0 {
+        let decoded = match header.dtype {
+            ZfpDType::I32 => AnyArray::I32(Array::zeros(&*header.shape)),
+            ZfpDType::I64 => AnyArray::I64(Array::zeros(&*header.shape)),
+            ZfpDType::F32 => AnyArray::F32(Array::zeros(&*header.shape)),
+            ZfpDType::F64 => AnyArray::F64(Array::zeros(&*header.shape)),
+        };
+        return Ok(decoded);
+    }
+
     // Setup zfp structs to begin decompression
     let stream = ffi::ZfpDecompressionStream::new(encoded);
 
-    // Read the full header to verify the decompression dtype
-    let stream = stream.read_full_header()?;
+    // Read the header to reconstruct ZFP's mode
+    let stream = stream.read_header()?;
 
     // Decompress the field into a newly allocated output array
-    stream.decompress()
+    match header.dtype {
+        ZfpDType::I32 => {
+            let mut decompressed = Array::zeros(&*header.shape);
+            stream.decompress_into(decompressed.view_mut().squeeze())?;
+            Ok(AnyArray::I32(decompressed))
+        }
+        ZfpDType::I64 => {
+            let mut decompressed = Array::zeros(&*header.shape);
+            stream.decompress_into(decompressed.view_mut().squeeze())?;
+            Ok(AnyArray::I64(decompressed))
+        }
+        ZfpDType::F32 => {
+            let mut decompressed = Array::zeros(&*header.shape);
+            stream.decompress_into(decompressed.view_mut().squeeze())?;
+            Ok(AnyArray::F32(decompressed))
+        }
+        ZfpDType::F64 => {
+            let mut decompressed = Array::zeros(&*header.shape);
+            stream.decompress_into(decompressed.view_mut().squeeze())?;
+            Ok(AnyArray::F64(decompressed))
+        }
+    }
 }
 
 /// Decompress the `encoded` data into a `decoded` array using ZFP.
@@ -285,18 +373,161 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZfpCodecError> {
 /// # Errors
 ///
 /// Errors with
-/// - [`ZfpCodecError::HeaderDecodeFailed`] if decoding the header failed
-/// - [`ZfpCodecError::DecodeUnknownDtype`] if the encoded data uses an unknown
-///   dtype
+/// - [`ZfpCodecError::HeaderDecodeFailed`] if decoding the ZFP header failed
+/// - [`ZfpCodecError::MetaHeaderDecodeFailed`] if decoding the array metadata
+///   header failed
 /// - [`ZfpCodecError::MismatchedDecodeIntoArray`] if the `decoded` array is of
 ///   the wrong dtype or shape
 /// - [`ZfpCodecError::ZfpDecodeFailed`] if an opaque decoding error occurred
 pub fn decompress_into(encoded: &[u8], decoded: AnyArrayViewMut) -> Result<(), ZfpCodecError> {
+    let (header, encoded) =
+        postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
+            ZfpCodecError::MetaHeaderDecodeFailed {
+                source: ZfpHeaderError(err),
+            }
+        })?;
+
+    if decoded.shape() != &*header.shape {
+        return Err(ZfpCodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::ShapeMismatch {
+                src: header.shape.into_owned(),
+                dst: decoded.shape().to_vec(),
+            },
+        });
+    }
+
+    // Empty data doesn't need to be initialized
+    if decoded.is_empty() {
+        return Ok(());
+    }
+
     // Setup zfp structs to begin decompression
     let stream = ffi::ZfpDecompressionStream::new(encoded);
 
-    // Read the full header to verify the decompression dtype
-    let stream = stream.read_full_header()?;
+    // Read the header to reconstruct ZFP's mode
+    let stream = stream.read_header()?;
 
-    stream.decompress_into(decoded)
+    // Decompress the field into the output array
+    match (decoded, header.dtype) {
+        (AnyArrayViewMut::I32(decoded), ZfpDType::I32) => stream.decompress_into(decoded.squeeze()),
+        (AnyArrayViewMut::I64(decoded), ZfpDType::I64) => stream.decompress_into(decoded.squeeze()),
+        (AnyArrayViewMut::F32(decoded), ZfpDType::F32) => stream.decompress_into(decoded.squeeze()),
+        (AnyArrayViewMut::F64(decoded), ZfpDType::F64) => stream.decompress_into(decoded.squeeze()),
+        (decoded, dtype) => Err(ZfpCodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::DTypeMismatch {
+                src: dtype.into_dtype(),
+                dst: decoded.dtype(),
+            },
+        }),
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct CompressionHeader<'a> {
+    dtype: ZfpDType,
+    #[serde(borrow)]
+    shape: Cow<'a, [usize]>,
+}
+
+/// Dtypes that Zfp can compress and decompress
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[expect(missing_docs)]
+pub enum ZfpDType {
+    #[serde(rename = "i32", alias = "int32")]
+    I32,
+    #[serde(rename = "i64", alias = "int64")]
+    I64,
+    #[serde(rename = "f32", alias = "float32")]
+    F32,
+    #[serde(rename = "f64", alias = "float64")]
+    F64,
+}
+
+impl ZfpDType {
+    /// Get the corresponding [`AnyArrayDType`]
+    #[must_use]
+    pub const fn into_dtype(self) -> AnyArrayDType {
+        match self {
+            Self::I32 => AnyArrayDType::I32,
+            Self::I64 => AnyArrayDType::I64,
+            Self::F32 => AnyArrayDType::F32,
+            Self::F64 => AnyArrayDType::F64,
+        }
+    }
+}
+
+impl fmt::Display for ZfpDType {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(match self {
+            Self::I32 => "i32",
+            Self::I64 => "i64",
+            Self::F32 => "f32",
+            Self::F64 => "f64",
+        })
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use ndarray::ArrayView1;
+
+    use super::*;
+
+    #[test]
+    fn zero_length() {
+        let encoded = compress(
+            Array::<f32, _>::from_shape_vec([1, 27, 0].as_slice(), vec![])
+                .unwrap()
+                .view(),
+            &ZfpCompressionMode::FixedPrecision { precision: 7 },
+        )
+        .unwrap();
+        let decoded = decompress(&encoded).unwrap();
+
+        assert_eq!(decoded.dtype(), AnyArrayDType::F32);
+        assert!(decoded.is_empty());
+        assert_eq!(decoded.shape(), &[1, 27, 0]);
+    }
+
+    #[test]
+    fn one_dimension() {
+        let data = Array::from_shape_vec(
+            [2_usize, 1, 2, 1, 1, 1].as_slice(),
+            vec![1.0, 2.0, 3.0, 4.0],
+        )
+        .unwrap();
+
+        let encoded = compress(
+            data.view(),
+            &ZfpCompressionMode::FixedAccuracy { tolerance: 0.1 },
+        )
+        .unwrap();
+        let decoded = decompress(&encoded).unwrap();
+
+        assert_eq!(decoded, AnyArray::F32(data));
+    }
+
+    #[test]
+    fn small_state() {
+        for data in [
+            &[][..],
+            &[0.0],
+            &[0.0, 1.0],
+            &[0.0, 1.0, 0.0],
+            &[0.0, 1.0, 0.0, 1.0],
+        ] {
+            let encoded = compress(
+                ArrayView1::from(data),
+                &ZfpCompressionMode::FixedAccuracy { tolerance: 0.1 },
+            )
+            .unwrap();
+            let decoded = decompress(&encoded).unwrap();
+
+            assert_eq!(
+                decoded,
+                AnyArray::F64(Array1::from_vec(data.to_vec()).into_dyn())
+            );
+        }
+    }
 }
