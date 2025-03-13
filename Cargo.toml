@@ -66,7 +66,7 @@ numcodecs-swizzle-reshape = { version = "0.2", path = "codecs/swizzle-reshape", 
 numcodecs-sz3 = { version = "0.3", path = "codecs/sz3", default-features = false }
 numcodecs-tthresh = { version = "0.1", path = "codecs/tthresh", default-features = false }
 numcodecs-uniform-noise = { version = "0.2", path = "codecs/uniform-noise", default-features = false }
-numcodecs-zfp = { version = "0.2", path = "codecs/zfp", default-features = false }
+numcodecs-zfp = { version = "0.4", path = "codecs/zfp", default-features = false }
 numcodecs-zlib = { version = "0.2", path = "codecs/zlib", default-features = false }
 numcodecs-zstd = { version = "0.2", path = "codecs/zstd", default-features = false }
 

@@ -286,6 +286,11 @@ pub fn compress<T: ffi::ZfpCompressible, D: Dimension>(
         source: ZfpHeaderError(err),
     })?;
 
+    // ZFP cannot handle zero-length dimensions
+    if data.is_empty() {
+        return Ok(encoded);
+    }
+
     // Setup zfp structs to begin compression
     // Squeeze the data to avoid wasting ZFP dimensions on axes of length 1
     let field = ffi::ZfpField::new(data.into_dyn().squeeze())?;
@@ -320,6 +325,17 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZfpCodecError> {
                 source: ZfpHeaderError(err),
             }
         })?;
+
+    // Return empty data for zero-size arrays
+    if header.shape.iter().copied().product::<usize>() == 0 {
+        let decoded = match header.dtype {
+            ZfpDType::I32 => AnyArray::I32(Array::zeros(&*header.shape)),
+            ZfpDType::I64 => AnyArray::I64(Array::zeros(&*header.shape)),
+            ZfpDType::F32 => AnyArray::F32(Array::zeros(&*header.shape)),
+            ZfpDType::F64 => AnyArray::F64(Array::zeros(&*header.shape)),
+        };
+        return Ok(decoded);
+    }
 
     // Setup zfp structs to begin decompression
     let stream = ffi::ZfpDecompressionStream::new(encoded);
@@ -378,6 +394,11 @@ pub fn decompress_into(encoded: &[u8], decoded: AnyArrayViewMut) -> Result<(), Z
                 dst: decoded.shape().to_vec(),
             },
         });
+    }
+
+    // Empty data doesn't need to be initialized
+    if decoded.is_empty() {
+        return Ok(());
     }
 
     // Setup zfp structs to begin decompression
@@ -443,5 +464,70 @@ impl fmt::Display for ZfpDType {
             Self::F32 => "f32",
             Self::F64 => "f64",
         })
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use ndarray::ArrayView1;
+
+    use super::*;
+
+    #[test]
+    fn zero_length() {
+        let encoded = compress(
+            Array::<f32, _>::from_shape_vec([1, 27, 0].as_slice(), vec![])
+                .unwrap()
+                .view(),
+            &ZfpCompressionMode::FixedPrecision { precision: 7 },
+        )
+        .unwrap();
+        let decoded = decompress(&encoded).unwrap();
+
+        assert_eq!(decoded.dtype(), AnyArrayDType::F32);
+        assert!(decoded.is_empty());
+        assert_eq!(decoded.shape(), &[1, 27, 0]);
+    }
+
+    #[test]
+    fn one_dimension() {
+        let data = Array::from_shape_vec(
+            [2_usize, 1, 2, 1, 1, 1].as_slice(),
+            vec![1.0, 2.0, 3.0, 4.0],
+        )
+        .unwrap();
+
+        let encoded = compress(
+            data.view(),
+            &ZfpCompressionMode::FixedAccuracy { tolerance: 0.1 },
+        )
+        .unwrap();
+        let decoded = decompress(&encoded).unwrap();
+
+        assert_eq!(decoded, AnyArray::F32(data));
+    }
+
+    #[test]
+    fn small_state() {
+        for data in [
+            &[][..],
+            &[0.0],
+            &[0.0, 1.0],
+            &[0.0, 1.0, 0.0],
+            &[0.0, 1.0, 0.0, 1.0],
+        ] {
+            let encoded = compress(
+                ArrayView1::from(data),
+                &ZfpCompressionMode::FixedAccuracy { tolerance: 0.1 },
+            )
+            .unwrap();
+            let decoded = decompress(&encoded).unwrap();
+
+            assert_eq!(
+                decoded,
+                AnyArray::F64(Array1::from_vec(data.to_vec()).into_dyn())
+            );
+        }
     }
 }
