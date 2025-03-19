@@ -25,6 +25,10 @@
 
 ZFP (classic) codec implementation for the [`numcodecs`] API.
 
+This implementation uses ZFP's default [`ZFP_ROUNDING_MODE=ZFP_ROUND_NEVER`](https://zfp.readthedocs.io/en/release1.0.1/installation.html#c.ZFP_ROUNDING_MODE) rounding mode, which is known to increase bias and correlation in ZFP's errors (see <https://zfp.readthedocs.io/en/release1.0.1/faq.html#zfp-rounding>).
+
+Please see the `numcodecs-zfp` codec for an implementation that uses an improved version of ZFP.
+
 [`numcodecs`]: https://docs.rs/numcodecs/0.2/numcodecs/
 
 ## License

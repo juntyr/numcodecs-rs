@@ -16,6 +16,15 @@
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_zfp_classic
 //!
 //! ZFP (classic) codec implementation for the [`numcodecs`] API.
+//!
+//! This implementation uses ZFP's default
+//! [`ZFP_ROUNDING_MODE=ZFP_ROUND_NEVER`](https://zfp.readthedocs.io/en/release1.0.1/installation.html#c.ZFP_ROUNDING_MODE)
+//! rounding mode, which is known to increase bias and correlation in ZFP's
+//! errors
+//! (see <https://zfp.readthedocs.io/en/release1.0.1/faq.html#zfp-rounding>).
+//!
+//! Please see the `numcodecs-zfp` codec for an implementation that uses an
+//! improved version of ZFP.
 
 #![allow(clippy::multiple_crate_versions)] // embedded-io
 
@@ -385,7 +394,10 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZfpClassicCodecError> {
 ///   array is of the wrong dtype or shape
 /// - [`ZfpClassicCodecError::ZfpDecodeFailed`] if an opaque decoding error
 ///   occurred
-pub fn decompress_into(encoded: &[u8], decoded: AnyArrayViewMut) -> Result<(), ZfpClassicCodecError> {
+pub fn decompress_into(
+    encoded: &[u8],
+    decoded: AnyArrayViewMut,
+) -> Result<(), ZfpClassicCodecError> {
     let (header, encoded) =
         postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
             ZfpClassicCodecError::MetaHeaderDecodeFailed {

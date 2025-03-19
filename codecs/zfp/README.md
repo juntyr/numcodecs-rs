@@ -25,6 +25,12 @@
 
 ZFP codec implementation for the [`numcodecs`] API.
 
+This implementation uses ZFP's [`ZFP_ROUNDING_MODE=ZFP_ROUND_FIRST`](https://zfp.readthedocs.io/en/release1.0.1/installation.html#c.ZFP_ROUNDING_MODE) and [`ZFP_WITH_TIGHT_ERROR=ON`](https://zfp.readthedocs.io/en/release1.0.1/installation.html#c.ZFP_WITH_TIGHT_ERROR) experimental features to reduce the bias and correlation in ZFP's errors (see <https://zfp.readthedocs.io/en/release1.0.1/faq.html#zfp-rounding>).
+
+This implementation also rejects non-reversibly compressing non-finite (infinite or NaN) values, since ZFP's behaviour for them is undefined (see <https://zfp.readthedocs.io/en/release1.0.1/faq.html#q-valid>).
+
+Please see the `numcodecs-zfp-classic` codec for an implementation that uses ZFP without these modifications.
+
 [`numcodecs`]: https://docs.rs/numcodecs/0.2/numcodecs/
 
 ## License

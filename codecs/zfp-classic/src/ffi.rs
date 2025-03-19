@@ -68,7 +68,10 @@ pub struct ZfpCompressionStream<T: ZfpCompressible> {
 }
 
 impl<T: ZfpCompressible> ZfpCompressionStream<T> {
-    pub fn new(field: &ZfpField<T>, mode: &ZfpCompressionMode) -> Result<Self, ZfpClassicCodecError> {
+    pub fn new(
+        field: &ZfpField<T>,
+        mode: &ZfpCompressionMode,
+    ) -> Result<Self, ZfpClassicCodecError> {
         let stream = unsafe { zfp_sys::zfp_stream_open(std::ptr::null_mut()) };
         let stream = Self {
             stream,
