@@ -39,49 +39,6 @@
       ],
       "description": "Predictor",
       "default": "cubic-interpolation-lorenzo"
-    },
-    "encoder": {
-      "anyOf": [
-        {
-          "oneOf": [
-            {
-              "type": "string",
-              "const": "huffman",
-              "description": "Huffman coding"
-            },
-            {
-              "type": "string",
-              "const": "arithmetic",
-              "description": "Arithmetic coding"
-            }
-          ],
-          "description": "SZ3 encoder"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Encoder",
-      "default": "huffman"
-    },
-    "lossless": {
-      "anyOf": [
-        {
-          "oneOf": [
-            {
-              "type": "string",
-              "const": "zstd",
-              "description": "Zstandard"
-            }
-          ],
-          "description": "SZ3 lossless compressor"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Lossless compressor",
-      "default": "zstd"
     }
   },
   "unevaluatedProperties": false,

@@ -29,6 +29,9 @@ thiserror = { workspace = true }
 bincode = "=2.0.0-rc.3"
 bincode_derive = "=2.0.0-rc.3"
 
+# FIXME: 1.9.0 has MSRV 1.84, which our MSRV 1.82 doesn't support
+bytemuck_derive = "=1.8.1"
+
 [dev-dependencies]
 serde_json = { workspace = true, features = ["std"] }
 simple_logger = { workspace = true }

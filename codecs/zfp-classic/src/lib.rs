@@ -6,30 +6,25 @@
 //! [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
-//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-zfp
-//! [crates.io]: https://crates.io/crates/numcodecs-zfp
+//! [Latest Version]: https://img.shields.io/crates/v/numcodecs-zfp-classic
+//! [crates.io]: https://crates.io/crates/numcodecs-zfp-classic
 //!
-//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-zfp
-//! [docs.rs]: https://docs.rs/numcodecs-zfp/
+//! [Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-zfp-classic
+//! [docs.rs]: https://docs.rs/numcodecs-zfp-classic/
 //!
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_zfp
+//! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_zfp_classic
 //!
-//! ZFP codec implementation for the [`numcodecs`] API.
+//! ZFP (classic) codec implementation for the [`numcodecs`] API.
 //!
-//! This implementation uses ZFP's
-//! [`ZFP_ROUNDING_MODE=ZFP_ROUND_FIRST`](https://zfp.readthedocs.io/en/release1.0.1/installation.html#c.ZFP_ROUNDING_MODE)
-//! and
-//! [`ZFP_WITH_TIGHT_ERROR=ON`](https://zfp.readthedocs.io/en/release1.0.1/installation.html#c.ZFP_WITH_TIGHT_ERROR)
-//! experimental features to reduce the bias and correlation in ZFP's errors
+//! This implementation uses ZFP's default
+//! [`ZFP_ROUNDING_MODE=ZFP_ROUND_NEVER`](https://zfp.readthedocs.io/en/release1.0.1/installation.html#c.ZFP_ROUNDING_MODE)
+//! rounding mode, which is known to increase bias and correlation in ZFP's
+//! errors
 //! (see <https://zfp.readthedocs.io/en/release1.0.1/faq.html#zfp-rounding>).
 //!
-//! This implementation also rejects non-reversibly compressing non-finite
-//! (infinite or NaN) values, since ZFP's behaviour for them is undefined
-//! (see <https://zfp.readthedocs.io/en/release1.0.1/faq.html#q-valid>).
-//!
-//! Please see the `numcodecs-zfp-classic` codec for an implementation that
-//! uses ZFP without these modifications.
+//! Please see the `numcodecs-zfp` codec for an implementation that uses an
+//! improved version of ZFP.
 
 #![allow(clippy::multiple_crate_versions)] // embedded-io
 
@@ -48,8 +43,8 @@ mod ffi;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(transparent)]
-/// Codec providing compression using ZFP
-pub struct ZfpCodec {
+/// Codec providing compression using ZFP (classic)
+pub struct ZfpClassicCodec {
     /// ZFP compression mode
     pub mode: ZfpCompressionMode,
 }
@@ -106,8 +101,8 @@ pub enum ZfpCompressionMode {
     Reversible,
 }
 
-impl Codec for ZfpCodec {
-    type Error = ZfpCodecError;
+impl Codec for ZfpClassicCodec {
+    type Error = ZfpClassicCodecError;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         if matches!(data.dtype(), AnyArrayDType::I32 | AnyArrayDType::I64)
@@ -116,7 +111,7 @@ impl Codec for ZfpCodec {
                 ZfpCompressionMode::FixedAccuracy { tolerance: _ }
             )
         {
-            return Err(ZfpCodecError::FixedAccuracyModeIntegerData);
+            return Err(ZfpClassicCodecError::FixedAccuracyModeIntegerData);
         }
 
         match data {
@@ -132,19 +127,19 @@ impl Codec for ZfpCodec {
             AnyCowArray::F64(data) => Ok(AnyArray::U8(
                 Array1::from(compress(data.view(), &self.mode)?).into_dyn(),
             )),
-            encoded => Err(ZfpCodecError::UnsupportedDtype(encoded.dtype())),
+            encoded => Err(ZfpClassicCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         let AnyCowArray::U8(encoded) = encoded else {
-            return Err(ZfpCodecError::EncodedDataNotBytes {
+            return Err(ZfpClassicCodecError::EncodedDataNotBytes {
                 dtype: encoded.dtype(),
             });
         };
 
         if !matches!(encoded.shape(), [_]) {
-            return Err(ZfpCodecError::EncodedDataNotOneDimensional {
+            return Err(ZfpClassicCodecError::EncodedDataNotOneDimensional {
                 shape: encoded.shape().to_vec(),
             });
         }
@@ -158,13 +153,13 @@ impl Codec for ZfpCodec {
         decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
         let AnyArrayView::U8(encoded) = encoded else {
-            return Err(ZfpCodecError::EncodedDataNotBytes {
+            return Err(ZfpClassicCodecError::EncodedDataNotBytes {
                 dtype: encoded.dtype(),
             });
         };
 
         if !matches!(encoded.shape(), [_]) {
-            return Err(ZfpCodecError::EncodedDataNotOneDimensional {
+            return Err(ZfpClassicCodecError::EncodedDataNotOneDimensional {
                 shape: encoded.shape().to_vec(),
             });
         }
@@ -173,8 +168,8 @@ impl Codec for ZfpCodec {
     }
 }
 
-impl StaticCodec for ZfpCodec {
-    const CODEC_ID: &'static str = "zfp";
+impl StaticCodec for ZfpClassicCodec {
+    const CODEC_ID: &'static str = "zfp-classic";
 
     type Config<'de> = Self;
 
@@ -189,7 +184,7 @@ impl StaticCodec for ZfpCodec {
 
 #[derive(Debug, Error)]
 /// Errors that may occur when applying the [`ZfpCodec`].
-pub enum ZfpCodecError {
+pub enum ZfpClassicCodecError {
     /// [`ZfpCodec`] does not support the dtype
     #[error("Zfp does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
@@ -271,22 +266,24 @@ pub struct ZfpHeaderError(postcard::Error);
 /// # Errors
 ///
 /// Errors with
-/// - [`ZfpCodecError::NonFiniteData`] if any data element is non-finite
+/// - [`ZfpClassicCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN) and a non-reversible lossy compression `mode` is used
-/// - [`ZfpCodecError::ExcessiveDimensionality`] if data is more than
+/// - [`ZfpClassicCodecError::ExcessiveDimensionality`] if data is more than
 ///   4-dimensional
-/// - [`ZfpCodecError::InvalidExpertMode`] if the `mode` has invalid expert mode
-///   parameters
-/// - [`ZfpCodecError::HeaderEncodeFailed`] if encoding the ZFP header failed
-/// - [`ZfpCodecError::MetaHeaderEncodeFailed`] if encoding the array metadata
-///   header failed
-/// - [`ZfpCodecError::ZfpEncodeFailed`] if an opaque encoding error occurred
+/// - [`ZfpClassicCodecError::InvalidExpertMode`] if the `mode` has invalid
+///   expert mode parameters
+/// - [`ZfpClassicCodecError::HeaderEncodeFailed`] if encoding the ZFP header
+///   failed
+/// - [`ZfpClassicCodecError::MetaHeaderEncodeFailed`] if encoding the array
+///   metadata header failed
+/// - [`ZfpClassicCodecError::ZfpEncodeFailed`] if an opaque encoding error
+///   occurred
 pub fn compress<T: ffi::ZfpCompressible, D: Dimension>(
     data: ArrayView<T, D>,
     mode: &ZfpCompressionMode,
-) -> Result<Vec<u8>, ZfpCodecError> {
+) -> Result<Vec<u8>, ZfpClassicCodecError> {
     if !matches!(mode, ZfpCompressionMode::Reversible) && !Zip::from(&data).all(|x| x.is_finite()) {
-        return Err(ZfpCodecError::NonFiniteData);
+        return Err(ZfpClassicCodecError::NonFiniteData);
     }
 
     let mut encoded = postcard::to_extend(
@@ -296,7 +293,7 @@ pub fn compress<T: ffi::ZfpCompressible, D: Dimension>(
         },
         Vec::new(),
     )
-    .map_err(|err| ZfpCodecError::MetaHeaderEncodeFailed {
+    .map_err(|err| ZfpClassicCodecError::MetaHeaderEncodeFailed {
         source: ZfpHeaderError(err),
     })?;
 
@@ -328,14 +325,16 @@ pub fn compress<T: ffi::ZfpCompressible, D: Dimension>(
 /// # Errors
 ///
 /// Errors with
-/// - [`ZfpCodecError::HeaderDecodeFailed`] if decoding the ZFP header failed
-/// - [`ZfpCodecError::MetaHeaderDecodeFailed`] if decoding the array metadata
-///   header failed
-/// - [`ZfpCodecError::ZfpDecodeFailed`] if an opaque decoding error occurred
-pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZfpCodecError> {
+/// - [`ZfpClassicCodecError::HeaderDecodeFailed`] if decoding the ZFP header
+///   failed
+/// - [`ZfpClassicCodecError::MetaHeaderDecodeFailed`] if decoding the array
+///   metadata header failed
+/// - [`ZfpClassicCodecError::ZfpDecodeFailed`] if an opaque decoding error
+///   occurred
+pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZfpClassicCodecError> {
     let (header, encoded) =
         postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
-            ZfpCodecError::MetaHeaderDecodeFailed {
+            ZfpClassicCodecError::MetaHeaderDecodeFailed {
                 source: ZfpHeaderError(err),
             }
         })?;
@@ -387,22 +386,27 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZfpCodecError> {
 /// # Errors
 ///
 /// Errors with
-/// - [`ZfpCodecError::HeaderDecodeFailed`] if decoding the ZFP header failed
-/// - [`ZfpCodecError::MetaHeaderDecodeFailed`] if decoding the array metadata
-///   header failed
-/// - [`ZfpCodecError::MismatchedDecodeIntoArray`] if the `decoded` array is of
-///   the wrong dtype or shape
-/// - [`ZfpCodecError::ZfpDecodeFailed`] if an opaque decoding error occurred
-pub fn decompress_into(encoded: &[u8], decoded: AnyArrayViewMut) -> Result<(), ZfpCodecError> {
+/// - [`ZfpClassicCodecError::HeaderDecodeFailed`] if decoding the ZFP header
+///   failed
+/// - [`ZfpClassicCodecError::MetaHeaderDecodeFailed`] if decoding the array
+///   metadata header failed
+/// - [`ZfpClassicCodecError::MismatchedDecodeIntoArray`] if the `decoded`
+///   array is of the wrong dtype or shape
+/// - [`ZfpClassicCodecError::ZfpDecodeFailed`] if an opaque decoding error
+///   occurred
+pub fn decompress_into(
+    encoded: &[u8],
+    decoded: AnyArrayViewMut,
+) -> Result<(), ZfpClassicCodecError> {
     let (header, encoded) =
         postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
-            ZfpCodecError::MetaHeaderDecodeFailed {
+            ZfpClassicCodecError::MetaHeaderDecodeFailed {
                 source: ZfpHeaderError(err),
             }
         })?;
 
     if decoded.shape() != &*header.shape {
-        return Err(ZfpCodecError::MismatchedDecodeIntoArray {
+        return Err(ZfpClassicCodecError::MismatchedDecodeIntoArray {
             source: AnyArrayAssignError::ShapeMismatch {
                 src: header.shape.into_owned(),
                 dst: decoded.shape().to_vec(),
@@ -427,7 +431,7 @@ pub fn decompress_into(encoded: &[u8], decoded: AnyArrayViewMut) -> Result<(), Z
         (AnyArrayViewMut::I64(decoded), ZfpDType::I64) => stream.decompress_into(decoded.squeeze()),
         (AnyArrayViewMut::F32(decoded), ZfpDType::F32) => stream.decompress_into(decoded.squeeze()),
         (AnyArrayViewMut::F64(decoded), ZfpDType::F64) => stream.decompress_into(decoded.squeeze()),
-        (decoded, dtype) => Err(ZfpCodecError::MismatchedDecodeIntoArray {
+        (decoded, dtype) => Err(ZfpClassicCodecError::MismatchedDecodeIntoArray {
             source: AnyArrayAssignError::DTypeMismatch {
                 src: dtype.into_dtype(),
                 dst: decoded.dtype(),

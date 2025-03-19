@@ -1,32 +1,32 @@
 [package]
-name = "numcodecs-sz3"
-version = "0.4.0"
+name = "numcodecs-zfp-classic"
+version = "0.1.0"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 
-description = "SZ3 codec implementation for the numcodecs API"
+description = "ZFP (classic) codec implementation for the numcodecs API"
 readme = "README.md"
 categories = ["compression", "encoding"]
-keywords = ["sz3", "numcodecs", "compression", "encoding"]
+keywords = ["zfp", "numcodecs", "compression", "encoding"]
+
+include = ["/src", "/LICENSE", "/docs/katex.html"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ndarray = { workspace = true, features = ["std"] }
+ndarray = { workspace = true }
 numcodecs = { workspace = true }
 postcard = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
-sz3 = { workspace = true }
 thiserror = { workspace = true }
-# Explicitly enable the `no_wasm_shim` feature for sz3-sys/zstd-sys
-zstd-sys = { workspace = true, features = ["no_wasm_shim"] }
-
-[dev-dependencies]
-serde_json = { workspace = true, features = ["std"] }
+zfp-sys = { workspace = true, features = ["static"] }
 
 [lints]
 workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "./docs/katex.html"]
