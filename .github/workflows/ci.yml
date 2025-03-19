@@ -93,6 +93,7 @@ jobs:
             --exclude numcodecs-sz3 \
             --exclude numcodecs-tthresh \
             --exclude numcodecs-zfp \
+            --exclude numcodecs-zfp-classic \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
             --target wasm32-wasip1
@@ -221,6 +222,7 @@ jobs:
             --exclude numcodecs-sz3 \
             --exclude numcodecs-tthresh \
             --exclude numcodecs-zfp \
+            --exclude numcodecs-zfp-classic \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
             --target wasm32-wasip1 \
@@ -234,6 +236,7 @@ jobs:
             --exclude numcodecs-sz3 \
             --exclude numcodecs-tthresh \
             --exclude numcodecs-zfp \
+            --exclude numcodecs-zfp-classic \
             --exclude numcodecs-zstd \
             --feature-powerset --keep-going \
             --target wasm32-wasip1 \
