@@ -30,7 +30,7 @@
 
 use std::{borrow::Cow, fmt};
 
-use ndarray::{Array, Array1, ArrayView, Dimension, Zip};
+use ndarray::{Array, Array1, ArrayView, Dimension};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -183,76 +183,73 @@ impl StaticCodec for ZfpClassicCodec {
 }
 
 #[derive(Debug, Error)]
-/// Errors that may occur when applying the [`ZfpCodec`].
+/// Errors that may occur when applying the [`ZfpClassicCodec`].
 pub enum ZfpClassicCodecError {
-    /// [`ZfpCodec`] does not support the dtype
-    #[error("Zfp does not support the dtype {0}")]
+    /// [`ZfpClassicCodec`] does not support the dtype
+    #[error("ZfpClassic does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
-    /// [`ZfpCodec`] does not support the fixed accuracy mode for integer data
-    #[error("Zfp does not support the fixed accuracy mode for integer data")]
+    /// [`ZfpClassicCodec`] does not support the fixed accuracy mode for
+    /// integer data
+    #[error("ZfpClassic does not support the fixed accuracy mode for integer data")]
     FixedAccuracyModeIntegerData,
-    /// [`ZfpCodec`] only supports 1-4 dimensional data
-    #[error("Zfp only supports 1-4 dimensional data but found shape {shape:?}")]
+    /// [`ZfpClassicCodec`] only supports 1-4 dimensional data
+    #[error("ZfpClassic only supports 1-4 dimensional data but found shape {shape:?}")]
     ExcessiveDimensionality {
         /// The unexpected shape of the data
         shape: Vec<usize>,
     },
-    /// [`ZfpCodec`] was configured with an invalid expert `mode`
-    #[error("Zfp was configured with an invalid expert mode {mode:?}")]
+    /// [`ZfpClassicCodec`] was configured with an invalid expert `mode`
+    #[error("ZfpClassic was configured with an invalid expert mode {mode:?}")]
     InvalidExpertMode {
         /// The unexpected compression mode
         mode: ZfpCompressionMode,
     },
-    /// [`ZfpCodec`] does not support non-finite (infinite or NaN) floating
-    /// point data  in non-reversible lossy compression
-    #[error("Zfp does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression")]
-    NonFiniteData,
-    /// [`ZfpCodec`] failed to encode the header
-    #[error("Zfp failed to encode the header")]
+    /// [`ZfpClassicCodec`] failed to encode the header
+    #[error("ZfpClassic failed to encode the header")]
     HeaderEncodeFailed,
-    /// [`ZfpCodec`] failed to encode the array metadata header
-    #[error("Zfp failed to encode the array metadata header")]
+    /// [`ZfpClassicCodec`] failed to encode the array metadata header
+    #[error("ZfpClassic failed to encode the array metadata header")]
     MetaHeaderEncodeFailed {
         /// Opaque source error
         source: ZfpHeaderError,
     },
-    /// [`ZfpCodec`] failed to encode the data
-    #[error("Zfp failed to encode the data")]
+    /// [`ZfpClassicCodec`] failed to encode the data
+    #[error("ZfpClassic failed to encode the data")]
     ZfpEncodeFailed,
-    /// [`ZfpCodec`] can only decode one-dimensional byte arrays but received
-    /// an array of a different dtype
+    /// [`ZfpClassicCodec`] can only decode one-dimensional byte arrays but
+    /// received an array of a different dtype
     #[error(
-        "Zfp can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
+        "ZfpClassic can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
     )]
     EncodedDataNotBytes {
         /// The unexpected dtype of the encoded array
         dtype: AnyArrayDType,
     },
-    /// [`ZfpCodec`] can only decode one-dimensional byte arrays but received
-    /// an array of a different shape
-    #[error("Zfp can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    /// [`ZfpClassicCodec`] can only decode one-dimensional byte arrays but
+    /// received an array of a different shape
+    #[error("ZfpClassic can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,
     },
-    /// [`ZfpCodec`] failed to decode the header
-    #[error("Zfp failed to decode the header")]
+    /// [`ZfpClassicCodec`] failed to decode the header
+    #[error("ZfpClassic failed to decode the header")]
     HeaderDecodeFailed,
-    /// [`ZfpCodec`] failed to decode the array metadata header
-    #[error("Zfp failed to decode the array metadata header")]
+    /// [`ZfpClassicCodec`] failed to decode the array metadata header
+    #[error("ZfpClassic failed to decode the array metadata header")]
     MetaHeaderDecodeFailed {
         /// Opaque source error
         source: ZfpHeaderError,
     },
-    /// [`ZfpCodec`] cannot decode into the provided array
-    #[error("ZfpCodec cannot decode into the provided array")]
+    /// [`ZfpClassicCodec`] cannot decode into the provided array
+    #[error("ZfpClassicCodec cannot decode into the provided array")]
     MismatchedDecodeIntoArray {
         /// The source of the error
         #[from]
         source: AnyArrayAssignError,
     },
-    /// [`ZfpCodec`] failed to decode the data
-    #[error("Zfp failed to decode the data")]
+    /// [`ZfpClassicCodec`] failed to decode the data
+    #[error("ZfpClassic failed to decode the data")]
     ZfpDecodeFailed,
 }
 
@@ -266,8 +263,6 @@ pub struct ZfpHeaderError(postcard::Error);
 /// # Errors
 ///
 /// Errors with
-/// - [`ZfpClassicCodecError::NonFiniteData`] if any data element is non-finite
-///   (infinite or NaN) and a non-reversible lossy compression `mode` is used
 /// - [`ZfpClassicCodecError::ExcessiveDimensionality`] if data is more than
 ///   4-dimensional
 /// - [`ZfpClassicCodecError::InvalidExpertMode`] if the `mode` has invalid
@@ -282,10 +277,6 @@ pub fn compress<T: ffi::ZfpCompressible, D: Dimension>(
     data: ArrayView<T, D>,
     mode: &ZfpCompressionMode,
 ) -> Result<Vec<u8>, ZfpClassicCodecError> {
-    if !matches!(mode, ZfpCompressionMode::Reversible) && !Zip::from(&data).all(|x| x.is_finite()) {
-        return Err(ZfpClassicCodecError::NonFiniteData);
-    }
-
     let mut encoded = postcard::to_extend(
         &CompressionHeader {
             dtype: <T as ffi::ZfpCompressible>::D_TYPE,
