@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ZfpClassicCodecError","ZfpCompressionMode","ZfpDType"],"fn":["compress","decompress","decompress_into"],"struct":["ZfpClassicCodec","ZfpHeaderError"]};
