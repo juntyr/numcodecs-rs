@@ -4,8 +4,8 @@ use numcodecs::{DynCodecType, StaticCodecType};
 use numcodecs_fourier_network::FourierNetworkCodec;
 
 use ::{
-    burn as _, itertools as _, log as _, ndarray as _, num_traits as _, schemars as _, serde as _,
-    serde_json as _, simple_logger as _, thiserror as _,
+    burn as _, bytemuck_derive as _, itertools as _, log as _, ndarray as _, num_traits as _,
+    schemars as _, serde as _, serde_json as _, simple_logger as _, thiserror as _,
 };
 
 // FIXME: see https://github.com/tracel-ai/burn/issues/2876
