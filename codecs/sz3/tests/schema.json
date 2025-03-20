@@ -27,8 +27,78 @@
             },
             {
               "type": "string",
+              "const": "regression",
+              "description": "1st order regression"
+            },
+            {
+              "type": "string",
+              "const": "regression2",
+              "description": "2nd order regression"
+            },
+            {
+              "type": "string",
+              "const": "regression-regression2",
+              "description": "1st+2nd order regression"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo2",
+              "description": "2nd order Lorenzo predictor"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo2-regression2",
+              "description": "2nd order Lorenzo predictor + 2nd order regression"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo2-regression",
+              "description": "2nd order Lorenzo predictor + 1st order regression"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo2-regression-regression2",
+              "description": "2nd order Lorenzo predictor + 1st order regression"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo",
+              "description": "1st order Lorenzo predictor"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo-regression2",
+              "description": "1st order Lorenzo predictor + 2nd order regression"
+            },
+            {
+              "type": "string",
               "const": "lorenzo-regression",
-              "description": "Lorenzo predictor + regression"
+              "description": "1st order Lorenzo predictor + 1st order regression"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo-regression-regression2",
+              "description": "1st order Lorenzo predictor + 1st and 2nd order regression"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo-lorenzo2",
+              "description": "1st+2nd order Lorenzo predictor"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo-lorenzo2-regression2",
+              "description": "1st+2nd order Lorenzo predictor + 2nd order regression"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo-lorenzo2-regression",
+              "description": "1st+2nd order Lorenzo predictor + 1st order regression"
+            },
+            {
+              "type": "string",
+              "const": "lorenzo-lorenzo2-regression-regression2",
+              "description": "1st+2nd order Lorenzo predictor + 1st+2nd order regression"
             }
           ],
           "description": "SZ3 predictor"
