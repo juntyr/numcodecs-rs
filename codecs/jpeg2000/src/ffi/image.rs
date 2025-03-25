@@ -24,10 +24,10 @@ impl Image {
         if unsafe { openjpeg_sys::opj_read_header(stream.as_raw(), decoder.as_raw(), &mut image) }
             != 1
         {
-            return Err(Jpeg2000Error::MainHeaderReadError);
+            return Err(Jpeg2000Error::InvalidImageHeader);
         }
 
-        let image = NonNull::new(image).ok_or(Jpeg2000Error::MainHeaderReadError)?;
+        let image = NonNull::new(image).ok_or(Jpeg2000Error::InvalidImageHeader)?;
 
         Ok(Self { image })
     }

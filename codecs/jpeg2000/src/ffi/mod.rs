@@ -18,16 +18,18 @@ use stream::{DecodeStream, EncodeStream};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Jpeg2000Error {
-    NotSupported,
-    DecoderSetupError,
-    MainHeaderReadError,
-    BodyReadError,
-    EncoderSetupError,
-    CompressError,
-    DimensionsTooLarge,
-    ImageCreateError,
-    EndDecompressError,
     DataOutOfRange,
+    ImageTooLarge,
+    ImageCreateError,
+    EncoderSetupError,
+    StartCompressError,
+    CompressBodyError,
+    EndCompressError,
+    EncodedDataNotGray,
+    DecoderSetupError,
+    InvalidImageHeader,
+    DecodeBodyError,
+    EndDecompressError,
 }
 
 #[allow(clippy::upper_case_acronyms)]
@@ -81,7 +83,7 @@ pub fn encode_into(
     }
 
     let (Ok(width), Ok(height)) = (u32::try_from(width), u32::try_from(height)) else {
-        return Err(Jpeg2000Error::DimensionsTooLarge);
+        return Err(Jpeg2000Error::ImageTooLarge);
     };
     let mut image = Image::from_gray_data(data, width, height)?;
 
@@ -96,15 +98,15 @@ pub fn encode_into(
         openjpeg_sys::opj_start_compress(encoder.as_raw(), image.as_raw(), stream.as_raw())
     } != 1
     {
-        return Err(Jpeg2000Error::CompressError);
+        return Err(Jpeg2000Error::StartCompressError);
     }
 
     if unsafe { openjpeg_sys::opj_encode(encoder.as_raw(), stream.as_raw()) } != 1 {
-        return Err(Jpeg2000Error::CompressError);
+        return Err(Jpeg2000Error::CompressBodyError);
     }
 
     if unsafe { openjpeg_sys::opj_end_compress(encoder.as_raw(), stream.as_raw()) } != 1 {
-        return Err(Jpeg2000Error::CompressError);
+        return Err(Jpeg2000Error::EndCompressError);
     }
 
     Ok(())
@@ -126,7 +128,7 @@ pub fn decode(bytes: &[u8]) -> Result<(Vec<i32>, (usize, usize)), Jpeg2000Error>
     let mut image = Image::from_header(&mut stream, &mut decoder)?;
 
     if unsafe { opj::opj_decode(decoder.as_raw(), stream.as_raw(), image.as_raw()) } != 1 {
-        return Err(Jpeg2000Error::BodyReadError);
+        return Err(Jpeg2000Error::DecodeBodyError);
     }
 
     if unsafe { openjpeg_sys::opj_end_decompress(decoder.as_raw(), stream.as_raw()) } != 1 {
@@ -152,6 +154,6 @@ pub fn decode(bytes: &[u8]) -> Result<(Vec<i32>, (usize, usize)), Jpeg2000Error>
 
         Ok((data, (width as usize, height as usize)))
     } else {
-        Err(Jpeg2000Error::NotSupported)
+        Err(Jpeg2000Error::EncodedDataNotGray)
     }
 }
