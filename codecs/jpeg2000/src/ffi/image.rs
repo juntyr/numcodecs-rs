@@ -55,6 +55,13 @@ impl Image {
         .ok_or(Jpeg2000Error::ImageCreateError)?;
 
         unsafe {
+            (*image.as_ptr()).x0 = 0;
+            (*image.as_ptr()).y0 = 0;
+            (*image.as_ptr()).x1 = width;
+            (*image.as_ptr()).y1 = height;
+        }
+
+        unsafe {
             std::ptr::copy_nonoverlapping(
                 data.as_ptr(),
                 (*(*image.as_ptr()).comps).data,

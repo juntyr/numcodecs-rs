@@ -37,7 +37,7 @@ mod ffi;
 /// Codec providing compression using JPEG 2000
 pub struct Jpeg2000Codec {
     /// Peak signal-to-noise ratio
-    pub psnr: i32,
+    pub psnr: f32,
 }
 
 impl Codec for Jpeg2000Codec {
@@ -154,7 +154,7 @@ pub enum Jpeg2000CodecError {
 pub struct Jpeg2000HeaderError(postcard::Error);
 
 /// Compress the `data` array using JPEG 2000 with the provided `psnr`.
-pub fn compress(data: ArrayView<i32, Ix2>, psnr: i32) -> Result<Vec<u8>, Jpeg2000CodecError> {
+pub fn compress(data: ArrayView<i32, Ix2>, psnr: f32) -> Result<Vec<u8>, Jpeg2000CodecError> {
     let mut encoded = postcard::to_extend(
         &CompressionHeader {
             shape: Cow::Borrowed(data.shape()),
@@ -223,7 +223,7 @@ mod tests {
             Array::<i32, _>::from_shape_vec([3, 0], vec![])
                 .unwrap()
                 .view(),
-            42,
+            42.0,
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
@@ -239,7 +239,7 @@ mod tests {
             Array::<i32, _>::from_shape_vec([1, 1], vec![42])
                 .unwrap()
                 .view(),
-            42,
+            42.0,
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
@@ -251,7 +251,7 @@ mod tests {
 
     #[test]
     fn large_2d() {
-        let encoded = compress(Array::zeros((64, 64)).view(), 42).unwrap();
+        let encoded = compress(Array::zeros((64, 64)).view(), 42.0).unwrap();
         let decoded = decompress(&encoded).unwrap();
 
         assert_eq!(decoded.dtype(), AnyArrayDType::I32);

@@ -31,7 +31,7 @@ pub fn decode(bytes: &[u8]) -> Result<(Vec<i32>, (usize, usize)), Jpeg2000Error>
     let mut stream = DecodeStream::new(bytes);
     let mut decoder = Decoder::j2k()?;
 
-    let mut decode_params = MaybeUninit::uninit();
+    let mut decode_params = MaybeUninit::zeroed();
     unsafe { openjpeg_sys::opj_set_default_decoder_parameters(decode_params.as_mut_ptr()) };
     let mut decode_params = unsafe { decode_params.assume_init() };
 
@@ -67,16 +67,26 @@ pub fn encode_into(
     data: &[i32],
     width: usize,
     height: usize,
-    psnr: i32,
+    psnr: f32,
     encoded: &mut Vec<u8>,
 ) -> Result<(), Jpeg2000Error> {
     let mut stream = EncodeStream::new(encoded);
     let mut encoder = Encoder::j2k()?;
 
-    let mut encode_params = MaybeUninit::uninit();
+    let mut encode_params = MaybeUninit::zeroed();
     unsafe { openjpeg_sys::opj_set_default_encoder_parameters(encode_params.as_mut_ptr()) };
     let mut encode_params = unsafe { encode_params.assume_init() };
-    encode_params.cp_fixed_quality = psnr as _;
+
+    encode_params.numresolution = 6;
+    while (width < (1 << (encode_params.numresolution - 1)))
+        || (height < (1 << (encode_params.numresolution - 1)))
+    {
+        encode_params.numresolution -= 1;
+    }
+
+    encode_params.cp_fixed_quality = 1;
+    encode_params.tcp_numlayers = 1;
+    encode_params.tcp_distoratio[0] = psnr;
 
     let (Ok(width), Ok(height)) = (u32::try_from(width), u32::try_from(height)) else {
         return Err(Jpeg2000Error::DimensionsTooLarge);

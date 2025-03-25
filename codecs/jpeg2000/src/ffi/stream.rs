@@ -134,7 +134,7 @@ pub struct EncodeStream<'a> {
 impl<'a> EncodeStream<'a> {
     pub fn new(buf: &'a mut Vec<u8>) -> Self {
         let stream = unsafe {
-            let stream = openjpeg_sys::opj_stream_default_create(1);
+            let stream = openjpeg_sys::opj_stream_default_create(0);
             openjpeg_sys::opj_stream_set_write_function(stream, Some(vec_write_stream_write_fn));
             openjpeg_sys::opj_stream_set_user_data(stream, std::ptr::from_mut(buf).cast(), None);
             stream
