@@ -40,8 +40,8 @@ impl Image {
             h: height,
             x0: 0,
             y0: 0,
-            prec: 32,
-            bpp: 32,
+            prec: 31, // OpenJPEG only supports up to 31 bits of precision
+            bpp: 31,
             sgnd: 1,
         };
 

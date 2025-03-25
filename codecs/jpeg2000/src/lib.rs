@@ -33,11 +33,30 @@ use thiserror::Error;
 mod ffi;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(transparent)]
+// serde cannot deny unknown fields because of the flatten
+#[schemars(deny_unknown_fields)]
 /// Codec providing compression using JPEG 2000
 pub struct Jpeg2000Codec {
+    /// JPEG 2000 compression mode
+    #[serde(flatten)]
+    pub compression: Jpeg2000CompressionMode,
+}
+
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+/// JPEG 2000 compression mode
+pub enum Jpeg2000CompressionMode {
     /// Peak signal-to-noise ratio
-    pub psnr: f32,
+    PSNR {
+        /// Peak signal-to-noise ratio
+        psnr: f32,
+    },
+    /// Compression rate
+    Rate {
+        /// Compression rate, e.g. `10.0` for x10 compression
+        rate: f32,
+    },
+    /// Lossless compression
+    Lossless,
 }
 
 impl Codec for Jpeg2000Codec {
@@ -53,7 +72,7 @@ impl Codec for Jpeg2000Codec {
             .map_err(|source| Jpeg2000CodecError::Non2dData { source })?;
 
         Ok(AnyArray::U8(
-            Array1::from(compress(data.view(), self.psnr)?).into_dyn(),
+            Array1::from(compress(data.view(), &self.compression)?).into_dyn(),
         ))
     }
 
@@ -153,8 +172,11 @@ pub enum Jpeg2000CodecError {
 /// Opaque error for when encoding or decoding the header fails
 pub struct Jpeg2000HeaderError(postcard::Error);
 
-/// Compress the `data` array using JPEG 2000 with the provided `psnr`.
-pub fn compress(data: ArrayView<i32, Ix2>, psnr: f32) -> Result<Vec<u8>, Jpeg2000CodecError> {
+/// Compress the `data` array using JPEG 2000 with the provided `compression`.
+pub fn compress(
+    data: ArrayView<i32, Ix2>,
+    compression: &Jpeg2000CompressionMode,
+) -> Result<Vec<u8>, Jpeg2000CodecError> {
     let mut encoded = postcard::to_extend(
         &CompressionHeader {
             shape: Cow::Borrowed(data.shape()),
@@ -179,7 +201,18 @@ pub fn compress(data: ArrayView<i32, Ix2>, psnr: f32) -> Result<Vec<u8>, Jpeg200
         Cow::Owned(data.iter().copied().collect())
     };
 
-    ffi::encode_into(&data_cow, width, height, psnr, &mut encoded).unwrap();
+    ffi::encode_into(
+        &data_cow,
+        width,
+        height,
+        match compression {
+            Jpeg2000CompressionMode::PSNR { psnr } => ffi::Jpeg2000Compression::PSNR(*psnr),
+            Jpeg2000CompressionMode::Rate { rate } => ffi::Jpeg2000Compression::Rate(*rate),
+            Jpeg2000CompressionMode::Lossless => ffi::Jpeg2000Compression::Lossless,
+        },
+        &mut encoded,
+    )
+    .unwrap();
 
     Ok(encoded)
 }
@@ -223,7 +256,7 @@ mod tests {
             Array::<i32, _>::from_shape_vec([3, 0], vec![])
                 .unwrap()
                 .view(),
-            42.0,
+            &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
@@ -239,7 +272,7 @@ mod tests {
             Array::<i32, _>::from_shape_vec([1, 1], vec![42])
                 .unwrap()
                 .view(),
-            42.0,
+            &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
@@ -251,11 +284,32 @@ mod tests {
 
     #[test]
     fn large_2d() {
-        let encoded = compress(Array::zeros((64, 64)).view(), 42.0).unwrap();
+        let encoded = compress(
+            Array::zeros((64, 64)).view(),
+            &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
+        )
+        .unwrap();
         let decoded = decompress(&encoded).unwrap();
 
         assert_eq!(decoded.dtype(), AnyArrayDType::I32);
         assert_eq!(decoded.len(), 64 * 64);
         assert_eq!(decoded.shape(), &[64, 64]);
+    }
+
+    #[test]
+    fn all_modes() {
+        for mode in [
+            Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
+            Jpeg2000CompressionMode::Rate { rate: 5.0 },
+            Jpeg2000CompressionMode::Lossless,
+        ] {
+            let encoded = compress(Array::zeros((64, 64)).view(), &mode).unwrap();
+            println!("{encoded:?}");
+            let decoded = decompress(&encoded).unwrap();
+
+            assert_eq!(decoded.dtype(), AnyArrayDType::I32);
+            assert_eq!(decoded.len(), 64 * 64);
+            assert_eq!(decoded.shape(), &[64, 64]);
+        }
     }
 }

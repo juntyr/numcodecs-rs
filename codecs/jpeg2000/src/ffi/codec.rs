@@ -21,6 +21,16 @@ impl Decoder {
         })
         .ok_or(Jpeg2000Error::DecoderSetupError)?;
 
+        unsafe {
+            openjpeg_sys::opj_set_info_handler(codec.as_ptr(), Some(log), std::ptr::null_mut());
+        }
+        unsafe {
+            openjpeg_sys::opj_set_warning_handler(codec.as_ptr(), Some(log), std::ptr::null_mut());
+        }
+        unsafe {
+            openjpeg_sys::opj_set_error_handler(codec.as_ptr(), Some(log), std::ptr::null_mut());
+        }
+
         Ok(Self { codec })
     }
 
