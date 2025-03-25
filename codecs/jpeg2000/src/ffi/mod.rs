@@ -1,5 +1,6 @@
-//! Adapted from the MIT/Apache 2.0 licensed https://github.com/Neopallium/jpeg2k
-//! and the MIT/Apache 2.0 licensed https://github.com/noritada/grib-rs
+//! Adapted from
+//! - the MIT/Apache 2.0 licensed <https://github.com/Neopallium/jpeg2k>, and
+//! - the MIT/Apache 2.0 licensed <https://github.com/noritada/grib-rs>
 
 #![allow(unsafe_code)] // FFI
 
@@ -29,24 +30,26 @@ pub enum Jpeg2000Error {
     DataOutOfRange,
 }
 
+#[allow(clippy::upper_case_acronyms)]
 pub enum Jpeg2000Compression {
     PSNR(f32),
     Rate(f32),
     Lossless,
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn encode_into(
     data: &[i32],
     width: usize,
     height: usize,
     compression: Jpeg2000Compression,
-    encoded: &mut Vec<u8>,
+    out: &mut Vec<u8>,
 ) -> Result<(), Jpeg2000Error> {
     if data.iter().copied().any(|x| x < 0) {
         return Err(Jpeg2000Error::DataOutOfRange);
     }
 
-    let mut stream = EncodeStream::new(encoded);
+    let mut stream = EncodeStream::new(out);
     let mut encoder = Encoder::j2k()?;
 
     let mut encode_params = MaybeUninit::zeroed();

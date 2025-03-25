@@ -29,7 +29,7 @@ impl Image {
 
         let image = NonNull::new(image).ok_or(Jpeg2000Error::MainHeaderReadError)?;
 
-        Ok(Image { image })
+        Ok(Self { image })
     }
 
     pub fn from_gray_data(data: &[i32], width: u32, height: u32) -> Result<Self, Jpeg2000Error> {
@@ -72,6 +72,7 @@ impl Image {
         Ok(Self { image })
     }
 
+    #[allow(clippy::needless_pass_by_ref_mut)]
     pub fn as_raw(&mut self) -> *mut openjpeg_sys::opj_image_t {
         self.image.as_ptr()
     }

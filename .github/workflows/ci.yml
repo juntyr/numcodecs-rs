@@ -90,6 +90,7 @@ jobs:
         run: |
           cargo hack check --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-sz3 \
             --exclude numcodecs-tthresh \
             --exclude numcodecs-zfp \
@@ -219,6 +220,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-sz3 \
             --exclude numcodecs-tthresh \
             --exclude numcodecs-zfp \
@@ -233,6 +235,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-sz3 \
             --exclude numcodecs-tthresh \
             --exclude numcodecs-zfp \

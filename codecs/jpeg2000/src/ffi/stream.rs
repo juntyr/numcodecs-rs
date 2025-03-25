@@ -16,7 +16,7 @@ impl Drop for DecodeStream<'_> {
 impl<'a> DecodeStream<'a> {
     pub fn new(buf: &'a [u8]) -> Self {
         let len = buf.len();
-        let data = Box::into_raw(WrappedSlice::new(buf));
+        let data = Box::into_raw(Box::new(WrappedSlice::new(buf)));
 
         let stream = unsafe {
             let stream = openjpeg_sys::opj_stream_default_create(1);
@@ -35,6 +35,7 @@ impl<'a> DecodeStream<'a> {
         Self { stream, _buf: buf }
     }
 
+    #[allow(clippy::needless_pass_by_ref_mut)]
     pub fn as_raw(&mut self) -> *mut openjpeg_sys::opj_stream_t {
         self.stream
     }
@@ -42,7 +43,7 @@ impl<'a> DecodeStream<'a> {
 
 extern "C" fn buf_read_stream_free_fn(p_data: *mut c_void) {
     let ptr: *mut WrappedSlice = p_data.cast();
-    drop(unsafe { Box::from_raw(ptr) })
+    drop(unsafe { Box::from_raw(ptr) });
 }
 
 extern "C" fn buf_read_stream_read_fn(
@@ -62,20 +63,24 @@ extern "C" fn buf_read_stream_read_fn(
 
 extern "C" fn buf_read_stream_skip_fn(nb_bytes: i64, p_data: *mut c_void) -> i64 {
     let slice: &mut WrappedSlice = unsafe { &mut *p_data.cast() };
-    slice.consume(nb_bytes as usize) as i64
+    #[allow(
+        clippy::cast_sign_loss,
+        clippy::cast_possible_truncation,
+        clippy::cast_possible_wrap
+    )]
+    {
+        slice.consume(nb_bytes as usize) as i64
+    }
 }
 
 extern "C" fn buf_read_stream_seek_fn(nb_bytes: i64, p_data: *mut c_void) -> i32 {
     let slice: &mut WrappedSlice = unsafe { &mut *p_data.cast() };
+    #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
     let seek_offset = nb_bytes as usize;
     let new_offset = slice.seek(seek_offset);
 
     // Return true if the seek worked.
-    if seek_offset == new_offset {
-        1
-    } else {
-        0
-    }
+    i32::from(seek_offset == new_offset)
 }
 
 struct WrappedSlice<'a> {
@@ -84,11 +89,11 @@ struct WrappedSlice<'a> {
 }
 
 impl<'a> WrappedSlice<'a> {
-    fn new(buf: &'a [u8]) -> Box<Self> {
-        Box::new(Self { offset: 0, buf })
+    const fn new(buf: &'a [u8]) -> Self {
+        Self { offset: 0, buf }
     }
 
-    fn remaining(&self) -> usize {
+    const fn remaining(&self) -> usize {
         self.buf.len() - self.offset
     }
 
@@ -143,6 +148,7 @@ impl<'a> EncodeStream<'a> {
         Self { stream, _buf: buf }
     }
 
+    #[allow(clippy::needless_pass_by_ref_mut)]
     pub fn as_raw(&mut self) -> *mut openjpeg_sys::opj_stream_t {
         self.stream
     }

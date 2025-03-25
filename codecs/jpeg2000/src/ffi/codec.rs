@@ -34,6 +34,7 @@ impl Decoder {
         Ok(Self { codec })
     }
 
+    #[allow(clippy::needless_pass_by_ref_mut)]
     pub fn as_raw(&mut self) -> *mut openjpeg_sys::opj_codec_t {
         self.codec.as_ptr()
     }
@@ -71,6 +72,7 @@ impl Encoder {
         Ok(Self { codec })
     }
 
+    #[allow(clippy::needless_pass_by_ref_mut)]
     pub fn as_raw(&mut self) -> *mut openjpeg_sys::opj_codec_t {
         self.codec.as_ptr()
     }
