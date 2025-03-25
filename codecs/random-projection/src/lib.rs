@@ -202,7 +202,7 @@ pub enum RandomProjectionCodecError {
     /// [`RandomProjectionCodec`] does not support the dtype
     #[error("RandomProjection does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
-    /// [`RandomProjectionCodec`] does not support the dtype
+    /// [`RandomProjectionCodec`] only supports matrix / 2d-shaped arrays
     #[error("RandomProjection only supports matrix / 2d-shaped arrays")]
     NonMatrixData {
         /// The source of the error
