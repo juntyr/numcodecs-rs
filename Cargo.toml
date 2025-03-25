@@ -16,6 +16,7 @@ members = [
     "codecs/fixed-offset-scale",
     "codecs/fourier-network",
     "codecs/identity",
+    "codecs/jpeg2000",
     "codecs/linear-quantize",
     "codecs/log",
     "codecs/pco",
@@ -57,6 +58,7 @@ numcodecs-bit-round = { version = "0.2", path = "codecs/bit-round", default-feat
 numcodecs-fixed-offset-scale = { version = "0.2", path = "codecs/fixed-offset-scale", default-features = false }
 numcodecs-fourier-network = { version = "0.1", path = "codecs/fourier-network", default-features = false }
 numcodecs-identity = { version = "0.2", path = "codecs/identity", default-features = false }
+numcodecs-jpeg2000 = { version = "0.1", path = "codecs/jpeg2000", default-features = false }
 numcodecs-linear-quantize = { version = "0.3", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.3", path = "codecs/log", default-features = false }
 numcodecs-pco = { version = "0.1", path = "codecs/pco", default-features = false }
@@ -87,6 +89,7 @@ ndarray = { version = "0.16.1", default-features = false } # keep in sync with n
 ndarray-rand = { version = "0.15", default-features = false }
 numpy = { version = "0.23", default-features = false }
 num-traits = { version = "0.2.19", default-features = false }
+openjpeg-sys = { version = "1.0", default-features = false }
 pco = { version = "0.4", default-features = false }
 polonius-the-crab = { version = "0.4", default-features = false }
 postcard = { version = "1.0.8", default-features = false }
