@@ -15,20 +15,33 @@ mod stream;
 use codec::{Decoder, Encoder};
 use image::Image;
 use stream::{DecodeStream, EncodeStream};
+use thiserror::Error;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Error)]
 pub enum Jpeg2000Error {
+    #[error("Jpeg2000 can only encode data using at most 31 bits")]
     DataOutOfRange,
+    #[error("Jpeg2000 can only encode data with a width and height that each fit into a u32")]
     ImageTooLarge,
+    #[error("Jpeg2000 failed to create an image from the data to encode")]
     ImageCreateError,
+    #[error("Jpeg2000 failed to setup the encoder")]
     EncoderSetupError,
+    #[error("Jpeg2000 failed to start compression")]
     StartCompressError,
+    #[error("Jpeg2000 failed to compress the data body")]
     CompressBodyError,
+    #[error("Jpeg2000 failed to end compression")]
     EndCompressError,
+    #[error("Jpeg2000 can only decode from single-channel gray images")]
     EncodedDataNotGray,
+    #[error("Jpeg2000 failed to setup the decoder")]
     DecoderSetupError,
-    InvalidImageHeader,
+    #[error("Jpeg2000 failed to decode an invalid main header")]
+    InvalidMainHeader,
+    #[error("Jpeg2000 failed to decode the data body")]
     DecodeBodyError,
+    #[error("Jpeg2000 failed to end decompression")]
     EndDecompressError,
 }
 

@@ -127,7 +127,6 @@ pub enum Jpeg2000CodecError {
     #[error("Jpeg2000 only supports 2d-shaped arrays")]
     Non2dData {
         /// The source of the error
-        #[from]
         source: ShapeError,
     },
     /// [`Jpeg2000Codec`] failed to encode the header
@@ -135,6 +134,12 @@ pub enum Jpeg2000CodecError {
     HeaderEncodeFailed {
         /// Opaque source error
         source: Jpeg2000HeaderError,
+    },
+    /// [`Jpeg2000Codec`] failed to encode the data
+    #[error("Jpeg2000 failed to encode the data")]
+    Jpeg2000EncodeFailed {
+        /// Opaque source error
+        source: Jpeg2000CodingError,
     },
     /// [`Jpeg2000Codec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
@@ -158,6 +163,18 @@ pub enum Jpeg2000CodecError {
         /// Opaque source error
         source: Jpeg2000HeaderError,
     },
+    /// [`Jpeg2000Codec`] failed to decode the data
+    #[error("Jpeg2000 failed to decode the data")]
+    Jpeg2000DecodeFailed {
+        /// Opaque source error
+        source: Jpeg2000CodingError,
+    },
+    /// [`Jpeg2000Codec`] decoded into an invalid shape not matching the data size
+    #[error("Jpeg2000 decoded into an invalid shape not matching the data size")]
+    DecodeInvalidShape {
+        /// The source of the error
+        source: ShapeError,
+    },
     /// [`Jpeg2000Codec`] cannot decode into the provided array
     #[error("Jpeg2000Codec cannot decode into the provided array")]
     MismatchedDecodeIntoArray {
@@ -171,6 +188,11 @@ pub enum Jpeg2000CodecError {
 #[error(transparent)]
 /// Opaque error for when encoding or decoding the header fails
 pub struct Jpeg2000HeaderError(postcard::Error);
+
+#[derive(Debug, Error)]
+#[error(transparent)]
+/// Opaque error for when encoding or decoding with JPEG 2000 fails
+pub struct Jpeg2000CodingError(ffi::Jpeg2000Error);
 
 /// Compress the `data` array using JPEG 2000 with the provided `compression`.
 pub fn compress(
@@ -212,7 +234,9 @@ pub fn compress(
         },
         &mut encoded,
     )
-    .unwrap();
+    .map_err(|err| Jpeg2000CodecError::Jpeg2000EncodeFailed {
+        source: Jpeg2000CodingError(err),
+    })?;
 
     Ok(encoded)
 }
@@ -231,11 +255,14 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
         return Ok(AnyArray::I32(Array::zeros(&*header.shape)));
     }
 
-    let (decoded, (width, height)) = ffi::decode(encoded).unwrap();
+    let (decoded, (width, height)) =
+        ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
+            source: Jpeg2000CodingError(err),
+        })?;
 
     Ok(AnyArray::I32(
         Array::from_shape_vec((height, width), decoded)
-            .unwrap()
+            .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
             .into_dyn(),
     ))
 }
@@ -247,11 +274,14 @@ struct CompressionHeader<'a> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
     #[test]
     fn zero_length() {
+        std::mem::drop(simple_logger::init());
+
         let encoded = compress(
             Array::<i32, _>::from_shape_vec([3, 0], vec![])
                 .unwrap()
@@ -268,6 +298,8 @@ mod tests {
 
     #[test]
     fn small_2d() {
+        std::mem::drop(simple_logger::init());
+
         let encoded = compress(
             Array::<i32, _>::from_shape_vec([1, 1], vec![42])
                 .unwrap()
@@ -284,6 +316,8 @@ mod tests {
 
     #[test]
     fn large_2d() {
+        std::mem::drop(simple_logger::init());
+
         let encoded = compress(
             Array::zeros((64, 64)).view(),
             &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
@@ -298,13 +332,14 @@ mod tests {
 
     #[test]
     fn all_modes() {
+        std::mem::drop(simple_logger::init());
+
         for mode in [
             Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
             Jpeg2000CompressionMode::Rate { rate: 5.0 },
             Jpeg2000CompressionMode::Lossless,
         ] {
             let encoded = compress(Array::zeros((64, 64)).view(), &mode).unwrap();
-            println!("{encoded:?}");
             let decoded = decompress(&encoded).unwrap();
 
             assert_eq!(decoded.dtype(), AnyArrayDType::I32);
