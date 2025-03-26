@@ -19,8 +19,6 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Jpeg2000Error {
-    #[error("Jpeg2000 can only encode data using at most 31 bits")]
-    DataOutOfRange,
     #[error("Jpeg2000 can only encode data with a width and height that each fit into a u32")]
     ImageTooLarge,
     #[error("Jpeg2000 failed to create an image from the data to encode")]
@@ -33,8 +31,6 @@ pub enum Jpeg2000Error {
     CompressBodyError,
     #[error("Jpeg2000 failed to end compression")]
     EndCompressError,
-    #[error("Jpeg2000 can only decode from single-channel gray images")]
-    EncodedDataNotGray,
     #[error("Jpeg2000 failed to setup the decoder")]
     DecoderSetupError,
     #[error("Jpeg2000 failed to decode an invalid main header")]
@@ -43,6 +39,14 @@ pub enum Jpeg2000Error {
     DecodeBodyError,
     #[error("Jpeg2000 failed to end decompression")]
     EndDecompressError,
+    #[error("Jpeg2000 can only decode from single-channel gray images")]
+    DecodeNonGrayData,
+    #[error("Jpeg2000 can only decode from non-subsampled images")]
+    DecodeSubsampledData,
+    #[error("Jpeg2000 decoded into an image with an unexpected precision")]
+    DecodedDataBitsMismatch,
+    #[error("Jpeg2000 decoded into an image with an unexpected sign")]
+    DecodedDataSignMismatch,
 }
 
 #[allow(clippy::upper_case_acronyms)]
@@ -53,17 +57,13 @@ pub enum Jpeg2000Compression {
 }
 
 #[allow(clippy::needless_pass_by_value)]
-pub fn encode_into(
-    data: &[i32],
+pub fn encode_into<T: Jpeg2000Element>(
+    data: impl IntoIterator<Item = T>,
     width: usize,
     height: usize,
     compression: Jpeg2000Compression,
     out: &mut Vec<u8>,
 ) -> Result<(), Jpeg2000Error> {
-    if data.iter().copied().any(|x| x < 0) {
-        return Err(Jpeg2000Error::DataOutOfRange);
-    }
-
     let mut stream = EncodeStream::new(out);
     let mut encoder = Encoder::j2k()?;
 
@@ -125,7 +125,7 @@ pub fn encode_into(
     Ok(())
 }
 
-pub fn decode(bytes: &[u8]) -> Result<(Vec<i32>, (usize, usize)), Jpeg2000Error> {
+pub fn decode<T: Jpeg2000Element>(bytes: &[u8]) -> Result<(Vec<T>, (usize, usize)), Jpeg2000Error> {
     let mut stream = DecodeStream::new(bytes);
     let mut decoder = Decoder::j2k()?;
 
@@ -151,22 +151,91 @@ pub fn decode(bytes: &[u8]) -> Result<(Vec<i32>, (usize, usize)), Jpeg2000Error>
     drop(decoder);
     drop(stream);
 
-    let width = image.width();
-    let height = image.height();
+    let width = image.width() as usize;
+    let height = image.height() as usize;
 
-    assert_eq!(image.factor(), 0);
+    let [gray] = image.components() else {
+        return Err(Jpeg2000Error::DecodeNonGrayData);
+    };
 
-    if let [gray] = image.components() {
-        let mut data =
-            unsafe { std::slice::from_raw_parts(gray.data, (width * height) as usize) }.to_vec();
+    if gray.factor != 0 {
+        return Err(Jpeg2000Error::DecodeSubsampledData);
+    }
 
-        let mask = i32::from_ne_bytes(((1_u32 << gray.prec) - 1).to_ne_bytes());
-        for x in &mut data {
-            *x &= mask;
-        }
+    if gray.prec != T::NBITS {
+        return Err(Jpeg2000Error::DecodedDataBitsMismatch);
+    }
 
-        Ok((data, (width as usize, height as usize)))
-    } else {
-        Err(Jpeg2000Error::EncodedDataNotGray)
+    if (gray.sgnd != 0) != T::SIGNED {
+        return Err(Jpeg2000Error::DecodedDataSignMismatch);
+    }
+
+    let data = unsafe { std::slice::from_raw_parts(gray.data, width * height) };
+    let data = data.iter().copied().map(T::from_i32).collect();
+
+    Ok((data, (width, height)))
+}
+
+pub trait Jpeg2000Element: Copy {
+    const NBITS: u32;
+    const SIGNED: bool;
+
+    fn into_i32(self) -> i32;
+    fn from_i32(x: i32) -> Self;
+}
+
+impl Jpeg2000Element for i8 {
+    const NBITS: u32 = 8;
+    const SIGNED: bool = true;
+
+    fn into_i32(self) -> i32 {
+        i32::from(self)
+    }
+
+    #[allow(clippy::cast_possible_truncation)]
+    fn from_i32(x: i32) -> Self {
+        x as Self
+    }
+}
+
+impl Jpeg2000Element for u8 {
+    const NBITS: u32 = 8;
+    const SIGNED: bool = false;
+
+    fn into_i32(self) -> i32 {
+        i32::from(self)
+    }
+
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    fn from_i32(x: i32) -> Self {
+        x as Self
+    }
+}
+
+impl Jpeg2000Element for i16 {
+    const NBITS: u32 = 16;
+    const SIGNED: bool = true;
+
+    fn into_i32(self) -> i32 {
+        i32::from(self)
+    }
+
+    #[allow(clippy::cast_possible_truncation)]
+    fn from_i32(x: i32) -> Self {
+        x as Self
+    }
+}
+
+impl Jpeg2000Element for u16 {
+    const NBITS: u32 = 16;
+    const SIGNED: bool = false;
+
+    fn into_i32(self) -> i32 {
+        i32::from(self)
+    }
+
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    fn from_i32(x: i32) -> Self {
+        x as Self
     }
 }

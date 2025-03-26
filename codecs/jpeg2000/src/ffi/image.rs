@@ -1,6 +1,6 @@
 use std::ptr::NonNull;
 
-use super::{codec::Decoder, stream::DecodeStream, Jpeg2000Error};
+use super::{codec::Decoder, stream::DecodeStream, Jpeg2000Element, Jpeg2000Error};
 
 pub struct Image {
     image: NonNull<openjpeg_sys::opj_image_t>,
@@ -32,7 +32,11 @@ impl Image {
         Ok(Self { image })
     }
 
-    pub fn from_gray_data(data: &[i32], width: u32, height: u32) -> Result<Self, Jpeg2000Error> {
+    pub fn from_gray_data<T: Jpeg2000Element>(
+        data: impl IntoIterator<Item = T>,
+        width: u32,
+        height: u32,
+    ) -> Result<Self, Jpeg2000Error> {
         let mut image_params = openjpeg_sys::opj_image_cmptparm_t {
             dx: 1,
             dy: 1,
@@ -40,9 +44,12 @@ impl Image {
             h: height,
             x0: 0,
             y0: 0,
-            prec: 31, // OpenJPEG only supports up to 31 bits of precision
-            bpp: 31,
-            sgnd: 1,
+            // Warning: OpenJPEG only supports up to 31 bits of precision
+            //          it actually seems worse, with only 26 bits for lossless
+            //          at least for signed values
+            prec: T::NBITS,
+            bpp: T::NBITS,
+            sgnd: u32::from(T::SIGNED),
         };
 
         let image = NonNull::new(unsafe {
@@ -62,11 +69,11 @@ impl Image {
         }
 
         unsafe {
-            std::ptr::copy_nonoverlapping(
-                data.as_ptr(),
-                (*(*image.as_ptr()).comps).data,
-                data.len(),
-            );
+            let mut idata = (*(*image.as_ptr()).comps).data;
+            for d in data {
+                *idata = d.into_i32();
+                idata = idata.add(1);
+            }
         }
 
         Ok(Self { image })
@@ -85,16 +92,8 @@ impl Image {
         unsafe { (*self.image.as_ptr()).y1 - (*self.image.as_ptr()).y0 }
     }
 
-    pub fn num_components(&self) -> u32 {
-        unsafe { (*self.image.as_ptr()).numcomps }
-    }
-
     pub fn components(&self) -> &[openjpeg_sys::opj_image_comp_t] {
-        let comps_len = self.num_components();
+        let comps_len = unsafe { (*self.image.as_ptr()).numcomps };
         unsafe { std::slice::from_raw_parts((*self.image.as_ptr()).comps, comps_len as usize) }
-    }
-
-    pub fn factor(&self) -> u32 {
-        unsafe { (*(*self.image.as_ptr()).comps).factor }
     }
 }

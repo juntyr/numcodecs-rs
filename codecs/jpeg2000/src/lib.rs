@@ -20,8 +20,9 @@
 #![allow(clippy::multiple_crate_versions)] // embedded-io
 
 use std::borrow::Cow;
+use std::fmt;
 
-use ndarray::{Array, Array1, ArrayView, Ix2, ShapeError};
+use ndarray::{Array, Array1, ArrayBase, Data, Dimension, Ix2, ShapeError};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -63,17 +64,21 @@ impl Codec for Jpeg2000Codec {
     type Error = Jpeg2000CodecError;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
-        let AnyCowArray::I32(data) = data else {
-            return Err(Jpeg2000CodecError::UnsupportedDtype(data.dtype()));
-        };
-
-        let data = data
-            .into_dimensionality()
-            .map_err(|source| Jpeg2000CodecError::Non2dData { source })?;
-
-        Ok(AnyArray::U8(
-            Array1::from(compress(data.view(), &self.compression)?).into_dyn(),
-        ))
+        match data {
+            AnyCowArray::I8(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, &self.compression)?).into_dyn(),
+            )),
+            AnyCowArray::U8(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, &self.compression)?).into_dyn(),
+            )),
+            AnyCowArray::I16(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, &self.compression)?).into_dyn(),
+            )),
+            AnyCowArray::U16(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, &self.compression)?).into_dyn(),
+            )),
+            encoded => Err(Jpeg2000CodecError::UnsupportedDtype(encoded.dtype())),
+        }
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
@@ -195,12 +200,17 @@ pub struct Jpeg2000HeaderError(postcard::Error);
 pub struct Jpeg2000CodingError(ffi::Jpeg2000Error);
 
 /// Compress the `data` array using JPEG 2000 with the provided `compression`.
-pub fn compress(
-    data: ArrayView<i32, Ix2>,
+pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
+    data: ArrayBase<S, D>,
     compression: &Jpeg2000CompressionMode,
 ) -> Result<Vec<u8>, Jpeg2000CodecError> {
+    let data: ArrayBase<S, Ix2> = data
+        .into_dimensionality()
+        .map_err(|source| Jpeg2000CodecError::Non2dData { source })?;
+
     let mut encoded = postcard::to_extend(
         &CompressionHeader {
+            dtype: T::DTYPE,
             shape: Cow::Borrowed(data.shape()),
         },
         Vec::new(),
@@ -216,15 +226,8 @@ pub fn compress(
 
     let (height, width) = data.dim();
 
-    #[expect(clippy::option_if_let_else)]
-    let data_cow = if let Some(data) = data.as_slice() {
-        Cow::Borrowed(data)
-    } else {
-        Cow::Owned(data.iter().copied().collect())
-    };
-
     ffi::encode_into(
-        &data_cow,
+        data.iter().copied(),
         width,
         height,
         match compression {
@@ -252,25 +255,111 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
 
     // Return empty data for zero-size arrays
     if header.shape.iter().copied().product::<usize>() == 0 {
-        return Ok(AnyArray::I32(Array::zeros(&*header.shape)));
+        return match header.dtype {
+            Jpeg2000DType::I8 => Ok(AnyArray::I8(Array::zeros(&*header.shape))),
+            Jpeg2000DType::U8 => Ok(AnyArray::U8(Array::zeros(&*header.shape))),
+            Jpeg2000DType::I16 => Ok(AnyArray::I16(Array::zeros(&*header.shape))),
+            Jpeg2000DType::U16 => Ok(AnyArray::U16(Array::zeros(&*header.shape))),
+        };
     }
 
-    let (decoded, (width, height)) =
-        ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
-            source: Jpeg2000CodingError(err),
-        })?;
+    match header.dtype {
+        Jpeg2000DType::I8 => {
+            let (decoded, (width, height)) =
+                ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
+                    source: Jpeg2000CodingError(err),
+                })?;
+            Ok(AnyArray::I8(
+                Array::from_shape_vec((height, width), decoded)
+                    .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
+                    .into_dyn(),
+            ))
+        }
+        Jpeg2000DType::U8 => {
+            let (decoded, (width, height)) =
+                ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
+                    source: Jpeg2000CodingError(err),
+                })?;
+            Ok(AnyArray::U8(
+                Array::from_shape_vec((height, width), decoded)
+                    .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
+                    .into_dyn(),
+            ))
+        }
+        Jpeg2000DType::I16 => {
+            let (decoded, (width, height)) =
+                ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
+                    source: Jpeg2000CodingError(err),
+                })?;
+            Ok(AnyArray::I16(
+                Array::from_shape_vec((height, width), decoded)
+                    .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
+                    .into_dyn(),
+            ))
+        }
+        Jpeg2000DType::U16 => {
+            let (decoded, (width, height)) =
+                ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
+                    source: Jpeg2000CodingError(err),
+                })?;
+            Ok(AnyArray::U16(
+                Array::from_shape_vec((height, width), decoded)
+                    .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
+                    .into_dyn(),
+            ))
+        }
+    }
+}
 
-    Ok(AnyArray::I32(
-        Array::from_shape_vec((height, width), decoded)
-            .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
-            .into_dyn(),
-    ))
+/// Array element types which can be compressed with JPEG 2000.
+pub trait Jpeg2000Element: ffi::Jpeg2000Element {
+    /// The dtype representation of the type
+    const DTYPE: Jpeg2000DType;
+}
+
+impl Jpeg2000Element for i8 {
+    const DTYPE: Jpeg2000DType = Jpeg2000DType::I8;
+}
+impl Jpeg2000Element for u8 {
+    const DTYPE: Jpeg2000DType = Jpeg2000DType::U8;
+}
+impl Jpeg2000Element for i16 {
+    const DTYPE: Jpeg2000DType = Jpeg2000DType::I16;
+}
+impl Jpeg2000Element for u16 {
+    const DTYPE: Jpeg2000DType = Jpeg2000DType::U16;
 }
 
 #[derive(Serialize, Deserialize)]
 struct CompressionHeader<'a> {
+    dtype: Jpeg2000DType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
+}
+
+/// Dtypes that JPEG 2000 can compress and decompress
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[expect(missing_docs)]
+pub enum Jpeg2000DType {
+    #[serde(rename = "i8", alias = "int8")]
+    I8,
+    #[serde(rename = "u8", alias = "uint8")]
+    U8,
+    #[serde(rename = "i16", alias = "int16")]
+    I16,
+    #[serde(rename = "u16", alias = "uint16")]
+    U16,
+}
+
+impl fmt::Display for Jpeg2000DType {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(match self {
+            Self::I8 => "i8",
+            Self::U8 => "u8",
+            Self::I16 => "i16",
+            Self::U16 => "u16",
+        })
+    }
 }
 
 #[cfg(test)]
@@ -283,15 +372,13 @@ mod tests {
         std::mem::drop(simple_logger::init());
 
         let encoded = compress(
-            Array::<i32, _>::from_shape_vec([3, 0], vec![])
-                .unwrap()
-                .view(),
+            Array::<i16, _>::from_shape_vec([3, 0], vec![]).unwrap(),
             &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
 
-        assert_eq!(decoded.dtype(), AnyArrayDType::I32);
+        assert_eq!(decoded.dtype(), AnyArrayDType::I16);
         assert!(decoded.is_empty());
         assert_eq!(decoded.shape(), &[3, 0]);
     }
@@ -301,17 +388,40 @@ mod tests {
         std::mem::drop(simple_logger::init());
 
         let encoded = compress(
-            Array::<i32, _>::from_shape_vec([1, 1], vec![42])
-                .unwrap()
-                .view(),
+            Array::<i16, _>::from_shape_vec([1, 1], vec![42]).unwrap(),
             &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
 
-        assert_eq!(decoded.dtype(), AnyArrayDType::I32);
+        assert_eq!(decoded.dtype(), AnyArrayDType::I16);
         assert_eq!(decoded.len(), 1);
         assert_eq!(decoded.shape(), &[1, 1]);
+    }
+
+    #[test]
+    fn small_lossless_types() {
+        macro_rules! check {
+            ($T:ident($t:ident)) => {
+                let data = Array::<$t, Ix2>::from_shape_vec([3, 1], vec![$t::MIN, 0, $t::MAX]).unwrap();
+
+                let encoded = compress(
+                    data.view(),
+                    &Jpeg2000CompressionMode::Lossless,
+                )
+                .unwrap();
+                let decoded = decompress(&encoded).unwrap();
+
+                assert_eq!(decoded.len(), 3);
+                assert_eq!(decoded.shape(), &[3, 1]);
+                assert_eq!(decoded, AnyArray::$T(data.into_dyn()));
+            };
+            ($($T:ident($t:ident)),*) => {
+                $(check! { $T($t) })*
+            };
+        }
+
+        check! { I8(i8), U8(u8), I16(i16), U16(u16) }
     }
 
     #[test]
@@ -319,13 +429,13 @@ mod tests {
         std::mem::drop(simple_logger::init());
 
         let encoded = compress(
-            Array::zeros((64, 64)).view(),
+            Array::<i16, Ix2>::zeros((64, 64)),
             &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
 
-        assert_eq!(decoded.dtype(), AnyArrayDType::I32);
+        assert_eq!(decoded.dtype(), AnyArrayDType::I16);
         assert_eq!(decoded.len(), 64 * 64);
         assert_eq!(decoded.shape(), &[64, 64]);
     }
@@ -339,10 +449,10 @@ mod tests {
             Jpeg2000CompressionMode::Rate { rate: 5.0 },
             Jpeg2000CompressionMode::Lossless,
         ] {
-            let encoded = compress(Array::zeros((64, 64)).view(), &mode).unwrap();
+            let encoded = compress(Array::<i16, Ix2>::zeros((64, 64)), &mode).unwrap();
             let decoded = decompress(&encoded).unwrap();
 
-            assert_eq!(decoded.dtype(), AnyArrayDType::I32);
+            assert_eq!(decoded.dtype(), AnyArrayDType::I16);
             assert_eq!(decoded.len(), 64 * 64);
             assert_eq!(decoded.shape(), &[64, 64]);
         }
