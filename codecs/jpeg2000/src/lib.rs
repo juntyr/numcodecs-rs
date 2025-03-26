@@ -22,7 +22,8 @@
 use std::borrow::Cow;
 use std::fmt;
 
-use ndarray::{Array, Array1, ArrayBase, Data, Dimension, Ix2, ShapeError};
+use ndarray::{Array, Array1, ArrayBase, Axis, Data, Dimension, IxDyn, ShapeError};
+use num_traits::identities::Zero;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -128,12 +129,6 @@ pub enum Jpeg2000CodecError {
     /// [`Jpeg2000Codec`] does not support the dtype
     #[error("Jpeg2000 does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
-    /// [`Jpeg2000Codec`] only supports 2d-shaped arrays
-    #[error("Jpeg2000 only supports 2d-shaped arrays")]
-    Non2dData {
-        /// The source of the error
-        source: ShapeError,
-    },
     /// [`Jpeg2000Codec`] failed to encode the header
     #[error("Jpeg2000 failed to encode the header")]
     HeaderEncodeFailed {
@@ -168,6 +163,9 @@ pub enum Jpeg2000CodecError {
         /// Opaque source error
         source: Jpeg2000HeaderError,
     },
+    /// [`Jpeg2000Codec`] failed to decode corrput chunks
+    #[error("Jpeg2000 failed to decode corrput chunks")]
+    DecodeCorruptChunks,
     /// [`Jpeg2000Codec`] failed to decode the data
     #[error("Jpeg2000 failed to decode the data")]
     Jpeg2000DecodeFailed {
@@ -196,6 +194,11 @@ pub struct Jpeg2000HeaderError(postcard::Error);
 
 #[derive(Debug, Error)]
 #[error(transparent)]
+/// Opaque error for when encoding or decoding the footer fails
+pub struct Jpeg2000FooterError(postcard::Error);
+
+#[derive(Debug, Error)]
+#[error(transparent)]
 /// Opaque error for when encoding or decoding with JPEG 2000 fails
 pub struct Jpeg2000CodingError(ffi::Jpeg2000Error);
 
@@ -204,48 +207,120 @@ pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     compression: &Jpeg2000CompressionMode,
 ) -> Result<Vec<u8>, Jpeg2000CodecError> {
-    let data: ArrayBase<S, Ix2> = data
-        .into_dimensionality()
-        .map_err(|source| Jpeg2000CodecError::Non2dData { source })?;
+    let mut encoded = Vec::new();
+    let mut encoded_chunk_sizes = Vec::new();
 
-    let mut encoded = postcard::to_extend(
+    let shape = Vec::from(data.shape());
+
+    // JPEG 2000 cannot handle zero-length dimensions
+    if !data.is_empty() {
+        let mut chunk_size = Vec::from(data.shape());
+        let (width, height) = match *chunk_size.as_mut_slice() {
+            [ref mut rest @ .., height, width] => {
+                for r in rest {
+                    *r = 1;
+                }
+                (width, height)
+            }
+            [width] => (width, 1),
+            [] => (1, 1),
+        };
+
+        for chunk in data.into_dyn().exact_chunks(chunk_size.as_slice()) {
+            let size_before = encoded.len();
+            ffi::encode_into(
+                chunk.iter().copied(),
+                width,
+                height,
+                match compression {
+                    Jpeg2000CompressionMode::PSNR { psnr } => {
+                        ffi::Jpeg2000CompressionMode::PSNR(*psnr)
+                    }
+                    Jpeg2000CompressionMode::Rate { rate } => {
+                        ffi::Jpeg2000CompressionMode::Rate(*rate)
+                    }
+                    Jpeg2000CompressionMode::Lossless => ffi::Jpeg2000CompressionMode::Lossless,
+                },
+                &mut encoded,
+            )
+            .map_err(|err| Jpeg2000CodecError::Jpeg2000EncodeFailed {
+                source: Jpeg2000CodingError(err),
+            })?;
+            encoded_chunk_sizes.push(encoded.len() - size_before);
+        }
+    }
+
+    let mut encoded_with_header = postcard::to_extend(
         &CompressionHeader {
             dtype: T::DTYPE,
-            shape: Cow::Borrowed(data.shape()),
+            shape: Cow::Owned(shape),
+            chunks: Cow::Owned(encoded_chunk_sizes),
         },
         Vec::new(),
     )
     .map_err(|err| Jpeg2000CodecError::HeaderEncodeFailed {
         source: Jpeg2000HeaderError(err),
     })?;
+    encoded_with_header.append(&mut encoded);
 
-    // ZFP cannot handle zero-length dimensions
-    if data.is_empty() {
-        return Ok(encoded);
-    }
-
-    let (height, width) = data.dim();
-
-    ffi::encode_into(
-        data.iter().copied(),
-        width,
-        height,
-        match compression {
-            Jpeg2000CompressionMode::PSNR { psnr } => ffi::Jpeg2000Compression::PSNR(*psnr),
-            Jpeg2000CompressionMode::Rate { rate } => ffi::Jpeg2000Compression::Rate(*rate),
-            Jpeg2000CompressionMode::Lossless => ffi::Jpeg2000Compression::Lossless,
-        },
-        &mut encoded,
-    )
-    .map_err(|err| Jpeg2000CodecError::Jpeg2000EncodeFailed {
-        source: Jpeg2000CodingError(err),
-    })?;
-
-    Ok(encoded)
+    Ok(encoded_with_header)
 }
 
 /// Decompress the `encoded` data into an array using JPEG 2000.
 pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
+    fn decompress_typed<T: Jpeg2000Element>(
+        mut encoded: &[u8],
+        shape: &[usize],
+        chunks: &[usize],
+    ) -> Result<Array<T, IxDyn>, Jpeg2000CodecError> {
+        let mut decoded = Array::<T, _>::zeros(shape);
+
+        let mut chunk_size = Vec::from(shape);
+        let (width, height) = match *chunk_size.as_mut_slice() {
+            [ref mut rest @ .., height, width] => {
+                for r in rest {
+                    *r = 1;
+                }
+                (width, height)
+            }
+            [width] => (width, 1),
+            [] => (1, 1),
+        };
+
+        for (mut chunk, size) in decoded
+            .exact_chunks_mut(chunk_size.as_slice())
+            .into_iter()
+            .zip(chunks.iter())
+        {
+            let Some((encoded_chunk, rest)) = encoded.split_at_checked(*size) else {
+                return Err(Jpeg2000CodecError::DecodeCorruptChunks);
+            };
+            encoded = rest;
+
+            let (decoded_chunk, (_width, _height)) =
+                ffi::decode::<T>(encoded_chunk).map_err(|err| {
+                    Jpeg2000CodecError::Jpeg2000DecodeFailed {
+                        source: Jpeg2000CodingError(err),
+                    }
+                })?;
+            let mut decoded_chunk = Array::from_shape_vec((height, width), decoded_chunk)
+                .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
+                .into_dyn();
+
+            while decoded_chunk.ndim() > shape.len() {
+                decoded_chunk = decoded_chunk.remove_axis(Axis(0));
+            }
+
+            chunk.assign(&decoded_chunk);
+        }
+
+        if !encoded.is_empty() {
+            return Err(Jpeg2000CodecError::DecodeCorruptChunks);
+        }
+
+        Ok(decoded)
+    }
+
     let (header, encoded) =
         postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
             Jpeg2000CodecError::HeaderDecodeFailed {
@@ -264,55 +339,31 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
     }
 
     match header.dtype {
-        Jpeg2000DType::I8 => {
-            let (decoded, (width, height)) =
-                ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
-                    source: Jpeg2000CodingError(err),
-                })?;
-            Ok(AnyArray::I8(
-                Array::from_shape_vec((height, width), decoded)
-                    .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
-                    .into_dyn(),
-            ))
-        }
-        Jpeg2000DType::U8 => {
-            let (decoded, (width, height)) =
-                ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
-                    source: Jpeg2000CodingError(err),
-                })?;
-            Ok(AnyArray::U8(
-                Array::from_shape_vec((height, width), decoded)
-                    .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
-                    .into_dyn(),
-            ))
-        }
-        Jpeg2000DType::I16 => {
-            let (decoded, (width, height)) =
-                ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
-                    source: Jpeg2000CodingError(err),
-                })?;
-            Ok(AnyArray::I16(
-                Array::from_shape_vec((height, width), decoded)
-                    .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
-                    .into_dyn(),
-            ))
-        }
-        Jpeg2000DType::U16 => {
-            let (decoded, (width, height)) =
-                ffi::decode(encoded).map_err(|err| Jpeg2000CodecError::Jpeg2000DecodeFailed {
-                    source: Jpeg2000CodingError(err),
-                })?;
-            Ok(AnyArray::U16(
-                Array::from_shape_vec((height, width), decoded)
-                    .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
-                    .into_dyn(),
-            ))
-        }
+        Jpeg2000DType::I8 => Ok(AnyArray::I8(decompress_typed(
+            encoded,
+            &header.shape,
+            &header.chunks,
+        )?)),
+        Jpeg2000DType::U8 => Ok(AnyArray::U8(decompress_typed(
+            encoded,
+            &header.shape,
+            &header.chunks,
+        )?)),
+        Jpeg2000DType::I16 => Ok(AnyArray::I16(decompress_typed(
+            encoded,
+            &header.shape,
+            &header.chunks,
+        )?)),
+        Jpeg2000DType::U16 => Ok(AnyArray::U16(decompress_typed(
+            encoded,
+            &header.shape,
+            &header.chunks,
+        )?)),
     }
 }
 
 /// Array element types which can be compressed with JPEG 2000.
-pub trait Jpeg2000Element: ffi::Jpeg2000Element {
+pub trait Jpeg2000Element: ffi::Jpeg2000Element + Zero {
     /// The dtype representation of the type
     const DTYPE: Jpeg2000DType;
 }
@@ -335,6 +386,7 @@ struct CompressionHeader<'a> {
     dtype: Jpeg2000DType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
+    chunks: Cow<'a, [usize]>,
 }
 
 /// Dtypes that JPEG 2000 can compress and decompress
@@ -365,6 +417,8 @@ impl fmt::Display for Jpeg2000DType {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
+    use ndarray::{Ix0, Ix1, Ix2, Ix3, Ix4};
+
     use super::*;
 
     #[test]
@@ -403,7 +457,7 @@ mod tests {
     fn small_lossless_types() {
         macro_rules! check {
             ($T:ident($t:ident)) => {
-                let data = Array::<$t, Ix2>::from_shape_vec([3, 1], vec![$t::MIN, 0, $t::MAX]).unwrap();
+                let data = Array::<$t, _>::from_shape_vec([3, 1], vec![$t::MIN, 0, $t::MAX]).unwrap();
 
                 let encoded = compress(
                     data.view(),
@@ -429,7 +483,7 @@ mod tests {
         std::mem::drop(simple_logger::init());
 
         let encoded = compress(
-            Array::<i16, Ix2>::zeros((64, 64)),
+            Array::<i16, _>::zeros((64, 64)),
             &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
         )
         .unwrap();
@@ -449,12 +503,43 @@ mod tests {
             Jpeg2000CompressionMode::Rate { rate: 5.0 },
             Jpeg2000CompressionMode::Lossless,
         ] {
-            let encoded = compress(Array::<i16, Ix2>::zeros((64, 64)), &mode).unwrap();
+            let encoded = compress(Array::<i16, _>::zeros((64, 64)), &mode).unwrap();
             let decoded = decompress(&encoded).unwrap();
 
             assert_eq!(decoded.dtype(), AnyArrayDType::I16);
             assert_eq!(decoded.len(), 64 * 64);
             assert_eq!(decoded.shape(), &[64, 64]);
+        }
+    }
+
+    #[test]
+    fn many_dimensions() {
+        std::mem::drop(simple_logger::init());
+
+        for data in [
+            Array::<i16, Ix0>::from_shape_vec([], vec![42])
+                .unwrap()
+                .into_dyn(),
+            Array::<i16, Ix1>::from_shape_vec([2], vec![1, 2])
+                .unwrap()
+                .into_dyn(),
+            Array::<i16, Ix2>::from_shape_vec([2, 2], vec![1, 2, 3, 4])
+                .unwrap()
+                .into_dyn(),
+            Array::<i16, Ix3>::from_shape_vec([2, 2, 2], vec![1, 2, 3, 4, 5, 6, 7, 8])
+                .unwrap()
+                .into_dyn(),
+            Array::<i16, Ix4>::from_shape_vec(
+                [2, 2, 2, 2],
+                vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+            )
+            .unwrap()
+            .into_dyn(),
+        ] {
+            let encoded = compress(data.view(), &Jpeg2000CompressionMode::Lossless).unwrap();
+            let decoded = decompress(&encoded).unwrap();
+
+            assert_eq!(decoded, AnyArray::I16(data));
         }
     }
 }

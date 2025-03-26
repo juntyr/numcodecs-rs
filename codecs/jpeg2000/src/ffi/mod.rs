@@ -50,7 +50,7 @@ pub enum Jpeg2000Error {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-pub enum Jpeg2000Compression {
+pub enum Jpeg2000CompressionMode {
     PSNR(f32),
     Rate(f32),
     Lossless,
@@ -61,7 +61,7 @@ pub fn encode_into<T: Jpeg2000Element>(
     data: impl IntoIterator<Item = T>,
     width: usize,
     height: usize,
-    compression: Jpeg2000Compression,
+    compression: Jpeg2000CompressionMode,
     out: &mut Vec<u8>,
 ) -> Result<(), Jpeg2000Error> {
     let mut stream = EncodeStream::new(out);
@@ -81,15 +81,15 @@ pub fn encode_into<T: Jpeg2000Element>(
     encode_params.tcp_numlayers = 1;
 
     match compression {
-        Jpeg2000Compression::PSNR(psnr) => {
+        Jpeg2000CompressionMode::PSNR(psnr) => {
             encode_params.cp_fixed_quality = 1;
             encode_params.tcp_distoratio[0] = psnr;
         }
-        Jpeg2000Compression::Rate(rate) => {
+        Jpeg2000CompressionMode::Rate(rate) => {
             encode_params.cp_disto_alloc = 1;
             encode_params.tcp_rates[0] = rate;
         }
-        Jpeg2000Compression::Lossless => {
+        Jpeg2000CompressionMode::Lossless => {
             encode_params.cp_disto_alloc = 1;
             encode_params.tcp_rates[0] = 0.0;
         }
