@@ -141,6 +141,12 @@ pub enum Jpeg2000CodecError {
         /// Opaque source error
         source: Jpeg2000CodingError,
     },
+    /// [`Jpeg2000Codec`] failed to encode a chunk
+    #[error("Jpeg2000 failed to encode a chunk")]
+    ChunkEncodeFailed {
+        /// Opaque source error
+        source: Jpeg2000ChunkError,
+    },
     /// [`Jpeg2000Codec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
     #[error(
@@ -163,9 +169,15 @@ pub enum Jpeg2000CodecError {
         /// Opaque source error
         source: Jpeg2000HeaderError,
     },
-    /// [`Jpeg2000Codec`] failed to decode corrput chunks
-    #[error("Jpeg2000 failed to decode corrput chunks")]
-    DecodeCorruptChunks,
+    /// [`Jpeg2000Codec`] failed to decode a chunk
+    #[error("Jpeg2000 failed to decode a chunk")]
+    ChunkDecodeFailed {
+        /// Opaque source error
+        source: Jpeg2000ChunkError,
+    },
+    /// [`Jpeg2000Codec`] failed to decode from an excessive number of chunks
+    #[error("Jpeg2000 failed to decode from an excessive number of chunks")]
+    DecodeTooManyChunks,
     /// [`Jpeg2000Codec`] failed to decode the data
     #[error("Jpeg2000 failed to decode the data")]
     Jpeg2000DecodeFailed {
@@ -194,8 +206,8 @@ pub struct Jpeg2000HeaderError(postcard::Error);
 
 #[derive(Debug, Error)]
 #[error(transparent)]
-/// Opaque error for when encoding or decoding the footer fails
-pub struct Jpeg2000FooterError(postcard::Error);
+/// Opaque error for when encoding or decoding the chunk fails
+pub struct Jpeg2000ChunkError(postcard::Error);
 
 #[derive(Debug, Error)]
 #[error(transparent)]
@@ -203,75 +215,93 @@ pub struct Jpeg2000FooterError(postcard::Error);
 pub struct Jpeg2000CodingError(ffi::Jpeg2000Error);
 
 /// Compress the `data` array using JPEG 2000 with the provided `compression`.
+///
+/// # Errors
+///
+/// Errors with
+/// - [`Jpeg2000CodecError::HeaderEncodeFailed`] if encoding the header failed
+/// - [`Jpeg2000CodecError::Jpeg2000EncodeFailed`] if encoding with JPEG 2000
+///   failed
+/// - [`Jpeg2000CodecError::ChunkEncodeFailed`] if encoding a chunk failed
 pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     compression: &Jpeg2000CompressionMode,
 ) -> Result<Vec<u8>, Jpeg2000CodecError> {
-    let mut encoded = Vec::new();
-    let mut encoded_chunk_sizes = Vec::new();
-
-    let shape = Vec::from(data.shape());
-
-    // JPEG 2000 cannot handle zero-length dimensions
-    if !data.is_empty() {
-        let mut chunk_size = Vec::from(data.shape());
-        let (width, height) = match *chunk_size.as_mut_slice() {
-            [ref mut rest @ .., height, width] => {
-                for r in rest {
-                    *r = 1;
-                }
-                (width, height)
-            }
-            [width] => (width, 1),
-            [] => (1, 1),
-        };
-
-        for chunk in data.into_dyn().exact_chunks(chunk_size.as_slice()) {
-            let size_before = encoded.len();
-            ffi::encode_into(
-                chunk.iter().copied(),
-                width,
-                height,
-                match compression {
-                    Jpeg2000CompressionMode::PSNR { psnr } => {
-                        ffi::Jpeg2000CompressionMode::PSNR(*psnr)
-                    }
-                    Jpeg2000CompressionMode::Rate { rate } => {
-                        ffi::Jpeg2000CompressionMode::Rate(*rate)
-                    }
-                    Jpeg2000CompressionMode::Lossless => ffi::Jpeg2000CompressionMode::Lossless,
-                },
-                &mut encoded,
-            )
-            .map_err(|err| Jpeg2000CodecError::Jpeg2000EncodeFailed {
-                source: Jpeg2000CodingError(err),
-            })?;
-            encoded_chunk_sizes.push(encoded.len() - size_before);
-        }
-    }
-
-    let mut encoded_with_header = postcard::to_extend(
+    let mut encoded = postcard::to_extend(
         &CompressionHeader {
             dtype: T::DTYPE,
-            shape: Cow::Owned(shape),
-            chunks: Cow::Owned(encoded_chunk_sizes),
+            shape: Cow::Borrowed(data.shape()),
         },
         Vec::new(),
     )
     .map_err(|err| Jpeg2000CodecError::HeaderEncodeFailed {
         source: Jpeg2000HeaderError(err),
     })?;
-    encoded_with_header.append(&mut encoded);
 
-    Ok(encoded_with_header)
+    // JPEG 2000 cannot handle zero-length dimensions
+    if data.is_empty() {
+        return Ok(encoded);
+    }
+
+    let mut encoded_chunk = Vec::new();
+
+    let mut chunk_size = Vec::from(data.shape());
+    let (width, height) = match *chunk_size.as_mut_slice() {
+        [ref mut rest @ .., height, width] => {
+            for r in rest {
+                *r = 1;
+            }
+            (width, height)
+        }
+        [width] => (width, 1),
+        [] => (1, 1),
+    };
+
+    for chunk in data.into_dyn().exact_chunks(chunk_size.as_slice()) {
+        encoded_chunk.clear();
+
+        ffi::encode_into(
+            chunk.iter().copied(),
+            width,
+            height,
+            match compression {
+                Jpeg2000CompressionMode::PSNR { psnr } => ffi::Jpeg2000CompressionMode::PSNR(*psnr),
+                Jpeg2000CompressionMode::Rate { rate } => ffi::Jpeg2000CompressionMode::Rate(*rate),
+                Jpeg2000CompressionMode::Lossless => ffi::Jpeg2000CompressionMode::Lossless,
+            },
+            &mut encoded_chunk,
+        )
+        .map_err(|err| Jpeg2000CodecError::Jpeg2000EncodeFailed {
+            source: Jpeg2000CodingError(err),
+        })?;
+
+        encoded = postcard::to_extend(encoded_chunk.as_slice(), encoded).map_err(|err| {
+            Jpeg2000CodecError::ChunkEncodeFailed {
+                source: Jpeg2000ChunkError(err),
+            }
+        })?;
+    }
+
+    Ok(encoded)
 }
 
 /// Decompress the `encoded` data into an array using JPEG 2000.
+///
+/// # Errors
+///
+/// Errors with
+/// - [`Jpeg2000CodecError::HeaderDecodeFailed`] if decoding the header failed
+/// - [`Jpeg2000CodecError::ChunkDecodeFailed`] if decoding a chunk failed
+/// - [`Jpeg2000CodecError::Jpeg2000DecodeFailed`] if decoding with JPEG 2000
+///   failed
+/// - [`Jpeg2000CodecError::DecodeInvalidShape`] if the encoded data decodes to
+///   an unexpected shape
+/// - [`Jpeg2000CodecError::DecodeTooManyChunks`] if the encoded data contains
+///   too many chunks
 pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
     fn decompress_typed<T: Jpeg2000Element>(
         mut encoded: &[u8],
         shape: &[usize],
-        chunks: &[usize],
     ) -> Result<Array<T, IxDyn>, Jpeg2000CodecError> {
         let mut decoded = Array::<T, _>::zeros(shape);
 
@@ -287,18 +317,17 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
             [] => (1, 1),
         };
 
-        for (mut chunk, size) in decoded
-            .exact_chunks_mut(chunk_size.as_slice())
-            .into_iter()
-            .zip(chunks.iter())
-        {
-            let Some((encoded_chunk, rest)) = encoded.split_at_checked(*size) else {
-                return Err(Jpeg2000CodecError::DecodeCorruptChunks);
-            };
+        for mut chunk in decoded.exact_chunks_mut(chunk_size.as_slice()) {
+            let (encoded_chunk, rest) =
+                postcard::take_from_bytes::<Cow<[u8]>>(encoded).map_err(|err| {
+                    Jpeg2000CodecError::ChunkDecodeFailed {
+                        source: Jpeg2000ChunkError(err),
+                    }
+                })?;
             encoded = rest;
 
             let (decoded_chunk, (_width, _height)) =
-                ffi::decode::<T>(encoded_chunk).map_err(|err| {
+                ffi::decode::<T>(&encoded_chunk).map_err(|err| {
                     Jpeg2000CodecError::Jpeg2000DecodeFailed {
                         source: Jpeg2000CodingError(err),
                     }
@@ -315,7 +344,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
         }
 
         if !encoded.is_empty() {
-            return Err(Jpeg2000CodecError::DecodeCorruptChunks);
+            return Err(Jpeg2000CodecError::DecodeTooManyChunks);
         }
 
         Ok(decoded)
@@ -339,26 +368,10 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
     }
 
     match header.dtype {
-        Jpeg2000DType::I8 => Ok(AnyArray::I8(decompress_typed(
-            encoded,
-            &header.shape,
-            &header.chunks,
-        )?)),
-        Jpeg2000DType::U8 => Ok(AnyArray::U8(decompress_typed(
-            encoded,
-            &header.shape,
-            &header.chunks,
-        )?)),
-        Jpeg2000DType::I16 => Ok(AnyArray::I16(decompress_typed(
-            encoded,
-            &header.shape,
-            &header.chunks,
-        )?)),
-        Jpeg2000DType::U16 => Ok(AnyArray::U16(decompress_typed(
-            encoded,
-            &header.shape,
-            &header.chunks,
-        )?)),
+        Jpeg2000DType::I8 => Ok(AnyArray::I8(decompress_typed(encoded, &header.shape)?)),
+        Jpeg2000DType::U8 => Ok(AnyArray::U8(decompress_typed(encoded, &header.shape)?)),
+        Jpeg2000DType::I16 => Ok(AnyArray::I16(decompress_typed(encoded, &header.shape)?)),
+        Jpeg2000DType::U16 => Ok(AnyArray::U16(decompress_typed(encoded, &header.shape)?)),
     }
 }
 
@@ -386,7 +399,6 @@ struct CompressionHeader<'a> {
     dtype: Jpeg2000DType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
-    chunks: Cow<'a, [usize]>,
 }
 
 /// Dtypes that JPEG 2000 can compress and decompress
