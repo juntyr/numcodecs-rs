@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Jpeg2000CodecError","Jpeg2000CompressionMode","Jpeg2000DType"],"fn":["compress","decompress"],"struct":["Jpeg2000Codec","Jpeg2000CodingError","Jpeg2000HeaderError","Jpeg2000SliceError"],"trait":["Jpeg2000Element"]};
