@@ -37,7 +37,12 @@ mod ffi;
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // serde cannot deny unknown fields because of the flatten
 #[schemars(deny_unknown_fields)]
-/// Codec providing compression using JPEG 2000
+/// Codec providing compression using JPEG 2000.
+///
+/// Arrays that are higher-dimensional than 2D are encoded by compressing each
+/// 2D slice with JPEG 2000 independently. Specifically, the array's shape is
+/// interpreted as `[.., height, width]`. If you want to compress 2D slices
+/// along two different axes, you can swizzle the array axes beforehand.
 pub struct Jpeg2000Codec {
     /// JPEG 2000 compression mode
     #[serde(flatten)]
@@ -141,11 +146,11 @@ pub enum Jpeg2000CodecError {
         /// Opaque source error
         source: Jpeg2000CodingError,
     },
-    /// [`Jpeg2000Codec`] failed to encode a chunk
-    #[error("Jpeg2000 failed to encode a chunk")]
-    ChunkEncodeFailed {
+    /// [`Jpeg2000Codec`] failed to encode a slice
+    #[error("Jpeg2000 failed to encode a slice")]
+    SliceEncodeFailed {
         /// Opaque source error
-        source: Jpeg2000ChunkError,
+        source: Jpeg2000SliceError,
     },
     /// [`Jpeg2000Codec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
@@ -169,15 +174,15 @@ pub enum Jpeg2000CodecError {
         /// Opaque source error
         source: Jpeg2000HeaderError,
     },
-    /// [`Jpeg2000Codec`] failed to decode a chunk
-    #[error("Jpeg2000 failed to decode a chunk")]
-    ChunkDecodeFailed {
+    /// [`Jpeg2000Codec`] failed to decode a slice
+    #[error("Jpeg2000 failed to decode a slice")]
+    SliceDecodeFailed {
         /// Opaque source error
-        source: Jpeg2000ChunkError,
+        source: Jpeg2000SliceError,
     },
-    /// [`Jpeg2000Codec`] failed to decode from an excessive number of chunks
-    #[error("Jpeg2000 failed to decode from an excessive number of chunks")]
-    DecodeTooManyChunks,
+    /// [`Jpeg2000Codec`] failed to decode from an excessive number of slices
+    #[error("Jpeg2000 failed to decode from an excessive number of slices")]
+    DecodeTooManySlices,
     /// [`Jpeg2000Codec`] failed to decode the data
     #[error("Jpeg2000 failed to decode the data")]
     Jpeg2000DecodeFailed {
@@ -206,8 +211,8 @@ pub struct Jpeg2000HeaderError(postcard::Error);
 
 #[derive(Debug, Error)]
 #[error(transparent)]
-/// Opaque error for when encoding or decoding the chunk fails
-pub struct Jpeg2000ChunkError(postcard::Error);
+/// Opaque error for when encoding or decoding a slice fails
+pub struct Jpeg2000SliceError(postcard::Error);
 
 #[derive(Debug, Error)]
 #[error(transparent)]
@@ -222,7 +227,7 @@ pub struct Jpeg2000CodingError(ffi::Jpeg2000Error);
 /// - [`Jpeg2000CodecError::HeaderEncodeFailed`] if encoding the header failed
 /// - [`Jpeg2000CodecError::Jpeg2000EncodeFailed`] if encoding with JPEG 2000
 ///   failed
-/// - [`Jpeg2000CodecError::ChunkEncodeFailed`] if encoding a chunk failed
+/// - [`Jpeg2000CodecError::SliceEncodeFailed`] if encoding a slice failed
 pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     compression: &Jpeg2000CompressionMode,
@@ -243,7 +248,7 @@ pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
         return Ok(encoded);
     }
 
-    let mut encoded_chunk = Vec::new();
+    let mut encoded_slice = Vec::new();
 
     let mut chunk_size = Vec::from(data.shape());
     let (width, height) = match *chunk_size.as_mut_slice() {
@@ -257,11 +262,11 @@ pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
         [] => (1, 1),
     };
 
-    for chunk in data.into_dyn().exact_chunks(chunk_size.as_slice()) {
-        encoded_chunk.clear();
+    for slice in data.into_dyn().exact_chunks(chunk_size.as_slice()) {
+        encoded_slice.clear();
 
         ffi::encode_into(
-            chunk.iter().copied(),
+            slice.iter().copied(),
             width,
             height,
             match compression {
@@ -269,15 +274,15 @@ pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
                 Jpeg2000CompressionMode::Rate { rate } => ffi::Jpeg2000CompressionMode::Rate(*rate),
                 Jpeg2000CompressionMode::Lossless => ffi::Jpeg2000CompressionMode::Lossless,
             },
-            &mut encoded_chunk,
+            &mut encoded_slice,
         )
         .map_err(|err| Jpeg2000CodecError::Jpeg2000EncodeFailed {
             source: Jpeg2000CodingError(err),
         })?;
 
-        encoded = postcard::to_extend(encoded_chunk.as_slice(), encoded).map_err(|err| {
-            Jpeg2000CodecError::ChunkEncodeFailed {
-                source: Jpeg2000ChunkError(err),
+        encoded = postcard::to_extend(encoded_slice.as_slice(), encoded).map_err(|err| {
+            Jpeg2000CodecError::SliceEncodeFailed {
+                source: Jpeg2000SliceError(err),
             }
         })?;
     }
@@ -291,13 +296,13 @@ pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
 ///
 /// Errors with
 /// - [`Jpeg2000CodecError::HeaderDecodeFailed`] if decoding the header failed
-/// - [`Jpeg2000CodecError::ChunkDecodeFailed`] if decoding a chunk failed
+/// - [`Jpeg2000CodecError::SliceDecodeFailed`] if decoding a slice failed
 /// - [`Jpeg2000CodecError::Jpeg2000DecodeFailed`] if decoding with JPEG 2000
 ///   failed
 /// - [`Jpeg2000CodecError::DecodeInvalidShape`] if the encoded data decodes to
 ///   an unexpected shape
-/// - [`Jpeg2000CodecError::DecodeTooManyChunks`] if the encoded data contains
-///   too many chunks
+/// - [`Jpeg2000CodecError::DecodeTooManySlices`] if the encoded data contains
+///   too many slices
 pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
     fn decompress_typed<T: Jpeg2000Element>(
         mut encoded: &[u8],
@@ -317,34 +322,34 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
             [] => (1, 1),
         };
 
-        for mut chunk in decoded.exact_chunks_mut(chunk_size.as_slice()) {
-            let (encoded_chunk, rest) =
+        for mut slice in decoded.exact_chunks_mut(chunk_size.as_slice()) {
+            let (encoded_slice, rest) =
                 postcard::take_from_bytes::<Cow<[u8]>>(encoded).map_err(|err| {
-                    Jpeg2000CodecError::ChunkDecodeFailed {
-                        source: Jpeg2000ChunkError(err),
+                    Jpeg2000CodecError::SliceDecodeFailed {
+                        source: Jpeg2000SliceError(err),
                     }
                 })?;
             encoded = rest;
 
-            let (decoded_chunk, (_width, _height)) =
-                ffi::decode::<T>(&encoded_chunk).map_err(|err| {
+            let (decoded_slice, (_width, _height)) =
+                ffi::decode::<T>(&encoded_slice).map_err(|err| {
                     Jpeg2000CodecError::Jpeg2000DecodeFailed {
                         source: Jpeg2000CodingError(err),
                     }
                 })?;
-            let mut decoded_chunk = Array::from_shape_vec((height, width), decoded_chunk)
+            let mut decoded_slice = Array::from_shape_vec((height, width), decoded_slice)
                 .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
                 .into_dyn();
 
-            while decoded_chunk.ndim() > shape.len() {
-                decoded_chunk = decoded_chunk.remove_axis(Axis(0));
+            while decoded_slice.ndim() > shape.len() {
+                decoded_slice = decoded_slice.remove_axis(Axis(0));
             }
 
-            chunk.assign(&decoded_chunk);
+            slice.assign(&decoded_slice);
         }
 
         if !encoded.is_empty() {
-            return Err(Jpeg2000CodecError::DecodeTooManyChunks);
+            return Err(Jpeg2000CodecError::DecodeTooManySlices);
         }
 
         Ok(decoded)
