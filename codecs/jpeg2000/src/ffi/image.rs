@@ -71,7 +71,7 @@ impl Image {
         unsafe {
             let mut idata = (*(*image.as_ptr()).comps).data;
             for d in data {
-                *idata = d.into_i32();
+                *idata = d.into_i32().map_err(|_| Jpeg2000Error::DataOutOfRange)?;
                 idata = idata.add(1);
             }
         }

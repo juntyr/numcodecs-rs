@@ -4,9 +4,7 @@
 
 #![allow(unsafe_code)] // FFI
 
-use std::mem::MaybeUninit;
-
-use openjpeg_sys as opj;
+use std::{convert::Infallible, mem::MaybeUninit};
 
 mod codec;
 mod image;
@@ -23,6 +21,8 @@ pub enum Jpeg2000Error {
     ImageTooLarge,
     #[error("Jpeg2000 failed to create an image from the data to encode")]
     ImageCreateError,
+    #[error("Jpeg2000 only supports signed/unsigned integers up to 25 bits")]
+    DataOutOfRange,
     #[error("Jpeg2000 failed to setup the encoder")]
     EncoderSetupError,
     #[error("Jpeg2000 failed to start compression")]
@@ -140,7 +140,7 @@ pub fn decode<T: Jpeg2000Element>(bytes: &[u8]) -> Result<(Vec<T>, (usize, usize
 
     let mut image = Image::from_header(&mut stream, &mut decoder)?;
 
-    if unsafe { opj::opj_decode(decoder.as_raw(), stream.as_raw(), image.as_raw()) } != 1 {
+    if unsafe { openjpeg_sys::opj_decode(decoder.as_raw(), stream.as_raw(), image.as_raw()) } != 1 {
         return Err(Jpeg2000Error::DecodeBodyError);
     }
 
@@ -177,19 +177,23 @@ pub fn decode<T: Jpeg2000Element>(bytes: &[u8]) -> Result<(Vec<T>, (usize, usize
 }
 
 pub trait Jpeg2000Element: Copy {
+    type Error;
+
     const NBITS: u32;
     const SIGNED: bool;
 
-    fn into_i32(self) -> i32;
+    fn into_i32(self) -> Result<i32, Self::Error>;
     fn from_i32(x: i32) -> Self;
 }
 
 impl Jpeg2000Element for i8 {
+    type Error = Infallible;
+
     const NBITS: u32 = 8;
     const SIGNED: bool = true;
 
-    fn into_i32(self) -> i32 {
-        i32::from(self)
+    fn into_i32(self) -> Result<i32, Self::Error> {
+        Ok(i32::from(self))
     }
 
     #[allow(clippy::cast_possible_truncation)]
@@ -199,11 +203,13 @@ impl Jpeg2000Element for i8 {
 }
 
 impl Jpeg2000Element for u8 {
+    type Error = Infallible;
+
     const NBITS: u32 = 8;
     const SIGNED: bool = false;
 
-    fn into_i32(self) -> i32 {
-        i32::from(self)
+    fn into_i32(self) -> Result<i32, Self::Error> {
+        Ok(i32::from(self))
     }
 
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
@@ -213,11 +219,13 @@ impl Jpeg2000Element for u8 {
 }
 
 impl Jpeg2000Element for i16 {
+    type Error = Infallible;
+
     const NBITS: u32 = 16;
     const SIGNED: bool = true;
 
-    fn into_i32(self) -> i32 {
-        i32::from(self)
+    fn into_i32(self) -> Result<i32, Self::Error> {
+        Ok(i32::from(self))
     }
 
     #[allow(clippy::cast_possible_truncation)]
@@ -227,11 +235,94 @@ impl Jpeg2000Element for i16 {
 }
 
 impl Jpeg2000Element for u16 {
+    type Error = Infallible;
+
     const NBITS: u32 = 16;
     const SIGNED: bool = false;
 
-    fn into_i32(self) -> i32 {
-        i32::from(self)
+    fn into_i32(self) -> Result<i32, Self::Error> {
+        Ok(i32::from(self))
+    }
+
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    fn from_i32(x: i32) -> Self {
+        x as Self
+    }
+}
+
+impl Jpeg2000Element for i32 {
+    type Error = ();
+
+    const NBITS: u32 = 25; // FIXME: no idea why OpenJPEG doesn't support more
+    const SIGNED: bool = true;
+
+    fn into_i32(self) -> Result<i32, Self::Error> {
+        const MIN: i32 = i32::MIN / (1 << (i32::BITS - i32::NBITS));
+        const MAX: i32 = i32::MAX / (1 << (i32::BITS - i32::NBITS));
+
+        if self >= MIN && self <= MAX {
+            Ok(self)
+        } else {
+            Err(())
+        }
+    }
+
+    fn from_i32(x: i32) -> Self {
+        x
+    }
+}
+
+impl Jpeg2000Element for u32 {
+    type Error = ();
+
+    const NBITS: u32 = 25; // FIXME: no idea why OpenJPEG doesn't support more
+    const SIGNED: bool = false;
+
+    fn into_i32(self) -> Result<i32, Self::Error> {
+        const MAX: u32 = u32::MAX / (1 << (u32::BITS - u32::NBITS));
+
+        if self <= MAX {
+            Ok(self as i32)
+        } else {
+            Err(())
+        }
+    }
+
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    fn from_i32(x: i32) -> Self {
+        x as Self
+    }
+}
+
+impl Jpeg2000Element for i64 {
+    type Error = ();
+
+    const NBITS: u32 = <i32 as Jpeg2000Element>::NBITS;
+    const SIGNED: bool = true;
+
+    fn into_i32(self) -> Result<i32, Self::Error> {
+        match i32::try_from(self) {
+            Ok(x) => i32::into_i32(x),
+            Err(_) => Err(()),
+        }
+    }
+
+    fn from_i32(x: i32) -> Self {
+        Self::from(x)
+    }
+}
+
+impl Jpeg2000Element for u64 {
+    type Error = ();
+
+    const NBITS: u32 = <u32 as Jpeg2000Element>::NBITS;
+    const SIGNED: bool = false;
+
+    fn into_i32(self) -> Result<i32, Self::Error> {
+        match u32::try_from(self) {
+            Ok(x) => u32::into_i32(x),
+            Err(_) => Err(()),
+        }
     }
 
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]

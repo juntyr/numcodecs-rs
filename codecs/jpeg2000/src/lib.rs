@@ -364,6 +364,10 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
             Jpeg2000DType::U8 => Ok(AnyArray::U8(Array::zeros(&*header.shape))),
             Jpeg2000DType::I16 => Ok(AnyArray::I16(Array::zeros(&*header.shape))),
             Jpeg2000DType::U16 => Ok(AnyArray::U16(Array::zeros(&*header.shape))),
+            Jpeg2000DType::I32 => Ok(AnyArray::I32(Array::zeros(&*header.shape))),
+            Jpeg2000DType::U32 => Ok(AnyArray::U32(Array::zeros(&*header.shape))),
+            Jpeg2000DType::I64 => Ok(AnyArray::I32(Array::zeros(&*header.shape))),
+            Jpeg2000DType::U64 => Ok(AnyArray::U32(Array::zeros(&*header.shape))),
         };
     }
 
@@ -372,6 +376,10 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
         Jpeg2000DType::U8 => Ok(AnyArray::U8(decompress_typed(encoded, &header.shape)?)),
         Jpeg2000DType::I16 => Ok(AnyArray::I16(decompress_typed(encoded, &header.shape)?)),
         Jpeg2000DType::U16 => Ok(AnyArray::U16(decompress_typed(encoded, &header.shape)?)),
+        Jpeg2000DType::I32 => Ok(AnyArray::I32(decompress_typed(encoded, &header.shape)?)),
+        Jpeg2000DType::U32 => Ok(AnyArray::U32(decompress_typed(encoded, &header.shape)?)),
+        Jpeg2000DType::I64 => Ok(AnyArray::I64(decompress_typed(encoded, &header.shape)?)),
+        Jpeg2000DType::U64 => Ok(AnyArray::U64(decompress_typed(encoded, &header.shape)?)),
     }
 }
 
@@ -393,6 +401,18 @@ impl Jpeg2000Element for i16 {
 impl Jpeg2000Element for u16 {
     const DTYPE: Jpeg2000DType = Jpeg2000DType::U16;
 }
+impl Jpeg2000Element for i32 {
+    const DTYPE: Jpeg2000DType = Jpeg2000DType::I32;
+}
+impl Jpeg2000Element for u32 {
+    const DTYPE: Jpeg2000DType = Jpeg2000DType::U32;
+}
+impl Jpeg2000Element for i64 {
+    const DTYPE: Jpeg2000DType = Jpeg2000DType::I64;
+}
+impl Jpeg2000Element for u64 {
+    const DTYPE: Jpeg2000DType = Jpeg2000DType::U64;
+}
 
 #[derive(Serialize, Deserialize)]
 struct CompressionHeader<'a> {
@@ -413,6 +433,14 @@ pub enum Jpeg2000DType {
     I16,
     #[serde(rename = "u16", alias = "uint16")]
     U16,
+    #[serde(rename = "i32", alias = "int32")]
+    I32,
+    #[serde(rename = "u32", alias = "uint32")]
+    U32,
+    #[serde(rename = "i64", alias = "int64")]
+    I64,
+    #[serde(rename = "u64", alias = "uint64")]
+    U64,
 }
 
 impl fmt::Display for Jpeg2000DType {
@@ -422,6 +450,10 @@ impl fmt::Display for Jpeg2000DType {
             Self::U8 => "u8",
             Self::I16 => "i16",
             Self::U16 => "u16",
+            Self::I32 => "i32",
+            Self::U32 => "u32",
+            Self::I64 => "i64",
+            Self::U64 => "u64",
         })
     }
 }
@@ -469,7 +501,10 @@ mod tests {
     fn small_lossless_types() {
         macro_rules! check {
             ($T:ident($t:ident)) => {
-                let data = Array::<$t, _>::from_shape_vec([3, 1], vec![$t::MIN, 0, $t::MAX]).unwrap();
+                check! { $T($t,$t::MIN,$t::MAX) }
+            };
+            ($T:ident($t:ident,$min:expr,$max:expr)) => {
+                let data = Array::<$t, _>::from_shape_vec([4, 1], vec![$min, 0, 42, $max]).unwrap();
 
                 let encoded = compress(
                     data.view(),
@@ -478,16 +513,46 @@ mod tests {
                 .unwrap();
                 let decoded = decompress(&encoded).unwrap();
 
-                assert_eq!(decoded.len(), 3);
-                assert_eq!(decoded.shape(), &[3, 1]);
+                assert_eq!(decoded.len(), 4);
+                assert_eq!(decoded.shape(), &[4, 1]);
                 assert_eq!(decoded, AnyArray::$T(data.into_dyn()));
             };
-            ($($T:ident($t:ident)),*) => {
-                $(check! { $T($t) })*
+            ($($T:ident($($tt:tt),*)),*) => {
+                $(check! { $T($($tt),*) })*
             };
         }
 
-        check! { I8(i8), U8(u8), I16(i16), U16(u16) }
+        check! {
+            I8(i8), U8(u8), I16(i16), U16(u16),
+            I32(i32,(i32::MIN/(1<<7)),(i32::MAX/(1<<7))),
+            U32(u32,(u32::MIN),(u32::MAX/(1<<7))),
+            I64(i64,(i64::MIN/(1<<(32+7))),(i64::MAX/(1<<(32+7)))),
+            U64(u64,(u64::MIN),(u64::MAX/(1<<(32+7))))
+        }
+    }
+
+    #[test]
+    fn out_of_range() {
+        macro_rules! check {
+            ($T:ident($t:ident,$($v:expr),*)) => {
+                $(
+                    let data = Array::<$t, _>::from_shape_vec([1, 1], vec![$v]).unwrap();
+                    compress(
+                        data.view(),
+                        &Jpeg2000CompressionMode::Lossless,
+                    )
+                    .unwrap_err();
+                )*
+            };
+            ($($T:ident($($tt:tt),*)),*) => {
+                $(check! { $T($($tt),*) })*
+            };
+        }
+
+        check! {
+            I32(i32,(i32::MIN),(i32::MAX)), U32(u32,(u32::MAX)),
+            I64(i64,(i64::MIN),(i64::MAX)), U64(u64,(u64::MAX))
+        }
     }
 
     #[test]
