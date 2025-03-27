@@ -260,7 +260,7 @@ impl Jpeg2000Element for i32 {
         const MIN: i32 = i32::MIN / (1 << (i32::BITS - i32::NBITS));
         const MAX: i32 = i32::MAX / (1 << (i32::BITS - i32::NBITS));
 
-        if self >= MIN && self <= MAX {
+        if (MIN..=MAX).contains(&self) {
             Ok(self)
         } else {
             Err(())
@@ -275,9 +275,11 @@ impl Jpeg2000Element for i32 {
 impl Jpeg2000Element for u32 {
     type Error = ();
 
+    #[allow(clippy::use_self)]
     const NBITS: u32 = 25; // FIXME: no idea why OpenJPEG doesn't support more
     const SIGNED: bool = false;
 
+    #[allow(clippy::cast_possible_wrap)]
     fn into_i32(self) -> Result<i32, Self::Error> {
         const MAX: u32 = u32::MAX / (1 << (u32::BITS - u32::NBITS));
 
@@ -301,6 +303,7 @@ impl Jpeg2000Element for i64 {
     const SIGNED: bool = true;
 
     fn into_i32(self) -> Result<i32, Self::Error> {
+        #[allow(clippy::option_if_let_else)]
         match i32::try_from(self) {
             Ok(x) => i32::into_i32(x),
             Err(_) => Err(()),
@@ -319,6 +322,7 @@ impl Jpeg2000Element for u64 {
     const SIGNED: bool = false;
 
     fn into_i32(self) -> Result<i32, Self::Error> {
+        #[allow(clippy::option_if_let_else)]
         match u32::try_from(self) {
             Ok(x) => u32::into_i32(x),
             Err(_) => Err(()),

@@ -366,8 +366,8 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
             Jpeg2000DType::U16 => Ok(AnyArray::U16(Array::zeros(&*header.shape))),
             Jpeg2000DType::I32 => Ok(AnyArray::I32(Array::zeros(&*header.shape))),
             Jpeg2000DType::U32 => Ok(AnyArray::U32(Array::zeros(&*header.shape))),
-            Jpeg2000DType::I64 => Ok(AnyArray::I32(Array::zeros(&*header.shape))),
-            Jpeg2000DType::U64 => Ok(AnyArray::U32(Array::zeros(&*header.shape))),
+            Jpeg2000DType::I64 => Ok(AnyArray::I64(Array::zeros(&*header.shape))),
+            Jpeg2000DType::U64 => Ok(AnyArray::U64(Array::zeros(&*header.shape))),
         };
     }
 
