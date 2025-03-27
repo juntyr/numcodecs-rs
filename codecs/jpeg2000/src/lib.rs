@@ -90,6 +90,18 @@ impl Codec for Jpeg2000Codec {
             AnyCowArray::U16(data) => Ok(AnyArray::U8(
                 Array1::from(compress(data, &self.mode)?).into_dyn(),
             )),
+            AnyCowArray::I32(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, &self.mode)?).into_dyn(),
+            )),
+            AnyCowArray::U32(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, &self.mode)?).into_dyn(),
+            )),
+            AnyCowArray::I64(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, &self.mode)?).into_dyn(),
+            )),
+            AnyCowArray::U64(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, &self.mode)?).into_dyn(),
+            )),
             encoded => Err(Jpeg2000CodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
