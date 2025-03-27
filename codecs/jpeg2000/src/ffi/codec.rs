@@ -1,3 +1,5 @@
+//! Adapted from the MIT/Apache 2.0 licensed <https://github.com/Neopallium/jpeg2k>
+
 use std::ptr::NonNull;
 
 use super::Jpeg2000Error;

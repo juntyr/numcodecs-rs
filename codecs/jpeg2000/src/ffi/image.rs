@@ -1,3 +1,7 @@
+//! Adapted from
+//! - the MIT/Apache 2.0 licensed <https://github.com/kardeiz/jp2k>, and
+//! - the MIT/Apache 2.0 licensed <https://github.com/noritada/grib-rs>
+
 use std::ptr::NonNull;
 
 use super::{codec::Decoder, stream::DecodeStream, Jpeg2000Element, Jpeg2000Error};
@@ -44,9 +48,6 @@ impl Image {
             h: height,
             x0: 0,
             y0: 0,
-            // Warning: OpenJPEG only supports up to 31 bits of precision
-            //          it actually seems worse, with only 26 bits for lossless
-            //          at least for signed values
             prec: T::NBITS,
             bpp: T::NBITS,
             sgnd: u32::from(T::SIGNED),

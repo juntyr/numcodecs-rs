@@ -1,3 +1,5 @@
+//! Adapted from the MIT/Apache 2.0 licensed <https://github.com/Neopallium/jpeg2k>
+
 use std::ffi::c_void;
 
 pub struct DecodeStream<'a> {
@@ -111,14 +113,14 @@ impl<'a> WrappedSlice<'a> {
     }
 
     fn read_into(&mut self, out: *mut u8, len: usize) -> Option<usize> {
-        // Get number of remaining bytes.
+        // Get the number of remaining bytes
         let remaining = self.remaining();
         if remaining == 0 {
             // No more bytes.
             return None;
         }
 
-        // Try to fill the output buffer.
+        // Try to fill the output buffer
         let n_read = std::cmp::min(remaining, len);
         let offset = self.offset;
         self.consume(n_read);

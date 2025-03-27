@@ -71,6 +71,8 @@ pub fn encode_into<T: Jpeg2000Element>(
     unsafe { openjpeg_sys::opj_set_default_encoder_parameters(encode_params.as_mut_ptr()) };
     let mut encode_params = unsafe { encode_params.assume_init() };
 
+    // more than six resolutions have negligible benefit
+    // log2(width) and log2(height) must be >= the number of resolutions
     encode_params.numresolution = 6;
     while (width < (1 << (encode_params.numresolution - 1)))
         || (height < (1 << (encode_params.numresolution - 1)))
