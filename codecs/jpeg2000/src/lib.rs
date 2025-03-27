@@ -19,6 +19,9 @@
 
 #![allow(clippy::multiple_crate_versions)] // embedded-io
 
+#[cfg(test)]
+use ::serde_json as _;
+
 use std::borrow::Cow;
 use std::fmt;
 
@@ -46,23 +49,27 @@ mod ffi;
 pub struct Jpeg2000Codec {
     /// JPEG 2000 compression mode
     #[serde(flatten)]
-    pub compression: Jpeg2000CompressionMode,
+    pub mode: Jpeg2000CompressionMode,
 }
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 /// JPEG 2000 compression mode
+#[serde(tag = "mode")]
 pub enum Jpeg2000CompressionMode {
     /// Peak signal-to-noise ratio
+    #[serde(rename = "psnr")]
     PSNR {
         /// Peak signal-to-noise ratio
         psnr: f32,
     },
     /// Compression rate
+    #[serde(rename = "rate")]
     Rate {
         /// Compression rate, e.g. `10.0` for x10 compression
         rate: f32,
     },
     /// Lossless compression
+    #[serde(rename = "lossless")]
     Lossless,
 }
 
@@ -72,16 +79,16 @@ impl Codec for Jpeg2000Codec {
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
             AnyCowArray::I8(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.compression)?).into_dyn(),
+                Array1::from(compress(data, &self.mode)?).into_dyn(),
             )),
             AnyCowArray::U8(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.compression)?).into_dyn(),
+                Array1::from(compress(data, &self.mode)?).into_dyn(),
             )),
             AnyCowArray::I16(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.compression)?).into_dyn(),
+                Array1::from(compress(data, &self.mode)?).into_dyn(),
             )),
             AnyCowArray::U16(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.compression)?).into_dyn(),
+                Array1::from(compress(data, &self.mode)?).into_dyn(),
             )),
             encoded => Err(Jpeg2000CodecError::UnsupportedDtype(encoded.dtype())),
         }
@@ -219,7 +226,7 @@ pub struct Jpeg2000SliceError(postcard::Error);
 /// Opaque error for when encoding or decoding with JPEG 2000 fails
 pub struct Jpeg2000CodingError(ffi::Jpeg2000Error);
 
-/// Compress the `data` array using JPEG 2000 with the provided `compression`.
+/// Compress the `data` array using JPEG 2000 with the provided `mode`.
 ///
 /// # Errors
 ///
@@ -230,7 +237,7 @@ pub struct Jpeg2000CodingError(ffi::Jpeg2000Error);
 /// - [`Jpeg2000CodecError::SliceEncodeFailed`] if encoding a slice failed
 pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
-    compression: &Jpeg2000CompressionMode,
+    mode: &Jpeg2000CompressionMode,
 ) -> Result<Vec<u8>, Jpeg2000CodecError> {
     let mut encoded = postcard::to_extend(
         &CompressionHeader {
@@ -269,7 +276,7 @@ pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
             slice.iter().copied(),
             width,
             height,
-            match compression {
+            match mode {
                 Jpeg2000CompressionMode::PSNR { psnr } => ffi::Jpeg2000CompressionMode::PSNR(*psnr),
                 Jpeg2000CompressionMode::Rate { rate } => ffi::Jpeg2000CompressionMode::Rate(*rate),
                 Jpeg2000CompressionMode::Lossless => ffi::Jpeg2000CompressionMode::Lossless,

@@ -61,7 +61,7 @@ pub fn encode_into<T: Jpeg2000Element>(
     data: impl IntoIterator<Item = T>,
     width: usize,
     height: usize,
-    compression: Jpeg2000CompressionMode,
+    mode: Jpeg2000CompressionMode,
     out: &mut Vec<u8>,
 ) -> Result<(), Jpeg2000Error> {
     let mut stream = EncodeStream::new(out);
@@ -80,7 +80,7 @@ pub fn encode_into<T: Jpeg2000Element>(
 
     encode_params.tcp_numlayers = 1;
 
-    match compression {
+    match mode {
         Jpeg2000CompressionMode::PSNR(psnr) => {
             encode_params.cp_fixed_quality = 1;
             encode_params.tcp_distoratio[0] = psnr;

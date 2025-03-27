@@ -26,6 +26,7 @@ thiserror = { workspace = true }
 openjpeg-sys = { workspace = true }
 
 [dev-dependencies]
+serde_json = { workspace = true, features = ["std"] }
 simple_logger = { workspace = true }
 
 [lints]
