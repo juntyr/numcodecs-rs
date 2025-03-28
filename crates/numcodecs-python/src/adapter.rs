@@ -129,10 +129,13 @@ impl PyCodecAdapter {
         let Ok(codec) = codec.downcast::<RustCodec>() else {
             return None;
         };
+        let py = codec.py();
 
         let codec = codec.get().downcast()?;
 
-        Some(with(codec))
+        // The `with` closure contains arbitrary Rust code and may block,
+        // which we cannot allow while holding the GIL
+        py.allow_threads(|| Some(with(codec)))
     }
 }
 
@@ -482,10 +485,13 @@ impl PyCodecClassAdapter {
         let Ok(ty) = ty.downcast_into_exact::<RustCodecType>() else {
             return None;
         };
+        let py = ty.py();
 
         let ty: &T = ty.get().downcast()?;
 
-        Some(with(ty))
+        // The `with` closure contains arbitrary Rust code and may block,
+        // which we cannot allow while holding the GIL
+        py.allow_threads(|| Some(with(codec)))
     }
 }
 

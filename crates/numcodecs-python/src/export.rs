@@ -122,11 +122,13 @@ trait AnyCodec {
 
 impl<T: DynCodec> AnyCodec for T {
     fn encode(&self, py: Python, data: AnyCowArray) -> Result<AnyArray, PyErr> {
-        <T as Codec>::encode(self, data).map_err(|err| PyErrChain::pyerr_from_err(py, err))
+        py.allow_threads(|| <T as Codec>::encode(self, data))
+            .map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn decode(&self, py: Python, encoded: AnyCowArray) -> Result<AnyArray, PyErr> {
-        <T as Codec>::decode(self, encoded).map_err(|err| PyErrChain::pyerr_from_err(py, err))
+        py.allow_threads(|| <T as Codec>::decode(self, encoded))
+            .map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn decode_into(
@@ -135,12 +137,15 @@ impl<T: DynCodec> AnyCodec for T {
         encoded: AnyArrayView,
         decoded: AnyArrayViewMut,
     ) -> Result<(), PyErr> {
-        <T as Codec>::decode_into(self, encoded, decoded)
+        py.allow_threads(|| <T as Codec>::decode_into(self, encoded, decoded))
             .map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {
-        <T as DynCodec>::get_config(self, Pythonizer::new(py))?.extract()
+        let config: serde_json::Value = py
+            .allow_threads(|| <T as DynCodec>::get_config(self, serde_json::value::Serializer))
+            .map_err(|err| PyErrChain::pyerr_from_err(py, err))?;
+        pythonize::pythonize(py, &config)?.extract()
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -151,6 +156,7 @@ impl<T: DynCodec> AnyCodec for T {
 trait AnyCodecType {
     fn codec_from_config<'py>(
         &self,
+        py: Python<'py>,
         config: Bound<'py, PyDict>,
     ) -> Result<Box<dyn 'static + Send + Sync + AnyCodec>, PyErr>;
 
@@ -160,14 +166,18 @@ trait AnyCodecType {
 impl<T: DynCodecType> AnyCodecType for T {
     fn codec_from_config<'py>(
         &self,
+        py: Python<'py>,
         config: Bound<'py, PyDict>,
     ) -> Result<Box<dyn 'static + Send + Sync + AnyCodec>, PyErr> {
-        match <T as DynCodecType>::codec_from_config(
-            self,
+        let config = serde_transcode::transcode(
             &mut Depythonizer::from_object(config.as_any()),
-        ) {
+            serde_json::value::Serializer,
+        )
+        .map_err(|err| PyErrChain::pyerr_from_err(py, err))?;
+
+        match py.allow_threads(|| <T as DynCodecType>::codec_from_config(self, config)) {
             Ok(codec) => Ok(Box::new(codec)),
-            Err(err) => Err(err.into()),
+            Err(err) => Err(PyErrChain::pyerr_from_err(py, err)),
         }
     }
 
@@ -222,7 +232,7 @@ impl RustCodec {
 
         let codec = ty
             .ty
-            .codec_from_config(kwargs.unwrap_or_else(|| PyDict::new(py)))?;
+            .codec_from_config(py, kwargs.unwrap_or_else(|| PyDict::new(py)))?;
 
         Ok(Self {
             cls_module,
