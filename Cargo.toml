@@ -96,7 +96,7 @@ postcard = { version = "1.0.8", default-features = false }
 pyodide-webassembly-runtime-layer = { version = "0.6", default-features = false }
 pyo3 = { version = "0.24", default-features = false }
 pyo3-error = { version = "0.4", default-features = false }
-pyo3-log = { version = "0.12", default-features = false }
+pyo3-log = { version = "0.12.2", default-features = false }
 pythonize = { version = "0.24", default-features = false }
 rand = { version = "0.8.5", default-features = false }
 schemars = { version = "=1.0.0-alpha.15", default-features = false }
