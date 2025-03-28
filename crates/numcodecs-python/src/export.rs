@@ -1,4 +1,4 @@
-use std::{any::Any, ffi::CString};
+use std::{any::Any, ffi::CString, mem::ManuallyDrop};
 
 use ndarray::{ArrayViewD, ArrayViewMutD, CowArray};
 use numcodecs::{
@@ -16,7 +16,7 @@ use pyo3::{
     PyTypeInfo,
 };
 use pyo3_error::PyErrChain;
-use pythonize::{pythonize, Depythonizer, Pythonizer};
+use pythonize::{pythonize, Depythonizer};
 
 use crate::{
     schema::{docs_from_schema, signature_from_schema},
@@ -51,6 +51,8 @@ pub fn export_codec_class<'py, T: DynCodecType<Codec: Ungil> + Ungil>(
                 PyCodec::type_object(py),
             );
 
+            let codec_ty = RustCodecType { ty: ManuallyDrop::new(Box::new(ty)) };
+
             let codec_class_namespace = [
                 (intern!(py, "__module__"), module.name()?.into_any()),
                 (
@@ -59,7 +61,7 @@ pub fn export_codec_class<'py, T: DynCodecType<Codec: Ungil> + Ungil>(
                 ),
                 (
                     intern!(py, RustCodec::TYPE_ATTRIBUTE),
-                    Bound::new(py, RustCodecType { ty: Box::new(ty) })?.into_any(),
+                    Bound::new(py, codec_ty)?.into_any(),
                 ),
                 (
                     intern!(py, "codec_id"),
@@ -95,7 +97,20 @@ pub fn export_codec_class<'py, T: DynCodecType<Codec: Ungil> + Ungil>(
 #[pyclass(frozen, module = "numcodecs._rust", name = "_RustCodecType")]
 /// Rust-implemented codec type container.
 pub(crate) struct RustCodecType {
-    ty: Box<dyn AnyCodecType>,
+    ty: ManuallyDrop<Box<dyn AnyCodecType>>,
+}
+
+impl Drop for RustCodecType {
+    fn drop(&mut self) {
+        Python::with_gil(|py| {
+            py.allow_threads(|| {
+                #[allow(unsafe_code)]
+                unsafe {
+                    ManuallyDrop::drop(&mut self.ty);
+                }
+            })
+        })
+    }
 }
 
 impl RustCodecType {
@@ -158,8 +173,10 @@ trait AnyCodecType: 'static + Send + Sync + Ungil {
     fn codec_from_config<'py>(
         &self,
         py: Python<'py>,
+        cls_module: String,
+        cls_name: String,
         config: Bound<'py, PyDict>,
-    ) -> Result<Box<dyn AnyCodec>, PyErr>;
+    ) -> Result<RustCodec, PyErr>;
 
     fn as_any(&self) -> &dyn Any;
 }
@@ -168,18 +185,26 @@ impl<T: DynCodecType + Ungil> AnyCodecType for T {
     fn codec_from_config<'py>(
         &self,
         py: Python<'py>,
+        cls_module: String,
+        cls_name: String,
         config: Bound<'py, PyDict>,
-    ) -> Result<Box<dyn AnyCodec>, PyErr> {
+    ) -> Result<RustCodec, PyErr> {
         let config = serde_transcode::transcode(
             &mut Depythonizer::from_object(config.as_any()),
             serde_json::value::Serializer,
         )
         .map_err(|err| PyErrChain::pyerr_from_err(py, err))?;
 
-        match py.allow_threads(|| <T as DynCodecType>::codec_from_config(self, config)) {
-            Ok(codec) => Ok(Box::new(codec)),
-            Err(err) => Err(PyErrChain::pyerr_from_err(py, err)),
-        }
+        py.allow_threads(|| -> Result<RustCodec, serde_json::Error> {
+            let codec = <T as DynCodecType>::codec_from_config(self, config)?;
+
+            Ok(RustCodec {
+                cls_module,
+                cls_name,
+                codec: ManuallyDrop::new(Box::new(codec)),
+            })
+        })
+        .map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -195,7 +220,20 @@ impl<T: DynCodecType + Ungil> AnyCodecType for T {
 pub(crate) struct RustCodec {
     cls_module: String,
     cls_name: String,
-    codec: Box<dyn AnyCodec>,
+    codec: ManuallyDrop<Box<dyn AnyCodec>>,
+}
+
+impl Drop for RustCodec {
+    fn drop(&mut self) {
+        Python::with_gil(|py| {
+            py.allow_threads(|| {
+                #[allow(unsafe_code)]
+                unsafe {
+                    ManuallyDrop::drop(&mut self.codec);
+                }
+            })
+        })
+    }
 }
 
 impl RustCodec {
@@ -231,15 +269,12 @@ impl RustCodec {
             .extract()?;
         let ty: PyRef<RustCodecType> = ty.try_borrow()?;
 
-        let codec = ty
-            .ty
-            .codec_from_config(py, kwargs.unwrap_or_else(|| PyDict::new(py)))?;
-
-        Ok(Self {
+        ty.ty.codec_from_config(
+            py,
             cls_module,
             cls_name,
-            codec,
-        })
+            kwargs.unwrap_or_else(|| PyDict::new(py)),
+        )
     }
 
     /// Encode the data in `buf`.
@@ -385,7 +420,7 @@ impl RustCodec {
         class_method: &str,
     ) -> Result<Bound<'py, PyAny>, PyErr> {
         Self::with_pyarraylike_as_cow(py, buf, class_method, |data| {
-            let processed = process(&*self.codec, py, data)?;
+            let processed = process(&**self.codec, py, data)?;
             Self::any_array_into_pyarray(py, processed, class_method)
         })
     }
@@ -400,7 +435,7 @@ impl RustCodec {
     ) -> Result<(), PyErr> {
         Self::with_pyarraylike_as_view(py, buf, class_method, |data| {
             Self::with_pyarraylike_as_view_mut(py, out, class_method, |data_out| {
-                process(&*self.codec, py, data, data_out)
+                process(&**self.codec, py, data, data_out)
             })
         })
     }

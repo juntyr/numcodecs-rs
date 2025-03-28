@@ -115,14 +115,16 @@ fn downcast() -> Result<(), PyErr> {
             module.as_borrowed(),
         )?;
 
-        assert!(
-            PyCodecClassAdapter::with_downcast(&class, |_: &StaticCodecType<NegateCodec>| ())
-                .is_some()
-        );
+        assert!(PyCodecClassAdapter::with_downcast(
+            py,
+            &class,
+            |_: &StaticCodecType<NegateCodec>| ()
+        )
+        .is_some());
 
         let codec = class.codec_from_config(PyDict::new(py).as_borrowed())?;
 
-        assert!(PyCodecAdapter::with_downcast(&codec, |_: &NegateCodec| ()).is_some());
+        assert!(PyCodecAdapter::with_downcast(py, &codec, |_: &NegateCodec| ()).is_some());
 
         Ok(())
     })

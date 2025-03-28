@@ -123,10 +123,10 @@ impl PyCodecAdapter {
     ///
     /// If `codec` is not an instance of `T`, the `with` closure is *not* run
     /// and `None` is returned.
-    pub fn with_downcast<T: DynCodec + Ungil, O: Ungil>(
+    pub fn with_downcast<T: DynCodec, O: Ungil>(
         py: Python,
         codec: &Bound<PyCodec>,
-        with: impl for<'a> FnOnce(&'a T) -> O,
+        with: impl Send + Ungil + for<'a> FnOnce(&'a T) -> O,
     ) -> Option<O> {
         let Ok(codec) = codec.downcast::<RustCodec>() else {
             return None;
@@ -136,7 +136,7 @@ impl PyCodecAdapter {
 
         // The `with` closure contains arbitrary Rust code and may block,
         // which we cannot allow while holding the GIL
-        py.allow_threads(|| Some(with(codec)))
+        Some(py.allow_threads(|| with(codec)))
     }
 }
 
@@ -475,10 +475,10 @@ impl PyCodecClassAdapter {
     ///
     /// If `class` is not an instance of `T`, the `with` closure is *not* run
     /// and `None` is returned.
-    pub fn with_downcast<T: DynCodecType + Ungil, O: Ungil>(
+    pub fn with_downcast<T: DynCodecType, O: Ungil>(
         py: Python,
         class: &Bound<PyCodecClass>,
-        with: impl for<'a> FnOnce(&'a T) -> O,
+        with: impl Send + Ungil + for<'a> FnOnce(&'a T) -> O,
     ) -> Option<O> {
         let Ok(ty) = class.getattr(intern!(class.py(), RustCodec::TYPE_ATTRIBUTE)) else {
             return None;
@@ -492,7 +492,7 @@ impl PyCodecClassAdapter {
 
         // The `with` closure contains arbitrary Rust code and may block,
         // which we cannot allow while holding the GIL
-        py.allow_threads(|| Some(with(ty)))
+        Some(py.allow_threads(|| with(ty)))
     }
 }
 

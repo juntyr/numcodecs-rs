@@ -44,12 +44,11 @@ fn read_codec_instruction_counter<'py>(
     codec: &Bound<'py, PyCodec>,
 ) -> Result<u64, PyErr> {
     let Some(instruction_counter) =
-        PyCodecAdapter::with_downcast(codec, |codec: &ReproducibleWasmCodec<Engine>| {
-            codec
-                .instruction_counter()
-                .map_err(|err| pyo3_error::PyErrChain::new(py, err))
+        PyCodecAdapter::with_downcast(py, codec, |codec: &ReproducibleWasmCodec<Engine>| {
+            codec.instruction_counter()
         })
-        .transpose()?
+        .transpose()
+        .map_err(|err| pyo3_error::PyErrChain::new(py, err))?
     else {
         return Err(PyTypeError::new_err(
             "`codec` is not a wasm codec, only wasm codecs have instruction counts",
