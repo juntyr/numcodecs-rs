@@ -9,6 +9,7 @@ use numpy::{Element, PyArray, PyArrayDyn, PyArrayMethods, PyUntypedArrayMethods}
 use pyo3::{
     exceptions::{PyTypeError, PyValueError},
     intern,
+    marker::Ungil,
     prelude::*,
     types::{IntoPyDict, PyDict, PyDictMethods},
 };
@@ -122,14 +123,14 @@ impl PyCodecAdapter {
     ///
     /// If `codec` is not an instance of `T`, the `with` closure is *not* run
     /// and `None` is returned.
-    pub fn with_downcast<T: DynCodec, O>(
+    pub fn with_downcast<T: DynCodec + Ungil, O: Ungil>(
+        py: Python,
         codec: &Bound<PyCodec>,
         with: impl for<'a> FnOnce(&'a T) -> O,
     ) -> Option<O> {
         let Ok(codec) = codec.downcast::<RustCodec>() else {
             return None;
         };
-        let py = codec.py();
 
         let codec = codec.get().downcast()?;
 
@@ -474,7 +475,8 @@ impl PyCodecClassAdapter {
     ///
     /// If `class` is not an instance of `T`, the `with` closure is *not* run
     /// and `None` is returned.
-    pub fn with_downcast<T: DynCodecType, O>(
+    pub fn with_downcast<T: DynCodecType + Ungil, O: Ungil>(
+        py: Python,
         class: &Bound<PyCodecClass>,
         with: impl for<'a> FnOnce(&'a T) -> O,
     ) -> Option<O> {
@@ -485,13 +487,12 @@ impl PyCodecClassAdapter {
         let Ok(ty) = ty.downcast_into_exact::<RustCodecType>() else {
             return None;
         };
-        let py = ty.py();
 
         let ty: &T = ty.get().downcast()?;
 
         // The `with` closure contains arbitrary Rust code and may block,
         // which we cannot allow while holding the GIL
-        py.allow_threads(|| Some(with(codec)))
+        py.allow_threads(|| Some(with(ty)))
     }
 }
 

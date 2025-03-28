@@ -10,6 +10,7 @@ use numpy::{
 use pyo3::{
     exceptions::PyTypeError,
     intern,
+    marker::Ungil,
     prelude::*,
     types::{IntoPyDict, PyDict, PyString, PyType},
     PyTypeInfo,
@@ -30,7 +31,7 @@ use crate::{
 /// # Errors
 ///
 /// Errors if generating or exporting the fresh [`PyCodecClass`] fails.
-pub fn export_codec_class<'py, T: DynCodecType>(
+pub fn export_codec_class<'py, T: DynCodecType<Codec: Ungil> + Ungil>(
     py: Python<'py>,
     ty: T,
     module: Borrowed<'_, 'py, PyModule>,
@@ -94,7 +95,7 @@ pub fn export_codec_class<'py, T: DynCodecType>(
 #[pyclass(frozen, module = "numcodecs._rust", name = "_RustCodecType")]
 /// Rust-implemented codec type container.
 pub(crate) struct RustCodecType {
-    ty: Box<dyn 'static + Send + Sync + AnyCodecType>,
+    ty: Box<dyn AnyCodecType>,
 }
 
 impl RustCodecType {
@@ -103,7 +104,7 @@ impl RustCodecType {
     }
 }
 
-trait AnyCodec {
+trait AnyCodec: 'static + Send + Sync + Ungil {
     fn encode(&self, py: Python, data: AnyCowArray) -> Result<AnyArray, PyErr>;
 
     fn decode(&self, py: Python, encoded: AnyCowArray) -> Result<AnyArray, PyErr>;
@@ -120,7 +121,7 @@ trait AnyCodec {
     fn as_any(&self) -> &dyn Any;
 }
 
-impl<T: DynCodec> AnyCodec for T {
+impl<T: DynCodec + Ungil> AnyCodec for T {
     fn encode(&self, py: Python, data: AnyCowArray) -> Result<AnyArray, PyErr> {
         py.allow_threads(|| <T as Codec>::encode(self, data))
             .map_err(|err| PyErrChain::pyerr_from_err(py, err))
@@ -153,22 +154,22 @@ impl<T: DynCodec> AnyCodec for T {
     }
 }
 
-trait AnyCodecType {
+trait AnyCodecType: 'static + Send + Sync + Ungil {
     fn codec_from_config<'py>(
         &self,
         py: Python<'py>,
         config: Bound<'py, PyDict>,
-    ) -> Result<Box<dyn 'static + Send + Sync + AnyCodec>, PyErr>;
+    ) -> Result<Box<dyn AnyCodec>, PyErr>;
 
     fn as_any(&self) -> &dyn Any;
 }
 
-impl<T: DynCodecType> AnyCodecType for T {
+impl<T: DynCodecType + Ungil> AnyCodecType for T {
     fn codec_from_config<'py>(
         &self,
         py: Python<'py>,
         config: Bound<'py, PyDict>,
-    ) -> Result<Box<dyn 'static + Send + Sync + AnyCodec>, PyErr> {
+    ) -> Result<Box<dyn AnyCodec>, PyErr> {
         let config = serde_transcode::transcode(
             &mut Depythonizer::from_object(config.as_any()),
             serde_json::value::Serializer,
@@ -194,7 +195,7 @@ impl<T: DynCodecType> AnyCodecType for T {
 pub(crate) struct RustCodec {
     cls_module: String,
     cls_name: String,
-    codec: Box<dyn 'static + Send + Sync + AnyCodec>,
+    codec: Box<dyn AnyCodec>,
 }
 
 impl RustCodec {
@@ -380,11 +381,7 @@ impl RustCodec {
         &self,
         py: Python<'py>,
         buf: Borrowed<'_, 'py, PyAny>,
-        process: impl FnOnce(
-            &(dyn 'static + Send + Sync + AnyCodec),
-            Python,
-            AnyCowArray,
-        ) -> Result<AnyArray, PyErr>,
+        process: impl FnOnce(&dyn AnyCodec, Python, AnyCowArray) -> Result<AnyArray, PyErr>,
         class_method: &str,
     ) -> Result<Bound<'py, PyAny>, PyErr> {
         Self::with_pyarraylike_as_cow(py, buf, class_method, |data| {
@@ -398,12 +395,7 @@ impl RustCodec {
         py: Python<'py>,
         buf: Borrowed<'_, 'py, PyAny>,
         out: Borrowed<'_, 'py, PyAny>,
-        process: impl FnOnce(
-            &(dyn 'static + Send + Sync + AnyCodec),
-            Python,
-            AnyArrayView,
-            AnyArrayViewMut,
-        ) -> Result<(), PyErr>,
+        process: impl FnOnce(&dyn AnyCodec, Python, AnyArrayView, AnyArrayViewMut) -> Result<(), PyErr>,
         class_method: &str,
     ) -> Result<(), PyErr> {
         Self::with_pyarraylike_as_view(py, buf, class_method, |data| {
