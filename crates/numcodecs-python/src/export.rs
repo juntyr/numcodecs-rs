@@ -108,8 +108,8 @@ impl Drop for RustCodecType {
                 unsafe {
                     ManuallyDrop::drop(&mut self.ty);
                 }
-            })
-        })
+            });
+        });
     }
 }
 
@@ -231,8 +231,8 @@ impl Drop for RustCodec {
                 unsafe {
                     ManuallyDrop::drop(&mut self.codec);
                 }
-            })
-        })
+            });
+        });
     }
 }
 
