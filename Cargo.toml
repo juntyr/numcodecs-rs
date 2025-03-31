@@ -43,7 +43,7 @@ rust-version = "1.82"
 [workspace.dependencies]
 # workspace-internal numcodecs crates
 numcodecs = { version = "0.2", path = "crates/numcodecs", default-features = false }
-numcodecs-python = { version = "0.4", path = "crates/numcodecs-python", default-features = false }
+numcodecs-python = { version = "0.5", path = "crates/numcodecs-python", default-features = false }
 numcodecs-wasm-builder = { version = "0.1", path = "crates/numcodecs-wasm-builder", default-features = false }
 numcodecs-wasm-logging = { version = "0.1", path = "crates/numcodecs-wasm-logging", default-features = false }
 numcodecs-wasm-guest = { version = "0.2", path = "crates/numcodecs-wasm-guest", default-features = false }
