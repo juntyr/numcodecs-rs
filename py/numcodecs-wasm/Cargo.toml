@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs-wasm"
-version = "0.1.3+wasi0.2.3"
+version = "0.1.4+wasi0.2.3"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }

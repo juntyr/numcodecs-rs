@@ -43,7 +43,6 @@ class WasmCodecMeta(type):
 
     def __new__(cls, clsname, bases, attrs, wasm: bytes):
         assert len(bases) == 0
-        assert sorted(attrs.keys()) == ["__module__", "__qualname__"]
 
         codec_cls = create_codec_class(sys.modules[attrs["__module__"]], wasm)
 
