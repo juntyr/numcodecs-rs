@@ -105,9 +105,9 @@ for c in (repo_path / "codecs").iterdir():
     )
     subprocess.run(
         shlex.split(
-            f'uv run python3 -c "from {'numcodecs_wasm_' + templates['package_suffix']} '
-            f'import {templates['CodecName']} as Codec; '
-            f'assert Codec.codec_id == {templates['codec-id']!r}"'
+            f'uv run python3 -c "from {"numcodecs_wasm_" + templates["package_suffix"]} '
+            f'import {templates["CodecName"]} as Codec; '
+            f'assert Codec.codec_id == {templates["codec-id"]!r}"'
         ),
         check=True,
         cwd=staging_path,
