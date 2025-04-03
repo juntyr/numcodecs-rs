@@ -192,7 +192,7 @@ impl Codec for SwizzleReshapeCodec {
 }
 
 impl StaticCodec for SwizzleReshapeCodec {
-    const CODEC_ID: &'static str = "swizzle-reshape";
+    const CODEC_ID: &'static str = "swizzle-reshape.rs";
 
     type Config<'de> = Self;
 

@@ -176,7 +176,7 @@ impl Codec for FourierNetworkCodec {
 }
 
 impl StaticCodec for FourierNetworkCodec {
-    const CODEC_ID: &'static str = "fourier-network";
+    const CODEC_ID: &'static str = "fourier-network.rs";
 
     type Config<'de> = Self;
 

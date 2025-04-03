@@ -99,7 +99,7 @@ impl Codec for AsinhCodec {
 }
 
 impl StaticCodec for AsinhCodec {
-    const CODEC_ID: &'static str = "asinh";
+    const CODEC_ID: &'static str = "asinh.rs";
 
     type Config<'de> = Self;
 

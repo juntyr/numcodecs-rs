@@ -92,7 +92,7 @@ impl Codec for UniformNoiseCodec {
 }
 
 impl StaticCodec for UniformNoiseCodec {
-    const CODEC_ID: &'static str = "uniform-noise";
+    const CODEC_ID: &'static str = "uniform-noise.rs";
 
     type Config<'de> = Self;
 

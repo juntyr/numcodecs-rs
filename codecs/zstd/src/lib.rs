@@ -88,7 +88,7 @@ impl Codec for ZstdCodec {
 }
 
 impl StaticCodec for ZstdCodec {
-    const CODEC_ID: &'static str = "zstd";
+    const CODEC_ID: &'static str = "zstd.rs";
 
     type Config<'de> = Self;
 

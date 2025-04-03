@@ -80,7 +80,7 @@ impl Codec for BitRoundCodec {
 }
 
 impl StaticCodec for BitRoundCodec {
-    const CODEC_ID: &'static str = "bit-round";
+    const CODEC_ID: &'static str = "bit-round.rs";
 
     type Config<'de> = Self;
 

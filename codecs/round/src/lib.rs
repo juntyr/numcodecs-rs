@@ -77,7 +77,7 @@ impl Codec for RoundCodec {
 }
 
 impl StaticCodec for RoundCodec {
-    const CODEC_ID: &'static str = "round";
+    const CODEC_ID: &'static str = "round.rs";
 
     type Config<'de> = Self;
 

@@ -393,7 +393,7 @@ impl Codec for LinearQuantizeCodec {
 }
 
 impl StaticCodec for LinearQuantizeCodec {
-    const CODEC_ID: &'static str = "linear-quantize";
+    const CODEC_ID: &'static str = "linear-quantize.rs";
 
     type Config<'de> = Self;
 

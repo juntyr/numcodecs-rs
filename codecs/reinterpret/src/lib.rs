@@ -298,7 +298,7 @@ impl Codec for ReinterpretCodec {
 }
 
 impl StaticCodec for ReinterpretCodec {
-    const CODEC_ID: &'static str = "reinterpret";
+    const CODEC_ID: &'static str = "reinterpret.rs";
 
     type Config<'de> = Self;
 

@@ -82,7 +82,7 @@ impl Codec for LogCodec {
 }
 
 impl StaticCodec for LogCodec {
-    const CODEC_ID: &'static str = "log";
+    const CODEC_ID: &'static str = "log.rs";
 
     type Config<'de> = Self;
 

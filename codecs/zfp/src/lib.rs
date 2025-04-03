@@ -174,7 +174,7 @@ impl Codec for ZfpCodec {
 }
 
 impl StaticCodec for ZfpCodec {
-    const CODEC_ID: &'static str = "zfp";
+    const CODEC_ID: &'static str = "zfp.rs";
 
     type Config<'de> = Self;
 

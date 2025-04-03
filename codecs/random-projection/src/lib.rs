@@ -183,7 +183,7 @@ impl Codec for RandomProjectionCodec {
 }
 
 impl StaticCodec for RandomProjectionCodec {
-    const CODEC_ID: &'static str = "random-projection";
+    const CODEC_ID: &'static str = "random-projection.rs";
 
     type Config<'de> = Self;
 

@@ -335,7 +335,7 @@ impl Codec for Pcodec {
 }
 
 impl StaticCodec for Pcodec {
-    const CODEC_ID: &'static str = "pco";
+    const CODEC_ID: &'static str = "pco.rs";
 
     type Config<'de> = Self;
 

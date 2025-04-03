@@ -122,7 +122,7 @@ impl Codec for TthreshCodec {
 }
 
 impl StaticCodec for TthreshCodec {
-    const CODEC_ID: &'static str = "tthresh";
+    const CODEC_ID: &'static str = "tthresh.rs";
 
     type Config<'de> = Self;
 

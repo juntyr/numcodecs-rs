@@ -228,7 +228,7 @@ impl Codec for Sz3Codec {
 }
 
 impl StaticCodec for Sz3Codec {
-    const CODEC_ID: &'static str = "sz3";
+    const CODEC_ID: &'static str = "sz3.rs";
 
     type Config<'de> = Self;
 

@@ -109,7 +109,7 @@ impl Codec for FixedOffsetScaleCodec {
 }
 
 impl StaticCodec for FixedOffsetScaleCodec {
-    const CODEC_ID: &'static str = "fixed-offset-scale";
+    const CODEC_ID: &'static str = "fixed-offset-scale.rs";
 
     type Config<'de> = Self;
 

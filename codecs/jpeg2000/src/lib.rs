@@ -134,7 +134,7 @@ impl Codec for Jpeg2000Codec {
 }
 
 impl StaticCodec for Jpeg2000Codec {
-    const CODEC_ID: &'static str = "jpeg2000";
+    const CODEC_ID: &'static str = "jpeg2000.rs";
 
     type Config<'de> = Self;
 

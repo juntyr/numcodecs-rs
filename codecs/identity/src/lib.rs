@@ -54,7 +54,7 @@ impl Codec for IdentityCodec {
 }
 
 impl StaticCodec for IdentityCodec {
-    const CODEC_ID: &'static str = "identity";
+    const CODEC_ID: &'static str = "identity.rs";
 
     type Config<'de> = Self;
 

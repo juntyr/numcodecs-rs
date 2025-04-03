@@ -106,7 +106,7 @@ impl Codec for ZlibCodec {
 }
 
 impl StaticCodec for ZlibCodec {
-    const CODEC_ID: &'static str = "zlib";
+    const CODEC_ID: &'static str = "zlib.rs";
 
     type Config<'de> = Self;
 

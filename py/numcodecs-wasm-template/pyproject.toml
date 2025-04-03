@@ -19,6 +19,9 @@ dependencies = [
     "numcodecs-wasm~=0.1.1", # wasi 0.2.3
 ]
 
+[project.entry-points."numcodecs.codecs"]
+"%codec-id%" = "numcodecs_wasm_%package_suffix%:%CodecName%"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

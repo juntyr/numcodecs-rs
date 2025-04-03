@@ -171,7 +171,7 @@ impl Codec for NegateCodec {
 }
 
 impl StaticCodec for NegateCodec {
-    const CODEC_ID: &'static str = "negate";
+    const CODEC_ID: &'static str = "negate.rs";
 
     type Config<'de> = Self;
 
