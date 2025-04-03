@@ -24,7 +24,7 @@ use std::{borrow::Cow, fmt};
 use ndarray::{Array, Array1, ArrayBase, Data, Dimension, ShapeError};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -37,6 +37,8 @@ use ::zstd_sys as _;
 #[cfg(test)]
 use ::serde_json as _;
 
+type Sz3CodecVersion = StaticCodecVersion<0, 1, 0>;
+
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // serde cannot deny unknown fields because of the flatten
 #[schemars(deny_unknown_fields)]
@@ -48,6 +50,9 @@ pub struct Sz3Codec {
     /// SZ3 error bound
     #[serde(flatten)]
     pub error_bound: Sz3ErrorBound,
+    /// The codec's version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    pub _version: Sz3CodecVersion,
 }
 
 /// SZ3 error bound
@@ -336,6 +341,7 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
         &CompressionHeader {
             dtype: <T as Sz3Element>::DTYPE,
             shape: Cow::Borrowed(data.shape()),
+            version: StaticCodecVersion,
         },
         Vec::new(),
     )
@@ -665,6 +671,7 @@ struct CompressionHeader<'a> {
     dtype: Sz3DType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
+    version: Sz3CodecVersion,
 }
 
 /// Dtypes that SZ3 can compress and decompress

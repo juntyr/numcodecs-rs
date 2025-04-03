@@ -25,13 +25,15 @@ use ndarray::{Array, Array1, ArrayBase, ArrayD, ArrayViewMutD, Data, Dimension, 
 use num_traits::{ConstOne, ConstZero, Float};
 use numcodecs::{
     AnyArray, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
-    StaticCodecConfig,
+    StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{JsonSchema, JsonSchema_repr};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use thiserror::Error;
 use twofloat::TwoFloat;
+
+type LinearQuantizeCodecVersion = StaticCodecVersion<0, 1, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -44,6 +46,9 @@ pub struct LinearQuantizeCodec {
     pub dtype: LinearQuantizeDType,
     /// Binary precision of the encoded data where `$bits = \log_{2}(bins)$`
     pub bits: LinearQuantizeBins,
+    /// The codec's version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    pub _version: LinearQuantizeCodecVersion,
 }
 
 /// Data types which the [`LinearQuantizeCodec`] can quantize
@@ -517,6 +522,7 @@ pub fn quantize<
             shape: Cow::Borrowed(data.shape()),
             minimum,
             maximum,
+            version: StaticCodecVersion,
         },
         Vec::new(),
     )
@@ -657,6 +663,7 @@ struct CompressionHeader<'a, T> {
     shape: Cow<'a, [usize]>,
     minimum: T,
     maximum: T,
+    version: LinearQuantizeCodecVersion,
 }
 
 #[cfg(test)]
@@ -672,6 +679,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F32,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
+                _version: StaticCodecVersion,
             };
 
             let mut data: Vec<f32> = (0..(u16::MAX >> (16 - bits)))
@@ -705,6 +713,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F32,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
+                _version: StaticCodecVersion,
             };
 
             #[expect(clippy::cast_precision_loss)]
@@ -740,6 +749,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F64,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
+                _version: StaticCodecVersion,
             };
 
             let mut data: Vec<f64> = (0..(u32::MAX >> (32 - bits)))
@@ -773,6 +783,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F64,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
+                _version: StaticCodecVersion,
             };
 
             #[expect(clippy::cast_precision_loss)]
@@ -810,6 +821,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F64,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
+                _version: StaticCodecVersion,
             };
 
             let encoded = codec.encode(AnyCowArray::F64(CowArray::from(&data).into_dyn()))?;

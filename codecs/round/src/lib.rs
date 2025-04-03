@@ -23,7 +23,7 @@ use ndarray::{Array, ArrayBase, Data, Dimension};
 use num_traits::Float;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -38,6 +38,9 @@ use thiserror::Error;
 pub struct RoundCodec {
     /// Precision of the rounding operation
     pub precision: Positive<f64>,
+    /// The codec's version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    pub _version: StaticCodecVersion<1, 0, 0>,
 }
 
 impl Codec for RoundCodec {

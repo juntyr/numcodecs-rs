@@ -24,7 +24,7 @@ use std::{borrow::Cow, fmt, num::NonZeroUsize};
 use ndarray::{Array, Array1, ArrayBase, ArrayViewMut, Data, Dimension, ShapeError};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{JsonSchema, JsonSchema_repr};
 use serde::{Deserialize, Serialize};
@@ -33,6 +33,8 @@ use thiserror::Error;
 
 #[cfg(test)]
 use ::serde_json as _;
+
+type PcodecVersion = StaticCodecVersion<0, 1, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[schemars(deny_unknown_fields)] // serde cannot deny unknown fields because of the flatten
@@ -50,6 +52,9 @@ pub struct Pcodec {
     /// Specifies how the chunk should be split into pages
     #[serde(flatten)]
     pub paging: PcoPagingSpec,
+    /// The codec's version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    pub _version: PcodecVersion,
 }
 
 #[derive(
@@ -441,6 +446,7 @@ pub fn compress<T: PcoElement, S: Data<Elem = T>, D: Dimension>(
         &CompressionHeader {
             dtype: <T as PcoElement>::DTYPE,
             shape: Cow::Borrowed(data.shape()),
+            version: StaticCodecVersion,
         },
         Vec::new(),
     )
@@ -687,6 +693,7 @@ struct CompressionHeader<'a> {
     dtype: PcoDType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
+    version: PcodecVersion,
 }
 
 /// Dtypes that pco can compress and decompress

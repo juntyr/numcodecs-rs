@@ -40,7 +40,7 @@ use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension, Ix1, O
 use num_traits::{ConstOne, ConstZero, Float as FloatTrait, FromPrimitive};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -88,6 +88,9 @@ pub struct FourierNetworkCodec {
     pub mini_batch_size: Option<NonZeroUsize>,
     /// The seed for the random number generator used during encoding
     pub seed: u64,
+    /// The codec's version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    pub _version: StaticCodecVersion<0, 1, 0>,
 }
 
 // using this wrapper function makes an Option<T> required

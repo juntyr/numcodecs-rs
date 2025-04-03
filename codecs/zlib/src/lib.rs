@@ -24,12 +24,14 @@ use std::borrow::Cow;
 use ndarray::Array1;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{JsonSchema, JsonSchema_repr};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use thiserror::Error;
+
+type ZlibCodecVersion = StaticCodecVersion<0, 1, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -39,6 +41,9 @@ pub struct ZlibCodec {
     ///
     /// The level ranges from 0, no compression, to 9, best compression.
     pub level: ZlibLevel,
+    /// The codec's version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    pub _version: ZlibCodecVersion,
 }
 
 #[derive(Copy, Clone, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
@@ -200,6 +205,7 @@ pub fn compress(array: AnyArrayView, level: ZlibLevel) -> Result<Vec<u8>, ZlibCo
         &CompressionHeader {
             dtype: array.dtype(),
             shape: Cow::Borrowed(array.shape()),
+            version: StaticCodecVersion,
         },
         Vec::new(),
     )
@@ -362,4 +368,5 @@ struct CompressionHeader<'a> {
     dtype: AnyArrayDType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
+    version: ZlibCodecVersion,
 }

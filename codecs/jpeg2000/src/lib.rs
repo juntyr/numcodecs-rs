@@ -29,13 +29,15 @@ use ndarray::{Array, Array1, ArrayBase, Axis, Data, Dimension, IxDyn, ShapeError
 use num_traits::identities::Zero;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 mod ffi;
+
+type Jpeg2000CodecVersion = StaticCodecVersion<0, 1, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // serde cannot deny unknown fields because of the flatten
@@ -50,6 +52,9 @@ pub struct Jpeg2000Codec {
     /// JPEG 2000 compression mode
     #[serde(flatten)]
     pub mode: Jpeg2000CompressionMode,
+    /// The codec's version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    pub _version: Jpeg2000CodecVersion,
 }
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
@@ -255,6 +260,7 @@ pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
         &CompressionHeader {
             dtype: T::DTYPE,
             shape: Cow::Borrowed(data.shape()),
+            version: StaticCodecVersion,
         },
         Vec::new(),
     )
@@ -443,6 +449,7 @@ struct CompressionHeader<'a> {
     dtype: Jpeg2000DType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
+    version: Jpeg2000CodecVersion,
 }
 
 /// Dtypes that JPEG 2000 can compress and decompress

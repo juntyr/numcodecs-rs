@@ -26,7 +26,7 @@ use std::{
 use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, IxDyn};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 use serde::{
@@ -63,6 +63,9 @@ pub struct SwizzleReshapeCodec {
     /// - `[[0], [{}]]` in contrast collapses all other axes into one, i.e.
     ///   the encoded array is two-dimensional
     pub axes: Vec<AxisGroup>,
+    /// The codec's version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    pub _version: StaticCodecVersion<1, 0, 0>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]

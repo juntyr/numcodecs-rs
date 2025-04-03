@@ -24,13 +24,15 @@ use std::{borrow::Cow, io};
 use ndarray::Array1;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 // Only used to explicitly enable the `no_wasm_shim` feature in zstd/zstd-sys
 use zstd_sys as _;
+
+type ZstdCodecVersion = StaticCodecVersion<0, 1, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -40,6 +42,9 @@ pub struct ZstdCodec {
     ///
     /// The level ranges from small (fastest) to large (best compression).
     pub level: ZstdLevel,
+    /// The codec's version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    pub _version: ZstdCodecVersion,
 }
 
 impl Codec for ZstdCodec {
@@ -221,6 +226,7 @@ pub fn compress(array: AnyArrayView, level: ZstdLevel) -> Result<Vec<u8>, ZstdCo
         &CompressionHeader {
             dtype: array.dtype(),
             shape: Cow::Borrowed(array.shape()),
+            version: StaticCodecVersion,
         },
         Vec::new(),
     )
@@ -330,4 +336,5 @@ struct CompressionHeader<'a> {
     dtype: AnyArrayDType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
+    version: ZstdCodecVersion,
 }
