@@ -99,4 +99,5 @@ pub struct ModelExtra<B: Backend> {
     pub b_t: Param<Tensor<B, 2, Float>>,
     pub mean: Param<Tensor<B, 1, Float>>,
     pub stdv: Param<Tensor<B, 1, Float>>,
+    // FIXME: somehow encode the codec format's version as well
 }
