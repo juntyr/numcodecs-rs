@@ -31,7 +31,7 @@ fn export() -> Result<(), PyErr> {
 
         // create a codec using registry lookup
         let codec = PyCodecRegistry::get_codec(config.as_borrowed())?;
-        assert_eq!(codec.class.as_type().name()?.to_cow()?, "Negate");
+        assert_eq!(codec.class().as_type().name()?.to_cow()?, "Negate");
         assert_eq!(codec.class().codec_id()?, "negate.rs");
 
         // check the codec's config
