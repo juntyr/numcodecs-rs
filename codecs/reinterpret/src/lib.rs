@@ -73,7 +73,7 @@ impl ReinterpretCodec {
                     encode_dtype,
                 })
             }
-        };
+        }
 
         Ok(Self {
             encode_dtype,

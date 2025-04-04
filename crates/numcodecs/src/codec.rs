@@ -319,6 +319,7 @@ impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> StaticCodecVersion<MA
     }
 }
 
+#[expect(clippy::expl_impl_clone_on_copy)]
 impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> Clone
     for StaticCodecVersion<MAJOR, MINOR, PATCH>
 {

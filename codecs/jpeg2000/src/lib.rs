@@ -53,8 +53,8 @@ pub struct Jpeg2000Codec {
     #[serde(flatten)]
     pub mode: Jpeg2000CompressionMode,
     /// The codec's version. Do not provide this parameter explicitly.
-    #[serde(default)]
-    pub _version: Jpeg2000CodecVersion,
+    #[serde(default, rename = "_version")]
+    pub version: Jpeg2000CodecVersion,
 }
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]

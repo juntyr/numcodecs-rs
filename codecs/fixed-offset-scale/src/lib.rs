@@ -44,8 +44,8 @@ pub struct FixedOffsetScaleCodec {
     /// The scale of the data.
     pub scale: f64,
     /// The codec's version. Do not provide this parameter explicitly.
-    #[serde(default)]
-    pub _version: StaticCodecVersion<1, 0, 0>,
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<1, 0, 0>,
 }
 
 impl Codec for FixedOffsetScaleCodec {

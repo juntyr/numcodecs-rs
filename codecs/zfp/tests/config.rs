@@ -1,9 +1,6 @@
 #![expect(missing_docs)]
 
-use ::{
-    ndarray as _, postcard as _, schemars as _, thiserror as _,
-    zfp_sys as _,
-};
+use ::{ndarray as _, postcard as _, schemars as _, thiserror as _, zfp_sys as _};
 
 use numcodecs::StaticCodec;
 use numcodecs_zfp::{ZfpCodec, ZfpCompressionMode};

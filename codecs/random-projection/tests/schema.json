@@ -6,6 +6,12 @@
       "format": "uint64",
       "minimum": 0,
       "description": "Seed for generating the random projection matrix"
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's version. Do not provide this parameter explicitly.",
+      "default": "0.1.0"
     }
   },
   "required": [

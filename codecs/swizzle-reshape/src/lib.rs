@@ -64,8 +64,8 @@ pub struct SwizzleReshapeCodec {
     ///   the encoded array is two-dimensional
     pub axes: Vec<AxisGroup>,
     /// The codec's version. Do not provide this parameter explicitly.
-    #[serde(default)]
-    pub _version: StaticCodecVersion<1, 0, 0>,
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<1, 0, 0>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]

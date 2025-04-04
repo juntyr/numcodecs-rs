@@ -47,8 +47,8 @@ pub struct LinearQuantizeCodec {
     /// Binary precision of the encoded data where `$bits = \log_{2}(bins)$`
     pub bits: LinearQuantizeBins,
     /// The codec's version. Do not provide this parameter explicitly.
-    #[serde(default)]
-    pub _version: LinearQuantizeCodecVersion,
+    #[serde(default, rename = "_version")]
+    pub version: LinearQuantizeCodecVersion,
 }
 
 /// Data types which the [`LinearQuantizeCodec`] can quantize
@@ -679,7 +679,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F32,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
-                _version: StaticCodecVersion,
+                version: StaticCodecVersion,
             };
 
             let mut data: Vec<f32> = (0..(u16::MAX >> (16 - bits)))
@@ -713,7 +713,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F32,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
-                _version: StaticCodecVersion,
+                version: StaticCodecVersion,
             };
 
             #[expect(clippy::cast_precision_loss)]
@@ -749,7 +749,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F64,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
-                _version: StaticCodecVersion,
+                version: StaticCodecVersion,
             };
 
             let mut data: Vec<f64> = (0..(u32::MAX >> (32 - bits)))
@@ -783,7 +783,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F64,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
-                _version: StaticCodecVersion,
+                version: StaticCodecVersion,
             };
 
             #[expect(clippy::cast_precision_loss)]
@@ -821,7 +821,7 @@ mod tests {
                 dtype: LinearQuantizeDType::F64,
                 #[expect(unsafe_code)]
                 bits: unsafe { std::mem::transmute::<u8, LinearQuantizeBins>(bits) },
-                _version: StaticCodecVersion,
+                version: StaticCodecVersion,
             };
 
             let encoded = codec.encode(AnyCowArray::F64(CowArray::from(&data).into_dyn()))?;

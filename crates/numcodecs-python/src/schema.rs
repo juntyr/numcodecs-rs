@@ -154,6 +154,7 @@ pub fn docs_from_schema(schema: &Schema) -> Option<String> {
             docs.push_str(", optional");
         }
 
+        #[expect(clippy::format_push_string)] // FIXME
         if let Some(default) = parameter.default {
             docs.push_str(", default = ");
             docs.push_str(&format!("{default}"));
@@ -197,6 +198,7 @@ pub fn signature_from_schema(schema: &Schema) -> String {
         signature.push_str(", ");
         signature.push_str(parameter.name);
 
+        #[expect(clippy::format_push_string)] // FIXME
         if let Some(default) = parameter.default {
             signature.push('=');
             signature.push_str(&format!("{default}"));
@@ -509,6 +511,7 @@ impl<'a> VariantParameter<'a> {
         if let Some(tag_docs) = self.tag_docs {
             let mut docs = String::new();
 
+            #[expect(clippy::format_push_string)] // FIXME
             for (tag, tag_docs) in tag_docs {
                 docs.push_str(" - ");
                 docs.push_str(&format!("{tag}"));

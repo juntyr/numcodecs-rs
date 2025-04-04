@@ -41,8 +41,8 @@ pub struct TthreshCodec {
     #[serde(flatten)]
     pub error_bound: TthreshErrorBound,
     /// The codec's version. Do not provide this parameter explicitly.
-    #[serde(default)]
-    pub _version: StaticCodecVersion<0, 1, 0>,
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<0, 1, 0>,
 }
 
 /// tthresh error bound

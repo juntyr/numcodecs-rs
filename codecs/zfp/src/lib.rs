@@ -60,8 +60,8 @@ pub struct ZfpCodec {
     #[serde(flatten)]
     pub mode: ZfpCompressionMode,
     /// The codec's version. Do not provide this parameter explicitly.
-    #[serde(default)]
-    pub _version: ZfpCodecVersion,
+    #[serde(default, rename = "_version")]
+    pub version: ZfpCodecVersion,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]

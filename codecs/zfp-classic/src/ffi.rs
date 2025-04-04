@@ -317,7 +317,7 @@ impl ZfpDecompressionStreamWithHeader<'_> {
                     shape: shape.to_vec(),
                 })
             }
-        };
+        }
 
         unsafe {
             zfp_sys::zfp_field_set_pointer(

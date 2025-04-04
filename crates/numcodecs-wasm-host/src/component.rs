@@ -103,12 +103,14 @@ impl WasmCodecComponent {
 
 /// Methods for implementing the [`DynCodecType`][numcodecs::DynCodecType] trait
 impl WasmCodecComponent {
+    #[allow(clippy::missing_const_for_fn)] // FIXME: false positive, has Arc deref
     /// Codec identifier.
     #[must_use]
     pub fn codec_id(&self) -> &str {
         &self.codec_id
     }
 
+    #[allow(clippy::missing_const_for_fn)] // FIXME: false positive, has Arc deref
     /// JSON schema for the codec's configuration.
     #[must_use]
     pub fn codec_config_schema(&self) -> &Schema {

@@ -53,8 +53,8 @@ pub struct Pcodec {
     #[serde(flatten)]
     pub paging: PcoPagingSpec,
     /// The codec's version. Do not provide this parameter explicitly.
-    #[serde(default)]
-    pub _version: PcodecVersion,
+    #[serde(default, rename = "_version")]
+    pub version: PcodecVersion,
 }
 
 #[derive(
@@ -592,7 +592,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, PcodecError> {
 /// Errors with
 /// - [`PcodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`PcodecError::MismatchedDecodeIntoArray`] if the decoded array has the
-///    wrong dtype or shape
+///   wrong dtype or shape
 /// - [`PcodecError::PcoDecodeFailed`] if decoding failed with an opaque error
 /// - [`PcodecError::DecodeInvalidShapeHeader`] if the array shape header does
 ///   not fit the decoded data
