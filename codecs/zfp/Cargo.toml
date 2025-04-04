@@ -25,6 +25,9 @@ serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
 zfp-sys = { workspace = true, features = ["static", "round-tight-error"] }
 
+[dev-dependencies]
+serde_json = { workspace = true, features = ["std"] }
+
 [lints]
 workspace = true
 

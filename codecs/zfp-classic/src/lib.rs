@@ -39,6 +39,9 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+#[cfg(test)]
+use ::serde_json as _;
+
 mod ffi;
 
 type ZfpClassicCodecVersion = StaticCodecVersion<0, 1, 0>;

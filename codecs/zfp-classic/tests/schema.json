@@ -1,0 +1,128 @@
+{
+  "type": "object",
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "type": "object",
+      "description": "The most general mode, which can describe all four other modes",
+      "properties": {
+        "min_bits": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0,
+          "description": "Minimum number of compressed bits used to represent a block"
+        },
+        "max_bits": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0,
+          "description": "Maximum number of bits used to represent a block"
+        },
+        "max_prec": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0,
+          "description": "Maximum number of bit planes encoded"
+        },
+        "min_exp": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Smallest absolute bit plane number encoded.\n\n This parameter applies to floating-point data only and is ignored\n for integer data."
+        },
+        "mode": {
+          "type": "string",
+          "const": "expert"
+        }
+      },
+      "required": [
+        "mode",
+        "min_bits",
+        "max_bits",
+        "max_prec",
+        "min_exp"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "In fixed-rate mode, each d-dimensional compressed block of `$4^d$`\n values is stored using a fixed number of bits. This number of\n compressed bits per block is amortized over the `$4^d$` values to give\n a rate of `$rate = \\frac{maxbits}{4^d}$` in bits per value.",
+      "properties": {
+        "rate": {
+          "type": "number",
+          "format": "double",
+          "description": "Rate in bits per value"
+        },
+        "mode": {
+          "type": "string",
+          "const": "fixed-rate"
+        }
+      },
+      "required": [
+        "mode",
+        "rate"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "In fixed-precision mode, the number of bits used to encode a block may\n vary, but the number of bit planes (the precision) encoded for the\n transform coefficients is fixed.",
+      "properties": {
+        "precision": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0,
+          "description": "Number of bit planes encoded"
+        },
+        "mode": {
+          "type": "string",
+          "const": "fixed-precision"
+        }
+      },
+      "required": [
+        "mode",
+        "precision"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "In fixed-accuracy mode, all transform coefficient bit planes up to a\n minimum bit plane number are encoded. The smallest absolute bit plane\n number is chosen such that\n `$minexp = \\text{floor}(\\log_{2}(tolerance))$`.",
+      "properties": {
+        "tolerance": {
+          "type": "number",
+          "format": "double",
+          "description": "Absolute error tolerance"
+        },
+        "mode": {
+          "type": "string",
+          "const": "fixed-accuracy"
+        }
+      },
+      "required": [
+        "mode",
+        "tolerance"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "const": "reversible"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "description": "Lossless per-block compression that preserves integer and floating point\n bit patterns."
+    }
+  ],
+  "description": "Codec providing compression using ZFP (classic)",
+  "properties": {
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's version. Do not provide this parameter explicitly.",
+      "default": "0.1.0"
+    }
+  },
+  "title": "ZfpClassicCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -57,7 +57,8 @@ pub struct RandomProjectionCodec {
     pub reduction: RandomProjectionReduction,
     /// Projection kind that is used to generate the random projection matrix
     #[serde(flatten)]
-    pub projection: RandomProjectionKind,/// The codec's version. Do not provide this parameter explicitly.
+    pub projection: RandomProjectionKind,
+    /// The codec's version. Do not provide this parameter explicitly.
     #[serde(default)]
     pub _version: StaticCodecVersion<0, 1, 0>,
 }

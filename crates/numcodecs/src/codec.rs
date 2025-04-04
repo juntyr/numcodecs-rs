@@ -300,11 +300,11 @@ pub fn codec_from_config_with_id<'de, T: DynCodecType, D: Deserializer<'de>>(
 }
 
 /// Marker type that represents the semantic version of a codec.
-/// 
+///
 /// The codec's version can be decoupled from its implementation version to
 /// allow implementation changes that have no effect on the codec's semantics
 /// or encoded representation.
-/// 
+///
 /// `StaticCodecVersion`s serialize transparently to their equivalent
 /// [`Version`]s. On deserialization, the deserialized [`Version`] is checked
 /// to be compatible (`^`) with the `StaticCodecVersion`, i.e. the
@@ -319,39 +319,54 @@ impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> StaticCodecVersion<MA
     }
 }
 
-impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> Clone for StaticCodecVersion<MAJOR, MINOR, PATCH> {
+impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> Clone
+    for StaticCodecVersion<MAJOR, MINOR, PATCH>
+{
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> Copy for StaticCodecVersion<MAJOR, MINOR, PATCH> {}
+impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> Copy
+    for StaticCodecVersion<MAJOR, MINOR, PATCH>
+{
+}
 
-impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> fmt::Debug for StaticCodecVersion<MAJOR, MINOR, PATCH> {
+impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> fmt::Debug
+    for StaticCodecVersion<MAJOR, MINOR, PATCH>
+{
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         <semver::Version as fmt::Debug>::fmt(&Self::version(), fmt)
     }
 }
 
-impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> fmt::Display for StaticCodecVersion<MAJOR, MINOR, PATCH> {
+impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> fmt::Display
+    for StaticCodecVersion<MAJOR, MINOR, PATCH>
+{
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         <semver::Version as fmt::Display>::fmt(&Self::version(), fmt)
     }
 }
 
-impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> Default for StaticCodecVersion<MAJOR, MINOR, PATCH> {
+impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> Default
+    for StaticCodecVersion<MAJOR, MINOR, PATCH>
+{
     fn default() -> Self {
         Self
     }
 }
 
-impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> Serialize for StaticCodecVersion<MAJOR, MINOR, PATCH> {
+impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> Serialize
+    for StaticCodecVersion<MAJOR, MINOR, PATCH>
+{
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         Self::version().serialize(serializer)
     }
 }
 
-impl<'de, const MAJOR: u64, const MINOR: u64, const PATCH: u64> Deserialize<'de> for StaticCodecVersion<MAJOR, MINOR, PATCH> {
+impl<'de, const MAJOR: u64, const MINOR: u64, const PATCH: u64> Deserialize<'de>
+    for StaticCodecVersion<MAJOR, MINOR, PATCH>
+{
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let version = Version::deserialize(deserializer)?;
 
@@ -366,14 +381,18 @@ impl<'de, const MAJOR: u64, const MINOR: u64, const PATCH: u64> Deserialize<'de>
         };
 
         if !requirement.matches(&Self::version()) {
-            return Err(serde::de::Error::custom(format!("{Self} does not fulfil {requirement}")));
+            return Err(serde::de::Error::custom(format!(
+                "{Self} does not fulfil {requirement}"
+            )));
         }
 
         Ok(Self)
     }
 }
 
-impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> JsonSchema for StaticCodecVersion<MAJOR, MINOR, PATCH> {
+impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> JsonSchema
+    for StaticCodecVersion<MAJOR, MINOR, PATCH>
+{
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("StaticCodecVersion")
     }
