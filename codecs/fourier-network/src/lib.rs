@@ -59,6 +59,8 @@ mod modules;
 
 use modules::{Model, ModelConfig, ModelExtra, ModelRecord};
 
+type FourierNetworkCodecVersion = StaticCodecVersion<0, 1, 0>;
+
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 /// Fourier network codec which trains and overfits a fourier feature neural
@@ -90,7 +92,7 @@ pub struct FourierNetworkCodec {
     pub seed: u64,
     /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
-    pub version: StaticCodecVersion<0, 1, 0>,
+    pub version: FourierNetworkCodecVersion,
 }
 
 // using this wrapper function makes an Option<T> required
@@ -393,7 +395,7 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<F
     );
 
     let extra = ModelExtra {
-        model,
+        model: model.into_record(),
         b_t: Param::from_tensor(b_t).set_require_grad(false),
         mean: Param::from_tensor(Tensor::from_data(
             TensorData::new(vec![mean], vec![1]),
@@ -405,12 +407,11 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<F
             device,
         ))
         .set_require_grad(false),
+        version: StaticCodecVersion,
     };
 
     let recorder = BinBytesRecorder::<T::Precision>::new();
-    let encoded = recorder
-        .record(extra.into_record(), ())
-        .map_err(NeuralNetworkError)?;
+    let encoded = recorder.record(extra, ()).map_err(NeuralNetworkError)?;
 
     Ok(Array::from_vec(encoded))
 }
@@ -452,24 +453,14 @@ pub fn decode_into<T: FloatExt, S: Data<Elem = u8>, D: Dimension, B: Backend<Flo
     let encoded = encoded.into_owned().into_raw_vec_and_offset().0;
 
     let recorder = BinBytesRecorder::<T::Precision>::new();
-    let record = recorder.load(encoded, device).map_err(NeuralNetworkError)?;
+    let record: ModelExtra<B> = recorder.load(encoded, device).map_err(NeuralNetworkError)?;
 
-    let extra = ModelExtra::<B> {
-        model: ModelConfig::new(fourier_features, num_blocks).init(device),
-        b_t: Param::from_tensor(Tensor::zeros(
-            [decoded.ndim(), fourier_features.get()],
-            device,
-        ))
-        .set_require_grad(false),
-        mean: Param::from_tensor(Tensor::zeros([1], device)).set_require_grad(false),
-        stdv: Param::from_tensor(Tensor::ones([1], device)).set_require_grad(false),
-    }
-    .load_record(record);
-
-    let model = extra.model;
-    let b_t = extra.b_t.into_value();
-    let mean = extra.mean.into_value().into_scalar();
-    let stdv = extra.stdv.into_value().into_scalar();
+    let model = ModelConfig::new(fourier_features, num_blocks)
+        .init(device)
+        .load_record(record.model);
+    let b_t = record.b_t.into_value();
+    let mean = record.mean.into_value().into_scalar();
+    let stdv = record.stdv.into_value().into_scalar();
 
     let test_xs = flat_grid_like(&decoded, device);
     let test_xs = fourier_mapping(test_xs, b_t);
