@@ -45,7 +45,7 @@ pub struct BitRoundCodec {
     /// If keepbits is equal to the bitlength of the dtype's mantissa, no
     /// transformation is performed.
     pub keepbits: u8,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<1, 0, 0>,
 }

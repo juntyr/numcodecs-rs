@@ -63,7 +63,7 @@ pub struct SwizzleReshapeCodec {
     /// - `[[0], [{}]]` in contrast collapses all other axes into one, i.e.
     ///   the encoded array is two-dimensional
     pub axes: Vec<AxisGroup>,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<1, 0, 0>,
 }

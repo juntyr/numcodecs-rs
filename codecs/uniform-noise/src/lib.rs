@@ -50,7 +50,7 @@ pub struct UniformNoiseCodec {
     pub scale: f64,
     /// Seed for the random noise generator
     pub seed: u64,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<1, 0, 0>,
 }

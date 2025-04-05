@@ -88,7 +88,7 @@ pub struct FourierNetworkCodec {
     pub mini_batch_size: Option<NonZeroUsize>,
     /// The seed for the random number generator used during encoding
     pub seed: u64,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<0, 1, 0>,
 }

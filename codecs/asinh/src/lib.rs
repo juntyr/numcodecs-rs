@@ -47,7 +47,7 @@ pub struct AsinhCodec {
     /// The width of the close-to-zero input value range where the transform is
     /// nearly linear
     pub linear_width: f64,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<1, 0, 0>,
 }

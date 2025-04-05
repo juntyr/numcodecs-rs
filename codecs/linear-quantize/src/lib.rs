@@ -46,7 +46,7 @@ pub struct LinearQuantizeCodec {
     pub dtype: LinearQuantizeDType,
     /// Binary precision of the encoded data where `$bits = \log_{2}(bins)$`
     pub bits: LinearQuantizeBins,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: LinearQuantizeCodecVersion,
 }

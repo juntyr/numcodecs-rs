@@ -34,7 +34,7 @@ use thiserror::Error;
 ///
 /// The codec only supports finite positive floating point numbers.
 pub struct LogCodec {
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<1, 0, 0>,
 }

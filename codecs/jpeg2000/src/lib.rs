@@ -52,7 +52,7 @@ pub struct Jpeg2000Codec {
     /// JPEG 2000 compression mode
     #[serde(flatten)]
     pub mode: Jpeg2000CompressionMode,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: Jpeg2000CodecVersion,
 }

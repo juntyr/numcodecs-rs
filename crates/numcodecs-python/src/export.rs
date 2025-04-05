@@ -38,7 +38,7 @@ pub fn export_codec_class<'py, T: DynCodecType<Codec: Ungil> + Ungil>(
 ) -> Result<Bound<'py, PyCodecClass>, PyErr> {
     let codec_id = String::from(ty.codec_id());
 
-    // special case for codec ids ending in .rs (we're writing Rust codecs after all)
+    // special case for codec ids ending in .rs (we're exporting Rust codecs after all)
     let codec_id_no_rs = codec_id.strip_suffix(".rs").unwrap_or(&codec_id);
     // derive the codec name, without any prefix
     let codec_name = match codec_id_no_rs.rsplit_once('.') {

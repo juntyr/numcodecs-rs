@@ -52,7 +52,7 @@ pub struct Pcodec {
     /// Specifies how the chunk should be split into pages
     #[serde(flatten)]
     pub paging: PcoPagingSpec,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: PcodecVersion,
 }

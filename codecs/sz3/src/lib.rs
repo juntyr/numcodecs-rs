@@ -50,7 +50,7 @@ pub struct Sz3Codec {
     /// SZ3 error bound
     #[serde(flatten)]
     pub error_bound: Sz3ErrorBound,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: Sz3CodecVersion,
 }

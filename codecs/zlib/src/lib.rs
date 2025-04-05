@@ -41,7 +41,7 @@ pub struct ZlibCodec {
     ///
     /// The level ranges from 0, no compression, to 9, best compression.
     pub level: ZlibLevel,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: ZlibCodecVersion,
 }

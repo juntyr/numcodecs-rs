@@ -30,7 +30,7 @@ use thiserror::Error;
 /// Identity codec which applies the identity function, i.e. passes through the
 /// input unchanged during encoding and decoding.
 pub struct IdentityCodec {
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<1, 0, 0>,
 }

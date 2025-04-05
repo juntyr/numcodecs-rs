@@ -42,7 +42,7 @@ pub struct ZstdCodec {
     ///
     /// The level ranges from small (fastest) to large (best compression).
     pub level: ZstdLevel,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: ZstdCodecVersion,
 }

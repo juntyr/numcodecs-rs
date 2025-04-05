@@ -39,7 +39,7 @@ pub struct ReinterpretCodec {
     encode_dtype: AnyArrayDType,
     /// Dtype of the decoded data
     decode_dtype: AnyArrayDType,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default)]
     _version: StaticCodecVersion<1, 0, 0>,
 }

@@ -38,7 +38,7 @@ use thiserror::Error;
 pub struct RoundCodec {
     /// Precision of the rounding operation
     pub precision: Positive<f64>,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<1, 0, 0>,
 }

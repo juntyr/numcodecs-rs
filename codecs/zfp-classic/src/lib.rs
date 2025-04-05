@@ -54,7 +54,7 @@ pub struct ZfpClassicCodec {
     /// ZFP compression mode
     #[serde(flatten)]
     pub mode: ZfpCompressionMode,
-    /// The codec's version. Do not provide this parameter explicitly.
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: ZfpClassicCodecVersion,
 }
