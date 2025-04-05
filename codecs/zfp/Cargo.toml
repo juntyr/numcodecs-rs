@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs-zfp"
-version = "0.4.0"
+version = "0.5.1"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
@@ -24,6 +24,9 @@ schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
 zfp-sys = { workspace = true, features = ["static", "round-tight-error"] }
+
+[dev-dependencies]
+serde_json = { workspace = true, features = ["std"] }
 
 [lints]
 workspace = true

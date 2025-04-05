@@ -19,7 +19,7 @@
 
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
-    StaticCodecConfig,
+    StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -30,7 +30,9 @@ use thiserror::Error;
 /// Identity codec which applies the identity function, i.e. passes through the
 /// input unchanged during encoding and decoding.
 pub struct IdentityCodec {
-    // empty
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<1, 0, 0>,
 }
 
 impl Codec for IdentityCodec {
@@ -54,7 +56,7 @@ impl Codec for IdentityCodec {
 }
 
 impl StaticCodec for IdentityCodec {
-    const CODEC_ID: &'static str = "identity";
+    const CODEC_ID: &'static str = "identity.rs";
 
     type Config<'de> = Self;
 

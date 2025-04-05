@@ -37,6 +37,7 @@ for c in (repo_path / "codecs").iterdir():
         "crate-version": toml.load(codec_crate_path / "Cargo.toml")["package"][
             "version"
         ],
+        "codec-id": f"{codec}.rs",
         "codec-path": "".join(c.title() for c in codec.split("-")) + "Codec",
         "CodecName": "".join(c.title() for c in codec.split("-")),
         "wasm-file": codec,
@@ -98,6 +99,15 @@ for c in (repo_path / "codecs").iterdir():
         shlex.split(
             f"uv run python3 {Path(__file__).parent / 'stub.py'} "
             f"{'numcodecs_wasm_' + templates['package_suffix']} src"
+        ),
+        check=True,
+        cwd=staging_path,
+    )
+    subprocess.run(
+        shlex.split(
+            f'uv run python3 -c "from {"numcodecs_wasm_" + templates["package_suffix"]} '
+            f'import {templates["CodecName"]} as Codec; '
+            f'assert Codec.codec_id == {templates["codec-id"]!r}, Codec.codec_id"'
         ),
         check=True,
         cwd=staging_path,

@@ -383,7 +383,7 @@ impl PyCodecAdapter {
                 "unsupported dtype {} of array-like",
                 ndarray.dtype()
             )));
-        };
+        }
 
         Err(PyTypeError::new_err(format!(
             "mismatching dtype {} of array-like, expected {}",

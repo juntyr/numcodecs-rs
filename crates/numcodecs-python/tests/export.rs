@@ -27,11 +27,12 @@ fn export() -> Result<(), PyErr> {
         )?;
 
         let config = PyDict::new(py);
-        config.set_item("id", "negate")?;
+        config.set_item("id", "negate.rs")?;
 
         // create a codec using registry lookup
         let codec = PyCodecRegistry::get_codec(config.as_borrowed())?;
-        assert_eq!(codec.class().codec_id()?, "negate");
+        assert_eq!(codec.class().as_type().name()?.to_cow()?, "Negate");
+        assert_eq!(codec.class().codec_id()?, "negate.rs");
 
         // check the codec's config
         let config = codec.get_config()?;
@@ -42,7 +43,7 @@ fn export() -> Result<(), PyErr> {
                 .map(|i| i.extract::<String>())
                 .transpose()?
                 .as_deref(),
-            Some("negate")
+            Some("negate.rs")
         );
 
         // encode and decode data with the codec
@@ -171,7 +172,7 @@ impl Codec for NegateCodec {
 }
 
 impl StaticCodec for NegateCodec {
-    const CODEC_ID: &'static str = "negate";
+    const CODEC_ID: &'static str = "negate.rs";
 
     type Config<'de> = Self;
 

@@ -21,7 +21,7 @@ use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension};
 use num_traits::Float;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -43,6 +43,9 @@ pub struct FixedOffsetScaleCodec {
     pub offset: f64,
     /// The scale of the data.
     pub scale: f64,
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<1, 0, 0>,
 }
 
 impl Codec for FixedOffsetScaleCodec {
@@ -109,7 +112,7 @@ impl Codec for FixedOffsetScaleCodec {
 }
 
 impl StaticCodec for FixedOffsetScaleCodec {
-    const CODEC_ID: &'static str = "fixed-offset-scale";
+    const CODEC_ID: &'static str = "fixed-offset-scale.rs";
 
     type Config<'de> = Self;
 

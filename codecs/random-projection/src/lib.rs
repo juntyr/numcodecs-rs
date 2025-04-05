@@ -23,7 +23,7 @@ use ndarray::{s, Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix2, ShapeErro
 use num_traits::{ConstOne, ConstZero, Float, FloatConst};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -58,6 +58,9 @@ pub struct RandomProjectionCodec {
     /// Projection kind that is used to generate the random projection matrix
     #[serde(flatten)]
     pub projection: RandomProjectionKind,
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<0, 1, 0>,
 }
 
 /// Method with which the reduced dimensionality `$K$` is selected
@@ -183,7 +186,7 @@ impl Codec for RandomProjectionCodec {
 }
 
 impl StaticCodec for RandomProjectionCodec {
-    const CODEC_ID: &'static str = "random-projection";
+    const CODEC_ID: &'static str = "random-projection.rs";
 
     type Config<'de> = Self;
 

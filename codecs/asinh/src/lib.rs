@@ -21,7 +21,7 @@ use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension, Zip};
 use num_traits::{Float, Signed};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -46,7 +46,10 @@ use thiserror::Error;
 pub struct AsinhCodec {
     /// The width of the close-to-zero input value range where the transform is
     /// nearly linear
-    linear_width: f64,
+    pub linear_width: f64,
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<1, 0, 0>,
 }
 
 impl Codec for AsinhCodec {
@@ -99,7 +102,7 @@ impl Codec for AsinhCodec {
 }
 
 impl StaticCodec for AsinhCodec {
-    const CODEC_ID: &'static str = "asinh";
+    const CODEC_ID: &'static str = "asinh.rs";
 
     type Config<'de> = Self;
 

@@ -33,20 +33,30 @@ use std::{borrow::Cow, fmt};
 use ndarray::{Array, Array1, ArrayView, Dimension};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+#[cfg(test)]
+use ::serde_json as _;
+
 mod ffi;
 
+type ZfpClassicCodecVersion = StaticCodecVersion<0, 1, 0>;
+
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(transparent)]
+// serde cannot deny unknown fields because of the flatten
+#[schemars(deny_unknown_fields)]
 /// Codec providing compression using ZFP (classic)
 pub struct ZfpClassicCodec {
     /// ZFP compression mode
+    #[serde(flatten)]
     pub mode: ZfpCompressionMode,
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default, rename = "_version")]
+    pub version: ZfpClassicCodecVersion,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
@@ -169,7 +179,7 @@ impl Codec for ZfpClassicCodec {
 }
 
 impl StaticCodec for ZfpClassicCodec {
-    const CODEC_ID: &'static str = "zfp-classic";
+    const CODEC_ID: &'static str = "zfp-classic.rs";
 
     type Config<'de> = Self;
 
@@ -281,6 +291,7 @@ pub fn compress<T: ffi::ZfpCompressible, D: Dimension>(
         &CompressionHeader {
             dtype: <T as ffi::ZfpCompressible>::D_TYPE,
             shape: Cow::Borrowed(data.shape()),
+            version: StaticCodecVersion,
         },
         Vec::new(),
     )
@@ -436,6 +447,7 @@ struct CompressionHeader<'a> {
     dtype: ZfpDType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
+    version: ZfpClassicCodecVersion,
 }
 
 /// Dtypes that Zfp can compress and decompress

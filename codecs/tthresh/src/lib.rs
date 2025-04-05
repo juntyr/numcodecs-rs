@@ -23,7 +23,7 @@ use ndarray::{Array, Array1, ArrayBase, Data, Dimension, ShapeError};
 use num_traits::Float;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -40,6 +40,9 @@ pub struct TthreshCodec {
     /// tthresh error bound
     #[serde(flatten)]
     pub error_bound: TthreshErrorBound,
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<0, 1, 0>,
 }
 
 /// tthresh error bound
@@ -122,7 +125,7 @@ impl Codec for TthreshCodec {
 }
 
 impl StaticCodec for TthreshCodec {
-    const CODEC_ID: &'static str = "tthresh";
+    const CODEC_ID: &'static str = "tthresh.rs";
 
     type Config<'de> = Self;
 

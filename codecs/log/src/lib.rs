@@ -21,7 +21,7 @@ use ndarray::{Array, ArrayBase, ArrayView, ArrayViewMut, Data, Dimension, Zip};
 use num_traits::{Float, Signed};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -34,7 +34,9 @@ use thiserror::Error;
 ///
 /// The codec only supports finite positive floating point numbers.
 pub struct LogCodec {
-    // empty
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<1, 0, 0>,
 }
 
 impl Codec for LogCodec {
@@ -82,7 +84,7 @@ impl Codec for LogCodec {
 }
 
 impl StaticCodec for LogCodec {
-    const CODEC_ID: &'static str = "log";
+    const CODEC_ID: &'static str = "log.rs";
 
     type Config<'de> = Self;
 

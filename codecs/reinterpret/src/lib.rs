@@ -20,7 +20,7 @@
 use ndarray::{Array, ArrayBase, ArrayView, Data, DataMut, Dimension, ViewRepr};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    ArrayDType, Codec, StaticCodec, StaticCodecConfig,
+    ArrayDType, Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -39,6 +39,9 @@ pub struct ReinterpretCodec {
     encode_dtype: AnyArrayDType,
     /// Dtype of the decoded data
     decode_dtype: AnyArrayDType,
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default)]
+    _version: StaticCodecVersion<1, 0, 0>,
 }
 
 impl ReinterpretCodec {
@@ -70,11 +73,12 @@ impl ReinterpretCodec {
                     encode_dtype,
                 })
             }
-        };
+        }
 
         Ok(Self {
             encode_dtype,
             decode_dtype,
+            _version: StaticCodecVersion,
         })
     }
 
@@ -84,6 +88,7 @@ impl ReinterpretCodec {
         Self {
             encode_dtype: dtype,
             decode_dtype: dtype,
+            _version: StaticCodecVersion,
         }
     }
 
@@ -94,6 +99,7 @@ impl ReinterpretCodec {
         Self {
             encode_dtype: AnyArrayDType::U8,
             decode_dtype: dtype,
+            _version: StaticCodecVersion,
         }
     }
 
@@ -104,6 +110,7 @@ impl ReinterpretCodec {
         Self {
             encode_dtype: dtype.to_binary(),
             decode_dtype: dtype,
+            _version: StaticCodecVersion,
         }
     }
 }
@@ -298,7 +305,7 @@ impl Codec for ReinterpretCodec {
 }
 
 impl StaticCodec for ReinterpretCodec {
-    const CODEC_ID: &'static str = "reinterpret";
+    const CODEC_ID: &'static str = "reinterpret.rs";
 
     type Config<'de> = Self;
 

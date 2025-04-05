@@ -20,7 +20,7 @@
 use ndarray::{Array, ArrayBase, Data, Dimension};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -45,6 +45,9 @@ pub struct BitRoundCodec {
     /// If keepbits is equal to the bitlength of the dtype's mantissa, no
     /// transformation is performed.
     pub keepbits: u8,
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<1, 0, 0>,
 }
 
 impl Codec for BitRoundCodec {
@@ -80,7 +83,7 @@ impl Codec for BitRoundCodec {
 }
 
 impl StaticCodec for BitRoundCodec {
-    const CODEC_ID: &'static str = "bit-round";
+    const CODEC_ID: &'static str = "bit-round.rs";
 
     type Config<'de> = Self;
 

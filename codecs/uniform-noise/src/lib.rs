@@ -23,7 +23,7 @@ use ndarray::{Array, ArrayBase, Data, Dimension};
 use num_traits::Float;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use rand::{
     distributions::{Distribution, Open01},
@@ -50,6 +50,9 @@ pub struct UniformNoiseCodec {
     pub scale: f64,
     /// Seed for the random noise generator
     pub seed: u64,
+    /// The codec's encoding format version. Do not provide this parameter explicitly.
+    #[serde(default, rename = "_version")]
+    pub version: StaticCodecVersion<1, 0, 0>,
 }
 
 impl Codec for UniformNoiseCodec {
@@ -92,7 +95,7 @@ impl Codec for UniformNoiseCodec {
 }
 
 impl StaticCodec for UniformNoiseCodec {
-    const CODEC_ID: &'static str = "uniform-noise";
+    const CODEC_ID: &'static str = "uniform-noise.rs";
 
     type Config<'de> = Self;
 

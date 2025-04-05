@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs"
-version = "0.2.0"
+version = "0.2.1"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
@@ -17,6 +17,7 @@ keywords = ["numcodecs", "compression", "encoding"]
 [dependencies]
 ndarray = { workspace = true }
 schemars = { workspace = true, features = ["derive"] }
+semver = { workspace = true, features = ["std", "serde"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }
 thiserror = { workspace = true }

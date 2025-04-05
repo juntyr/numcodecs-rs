@@ -5,6 +5,7 @@ use burn::{
     module::{Module, Param},
     nn::{BatchNorm, BatchNormConfig, Gelu, Linear, LinearConfig},
     prelude::Backend,
+    record::{PrecisionSettings, Record},
     tensor::{Float, Tensor},
 };
 
@@ -93,10 +94,44 @@ impl ModelConfig {
     }
 }
 
-#[derive(Debug, Module)]
 pub struct ModelExtra<B: Backend> {
-    pub model: Model<B>,
+    pub model: <Model<B> as Module<B>>::Record,
     pub b_t: Param<Tensor<B, 2, Float>>,
     pub mean: Param<Tensor<B, 1, Float>>,
     pub stdv: Param<Tensor<B, 1, Float>>,
+    pub version: crate::FourierNetworkCodecVersion,
+}
+
+impl<B: Backend> Record<B> for ModelExtra<B> {
+    type Item<S: PrecisionSettings> = ModelExtraItem<B, S>;
+
+    fn into_item<S: PrecisionSettings>(self) -> Self::Item<S> {
+        ModelExtraItem {
+            model: self.model.into_item(),
+            b_t: self.b_t.into_item(),
+            mean: self.mean.into_item(),
+            stdv: self.stdv.into_item(),
+            version: self.version,
+        }
+    }
+
+    fn from_item<S: PrecisionSettings>(item: Self::Item<S>, device: &B::Device) -> Self {
+        Self {
+            model: Record::<B>::from_item::<S>(item.model, device),
+            b_t: Record::<B>::from_item::<S>(item.b_t, device),
+            mean: Record::<B>::from_item::<S>(item.mean, device),
+            stdv: Record::<B>::from_item::<S>(item.stdv, device),
+            version: item.version,
+        }
+    }
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(bound = "")]
+pub struct ModelExtraItem<B: Backend, S: PrecisionSettings> {
+    model: <<Model<B> as Module<B>>::Record as Record<B>>::Item<S>,
+    b_t: <Param<Tensor<B, 2, Float>> as Record<B>>::Item<S>,
+    mean: <Param<Tensor<B, 1, Float>> as Record<B>>::Item<S>,
+    stdv: <Param<Tensor<B, 1, Float>> as Record<B>>::Item<S>,
+    version: crate::FourierNetworkCodecVersion,
 }
