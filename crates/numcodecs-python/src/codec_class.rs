@@ -1,12 +1,12 @@
 use pyo3::{
+    PyTypeInfo,
     ffi::PyTypeObject,
     intern,
     prelude::*,
     types::{DerefToPyAny, PyDict, PyType},
-    PyTypeInfo,
 };
 
-use crate::{sealed::Sealed, PyCodec};
+use crate::{PyCodec, sealed::Sealed};
 
 /// Represents a [`numcodecs.abc.Codec`] *class* object.
 ///

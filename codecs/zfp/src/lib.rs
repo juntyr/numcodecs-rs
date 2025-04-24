@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.85.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-zfp
@@ -220,7 +220,9 @@ pub enum ZfpCodecError {
     },
     /// [`ZfpCodec`] does not support non-finite (infinite or NaN) floating
     /// point data  in non-reversible lossy compression
-    #[error("Zfp does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression")]
+    #[error(
+        "Zfp does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression"
+    )]
     NonFiniteData,
     /// [`ZfpCodec`] failed to encode the header
     #[error("Zfp failed to encode the header")]
@@ -245,7 +247,9 @@ pub enum ZfpCodecError {
     },
     /// [`ZfpCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Zfp can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Zfp can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,

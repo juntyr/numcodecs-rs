@@ -44,7 +44,7 @@ impl<'a, T: ZfpCompressible> ZfpField<'a, T> {
             (shape, _strides) => {
                 return Err(ZfpClassicCodecError::ExcessiveDimensionality {
                     shape: shape.to_vec(),
-                })
+                });
             }
         };
 
@@ -315,7 +315,7 @@ impl ZfpDecompressionStreamWithHeader<'_> {
             (shape, _strides) => {
                 return Err(ZfpClassicCodecError::ExcessiveDimensionality {
                     shape: shape.to_vec(),
-                })
+                });
             }
         }
 

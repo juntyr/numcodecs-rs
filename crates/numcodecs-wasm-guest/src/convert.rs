@@ -67,7 +67,7 @@ pub fn into_wit_any_array(array: AnyArray) -> Result<wit::AnyArray, AnyArrayConv
         array => {
             return Err(AnyArrayConversionError::UnsupportedDtype {
                 dtype: array.dtype(),
-            })
+            });
         }
     };
 

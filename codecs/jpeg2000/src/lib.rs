@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.85.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-jpeg2000
@@ -187,7 +187,9 @@ pub enum Jpeg2000CodecError {
     },
     /// [`Jpeg2000Codec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Jpeg2000 can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Jpeg2000 can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,

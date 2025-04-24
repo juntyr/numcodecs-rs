@@ -182,13 +182,13 @@ impl WasmCodec {
                 result => {
                     return Err(serde::ser::Error::custom(format!(
                         "unexpected get-config result value {result:?}"
-                    )))
+                    )));
                 }
             },
             value => {
                 return Err(serde::ser::Error::custom(format!(
                     "unexpected get-config result value {value:?}"
-                )))
+                )));
             }
         };
 
@@ -596,7 +596,7 @@ impl WasmCodec {
                 return Err(RuntimeError::from(anyhow::Error::msg(format!(
                     "process result buffer has an invalid variant [{discriminant}]:{:?}",
                     data.value().map(|v| v.ty())
-                ))))
+                ))));
             }
         };
 

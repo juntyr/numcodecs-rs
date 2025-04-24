@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.85.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-random-projection
@@ -19,13 +19,13 @@
 
 use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 
-use ndarray::{s, Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix2, ShapeError, Zip};
+use ndarray::{Array, ArrayBase, ArrayViewMut, Data, Dimension, Ix2, ShapeError, Zip, s};
 use num_traits::{ConstOne, ConstZero, Float, FloatConst};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
-use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
+use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
@@ -218,7 +218,9 @@ pub enum RandomProjectionCodecError {
     NonFiniteData,
     /// [`RandomProjectionCodec`] cannot encode or decode from an array with
     /// `$N$` samples to an array with a different number of samples
-    #[error("RandomProjection cannot encode or decode from an array with {input} samples to an array with {output} samples")]
+    #[error(
+        "RandomProjection cannot encode or decode from an array with {input} samples to an array with {output} samples"
+    )]
     NumberOfSamplesMismatch {
         /// Number of samples `N` in the input array
         input: usize,
@@ -235,7 +237,9 @@ pub enum RandomProjectionCodecError {
     CorruptedNumberOfComponents,
     /// [`RandomProjectionCodec`] cannot decode into an array with `$D$`
     /// features that differs from the `$D$` stored in the encoded metadata
-    #[error("RandomProjection cannot decode into an array with {output} features that differs from the {metadata} features stored in the encoded metadata")]
+    #[error(
+        "RandomProjection cannot decode into an array with {output} features that differs from the {metadata} features stored in the encoded metadata"
+    )]
     NumberOfFeaturesMismatch {
         /// Number of features `$D$` in the encoded array metadata
         metadata: usize,
@@ -920,8 +924,8 @@ impl FloatExt for f64 {
 #[cfg(test)]
 #[expect(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
-    use ndarray_rand::rand_distr::{Distribution, Normal};
     use ndarray_rand::RandomExt;
+    use ndarray_rand::rand_distr::{Distribution, Normal};
 
     use super::*;
 

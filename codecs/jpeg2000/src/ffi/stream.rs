@@ -38,7 +38,7 @@ impl<'a> DecodeStream<'a> {
     }
 
     #[allow(clippy::needless_pass_by_ref_mut)]
-    pub fn as_raw(&mut self) -> *mut openjpeg_sys::opj_stream_t {
+    pub const fn as_raw(&mut self) -> *mut openjpeg_sys::opj_stream_t {
         self.stream
     }
 }
@@ -151,7 +151,7 @@ impl<'a> EncodeStream<'a> {
     }
 
     #[allow(clippy::needless_pass_by_ref_mut)]
-    pub fn as_raw(&mut self) -> *mut openjpeg_sys::opj_stream_t {
+    pub const fn as_raw(&mut self) -> *mut openjpeg_sys::opj_stream_t {
         self.stream
     }
 }

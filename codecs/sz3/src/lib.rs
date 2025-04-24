@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.85.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-sz3
@@ -283,7 +283,9 @@ pub enum Sz3CodecError {
     },
     /// [`Sz3Codec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Sz3 can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Sz3 can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,
@@ -355,10 +357,9 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
     }
 
     #[expect(clippy::option_if_let_else)]
-    let data_cow = if let Some(data) = data.as_slice() {
-        Cow::Borrowed(data)
-    } else {
-        Cow::Owned(data.iter().copied().collect())
+    let data_cow = match data.as_slice() {
+        Some(data) => Cow::Borrowed(data),
+        None => Cow::Owned(data.iter().copied().collect()),
     };
     let mut builder = sz3::DimensionedData::build(&data_cow);
 

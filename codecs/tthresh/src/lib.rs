@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.82.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.85.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-tthresh
@@ -25,7 +25,7 @@ use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
-use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
+use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
@@ -161,7 +161,9 @@ pub enum TthreshCodecError {
     },
     /// [`TthreshCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Tthresh can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Tthresh can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,
@@ -207,10 +209,9 @@ pub fn compress<T: TthreshElement, S: Data<Elem = T>, D: Dimension>(
     error_bound: &TthreshErrorBound,
 ) -> Result<Vec<u8>, TthreshCodecError> {
     #[expect(clippy::option_if_let_else)]
-    let data_cow = if let Some(data) = data.as_slice() {
-        Cow::Borrowed(data)
-    } else {
-        Cow::Owned(data.iter().copied().collect())
+    let data_cow = match data.as_slice() {
+        Some(data) => Cow::Borrowed(data),
+        None => Cow::Owned(data.iter().copied().collect()),
     };
 
     let compressed = tthresh::compress(

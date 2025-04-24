@@ -1,12 +1,12 @@
 #![expect(missing_docs)]
 
-use numcodecs::DynCodecType;
-use numcodecs_python::{PyCodecClass, PyCodecClassAdapter};
-use pyo3::{intern, prelude::*};
 use ::{
     convert_case as _, ndarray as _, numpy as _, pyo3_error as _, pythonize as _, schemars as _,
     serde as _, serde_json as _, serde_transcode as _, thiserror as _,
 };
+use numcodecs::DynCodecType;
+use numcodecs_python::{PyCodecClass, PyCodecClassAdapter};
+use pyo3::{intern, prelude::*};
 
 #[test]
 fn collect_schemas() -> Result<(), PyErr> {
