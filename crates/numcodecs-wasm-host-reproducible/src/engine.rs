@@ -340,12 +340,6 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
         //       and could reduce resource consumption
         //       but there is no support yet
         custom_page_sizes: false,
-        // NO-CORE: components must have been translated into core WASM
-        //          modules by now
-        component_model_values: false,
-        // NO-CORE: components must have been translated into core WASM
-        //          modules by now
-        component_model_nested_names: false,
         // (unsure): disabled for now, needs further research
         legacy_exceptions: false,
         // (unsure): disabled for now, depends on reference types and gc,
@@ -357,7 +351,22 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
         wide_arithmetic: true,
         // NO-CORE: components must have been translated into core WASM
         //          modules by now
-        component_model_async: false,
+        cm_values: false,
+        // NO-CORE: components must have been translated into core WASM
+        //          modules by now
+        cm_nested_names: false,
+        // NO-CORE: components must have been translated into core WASM
+        //          modules by now
+        cm_async: false,
+        // NO-CORE: components must have been translated into core WASM
+        //          modules by now
+        cm_async_stackful: false,
+        // NO-CORE: components must have been translated into core WASM
+        //          modules by now
+        cm_async_builtins: false,
+        // NO-CORE: components must have been translated into core WASM
+        //          modules by now
+        cm_error_context: false,
     };
 
 #[derive(Clone)]
@@ -365,7 +374,7 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
 pub struct ReproducibleModule<E: WasmEngine>(E::Module);
 
 impl<E: WasmEngine> WasmModule<ReproducibleEngine<E>> for ReproducibleModule<E> {
-    fn new(engine: &ReproducibleEngine<E>, mut stream: impl std::io::Read) -> anyhow::Result<Self> {
+    fn new(engine: &ReproducibleEngine<E>, bytes: &[u8]) -> anyhow::Result<Self> {
         let features = wasmparser::WasmFeatures::from(wasmparser::WasmFeaturesInflated {
             // MUST: floats are required and we are running the NaN
             //       canonicalisation transform to make them deterministic
@@ -373,13 +382,10 @@ impl<E: WasmEngine> WasmModule<ReproducibleEngine<E>> for ReproducibleModule<E> 
             ..DETERMINISTIC_WASM_MODULE_FEATURES
         });
 
-        let mut bytes = Vec::new();
-        stream.read_to_end(&mut bytes)?;
-
-        wasmparser::Validator::new_with_features(features).validate_all(&bytes)?;
+        wasmparser::Validator::new_with_features(features).validate_all(bytes)?;
 
         // Inject an instruction counter into the WASM module
-        let bytes = InstructionCounterInjecter::apply_to_module(&bytes, features)?;
+        let bytes = InstructionCounterInjecter::apply_to_module(bytes, features)?;
 
         // Normalise NaNs to ensure floating point operations are deterministic
         let bytes = NaNCanonicaliser::apply_to_module(&bytes, features)?;

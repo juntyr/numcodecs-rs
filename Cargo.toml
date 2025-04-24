@@ -129,7 +129,7 @@ zstd = { version = "0.13", default-features = false }
 zstd-sys = { version = "2.0.12", default-features = false }
 
 # git third-party dependencies with non-upstream fixes
-wasm_component_layer = { git = "https://github.com/juntyr/wasm_component_layer.git", rev = "b633734", version = "0.1", default-features = false }
+wasm_component_layer = { git = "https://github.com/juntyr/wasm_component_layer.git", rev = "11575ca", version = "0.1", default-features = false }
 
 [workspace.lints.rust]
 unsafe_code = "deny"

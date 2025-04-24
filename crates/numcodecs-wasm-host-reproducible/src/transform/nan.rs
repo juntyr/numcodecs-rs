@@ -1002,7 +1002,7 @@ impl NaNCanonicaliserReencoder {
             #[cfg(test)]
             #[expect(unsafe_code)]
             _ => {
-                extern "C" {
+                unsafe extern "C" {
                     fn nan_canonicaliser_unhandled_operator() -> !;
                 }
                 unsafe { nan_canonicaliser_unhandled_operator() }

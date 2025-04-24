@@ -168,11 +168,6 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
             floats: true,
             // MUST: codecs and reproducible WASI are implemented as components
             component_model: true,
-            // OK: using linear values in component init is deterministic, as
-            //     long as the values provided are deterministic
-            component_model_values: true,
-            // OK: nested component names do not interact with determinism
-            component_model_nested_names: true,
             ..crate::engine::DETERMINISTIC_WASM_MODULE_FEATURES
         }
         .into(),

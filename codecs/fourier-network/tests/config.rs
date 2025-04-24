@@ -6,12 +6,9 @@ use serde::Deserialize;
 use serde_json::json;
 
 use ::{
-    burn as _, bytemuck_derive as _, itertools as _, log as _, ndarray as _, num_traits as _,
-    schemars as _, simple_logger as _, thiserror as _,
+    burn as _, itertools as _, log as _, ndarray as _, num_traits as _, schemars as _,
+    simple_logger as _, thiserror as _,
 };
-
-// FIXME: see https://github.com/tracel-ai/burn/issues/2876
-use ::{bincode as _, bincode_derive as _};
 
 #[test]
 #[should_panic(expected = "missing field `fourier_features`")]

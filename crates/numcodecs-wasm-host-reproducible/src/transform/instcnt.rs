@@ -940,7 +940,7 @@ impl InstructionCounterInjecterReencoder {
             #[cfg(test)]
             #[expect(unsafe_code)]
             _ => {
-                extern "C" {
+                unsafe extern "C" {
                     fn instruction_counter_unhandled_operator() -> !;
                 }
                 unsafe { instruction_counter_unhandled_operator() }
