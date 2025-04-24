@@ -21,6 +21,7 @@ members = [
     "codecs/linear-quantize",
     "codecs/log",
     "codecs/pco",
+    "codecs/pressio",
     "codecs/qpet-sperr",
     "codecs/random-projection",
     "codecs/reinterpret",
@@ -67,6 +68,7 @@ numcodecs-jpeg2000 = { version = "0.3", path = "codecs/jpeg2000", default-featur
 numcodecs-linear-quantize = { version = "0.5", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.5", path = "codecs/log", default-features = false }
 numcodecs-pco = { version = "0.3", path = "codecs/pco", default-features = false }
+numcodecs-pressio = { version = "0.1", path = "codecs/pressio", default-features = false }
 numcodecs-qpet-sperr = { version = "0.2.1", path = "codecs/qpet-sperr", default-features = false }
 numcodecs-random-projection = { version = "0.4", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.4", path = "codecs/reinterpret", default-features = false }
