@@ -208,6 +208,7 @@ pub fn compress<T: TthreshElement, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
     error_bound: &TthreshErrorBound,
 ) -> Result<Vec<u8>, TthreshCodecError> {
+    #[expect(clippy::option_if_let_else)]
     let data_cow = match data.as_slice() {
         Some(data) => Cow::Borrowed(data),
         None => Cow::Owned(data.iter().copied().collect()),

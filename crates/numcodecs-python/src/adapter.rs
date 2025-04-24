@@ -339,43 +339,43 @@ impl PyCodecAdapter {
         let ndarray = numpy_asarray(py, array_like)?;
 
         if let Ok(d) = ndarray.downcast::<PyArrayDyn<u8>>() {
-            if let AnyArrayBase::U8(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::U8(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<u16>>() {
-            if let AnyArrayBase::U16(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::U16(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<u32>>() {
-            if let AnyArrayBase::U32(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::U32(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<u64>>() {
-            if let AnyArrayBase::U64(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::U64(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i8>>() {
-            if let AnyArrayBase::I8(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::I8(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i16>>() {
-            if let AnyArrayBase::I16(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::I16(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i32>>() {
-            if let AnyArrayBase::I32(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::I32(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<i64>>() {
-            if let AnyArrayBase::I64(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::I64(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<f32>>() {
-            if let AnyArrayBase::F32(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::F32(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else if let Ok(d) = ndarray.downcast::<PyArrayDyn<f64>>() {
-            if let AnyArrayBase::F64(ref mut view_mut) = view_mut {
+            if let AnyArrayBase::F64(view_mut) = view_mut {
                 return shape_checked_assign(d, view_mut);
             }
         } else {

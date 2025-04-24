@@ -356,6 +356,7 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
         return Ok(encoded_bytes);
     }
 
+    #[expect(clippy::option_if_let_else)]
     let data_cow = match data.as_slice() {
         Some(data) => Cow::Borrowed(data),
         None => Cow::Owned(data.iter().copied().collect()),
