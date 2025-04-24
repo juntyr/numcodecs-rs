@@ -1,0 +1,27 @@
+[package]
+name = "numcodecs-pressio"
+version = "0.1.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "libpressio codec wrapper for the numcodecs API"
+readme = "README.md"
+categories = ["compression", "encoding"]
+keywords = ["libpressio", "numcodecs", "compression", "encoding"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+numcodecs = { workspace = true }
+schemars = { workspace = true, features = ["derive", "preserve_order"] }
+serde = { workspace = true, features = ["std", "derive"] }
+thiserror = { workspace = true }
+
+# FIXME: move into workspace dependencies
+libpressio = { git = "https://github.com/juntyr/libpressio-rs.git", rev = "ddceba6" }
+
+[lints]
+workspace = true
