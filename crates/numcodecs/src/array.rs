@@ -617,17 +617,17 @@ pub trait AnyRawData {
 }
 
 impl<
-        T: RawDataSubst<u8>
-            + RawDataSubst<u16>
-            + RawDataSubst<u32>
-            + RawDataSubst<u64>
-            + RawDataSubst<i8>
-            + RawDataSubst<i16>
-            + RawDataSubst<i32>
-            + RawDataSubst<i64>
-            + RawDataSubst<f32>
-            + RawDataSubst<f64>,
-    > AnyRawData for T
+    T: RawDataSubst<u8>
+        + RawDataSubst<u16>
+        + RawDataSubst<u32>
+        + RawDataSubst<u64>
+        + RawDataSubst<i8>
+        + RawDataSubst<i16>
+        + RawDataSubst<i32>
+        + RawDataSubst<i64>
+        + RawDataSubst<f32>
+        + RawDataSubst<f64>,
+> AnyRawData for T
 {
     type U8 = <T as RawDataSubst<u8>>::Output;
     type U16 = <T as RawDataSubst<u16>>::Output;

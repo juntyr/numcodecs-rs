@@ -4,7 +4,7 @@ use pyo3::{exceptions::PyTypeError, prelude::*};
 
 mod engine;
 
-use engine::{default_engine, Engine};
+use engine::{Engine, default_engine};
 
 #[pymodule]
 #[pyo3(name = "_wasm")]

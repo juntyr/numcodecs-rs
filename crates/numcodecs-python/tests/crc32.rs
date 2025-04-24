@@ -1,15 +1,15 @@
 #![expect(missing_docs)]
 
+use ::{
+    convert_case as _, pythonize as _, schemars as _, serde as _, serde_transcode as _,
+    thiserror as _,
+};
 use ndarray::{Array1, ArrayView1};
 use numcodecs::{AnyArray, AnyArrayView, AnyCowArray, Codec, DynCodec, DynCodecType};
 use numcodecs_python::{PyCodecAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry};
 use pyo3::{prelude::*, types::PyDict};
 use pyo3_error::PyErrChain;
 use serde_json::json;
-use ::{
-    convert_case as _, pythonize as _, schemars as _, serde as _, serde_transcode as _,
-    thiserror as _,
-};
 
 #[test]
 fn python_api() -> Result<(), PyErr> {

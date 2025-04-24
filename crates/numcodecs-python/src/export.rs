@@ -8,20 +8,20 @@ use numpy::{
     IxDyn, PyArray, PyArrayDescrMethods, PyArrayDyn, PyArrayMethods, PyUntypedArrayMethods,
 };
 use pyo3::{
+    PyTypeInfo,
     exceptions::PyTypeError,
     intern,
     marker::Ungil,
     prelude::*,
     types::{IntoPyDict, PyDict, PyString, PyType},
-    PyTypeInfo,
 };
 use pyo3_error::PyErrChain;
-use pythonize::{pythonize, Depythonizer};
+use pythonize::{Depythonizer, pythonize};
 
 use crate::{
+    PyCodec, PyCodecClass, PyCodecClassAdapter, PyCodecRegistry,
     schema::{docs_from_schema, signature_from_schema},
     utils::numpy_asarray,
-    PyCodec, PyCodecClass, PyCodecClassAdapter, PyCodecRegistry,
 };
 
 /// Export the [`DynCodecType`] `ty` to Python by generating a fresh

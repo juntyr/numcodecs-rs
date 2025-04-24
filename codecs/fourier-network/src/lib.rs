@@ -22,7 +22,7 @@
 use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 
 use burn::{
-    backend::{ndarray::NdArrayDevice, Autodiff, NdArray},
+    backend::{Autodiff, NdArray, ndarray::NdArrayDevice},
     module::{Module, Param},
     nn::loss::{MseLoss, Reduction},
     optim::{AdamConfig, GradientsParams, Optimizer},
@@ -32,7 +32,7 @@ use burn::{
         Record, Recorder, RecorderError,
     },
     tensor::{
-        backend::AutodiffBackend, Distribution, Element as BurnElement, Float, Tensor, TensorData,
+        Distribution, Element as BurnElement, Float, Tensor, TensorData, backend::AutodiffBackend,
     },
 };
 use itertools::Itertools;
@@ -42,7 +42,7 @@ use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
-use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
+use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
@@ -262,7 +262,9 @@ pub enum FourierNetworkCodecError {
     },
     /// [`FourierNetworkCodec`] can only decode one-dimensional byte arrays but
     /// received an array of a different shape
-    #[error("FourierNetwork can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "FourierNetwork can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,
@@ -580,7 +582,9 @@ fn train<T: FloatExt, B: AutodiffBackend<FloatElem = T>>(
         let mae = stdv * ae_sum / <T as FloatExt>::from_usize(num_samples);
         let l_inf = stdv * l_inf;
 
-        log::info!("[{epoch}/{num_epochs}]: loss={loss_mean:0.3} MAE={mae:0.3} RMSE={rmse:0.3} Linf={l_inf:0.3}");
+        log::info!(
+            "[{epoch}/{num_epochs}]: loss={loss_mean:0.3} MAE={mae:0.3} RMSE={rmse:0.3} Linf={l_inf:0.3}"
+        );
     }
 
     if best_epoch != num_epochs {

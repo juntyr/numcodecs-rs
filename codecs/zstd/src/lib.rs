@@ -165,7 +165,9 @@ pub enum ZstdCodecError {
     },
     /// [`ZstdCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Zstd can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Zstd can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,

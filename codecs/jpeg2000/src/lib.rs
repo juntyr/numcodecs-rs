@@ -187,7 +187,9 @@ pub enum Jpeg2000CodecError {
     },
     /// [`Jpeg2000Codec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Jpeg2000 can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Jpeg2000 can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,

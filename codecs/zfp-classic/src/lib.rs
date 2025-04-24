@@ -237,7 +237,9 @@ pub enum ZfpClassicCodecError {
     },
     /// [`ZfpClassicCodec`] can only decode one-dimensional byte arrays but
     /// received an array of a different shape
-    #[error("ZfpClassic can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "ZfpClassic can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,

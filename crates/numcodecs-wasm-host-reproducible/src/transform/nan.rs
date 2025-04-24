@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use anyhow::{anyhow, Error};
+use anyhow::{Error, anyhow};
 use wasm_encoder::reencode::{self, Reencode};
 
 /// Adapted from cranelift's NaN canonicalisation codegen pass

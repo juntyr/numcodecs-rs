@@ -382,7 +382,9 @@ pub enum PcodecError {
     },
     /// [`Pcodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Pco can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Pco can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,

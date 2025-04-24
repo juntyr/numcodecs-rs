@@ -28,11 +28,11 @@ use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
-use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
+use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{
+    Deserialize, Deserializer, Serialize, Serializer,
     de::{MapAccess, Visitor},
     ser::SerializeMap,
-    Deserialize, Deserializer, Serialize, Serializer,
 };
 use thiserror::Error;
 
@@ -216,11 +216,15 @@ pub enum SwizzleReshapeCodecError {
     UnsupportedDtype(AnyArrayDType),
     /// [`SwizzleReshapeCodec`] cannot decode from an array with merged axes
     /// without receiving an output array to decode into
-    #[error("SwizzleReshape cannot decode from an array with merged axes without receiving an output array to decode into")]
+    #[error(
+        "SwizzleReshape cannot decode from an array with merged axes without receiving an output array to decode into"
+    )]
     CannotDecodeMergedAxes,
     /// [`SwizzleReshapeCodec`] cannot encode or decode with an invalid axis
     /// `index` for an array with `ndim` dimensions
-    #[error("SwizzleReshape cannot encode or decode with an invalid axis {index} for an array with {ndim} dimensions")]
+    #[error(
+        "SwizzleReshape cannot encode or decode with an invalid axis {index} for an array with {ndim} dimensions"
+    )]
     InvalidAxisIndex {
         /// The out-of-bounds axis index
         index: usize,
@@ -230,7 +234,9 @@ pub enum SwizzleReshapeCodecError {
     /// [`SwizzleReshapeCodec`] can only encode or decode with an axis
     /// permutation `axes` that contains every axis of an array with `ndim`
     /// dimensions index exactly once
-    #[error("SwizzleReshape can only encode or decode with an axis permutation {axes:?} that contains every axis of an array with {ndim} dimensions index exactly once")]
+    #[error(
+        "SwizzleReshape can only encode or decode with an axis permutation {axes:?} that contains every axis of an array with {ndim} dimensions index exactly once"
+    )]
     InvalidAxisPermutation {
         /// The invalid permutation of axes
         axes: Vec<AxisGroup>,
@@ -239,7 +245,9 @@ pub enum SwizzleReshapeCodecError {
     },
     /// [`SwizzleReshapeCodec`] cannot encode or decode with an axis permutation
     /// that contains multiple rest-axes markers
-    #[error("SwizzleReshape cannot encode or decode with an axis permutation that contains multiple rest-axes markers")]
+    #[error(
+        "SwizzleReshape cannot encode or decode with an axis permutation that contains multiple rest-axes markers"
+    )]
     MultipleRestAxes,
     /// [`SwizzleReshapeCodec`] cannot decode into the provided array
     #[error("SwizzleReshape cannot decode into the provided array")]

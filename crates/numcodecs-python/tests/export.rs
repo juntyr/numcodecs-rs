@@ -1,20 +1,20 @@
 #![expect(missing_docs)]
 
+use ::{
+    convert_case as _, ndarray as _, pyo3_error as _, pythonize as _, serde as _, serde_json as _,
+    serde_transcode as _, thiserror as _,
+};
 use numcodecs::{
     AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType,
     StaticCodec, StaticCodecConfig, StaticCodecType,
 };
 use numcodecs_python::{
-    export_codec_class, PyCodecAdapter, PyCodecClassAdapter, PyCodecClassMethods, PyCodecMethods,
-    PyCodecRegistry,
+    PyCodecAdapter, PyCodecClassAdapter, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
+    export_codec_class,
 };
 use pyo3::{exceptions::PyTypeError, intern, prelude::*, types::PyDict};
-use schemars::{schema_for, JsonSchema};
+use schemars::{JsonSchema, schema_for};
 use serde::{Deserialize, Serialize};
-use ::{
-    convert_case as _, ndarray as _, pyo3_error as _, pythonize as _, serde as _, serde_json as _,
-    serde_transcode as _, thiserror as _,
-};
 
 #[test]
 fn export() -> Result<(), PyErr> {
@@ -116,12 +116,10 @@ fn downcast() -> Result<(), PyErr> {
             module.as_borrowed(),
         )?;
 
-        assert!(PyCodecClassAdapter::with_downcast(
-            py,
-            &class,
-            |_: &StaticCodecType<NegateCodec>| ()
-        )
-        .is_some());
+        assert!(
+            PyCodecClassAdapter::with_downcast(py, &class, |_: &StaticCodecType<NegateCodec>| ())
+                .is_some()
+        );
 
         let codec = class.codec_from_config(PyDict::new(py).as_borrowed())?;
 

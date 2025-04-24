@@ -8,7 +8,7 @@ use numcodecs_wasm_host::{CodecError, RuntimeError, WasmCodec, WasmCodecComponen
 use schemars::Schema;
 use serde::Serializer;
 use wasm_component_layer::{AsContextMut, Component, Instance, Linker, Store, TypedFunc};
-use wasm_runtime_layer::{backend::WasmEngine, Engine};
+use wasm_runtime_layer::{Engine, backend::WasmEngine};
 
 use crate::transform::instcnt::PerfWitInterfaces;
 use crate::transform::transform_wasm_component;
@@ -429,7 +429,7 @@ where
         };
         let Some(instruction_counter) = perf_interface.func(instruction_counter) else {
             return Err(serde::de::Error::custom(
-                "WASM component interface does not contain a function to read the instruction counter"
+                "WASM component interface does not contain a function to read the instruction counter",
             ));
         };
         let instruction_counter = instruction_counter.typed().map_err(|err| {

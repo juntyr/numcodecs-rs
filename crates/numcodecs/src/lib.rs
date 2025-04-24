@@ -27,8 +27,8 @@ pub use array::{
     AnyArrayViewMut, AnyCowArray, AnyRawData, ArrayDType,
 };
 pub use codec::{
-    codec_from_config_with_id, serialize_codec_config_with_id, Codec, DynCodec, DynCodecType,
-    StaticCodec, StaticCodecConfig, StaticCodecType, StaticCodecVersion,
+    Codec, DynCodec, DynCodecType, StaticCodec, StaticCodecConfig, StaticCodecType,
+    StaticCodecVersion, codec_from_config_with_id, serialize_codec_config_with_id,
 };
 
 mod sealed {

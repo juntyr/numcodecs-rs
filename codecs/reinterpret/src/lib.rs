@@ -71,7 +71,7 @@ impl ReinterpretCodec {
                 return Err(ReinterpretCodecError::InvalidReinterpret {
                     decode_dtype,
                     encode_dtype,
-                })
+                });
             }
         }
 
@@ -357,7 +357,9 @@ pub enum ReinterpretCodecError {
     },
     /// [`ReinterpretCodec`] cannot encode the provided dtype which differs
     /// from the configured dtype
-    #[error("Reinterpret cannot encode the provided dtype {provided} which differs from the configured dtype {configured}")]
+    #[error(
+        "Reinterpret cannot encode the provided dtype {provided} which differs from the configured dtype {configured}"
+    )]
     MismatchedEncodeDType {
         /// Dtype of the `configured` `decode_dtype`
         configured: AnyArrayDType,
@@ -366,7 +368,9 @@ pub enum ReinterpretCodecError {
     },
     /// [`ReinterpretCodec`] cannot decode the provided dtype which differs
     /// from the configured dtype
-    #[error("Reinterpret cannot decode the provided dtype {provided} which differs from the configured dtype {configured}")]
+    #[error(
+        "Reinterpret cannot decode the provided dtype {provided} which differs from the configured dtype {configured}"
+    )]
     MismatchedDecodeDType {
         /// Dtype of the `configured` `encode_dtype`
         configured: AnyArrayDType,
@@ -374,9 +378,7 @@ pub enum ReinterpretCodecError {
         provided: AnyArrayDType,
     },
     /// [`ReinterpretCodec`] cannot decode a byte array with `shape` into an array of `dtype`s
-    #[error(
-        "Reinterpret cannot decode a byte array of shape {shape:?} into an array of {dtype}-s"
-    )]
+    #[error("Reinterpret cannot decode a byte array of shape {shape:?} into an array of {dtype}-s")]
     InvalidEncodedShape {
         /// Shape of the encoded array
         shape: Vec<usize>,

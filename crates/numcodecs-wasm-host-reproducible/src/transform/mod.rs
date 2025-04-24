@@ -1,6 +1,6 @@
 use std::sync::OnceLock;
 
-use anyhow::{anyhow, Context, Error};
+use anyhow::{Context, Error, anyhow};
 use instcnt::PerfWitInterfaces;
 use numcodecs_wasm_host::NumcodecsWitInterfaces;
 

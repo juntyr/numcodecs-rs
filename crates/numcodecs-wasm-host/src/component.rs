@@ -9,7 +9,7 @@ use wasm_component_layer::{
 use crate::{
     codec::WasmCodec,
     error::RuntimeError,
-    wit::{guest_error_from_wasm, NumcodecsWitInterfaces},
+    wit::{NumcodecsWitInterfaces, guest_error_from_wasm},
 };
 
 /// WebAssembly component that exports the `numcodecs:abc/codec` interface.
@@ -171,13 +171,13 @@ impl WasmCodecComponent {
                 result => {
                     return Err(serde::de::Error::custom(format!(
                         "unexpected from-config result value {result:?}"
-                    )))
+                    )));
                 }
             },
             value => {
                 return Err(serde::de::Error::custom(format!(
                     "unexpected from-config result value {value:?}"
-                )))
+                )));
             }
         };
 

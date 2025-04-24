@@ -25,7 +25,7 @@ use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
-use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
+use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
@@ -161,7 +161,9 @@ pub enum TthreshCodecError {
     },
     /// [`TthreshCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Tthresh can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Tthresh can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,

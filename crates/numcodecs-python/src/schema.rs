@@ -1,15 +1,15 @@
 use std::{
     borrow::Cow,
-    collections::{hash_map::Entry, HashMap},
+    collections::{HashMap, hash_map::Entry},
 };
 
 use pyo3::{intern, prelude::*, sync::GILOnceCell};
-use pythonize::{depythonize, PythonizeError};
+use pythonize::{PythonizeError, depythonize};
 use schemars::Schema;
 use serde_json::{Map, Value};
 use thiserror::Error;
 
-use crate::{export::RustCodec, PyCodecClass};
+use crate::{PyCodecClass, export::RustCodec};
 
 macro_rules! once {
     ($py:ident, $module:literal $(, $path:literal)*) => {{
@@ -533,7 +533,7 @@ impl<'a> VariantParameter<'a> {
 
 #[cfg(test)]
 mod tests {
-    use schemars::{schema_for, JsonSchema};
+    use schemars::{JsonSchema, schema_for};
 
     use super::*;
 

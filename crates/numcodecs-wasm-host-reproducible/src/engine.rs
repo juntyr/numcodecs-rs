@@ -1,10 +1,10 @@
 use wasm_runtime_layer::{
+    ExportType, ExternType, FuncType, GlobalType, ImportType, MemoryType, TableType,
     backend::{
         AsContext, AsContextMut, Export, Extern, Imports, Value, WasmEngine, WasmExternRef,
         WasmFunc, WasmGlobal, WasmInstance, WasmMemory, WasmModule, WasmStore, WasmStoreContext,
         WasmStoreContextMut, WasmTable,
     },
-    ExportType, ExternType, FuncType, GlobalType, ImportType, MemoryType, TableType,
 };
 
 use crate::transform::{
@@ -79,13 +79,13 @@ impl<E: WasmEngine> WasmFunc<ReproducibleEngine<E>> for ReproducibleFunc<E> {
         mut ctx: impl AsContextMut<ReproducibleEngine<E>, UserState = T>,
         ty: FuncType,
         func: impl 'static
-            + Send
-            + Sync
-            + Fn(
-                ReproducibleStoreContextMut<T, E>,
-                &[Value<ReproducibleEngine<E>>],
-                &mut [Value<ReproducibleEngine<E>>],
-            ) -> anyhow::Result<()>,
+        + Send
+        + Sync
+        + Fn(
+            ReproducibleStoreContextMut<T, E>,
+            &[Value<ReproducibleEngine<E>>],
+            &mut [Value<ReproducibleEngine<E>>],
+        ) -> anyhow::Result<()>,
     ) -> Self {
         Self(<E::Func as WasmFunc<E>>::new(
             ctx.as_context_mut().as_inner_context_mut(),

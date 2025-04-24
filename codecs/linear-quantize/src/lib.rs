@@ -28,7 +28,7 @@ use numcodecs::{
     StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{JsonSchema, JsonSchema_repr};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use thiserror::Error;
 use twofloat::TwoFloat;
@@ -289,7 +289,7 @@ impl Codec for LinearQuantizeCodec {
             (encoded, _dtype) => {
                 return Err(LinearQuantizeCodecError::InvalidEncodedDType {
                     dtype: encoded.dtype(),
-                })
+                });
             }
         };
 
@@ -350,7 +350,7 @@ impl Codec for LinearQuantizeCodec {
                     encoded => {
                         return Err(LinearQuantizeCodecError::InvalidEncodedDType {
                             dtype: encoded.dtype(),
-                        })
+                        });
                     }
                 }
             }
@@ -381,7 +381,7 @@ impl Codec for LinearQuantizeCodec {
                     encoded => {
                         return Err(LinearQuantizeCodecError::InvalidEncodedDType {
                             dtype: encoded.dtype(),
-                        })
+                        });
                     }
                 }
             }
@@ -389,7 +389,7 @@ impl Codec for LinearQuantizeCodec {
                 return Err(LinearQuantizeCodecError::MismatchedDecodeIntoDtype {
                     configured: dtype,
                     provided: decoded.dtype(),
-                })
+                });
             }
         }?;
 
@@ -416,7 +416,9 @@ impl StaticCodec for LinearQuantizeCodec {
 pub enum LinearQuantizeCodecError {
     /// [`LinearQuantizeCodec`] cannot encode the provided dtype which differs
     /// from the configured dtype
-    #[error("LinearQuantize cannot encode the provided dtype {provided} which differs from the configured dtype {configured}")]
+    #[error(
+        "LinearQuantize cannot encode the provided dtype {provided} which differs from the configured dtype {configured}"
+    )]
     MismatchedEncodeDType {
         /// Dtype of the `configured` `dtype`
         configured: LinearQuantizeDType,
@@ -435,7 +437,9 @@ pub enum LinearQuantizeCodecError {
     },
     /// [`LinearQuantizeCodec`] can only decode one-dimensional arrays but
     /// received an array of a different shape
-    #[error("LinearQuantize can only decode one-dimensional arrays but received an array of shape {shape:?}")]
+    #[error(
+        "LinearQuantize can only decode one-dimensional arrays but received an array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,
@@ -464,7 +468,9 @@ pub enum LinearQuantizeCodecError {
     },
     /// [`LinearQuantizeCodec`] cannot decode the provided dtype which differs
     /// from the configured dtype
-    #[error("LinearQuantize cannot decode the provided dtype {provided} which differs from the configured dtype {configured}")]
+    #[error(
+        "LinearQuantize cannot decode the provided dtype {provided} which differs from the configured dtype {configured}"
+    )]
     MismatchedDecodeIntoDtype {
         /// Dtype of the `configured` `dtype`
         configured: LinearQuantizeDType,
@@ -473,7 +479,9 @@ pub enum LinearQuantizeCodecError {
     },
     /// [`LinearQuantizeCodec`] cannot decode the decoded array into the provided
     /// array of a different shape
-    #[error("LinearQuantize cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}")]
+    #[error(
+        "LinearQuantize cannot decode the decoded array of shape {decoded:?} into the provided array of shape {provided:?}"
+    )]
     MismatchedDecodeIntoShape {
         /// Shape of the `decoded` data
         decoded: Vec<usize>,

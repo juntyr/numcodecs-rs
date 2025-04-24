@@ -220,7 +220,9 @@ pub enum ZfpCodecError {
     },
     /// [`ZfpCodec`] does not support non-finite (infinite or NaN) floating
     /// point data  in non-reversible lossy compression
-    #[error("Zfp does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression")]
+    #[error(
+        "Zfp does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression"
+    )]
     NonFiniteData,
     /// [`ZfpCodec`] failed to encode the header
     #[error("Zfp failed to encode the header")]
@@ -245,7 +247,9 @@ pub enum ZfpCodecError {
     },
     /// [`ZfpCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Zfp can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Zfp can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,

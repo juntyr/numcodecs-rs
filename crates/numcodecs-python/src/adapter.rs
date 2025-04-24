@@ -19,10 +19,10 @@ use serde::{Deserializer, Serializer};
 use serde_transcode::transcode;
 
 use crate::{
+    PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
     export::{RustCodec, RustCodecType},
     schema::schema_from_codec_class,
     utils::numpy_asarray,
-    PyCodec, PyCodecClass, PyCodecClassMethods, PyCodecMethods, PyCodecRegistry,
 };
 
 /// Wrapper around [`PyCodec`]s to use the [`Codec`] API.
@@ -225,7 +225,7 @@ impl PyCodecAdapter {
                     return Err(PyTypeError::new_err(format!(
                         "unsupported type {} of read-only array view",
                         view.dtype()
-                    )))
+                    )));
                 }
             }
         };
@@ -266,7 +266,7 @@ impl PyCodecAdapter {
                     return Err(PyTypeError::new_err(format!(
                         "unsupported type {} of read-only array view",
                         view_mut.dtype()
-                    )))
+                    )));
                 }
             }
         };

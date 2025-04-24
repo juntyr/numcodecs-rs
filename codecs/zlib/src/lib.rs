@@ -144,7 +144,9 @@ pub enum ZlibCodecError {
     },
     /// [`ZlibCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
-    #[error("Zlib can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}")]
+    #[error(
+        "Zlib can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+    )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,

@@ -1,15 +1,15 @@
 use pyo3::{
+    PyTypeInfo,
     ffi::PyTypeObject,
     intern,
     prelude::*,
     sync::GILOnceCell,
     types::{DerefToPyAny, IntoPyDict, PyDict, PyType},
-    PyTypeInfo,
 };
 
 #[expect(unused_imports)] // FIXME: use expect, only used in docs
 use crate::PyCodecClassMethods;
-use crate::{sealed::Sealed, PyCodecClass};
+use crate::{PyCodecClass, sealed::Sealed};
 
 /// Represents a [`numcodecs.abc.Codec`] *instance* object.
 ///

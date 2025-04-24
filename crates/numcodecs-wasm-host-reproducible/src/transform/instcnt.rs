@@ -1,6 +1,6 @@
 use std::sync::OnceLock;
 
-use anyhow::{anyhow, Error};
+use anyhow::{Error, anyhow};
 use semver::Version;
 use wasm_component_layer::{InterfaceIdentifier, PackageIdentifier, PackageName};
 use wasm_encoder::reencode::{self, Reencode};

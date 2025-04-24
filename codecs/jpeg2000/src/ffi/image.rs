@@ -4,7 +4,7 @@
 
 use std::ptr::NonNull;
 
-use super::{codec::Decoder, stream::DecodeStream, Jpeg2000Element, Jpeg2000Error};
+use super::{Jpeg2000Element, Jpeg2000Error, codec::Decoder, stream::DecodeStream};
 
 pub struct Image {
     image: NonNull<openjpeg_sys::opj_image_t>,

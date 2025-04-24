@@ -26,8 +26,8 @@ use numcodecs::{
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use rand::{
-    distributions::{Distribution, Open01},
     SeedableRng,
+    distributions::{Distribution, Open01},
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

@@ -42,7 +42,12 @@ pub fn add_to_linker(linker: &mut Linker, ctx: impl AsContextMut) -> Result<(), 
             [],
         ),
         move |_ctx, args, _results| {
-            let [Value::Enum(level), Value::String(context), Value::String(message)] = args else {
+            let [
+                Value::Enum(level),
+                Value::String(context),
+                Value::String(message),
+            ] = args
+            else {
                 anyhow::bail!("invalid wasi:logging/logging#log arguments");
             };
 
