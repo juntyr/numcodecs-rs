@@ -630,7 +630,9 @@ const fn as_values<E: WasmEngine>(values: &[Value<ReproducibleEngine<E>>]) -> &[
     }
 }
 
-fn as_values_mut<E: WasmEngine>(values: &mut [Value<ReproducibleEngine<E>>]) -> &mut [Value<E>] {
+const fn as_values_mut<E: WasmEngine>(
+    values: &mut [Value<ReproducibleEngine<E>>],
+) -> &mut [Value<E>] {
     // Safety: all of our WASM runtime type wrappers are transparent newtypes
     #[expect(unsafe_code)]
     unsafe {
@@ -646,7 +648,9 @@ const fn from_values<E: WasmEngine>(values: &[Value<E>]) -> &[Value<Reproducible
     }
 }
 
-fn from_values_mut<E: WasmEngine>(values: &mut [Value<E>]) -> &mut [Value<ReproducibleEngine<E>>] {
+const fn from_values_mut<E: WasmEngine>(
+    values: &mut [Value<E>],
+) -> &mut [Value<ReproducibleEngine<E>>] {
     // Safety: all of our WASM runtime type wrappers are transparent newtypes
     #[expect(unsafe_code)]
     unsafe {

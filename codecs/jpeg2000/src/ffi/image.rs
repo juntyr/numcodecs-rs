@@ -81,7 +81,7 @@ impl Image {
     }
 
     #[allow(clippy::needless_pass_by_ref_mut)]
-    pub fn as_raw(&mut self) -> *mut openjpeg_sys::opj_image_t {
+    pub const fn as_raw(&mut self) -> *mut openjpeg_sys::opj_image_t {
         self.image.as_ptr()
     }
 
