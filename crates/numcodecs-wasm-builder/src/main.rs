@@ -89,7 +89,7 @@ fn create_codec_wasm_component_crate(
 [package]
 name = "{crate_}-wasm"
 version = "{version}"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
