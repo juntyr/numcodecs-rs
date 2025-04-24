@@ -25,13 +25,6 @@ schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
 
-# FIXME: see https://github.com/tracel-ai/burn/issues/2876
-bincode = "=2.0.0-rc.3"
-bincode_derive = "=2.0.0-rc.3"
-
-# FIXME: 1.9.0 has MSRV 1.84, which our MSRV 1.82 doesn't support
-bytemuck_derive = "=1.8.1"
-
 [dev-dependencies]
 serde_json = { workspace = true, features = ["std"] }
 simple_logger = { workspace = true }
