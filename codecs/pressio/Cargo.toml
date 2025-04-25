@@ -21,7 +21,7 @@ serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
 
 # FIXME: move into workspace dependencies
-libpressio = { git = "https://github.com/juntyr/libpressio-rs.git", rev = "ddceba6" }
+libpressio = { git = "https://github.com/juntyr/libpressio-rs.git", rev = "82afbea" }
 
 [lints]
 workspace = true
