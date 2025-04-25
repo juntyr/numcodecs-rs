@@ -22,6 +22,10 @@ struct Args {
     #[arg(long)]
     version: Version,
 
+    /// Path to the local version of the numcodecs codec crate to compile
+    #[arg(long)]
+    path: Option<PathBuf>,
+
     /// Path to the codec type to export, without the leading crate name
     #[arg(long)]
     codec: String,
@@ -46,8 +50,13 @@ fn main() -> io::Result<()> {
     eprintln!("creating {target_dir:?}");
     fs::create_dir_all(&target_dir)?;
 
-    let crate_dir =
-        create_codec_wasm_component_crate(&scratch_dir, &args.crate_, &args.version, &args.codec)?;
+    let crate_dir = create_codec_wasm_component_crate(
+        &scratch_dir,
+        &args.crate_,
+        &args.version,
+        args.path.as_deref(),
+        &args.codec,
+    )?;
     copy_buildenv_to_crate(&crate_dir)?;
 
     let nix_env = NixEnv::new(&crate_dir)?;
@@ -70,6 +79,7 @@ fn create_codec_wasm_component_crate(
     scratch_dir: &Path,
     crate_: &str,
     version: &Version,
+    path: Option<&Path>,
     codec: &str,
 ) -> io::Result<PathBuf> {
     let crate_dir = scratch_dir.join(format!("{crate_}-wasm-{version}"));
@@ -79,6 +89,11 @@ fn create_codec_wasm_component_crate(
         fs::remove_dir_all(&crate_dir)?;
     }
     fs::create_dir_all(&crate_dir)?;
+
+    let path = path.map_or_else(
+        || String::new(),
+        |p| format!("path = \"{}\", ", p.display()),
+    );
 
     fs::write(
         crate_dir.join("Cargo.toml"),
@@ -96,7 +111,7 @@ edition = "2024"
 [dependencies]
 numcodecs-wasm-logging = {{ version = "0.1", default-features = false }}
 numcodecs-wasm-guest = {{ version = "0.2", default-features = false }}
-numcodecs-my-codec = {{ package = "{crate_}", version = "{version}", default-features = false }}
+numcodecs-my-codec = {{ package = "{crate_}", version = "{version}", {path}default-features = false }}
     "#
         ),
     )?;
