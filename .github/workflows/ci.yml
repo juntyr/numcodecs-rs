@@ -93,6 +93,7 @@ jobs:
             --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-lc \
+            --exclude numcodecs-pressio \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
             --exclude numcodecs-sz3 \
@@ -269,6 +270,7 @@ jobs:
             --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-lc \
+            --exclude numcodecs-pressio \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
             --exclude numcodecs-sz3 \
@@ -288,6 +290,7 @@ jobs:
             --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-lc \
+            --exclude numcodecs-pressio \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
             --exclude numcodecs-sz3 \
