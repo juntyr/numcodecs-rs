@@ -17,6 +17,7 @@
 //!
 //! libpressio codec wrapper for the [`numcodecs`] API.
 
+use ::libpressio as _;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec,
     StaticCodecConfig, StaticCodecVersion,
