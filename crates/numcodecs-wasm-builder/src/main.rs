@@ -90,10 +90,7 @@ fn create_codec_wasm_component_crate(
     }
     fs::create_dir_all(&crate_dir)?;
 
-    let path = path.map_or_else(
-        || String::new(),
-        |p| format!("path = \"{}\", ", p.display()),
-    );
+    let path = path.map_or_else(String::new, |p| format!("path = \"{}\", ", p.display()));
 
     fs::write(
         crate_dir.join("Cargo.toml"),
