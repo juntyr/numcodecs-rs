@@ -367,6 +367,12 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
         // NO-CORE: components must have been translated into core WASM
         //          modules by now
         cm_error_context: false,
+        // NO-CORE: components must have been translated into core WASM
+        //          modules by now
+        cm_fixed_size_list: false,
+        // NO-CORE: components must have been translated into core WASM
+        //          modules by now
+        cm_gc: false,
     };
 
 #[derive(Clone)]

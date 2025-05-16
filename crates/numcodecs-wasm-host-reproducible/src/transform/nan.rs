@@ -183,7 +183,9 @@ impl NaNCanonicaliserReencoder {
                 wasm_encoder::Instruction::LocalSet(stash),
                 // stack: [...]; stash: x
                 // canonical NaN
-                wasm_encoder::Instruction::F32Const(f32::from_bits(Self::CANON_NAN_B32)),
+                wasm_encoder::Instruction::F32Const(wasm_encoder::Ieee32::from(f32::from_bits(
+                    Self::CANON_NAN_B32,
+                ))),
                 // stack: [canon(NaN), ...]; stash: x
                 wasm_encoder::Instruction::LocalGet(stash),
                 // stack: [x, canon(NaN), ...]; stash: x
@@ -206,7 +208,9 @@ impl NaNCanonicaliserReencoder {
                 wasm_encoder::Instruction::LocalSet(stash),
                 // stack: [...]; stash: x
                 // canonical NaN
-                wasm_encoder::Instruction::F64Const(f64::from_bits(Self::CANON_NAN_B64)),
+                wasm_encoder::Instruction::F64Const(wasm_encoder::Ieee64::from(f64::from_bits(
+                    Self::CANON_NAN_B64,
+                ))),
                 // stack: [canon(NaN), ...]; stash: x
                 wasm_encoder::Instruction::LocalGet(stash),
                 // stack: [x, canon(NaN), ...]; stash: x
