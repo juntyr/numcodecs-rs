@@ -39,11 +39,11 @@ fn main() -> io::Result<()> {
         "-",
         env!("CARGO_PKG_VERSION"),
     ));
-    eprintln!("scratch_dir={scratch_dir:?}");
+    eprintln!("scratch_dir={}", scratch_dir.display());
 
     let target_dir = scratch_dir.join("target");
-    eprintln!("target_dir={target_dir:?}");
-    eprintln!("creating {target_dir:?}");
+    eprintln!("target_dir={}", target_dir.display());
+    eprintln!("creating {}", target_dir.display());
     fs::create_dir_all(&target_dir)?;
 
     let crate_dir =
@@ -73,8 +73,8 @@ fn create_codec_wasm_component_crate(
     codec: &str,
 ) -> io::Result<PathBuf> {
     let crate_dir = scratch_dir.join(format!("{crate_}-wasm-{version}"));
-    eprintln!("crate_dir={crate_dir:?}");
-    eprintln!("creating {crate_dir:?}");
+    eprintln!("crate_dir={}", crate_dir.display());
+    eprintln!("creating {}", crate_dir.display());
     if crate_dir.exists() {
         fs::remove_dir_all(&crate_dir)?;
     }
@@ -364,10 +364,7 @@ fn build_wasm_codec(
 
     let status = cmd.status()?;
     if !status.success() {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            format!("cargo exited with code {status}"),
-        ));
+        return Err(io::Error::other(format!("cargo exited with code {status}")));
     }
 
     Ok(target_dir
@@ -407,10 +404,9 @@ fn optimize_wasm_codec(wasm: &Path, nix_env: &NixEnv) -> io::Result<PathBuf> {
 
     let status = cmd.status()?;
     if !status.success() {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            format!("wasm-opt exited with code {status}"),
-        ));
+        return Err(io::Error::other(format!(
+            "wasm-opt exited with code {status}"
+        )));
     }
 
     Ok(opt_out)
@@ -419,14 +415,13 @@ fn optimize_wasm_codec(wasm: &Path, nix_env: &NixEnv) -> io::Result<PathBuf> {
 fn adapt_wasi_snapshot_to_preview2(wasm: &Path) -> io::Result<PathBuf> {
     let wasm_preview2 = wasm.with_extension("preview2.wasm");
 
-    eprintln!("reading from {wasm:?}");
+    eprintln!("reading from {}", wasm.display());
     let wasm = fs::read(wasm)?;
 
     let mut encoder = wit_component::ComponentEncoder::default()
         .module(&wasm)
         .map_err(|err| {
-            io::Error::new(
-                io::ErrorKind::Other,
+            io::Error::other(
                 // FIXME: better error reporting in the build script
                 format!("wit_component::ComponentEncoder::module failed: {err:#}"),
             )
@@ -436,22 +431,20 @@ fn adapt_wasi_snapshot_to_preview2(wasm: &Path) -> io::Result<PathBuf> {
             wasi_preview1_component_adapter_provider::WASI_SNAPSHOT_PREVIEW1_REACTOR_ADAPTER,
         )
         .map_err(|err| {
-            io::Error::new(
-                io::ErrorKind::Other,
+            io::Error::other(
                 // FIXME: better error reporting in the build script
                 format!("wit_component::ComponentEncoder::adapter failed: {err:#}"),
             )
         })?;
 
     let wasm = encoder.encode().map_err(|err| {
-        io::Error::new(
-            io::ErrorKind::Other,
+        io::Error::other(
             // FIXME: better error reporting in the build script
             format!("wit_component::ComponentEncoder::encode failed: {err:#}"),
         )
     })?;
 
-    eprintln!("writing to {wasm_preview2:?}");
+    eprintln!("writing to {}", wasm_preview2.display());
     fs::write(&wasm_preview2, wasm)?;
 
     Ok(wasm_preview2)
