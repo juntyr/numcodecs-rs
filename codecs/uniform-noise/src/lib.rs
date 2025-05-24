@@ -27,7 +27,7 @@ use numcodecs::{
 };
 use rand::{
     SeedableRng,
-    distributions::{Distribution, Open01},
+    distr::{Distribution, Open01},
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

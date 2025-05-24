@@ -50,10 +50,12 @@ struct InstructionCounterInjecterReencoder {
 impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
     type Error = Error;
 
-    fn global_index(&mut self, global: u32) -> u32 {
+    fn global_index(&mut self, global: u32) -> Result<u32, reencode::Error<Self::Error>> {
         match self.instruction_counter_global {
-            Some(instruction_counter_global) if global >= instruction_counter_global => global + 1,
-            _ => global,
+            Some(instruction_counter_global) if global >= instruction_counter_global => {
+                Ok(global + 1)
+            }
+            _ => Ok(global),
         }
     }
 
@@ -135,7 +137,7 @@ impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
                 self.instruction_counter_func_index = Some(export.index - self.num_imported_funcs);
             }
 
-            self.parse_export(exports, export);
+            self.parse_export(exports, export)?;
         }
         Ok(())
     }
