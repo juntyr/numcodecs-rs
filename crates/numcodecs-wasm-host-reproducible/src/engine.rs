@@ -373,6 +373,12 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
         // NO-CORE: components must have been translated into core WASM
         //          modules by now
         cm_gc: false,
+        // (unsure): part of reference types, disabled for now, needs further
+        //           research
+        call_indirect_overlong: false,
+        // MUST: part of bulk memory, operations like memcpy and memset are
+        //       deterministic
+        bulk_memory_opt: true,
     };
 
 #[derive(Clone)]

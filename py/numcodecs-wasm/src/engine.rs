@@ -40,8 +40,8 @@ pub fn default_engine(py: Python) -> Result<Engine, PyErr> {
         .wasm_wide_arithmetic(true);
 
     // TODO: allow configuration to be taken from somewhere else
-    config
-        .cache_config_load_default()
+    wasmtime::Cache::from_file(None)
+        .map(|cache| config.cache(Some(cache)))
         .map_err(|err| PyErrChain::new(py, err))?;
 
     let engine = wasmtime::Engine::new(&config).map_err(|err| PyErrChain::new(py, err))?;

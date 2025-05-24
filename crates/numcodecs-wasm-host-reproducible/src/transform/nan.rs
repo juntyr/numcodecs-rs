@@ -66,7 +66,7 @@ impl wasm_encoder::reencode::Reencode for NaNCanonicaliserReencoder {
         section: wasmparser::FunctionSectionReader<'_>,
     ) -> Result<(), reencode::Error<Self::Error>> {
         for function in section {
-            let function = self.type_index(function?);
+            let function = self.type_index(function?)?;
             self.function_type_indices.push_back(function as usize);
             functions.function(function);
         }
