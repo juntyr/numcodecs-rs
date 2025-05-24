@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/transform/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-0ce1a80b.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.89.0-nightly (d97326eab 2025-05-15)" data-channel="nightly" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/transform/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-0ce1a80b.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.89.0-nightly (3e674b06b 2025-05-23)" data-channel="nightly" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fd3af306.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -39,12 +39,12 @@
 </head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_wasm_host_reproducible/transform/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html">std::sync::OnceLock</a>;
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>anyhow::{<a href="https://docs.rs/anyhow/1.0.98/anyhow/trait.Context.html">Context</a>, <a href="https://docs.rs/anyhow/1.0.98/anyhow/struct.Error.html">Error</a>, <a href="https://docs.rs/anyhow/1.0.98/anyhow/macro.anyhow.html">anyhow</a>};
-<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><a href="instcnt.rs.html#952-955">instcnt::PerfWitInterfaces</a>;
+<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><a href="instcnt.rs.html#954-957">instcnt::PerfWitInterfaces</a>;
 <a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>numcodecs_wasm_host::NumcodecsWitInterfaces;
 <a href=#6 id=6 data-nosnippet>6</a>
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use crate</span>::{<a href="../logging.rs.html#75-77">logging::WasiLoggingInterface</a>, <a href="../stdio.rs.html#109-111">stdio::WasiSandboxedStdioInterface</a>};
 <a href=#8 id=8 data-nosnippet>8</a>
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">pub mod </span><a href="instcnt.rs.html#1-973">instcnt</a>;
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">pub mod </span><a href="instcnt.rs.html#1-975">instcnt</a>;
 <a href=#10 id=10 data-nosnippet>10</a><span class="kw">pub mod </span><a href="nan.rs.html#1-1040">nan</a>;
 <a href=#11 id=11 data-nosnippet>11</a>
 <a href=#12 id=12 data-nosnippet>12</a><span class="attr">#[expect(clippy::too_many_lines)] </span><span class="comment">// FIXME
@@ -206,7 +206,7 @@
 <a href=#168 id=168 data-nosnippet>168</a>            </span>floats: <span class="bool-val">true</span>,
 <a href=#169 id=169 data-nosnippet>169</a>            <span class="comment">// MUST: codecs and reproducible WASI are implemented as components
 <a href=#170 id=170 data-nosnippet>170</a>            </span>component_model: <span class="bool-val">true</span>,
-<a href=#171 id=171 data-nosnippet>171</a>            ..<a href="../engine.rs.html#289-376"><span class="kw">crate</span>::engine::DETERMINISTIC_WASM_MODULE_FEATURES</a>
+<a href=#171 id=171 data-nosnippet>171</a>            ..<a href="../engine.rs.html#289-382"><span class="kw">crate</span>::engine::DETERMINISTIC_WASM_MODULE_FEATURES</a>
 <a href=#172 id=172 data-nosnippet>172</a>        }
 <a href=#173 id=173 data-nosnippet>173</a>        .<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(),
 <a href=#174 id=174 data-nosnippet>174</a>    )
@@ -225,10 +225,10 @@
 <a href=#187 id=187 data-nosnippet>187</a>        <a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.new">OnceLock::new</a>();
 <a href=#188 id=188 data-nosnippet>188</a>
 <a href=#189 id=189 data-nosnippet>189</a>    <span class="kw">let </span>prepared_composition_graph = <a href="#186-187">PREPARED_COMPOSITION_GRAPH</a>.<a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.get_or_init">get_or_init</a>(|| {
-<a href=#190 id=190 data-nosnippet>190</a>        <span class="kw">let </span><a href="instcnt.rs.html#952-955">PerfWitInterfaces</a> {
+<a href=#190 id=190 data-nosnippet>190</a>        <span class="kw">let </span><a href="instcnt.rs.html#954-957">PerfWitInterfaces</a> {
 <a href=#191 id=191 data-nosnippet>191</a>            perf: perf_interface,
 <a href=#192 id=192 data-nosnippet>192</a>            ..
-<a href=#193 id=193 data-nosnippet>193</a>        } = <a href="instcnt.rs.html#959-972">PerfWitInterfaces::get</a>();
+<a href=#193 id=193 data-nosnippet>193</a>        } = <a href="instcnt.rs.html#961-974">PerfWitInterfaces::get</a>();
 <a href=#194 id=194 data-nosnippet>194</a>
 <a href=#195 id=195 data-nosnippet>195</a>        <span class="comment">// create a new WAC composition graph
 <a href=#196 id=196 data-nosnippet>196</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>wac = wac_graph::CompositionGraph::new();
@@ -312,10 +312,10 @@
 <a href=#274 id=274 data-nosnippet>274</a><span class="kw">fn </span>instantiate_numcodecs_wasm_perf_package(
 <a href=#275 id=275 data-nosnippet>275</a>    wac: <span class="kw-2">&amp;mut </span>wac_graph::CompositionGraph,
 <a href=#276 id=276 data-nosnippet>276</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;wac_graph::NodeId, <a href="https://docs.rs/anyhow/1.0.98/anyhow/struct.Error.html">Error</a>&gt; {
-<a href=#277 id=277 data-nosnippet>277</a>    <span class="kw">let </span><a href="instcnt.rs.html#952-955">PerfWitInterfaces</a> {
+<a href=#277 id=277 data-nosnippet>277</a>    <span class="kw">let </span><a href="instcnt.rs.html#954-957">PerfWitInterfaces</a> {
 <a href=#278 id=278 data-nosnippet>278</a>        perf: perf_interface,
 <a href=#279 id=279 data-nosnippet>279</a>        ..
-<a href=#280 id=280 data-nosnippet>280</a>    } = <a href="instcnt.rs.html#959-972">PerfWitInterfaces::get</a>();
+<a href=#280 id=280 data-nosnippet>280</a>    } = <a href="instcnt.rs.html#961-974">PerfWitInterfaces::get</a>();
 <a href=#281 id=281 data-nosnippet>281</a>
 <a href=#282 id=282 data-nosnippet>282</a>    <span class="comment">// create, register, and instantiate the numcodecs:wasm/perf package
 <a href=#283 id=283 data-nosnippet>283</a>    </span><span class="kw">let </span>numcodecs_wasm_perf_package = wac_graph::types::Package::from_bytes(
@@ -334,10 +334,10 @@
 <a href=#296 id=296 data-nosnippet>296</a><span class="kw">fn </span>create_numcodecs_wasm_perf_component() -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="https://docs.rs/anyhow/1.0.98/anyhow/struct.Error.html">Error</a>&gt; {
 <a href=#297 id=297 data-nosnippet>297</a>    <span class="kw">const </span>ROOT: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"root"</span>;
 <a href=#298 id=298 data-nosnippet>298</a>
-<a href=#299 id=299 data-nosnippet>299</a>    <span class="kw">let </span><a href="instcnt.rs.html#952-955">PerfWitInterfaces</a> {
+<a href=#299 id=299 data-nosnippet>299</a>    <span class="kw">let </span><a href="instcnt.rs.html#954-957">PerfWitInterfaces</a> {
 <a href=#300 id=300 data-nosnippet>300</a>        perf: perf_interface,
 <a href=#301 id=301 data-nosnippet>301</a>        instruction_counter,
-<a href=#302 id=302 data-nosnippet>302</a>    } = <a href="instcnt.rs.html#959-972">PerfWitInterfaces::get</a>();
+<a href=#302 id=302 data-nosnippet>302</a>    } = <a href="instcnt.rs.html#961-974">PerfWitInterfaces::get</a>();
 <a href=#303 id=303 data-nosnippet>303</a>
 <a href=#304 id=304 data-nosnippet>304</a>    <span class="kw">let </span><span class="kw-2">mut </span>module = <a href="#406-448">create_numcodecs_wasm_perf_module</a>();
 <a href=#305 id=305 data-nosnippet>305</a>
@@ -442,10 +442,10 @@
 <a href=#404 id=404 data-nosnippet>404</a>}
 <a href=#405 id=405 data-nosnippet>405</a>
 <a href=#406 id=406 data-nosnippet>406</a><span class="kw">fn </span>create_numcodecs_wasm_perf_module() -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
-<a href=#407 id=407 data-nosnippet>407</a>    <span class="kw">let </span><a href="instcnt.rs.html#952-955">PerfWitInterfaces</a> {
+<a href=#407 id=407 data-nosnippet>407</a>    <span class="kw">let </span><a href="instcnt.rs.html#954-957">PerfWitInterfaces</a> {
 <a href=#408 id=408 data-nosnippet>408</a>        perf: perf_interface,
 <a href=#409 id=409 data-nosnippet>409</a>        instruction_counter,
-<a href=#410 id=410 data-nosnippet>410</a>    } = <a href="instcnt.rs.html#959-972">PerfWitInterfaces::get</a>();
+<a href=#410 id=410 data-nosnippet>410</a>    } = <a href="instcnt.rs.html#961-974">PerfWitInterfaces::get</a>();
 <a href=#411 id=411 data-nosnippet>411</a>
 <a href=#412 id=412 data-nosnippet>412</a>    <span class="kw">let </span><span class="kw-2">mut </span>module = wasm_encoder::Module::new();
 <a href=#413 id=413 data-nosnippet>413</a>
