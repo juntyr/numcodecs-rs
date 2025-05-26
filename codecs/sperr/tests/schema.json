@@ -1,0 +1,68 @@
+{
+  "type": "object",
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "psnr": {
+          "type": "number",
+          "format": "float",
+          "description": "Peak signal-to-noise ratio"
+        },
+        "mode": {
+          "type": "string",
+          "const": "psnr"
+        }
+      },
+      "required": [
+        "mode",
+        "psnr"
+      ],
+      "description": "Peak signal-to-noise ratio"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "rate": {
+          "type": "number",
+          "format": "float",
+          "description": "Compression rate, e.g. `10.0` for x10 compression"
+        },
+        "mode": {
+          "type": "string",
+          "const": "rate"
+        }
+      },
+      "required": [
+        "mode",
+        "rate"
+      ],
+      "description": "Compression rate"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "const": "lossless"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "description": "Lossless compression"
+    }
+  ],
+  "description": "Codec providing compression using JPEG 2000.\n\n Arrays that are higher-dimensional than 2D are encoded by compressing each\n 2D slice with JPEG 2000 independently. Specifically, the array's shape is\n interpreted as `[.., height, width]`. If you want to compress 2D slices\n along two different axes, you can swizzle the array axes beforehand.",
+  "properties": {
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "0.1.0"
+    }
+  },
+  "title": "Jpeg2000Codec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
