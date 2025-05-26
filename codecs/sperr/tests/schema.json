@@ -5,10 +5,29 @@
     {
       "type": "object",
       "properties": {
+        "bpp": {
+          "type": "number",
+          "exclusiveMinimum": 0.0,
+          "description": "positive bits-per-pixel"
+        },
+        "mode": {
+          "type": "string",
+          "const": "bpp"
+        }
+      },
+      "required": [
+        "mode",
+        "bpp"
+      ],
+      "description": "Fixed bit-per-pixel rate"
+    },
+    {
+      "type": "object",
+      "properties": {
         "psnr": {
           "type": "number",
-          "format": "float",
-          "description": "Peak signal-to-noise ratio"
+          "exclusiveMinimum": 0.0,
+          "description": "positive peak signal-to-noise ratio"
         },
         "mode": {
           "type": "string",
@@ -19,42 +38,29 @@
         "mode",
         "psnr"
       ],
-      "description": "Peak signal-to-noise ratio"
+      "description": "Fixed peak signal-to-noise ratio"
     },
     {
       "type": "object",
       "properties": {
-        "rate": {
+        "pwe": {
           "type": "number",
-          "format": "float",
-          "description": "Compression rate, e.g. `10.0` for x10 compression"
+          "exclusiveMinimum": 0.0,
+          "description": "positive point-wise (absolute) error"
         },
         "mode": {
           "type": "string",
-          "const": "rate"
+          "const": "pwe"
         }
       },
       "required": [
         "mode",
-        "rate"
+        "pwe"
       ],
-      "description": "Compression rate"
-    },
-    {
-      "type": "object",
-      "properties": {
-        "mode": {
-          "type": "string",
-          "const": "lossless"
-        }
-      },
-      "required": [
-        "mode"
-      ],
-      "description": "Lossless compression"
+      "description": "Fixed point-wise (absolute) error"
     }
   ],
-  "description": "Codec providing compression using JPEG 2000.\n\n Arrays that are higher-dimensional than 2D are encoded by compressing each\n 2D slice with JPEG 2000 independently. Specifically, the array's shape is\n interpreted as `[.., height, width]`. If you want to compress 2D slices\n along two different axes, you can swizzle the array axes beforehand.",
+  "description": "Codec providing compression using SPERR.\n\n Arrays that are higher-dimensional than 3D are encoded by compressing each\n 3D slice with SPERR independently. Specifically, the array's shape is\n interpreted as `[.., depth, height, width]`. If you want to compress 3D\n slices along three different axes, you can swizzle the array axes\n beforehand.",
   "properties": {
     "_version": {
       "type": "string",
@@ -63,6 +69,6 @@
       "default": "0.1.0"
     }
   },
-  "title": "Jpeg2000Codec",
+  "title": "SperrCodec",
   "$schema": "https://json-schema.org/draft/2020-12/schema"
 }

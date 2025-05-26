@@ -15,7 +15,6 @@ keywords = ["SPERR", "numcodecs", "compression", "encoding"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-log = { workspace = true }
 ndarray = { workspace = true, features = ["std"] }
 numcodecs = { workspace = true }
 num-traits = { workspace = true, features = ["std"] }
@@ -27,7 +26,6 @@ thiserror = { workspace = true }
 
 [dev-dependencies]
 serde_json = { workspace = true, features = ["std"] }
-simple_logger = { workspace = true }
 
 [lints]
 workspace = true

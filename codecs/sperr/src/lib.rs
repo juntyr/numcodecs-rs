@@ -26,98 +26,84 @@ use std::borrow::Cow;
 use std::fmt;
 
 use ndarray::{Array, Array1, ArrayBase, Axis, Data, Dimension, IxDyn, ShapeError};
-use num_traits::identities::Zero;
+use num_traits::{Float, identities::Zero};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-type Jpeg2000CodecVersion = StaticCodecVersion<0, 1, 0>;
+type SperrCodecVersion = StaticCodecVersion<0, 1, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // serde cannot deny unknown fields because of the flatten
 #[schemars(deny_unknown_fields)]
-/// Codec providing compression using JPEG 2000.
+/// Codec providing compression using SPERR.
 ///
-/// Arrays that are higher-dimensional than 2D are encoded by compressing each
-/// 2D slice with JPEG 2000 independently. Specifically, the array's shape is
-/// interpreted as `[.., height, width]`. If you want to compress 2D slices
-/// along two different axes, you can swizzle the array axes beforehand.
-pub struct Jpeg2000Codec {
-    /// JPEG 2000 compression mode
+/// Arrays that are higher-dimensional than 3D are encoded by compressing each
+/// 3D slice with SPERR independently. Specifically, the array's shape is
+/// interpreted as `[.., depth, height, width]`. If you want to compress 3D
+/// slices along three different axes, you can swizzle the array axes
+/// beforehand.
+pub struct SperrCodec {
+    /// SPERR compression mode
     #[serde(flatten)]
-    pub mode: Jpeg2000CompressionMode,
+    pub mode: SperrCompressionMode,
     /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
-    pub version: Jpeg2000CodecVersion,
+    pub version: SperrCodecVersion,
 }
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-/// JPEG 2000 compression mode
+/// SPERR compression mode
 #[serde(tag = "mode")]
-pub enum Jpeg2000CompressionMode {
-    /// Peak signal-to-noise ratio
+pub enum SperrCompressionMode {
+    /// Fixed bit-per-pixel rate
+    #[serde(rename = "bpp")]
+    BitsPerPixel {
+        /// positive bits-per-pixel
+        bpp: Positive<f64>,
+    },
+    /// Fixed peak signal-to-noise ratio
     #[serde(rename = "psnr")]
-    PSNR {
-        /// Peak signal-to-noise ratio
-        psnr: f32,
+    PeakSignalToNoiseRatio {
+        /// positive peak signal-to-noise ratio
+        psnr: Positive<f64>,
     },
-    /// Compression rate
-    #[serde(rename = "rate")]
-    Rate {
-        /// Compression rate, e.g. `10.0` for x10 compression
-        rate: f32,
+    /// Fixed point-wise (absolute) error
+    #[serde(rename = "pwe")]
+    PointwiseError {
+        /// positive point-wise (absolute) error
+        pwe: Positive<f64>,
     },
-    /// Lossless compression
-    #[serde(rename = "lossless")]
-    Lossless,
 }
 
-impl Codec for Jpeg2000Codec {
-    type Error = Jpeg2000CodecError;
+impl Codec for SperrCodec {
+    type Error = SperrCodecError;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
-            AnyCowArray::I8(data) => Ok(AnyArray::U8(
+            AnyCowArray::F32(data) => Ok(AnyArray::U8(
                 Array1::from(compress(data, &self.mode)?).into_dyn(),
             )),
-            AnyCowArray::U8(data) => Ok(AnyArray::U8(
+            AnyCowArray::F64(data) => Ok(AnyArray::U8(
                 Array1::from(compress(data, &self.mode)?).into_dyn(),
             )),
-            AnyCowArray::I16(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.mode)?).into_dyn(),
-            )),
-            AnyCowArray::U16(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.mode)?).into_dyn(),
-            )),
-            AnyCowArray::I32(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.mode)?).into_dyn(),
-            )),
-            AnyCowArray::U32(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.mode)?).into_dyn(),
-            )),
-            AnyCowArray::I64(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.mode)?).into_dyn(),
-            )),
-            AnyCowArray::U64(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, &self.mode)?).into_dyn(),
-            )),
-            encoded => Err(Jpeg2000CodecError::UnsupportedDtype(encoded.dtype())),
+            encoded => Err(SperrCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         let AnyCowArray::U8(encoded) = encoded else {
-            return Err(Jpeg2000CodecError::EncodedDataNotBytes {
+            return Err(SperrCodecError::EncodedDataNotBytes {
                 dtype: encoded.dtype(),
             });
         };
 
         if !matches!(encoded.shape(), [_]) {
-            return Err(Jpeg2000CodecError::EncodedDataNotOneDimensional {
+            return Err(SperrCodecError::EncodedDataNotOneDimensional {
                 shape: encoded.shape().to_vec(),
             });
         }
@@ -136,8 +122,8 @@ impl Codec for Jpeg2000Codec {
     }
 }
 
-impl StaticCodec for Jpeg2000Codec {
-    const CODEC_ID: &'static str = "jpeg2000.rs";
+impl StaticCodec for SperrCodec {
+    const CODEC_ID: &'static str = "sperr.rs";
 
     type Config<'de> = Self;
 
@@ -151,76 +137,76 @@ impl StaticCodec for Jpeg2000Codec {
 }
 
 #[derive(Debug, Error)]
-/// Errors that may occur when applying the [`Jpeg2000Codec`].
-pub enum Jpeg2000CodecError {
-    /// [`Jpeg2000Codec`] does not support the dtype
-    #[error("Jpeg2000 does not support the dtype {0}")]
+/// Errors that may occur when applying the [`SperrCodec`].
+pub enum SperrCodecError {
+    /// [`SperrCodec`] does not support the dtype
+    #[error("Sperr does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
-    /// [`Jpeg2000Codec`] failed to encode the header
-    #[error("Jpeg2000 failed to encode the header")]
+    /// [`SperrCodec`] failed to encode the header
+    #[error("Sperr failed to encode the header")]
     HeaderEncodeFailed {
         /// Opaque source error
-        source: Jpeg2000HeaderError,
+        source: SperrHeaderError,
     },
-    /// [`Jpeg2000Codec`] failed to encode the data
-    #[error("Jpeg2000 failed to encode the data")]
-    Jpeg2000EncodeFailed {
+    /// [`SperrCodec`] failed to encode the data
+    #[error("Sperr failed to encode the data")]
+    SperrEncodeFailed {
         /// Opaque source error
-        source: Jpeg2000CodingError,
+        source: SperrCodingError,
     },
-    /// [`Jpeg2000Codec`] failed to encode a slice
-    #[error("Jpeg2000 failed to encode a slice")]
+    /// [`SperrCodec`] failed to encode a slice
+    #[error("Sperr failed to encode a slice")]
     SliceEncodeFailed {
         /// Opaque source error
-        source: Jpeg2000SliceError,
+        source: SperrSliceError,
     },
-    /// [`Jpeg2000Codec`] can only decode one-dimensional byte arrays but received
+    /// [`SperrCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different dtype
     #[error(
-        "Jpeg2000 can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
+        "Sperr can only decode one-dimensional byte arrays but received an array of dtype {dtype}"
     )]
     EncodedDataNotBytes {
         /// The unexpected dtype of the encoded array
         dtype: AnyArrayDType,
     },
-    /// [`Jpeg2000Codec`] can only decode one-dimensional byte arrays but received
+    /// [`SperrCodec`] can only decode one-dimensional byte arrays but received
     /// an array of a different shape
     #[error(
-        "Jpeg2000 can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
+        "Sperr can only decode one-dimensional byte arrays but received a byte array of shape {shape:?}"
     )]
     EncodedDataNotOneDimensional {
         /// The unexpected shape of the encoded array
         shape: Vec<usize>,
     },
-    /// [`Jpeg2000Codec`] failed to decode the header
-    #[error("Jpeg2000 failed to decode the header")]
+    /// [`SperrCodec`] failed to decode the header
+    #[error("Sperr failed to decode the header")]
     HeaderDecodeFailed {
         /// Opaque source error
-        source: Jpeg2000HeaderError,
+        source: SperrHeaderError,
     },
-    /// [`Jpeg2000Codec`] failed to decode a slice
-    #[error("Jpeg2000 failed to decode a slice")]
+    /// [`SperrCodec`] failed to decode a slice
+    #[error("Sperr failed to decode a slice")]
     SliceDecodeFailed {
         /// Opaque source error
-        source: Jpeg2000SliceError,
+        source: SperrSliceError,
     },
-    /// [`Jpeg2000Codec`] failed to decode from an excessive number of slices
-    #[error("Jpeg2000 failed to decode from an excessive number of slices")]
+    /// [`SperrCodec`] failed to decode from an excessive number of slices
+    #[error("Sperr failed to decode from an excessive number of slices")]
     DecodeTooManySlices,
-    /// [`Jpeg2000Codec`] failed to decode the data
-    #[error("Jpeg2000 failed to decode the data")]
-    Jpeg2000DecodeFailed {
+    /// [`SperrCodec`] failed to decode the data
+    #[error("Sperr failed to decode the data")]
+    SperrDecodeFailed {
         /// Opaque source error
-        source: Jpeg2000CodingError,
+        source: SperrCodingError,
     },
-    /// [`Jpeg2000Codec`] decoded into an invalid shape not matching the data size
-    #[error("Jpeg2000 decoded into an invalid shape not matching the data size")]
+    /// [`SperrCodec`] decoded into an invalid shape not matching the data size
+    #[error("Sperr decoded into an invalid shape not matching the data size")]
     DecodeInvalidShape {
         /// The source of the error
         source: ShapeError,
     },
-    /// [`Jpeg2000Codec`] cannot decode into the provided array
-    #[error("Jpeg2000Codec cannot decode into the provided array")]
+    /// [`SperrCodec`] cannot decode into the provided array
+    #[error("Sperr cannot decode into the provided array")]
     MismatchedDecodeIntoArray {
         /// The source of the error
         #[from]
@@ -231,31 +217,31 @@ pub enum Jpeg2000CodecError {
 #[derive(Debug, Error)]
 #[error(transparent)]
 /// Opaque error for when encoding or decoding the header fails
-pub struct Jpeg2000HeaderError(postcard::Error);
+pub struct SperrHeaderError(postcard::Error);
 
 #[derive(Debug, Error)]
 #[error(transparent)]
 /// Opaque error for when encoding or decoding a slice fails
-pub struct Jpeg2000SliceError(postcard::Error);
+pub struct SperrSliceError(postcard::Error);
 
 #[derive(Debug, Error)]
 #[error(transparent)]
-/// Opaque error for when encoding or decoding with JPEG 2000 fails
-pub struct Jpeg2000CodingError(ffi::Jpeg2000Error);
+/// Opaque error for when encoding or decoding with SPERR fails
+pub struct SperrCodingError(sperr::Error);
 
-/// Compress the `data` array using JPEG 2000 with the provided `mode`.
+/// Compress the `data` array using SPERR with the provided `mode`.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`Jpeg2000CodecError::HeaderEncodeFailed`] if encoding the header failed
-/// - [`Jpeg2000CodecError::Jpeg2000EncodeFailed`] if encoding with JPEG 2000
-///   failed
-/// - [`Jpeg2000CodecError::SliceEncodeFailed`] if encoding a slice failed
-pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
+/// - [`SperrCodecError::HeaderEncodeFailed`] if encoding the header failed
+/// - [`SperrCodecError::SperrEncodeFailed`] if encoding with SPERR failed
+/// - [`SperrCodecError::SliceEncodeFailed`] if encoding a slice failed
+#[allow(clippy::missing_panics_doc)]
+pub fn compress<T: SperrElement, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
-    mode: &Jpeg2000CompressionMode,
-) -> Result<Vec<u8>, Jpeg2000CodecError> {
+    mode: &SperrCompressionMode,
+) -> Result<Vec<u8>, SperrCodecError> {
     let mut encoded = postcard::to_extend(
         &CompressionHeader {
             dtype: T::DTYPE,
@@ -264,50 +250,59 @@ pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
         },
         Vec::new(),
     )
-    .map_err(|err| Jpeg2000CodecError::HeaderEncodeFailed {
-        source: Jpeg2000HeaderError(err),
+    .map_err(|err| SperrCodecError::HeaderEncodeFailed {
+        source: SperrHeaderError(err),
     })?;
 
-    // JPEG 2000 cannot handle zero-length dimensions
+    // SPERR cannot handle zero-length dimensions
     if data.is_empty() {
         return Ok(encoded);
     }
 
-    let mut encoded_slice = Vec::new();
-
     let mut chunk_size = Vec::from(data.shape());
-    let (width, height) = match *chunk_size.as_mut_slice() {
-        [ref mut rest @ .., height, width] => {
+    let (width, height, depth) = match *chunk_size.as_mut_slice() {
+        [ref mut rest @ .., depth, height, width] => {
             for r in rest {
                 *r = 1;
             }
-            (width, height)
+            (width, height, depth)
         }
-        [width] => (width, 1),
-        [] => (1, 1),
+        [height, width] => (width, height, 1),
+        [width] => (width, 1, 1),
+        [] => (1, 1, 1),
     };
 
-    for slice in data.into_dyn().exact_chunks(chunk_size.as_slice()) {
-        encoded_slice.clear();
+    for mut slice in data.into_dyn().exact_chunks(chunk_size.as_slice()) {
+        while slice.ndim() < 3 {
+            slice = slice.insert_axis(Axis(0));
+        }
+        #[allow(clippy::unwrap_used)]
+        // slice must now have at least three axes, and all but the last three
+        //  must be of size 1
+        let slice = slice.into_shape_with_order((depth, height, width)).unwrap();
 
-        ffi::encode_into(
-            slice.iter().copied(),
-            width,
-            height,
+        let encoded_slice = sperr::compress_3d(
+            slice,
             match mode {
-                Jpeg2000CompressionMode::PSNR { psnr } => ffi::Jpeg2000CompressionMode::PSNR(*psnr),
-                Jpeg2000CompressionMode::Rate { rate } => ffi::Jpeg2000CompressionMode::Rate(*rate),
-                Jpeg2000CompressionMode::Lossless => ffi::Jpeg2000CompressionMode::Lossless,
+                SperrCompressionMode::BitsPerPixel { bpp } => {
+                    sperr::CompressionMode::BitsPerPixel { bpp: bpp.0 }
+                }
+                SperrCompressionMode::PeakSignalToNoiseRatio { psnr } => {
+                    sperr::CompressionMode::PeakSignalToNoiseRatio { psnr: psnr.0 }
+                }
+                SperrCompressionMode::PointwiseError { pwe } => {
+                    sperr::CompressionMode::PointwiseError { pwe: pwe.0 }
+                }
             },
-            &mut encoded_slice,
+            (256, 256, 256),
         )
-        .map_err(|err| Jpeg2000CodecError::Jpeg2000EncodeFailed {
-            source: Jpeg2000CodingError(err),
+        .map_err(|err| SperrCodecError::SperrEncodeFailed {
+            source: SperrCodingError(err),
         })?;
 
         encoded = postcard::to_extend(encoded_slice.as_slice(), encoded).map_err(|err| {
-            Jpeg2000CodecError::SliceEncodeFailed {
-                source: Jpeg2000SliceError(err),
+            SperrCodecError::SliceEncodeFailed {
+                source: SperrSliceError(err),
             }
         })?;
     }
@@ -315,66 +310,64 @@ pub fn compress<T: Jpeg2000Element, S: Data<Elem = T>, D: Dimension>(
     Ok(encoded)
 }
 
-/// Decompress the `encoded` data into an array using JPEG 2000.
+/// Decompress the `encoded` data into an array using SPERR.
 ///
 /// # Errors
 ///
 /// Errors with
-/// - [`Jpeg2000CodecError::HeaderDecodeFailed`] if decoding the header failed
-/// - [`Jpeg2000CodecError::SliceDecodeFailed`] if decoding a slice failed
-/// - [`Jpeg2000CodecError::Jpeg2000DecodeFailed`] if decoding with JPEG 2000
-///   failed
-/// - [`Jpeg2000CodecError::DecodeInvalidShape`] if the encoded data decodes to
+/// - [`SperrCodecError::HeaderDecodeFailed`] if decoding the header failed
+/// - [`SperrCodecError::SliceDecodeFailed`] if decoding a slice failed
+/// - [`SperrCodecError::SperrDecodeFailed`] if decoding with SPERR failed
+/// - [`SperrCodecError::DecodeInvalidShape`] if the encoded data decodes to
 ///   an unexpected shape
-/// - [`Jpeg2000CodecError::DecodeTooManySlices`] if the encoded data contains
+/// - [`SperrCodecError::DecodeTooManySlices`] if the encoded data contains
 ///   too many slices
-pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
-    fn decompress_typed<T: Jpeg2000Element>(
+pub fn decompress(encoded: &[u8]) -> Result<AnyArray, SperrCodecError> {
+    fn decompress_typed<T: SperrElement>(
         mut encoded: &[u8],
         shape: &[usize],
-    ) -> Result<Array<T, IxDyn>, Jpeg2000CodecError> {
+    ) -> Result<Array<T, IxDyn>, SperrCodecError> {
         let mut decoded = Array::<T, _>::zeros(shape);
 
         let mut chunk_size = Vec::from(shape);
-        let (width, height) = match *chunk_size.as_mut_slice() {
-            [ref mut rest @ .., height, width] => {
+        let (width, height, depth) = match *chunk_size.as_mut_slice() {
+            [ref mut rest @ .., depth, height, width] => {
                 for r in rest {
                     *r = 1;
                 }
-                (width, height)
+                (width, height, depth)
             }
-            [width] => (width, 1),
-            [] => (1, 1),
+            [height, width] => (width, height, 1),
+            [width] => (width, 1, 1),
+            [] => (1, 1, 1),
         };
 
         for mut slice in decoded.exact_chunks_mut(chunk_size.as_slice()) {
             let (encoded_slice, rest) =
                 postcard::take_from_bytes::<Cow<[u8]>>(encoded).map_err(|err| {
-                    Jpeg2000CodecError::SliceDecodeFailed {
-                        source: Jpeg2000SliceError(err),
+                    SperrCodecError::SliceDecodeFailed {
+                        source: SperrSliceError(err),
                     }
                 })?;
             encoded = rest;
 
-            let (decoded_slice, (_width, _height)) =
-                ffi::decode::<T>(&encoded_slice).map_err(|err| {
-                    Jpeg2000CodecError::Jpeg2000DecodeFailed {
-                        source: Jpeg2000CodingError(err),
-                    }
-                })?;
-            let mut decoded_slice = Array::from_shape_vec((height, width), decoded_slice)
-                .map_err(|source| Jpeg2000CodecError::DecodeInvalidShape { source })?
-                .into_dyn();
-
-            while decoded_slice.ndim() > shape.len() {
-                decoded_slice = decoded_slice.remove_axis(Axis(0));
+            while slice.ndim() < 3 {
+                slice = slice.insert_axis(Axis(0));
             }
+            #[allow(clippy::unwrap_used)]
+            // slice must now have at least three axes, and all but the last
+            //  three must be of size 1
+            let slice = slice.into_shape_with_order((depth, height, width)).unwrap();
 
-            slice.assign(&decoded_slice);
+            sperr::decompress_into_3d(&encoded_slice, slice).map_err(|err| {
+                SperrCodecError::SperrDecodeFailed {
+                    source: SperrCodingError(err),
+                }
+            })?;
         }
 
         if !encoded.is_empty() {
-            return Err(Jpeg2000CodecError::DecodeTooManySlices);
+            return Err(SperrCodecError::DecodeTooManySlices);
         }
 
         Ok(decoded)
@@ -382,109 +375,112 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
 
     let (header, encoded) =
         postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
-            Jpeg2000CodecError::HeaderDecodeFailed {
-                source: Jpeg2000HeaderError(err),
+            SperrCodecError::HeaderDecodeFailed {
+                source: SperrHeaderError(err),
             }
         })?;
 
     // Return empty data for zero-size arrays
     if header.shape.iter().copied().product::<usize>() == 0 {
         return match header.dtype {
-            Jpeg2000DType::I8 => Ok(AnyArray::I8(Array::zeros(&*header.shape))),
-            Jpeg2000DType::U8 => Ok(AnyArray::U8(Array::zeros(&*header.shape))),
-            Jpeg2000DType::I16 => Ok(AnyArray::I16(Array::zeros(&*header.shape))),
-            Jpeg2000DType::U16 => Ok(AnyArray::U16(Array::zeros(&*header.shape))),
-            Jpeg2000DType::I32 => Ok(AnyArray::I32(Array::zeros(&*header.shape))),
-            Jpeg2000DType::U32 => Ok(AnyArray::U32(Array::zeros(&*header.shape))),
-            Jpeg2000DType::I64 => Ok(AnyArray::I64(Array::zeros(&*header.shape))),
-            Jpeg2000DType::U64 => Ok(AnyArray::U64(Array::zeros(&*header.shape))),
+            SperrDType::F32 => Ok(AnyArray::F32(Array::zeros(&*header.shape))),
+            SperrDType::F64 => Ok(AnyArray::F64(Array::zeros(&*header.shape))),
         };
     }
 
     match header.dtype {
-        Jpeg2000DType::I8 => Ok(AnyArray::I8(decompress_typed(encoded, &header.shape)?)),
-        Jpeg2000DType::U8 => Ok(AnyArray::U8(decompress_typed(encoded, &header.shape)?)),
-        Jpeg2000DType::I16 => Ok(AnyArray::I16(decompress_typed(encoded, &header.shape)?)),
-        Jpeg2000DType::U16 => Ok(AnyArray::U16(decompress_typed(encoded, &header.shape)?)),
-        Jpeg2000DType::I32 => Ok(AnyArray::I32(decompress_typed(encoded, &header.shape)?)),
-        Jpeg2000DType::U32 => Ok(AnyArray::U32(decompress_typed(encoded, &header.shape)?)),
-        Jpeg2000DType::I64 => Ok(AnyArray::I64(decompress_typed(encoded, &header.shape)?)),
-        Jpeg2000DType::U64 => Ok(AnyArray::U64(decompress_typed(encoded, &header.shape)?)),
+        SperrDType::F32 => Ok(AnyArray::F32(decompress_typed(encoded, &header.shape)?)),
+        SperrDType::F64 => Ok(AnyArray::F64(decompress_typed(encoded, &header.shape)?)),
     }
 }
 
-/// Array element types which can be compressed with JPEG 2000.
-pub trait Jpeg2000Element: ffi::Jpeg2000Element + Zero {
+/// Array element types which can be compressed with SPERR.
+pub trait SperrElement: sperr::Element + Zero {
     /// The dtype representation of the type
-    const DTYPE: Jpeg2000DType;
+    const DTYPE: SperrDType;
 }
 
-impl Jpeg2000Element for i8 {
-    const DTYPE: Jpeg2000DType = Jpeg2000DType::I8;
+impl SperrElement for f32 {
+    const DTYPE: SperrDType = SperrDType::F32;
 }
-impl Jpeg2000Element for u8 {
-    const DTYPE: Jpeg2000DType = Jpeg2000DType::U8;
+impl SperrElement for f64 {
+    const DTYPE: SperrDType = SperrDType::F64;
 }
-impl Jpeg2000Element for i16 {
-    const DTYPE: Jpeg2000DType = Jpeg2000DType::I16;
+
+#[expect(clippy::derive_partial_eq_without_eq)] // floats are not Eq
+#[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
+/// Positive floating point number
+pub struct Positive<T: Float>(T);
+
+impl<T: Float> Positive<T> {
+    #[must_use]
+    /// Get the positive floating point value
+    pub const fn get(self) -> T {
+        self.0
+    }
 }
-impl Jpeg2000Element for u16 {
-    const DTYPE: Jpeg2000DType = Jpeg2000DType::U16;
+
+impl Serialize for Positive<f64> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_f64(self.0)
+    }
 }
-impl Jpeg2000Element for i32 {
-    const DTYPE: Jpeg2000DType = Jpeg2000DType::I32;
+
+impl<'de> Deserialize<'de> for Positive<f64> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let x = f64::deserialize(deserializer)?;
+
+        if x > 0.0 {
+            Ok(Self(x))
+        } else {
+            Err(serde::de::Error::invalid_value(
+                serde::de::Unexpected::Float(x),
+                &"a positive value",
+            ))
+        }
+    }
 }
-impl Jpeg2000Element for u32 {
-    const DTYPE: Jpeg2000DType = Jpeg2000DType::U32;
-}
-impl Jpeg2000Element for i64 {
-    const DTYPE: Jpeg2000DType = Jpeg2000DType::I64;
-}
-impl Jpeg2000Element for u64 {
-    const DTYPE: Jpeg2000DType = Jpeg2000DType::U64;
+
+impl JsonSchema for Positive<f64> {
+    fn schema_name() -> Cow<'static, str> {
+        Cow::Borrowed("PositiveF64")
+    }
+
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Borrowed(concat!(module_path!(), "::", "Positive<f64>"))
+    }
+
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "number",
+            "exclusiveMinimum": 0.0
+        })
+    }
 }
 
 #[derive(Serialize, Deserialize)]
 struct CompressionHeader<'a> {
-    dtype: Jpeg2000DType,
+    dtype: SperrDType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
-    version: Jpeg2000CodecVersion,
+    version: SperrCodecVersion,
 }
 
-/// Dtypes that JPEG 2000 can compress and decompress
+/// Dtypes that SPERR can compress and decompress
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 #[expect(missing_docs)]
-pub enum Jpeg2000DType {
-    #[serde(rename = "i8", alias = "int8")]
-    I8,
-    #[serde(rename = "u8", alias = "uint8")]
-    U8,
-    #[serde(rename = "i16", alias = "int16")]
-    I16,
-    #[serde(rename = "u16", alias = "uint16")]
-    U16,
-    #[serde(rename = "i32", alias = "int32")]
-    I32,
-    #[serde(rename = "u32", alias = "uint32")]
-    U32,
-    #[serde(rename = "i64", alias = "int64")]
-    I64,
-    #[serde(rename = "u64", alias = "uint64")]
-    U64,
+pub enum SperrDType {
+    #[serde(rename = "f32", alias = "float32")]
+    F32,
+    #[serde(rename = "f64", alias = "float64")]
+    F64,
 }
 
-impl fmt::Display for Jpeg2000DType {
+impl fmt::Display for SperrDType {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.write_str(match self {
-            Self::I8 => "i8",
-            Self::U8 => "u8",
-            Self::I16 => "i16",
-            Self::U16 => "u16",
-            Self::I32 => "i32",
-            Self::U32 => "u32",
-            Self::I64 => "i64",
-            Self::U64 => "u64",
+            Self::F32 => "f32",
+            Self::F64 => "f64",
         })
     }
 }
@@ -498,156 +494,108 @@ mod tests {
 
     #[test]
     fn zero_length() {
-        std::mem::drop(simple_logger::init());
-
         let encoded = compress(
-            Array::<i16, _>::from_shape_vec([3, 0], vec![]).unwrap(),
-            &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
+            Array::<f32, _>::from_shape_vec([3, 0], vec![]).unwrap(),
+            &SperrCompressionMode::PeakSignalToNoiseRatio {
+                psnr: Positive(42.0),
+            },
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
 
-        assert_eq!(decoded.dtype(), AnyArrayDType::I16);
+        assert_eq!(decoded.dtype(), AnyArrayDType::F32);
         assert!(decoded.is_empty());
         assert_eq!(decoded.shape(), &[3, 0]);
     }
 
     #[test]
     fn small_2d() {
-        std::mem::drop(simple_logger::init());
-
         let encoded = compress(
-            Array::<i16, _>::from_shape_vec([1, 1], vec![42]).unwrap(),
-            &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
+            Array::<f32, _>::from_shape_vec([1, 1], vec![42.0]).unwrap(),
+            &SperrCompressionMode::PeakSignalToNoiseRatio {
+                psnr: Positive(42.0),
+            },
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
 
-        assert_eq!(decoded.dtype(), AnyArrayDType::I16);
+        assert_eq!(decoded.dtype(), AnyArrayDType::F32);
         assert_eq!(decoded.len(), 1);
         assert_eq!(decoded.shape(), &[1, 1]);
     }
 
     #[test]
-    fn small_lossless_types() {
-        macro_rules! check {
-            ($T:ident($t:ident)) => {
-                check! { $T($t,$t::MIN,$t::MAX) }
-            };
-            ($T:ident($t:ident,$min:expr,$max:expr)) => {
-                let data = Array::<$t, _>::from_shape_vec([4, 1], vec![$min, 0, 42, $max]).unwrap();
-
-                let encoded = compress(
-                    data.view(),
-                    &Jpeg2000CompressionMode::Lossless,
-                )
-                .unwrap();
-                let decoded = decompress(&encoded).unwrap();
-
-                assert_eq!(decoded.len(), 4);
-                assert_eq!(decoded.shape(), &[4, 1]);
-                assert_eq!(decoded, AnyArray::$T(data.into_dyn()));
-            };
-            ($($T:ident($($tt:tt),*)),*) => {
-                $(check! { $T($($tt),*) })*
-            };
-        }
-
-        check! {
-            I8(i8), U8(u8), I16(i16), U16(u16),
-            I32(i32,(i32::MIN/(1<<7)),(i32::MAX/(1<<7))),
-            U32(u32,(u32::MIN),(u32::MAX/(1<<7))),
-            I64(i64,(i64::MIN/(1<<(32+7))),(i64::MAX/(1<<(32+7)))),
-            U64(u64,(u64::MIN),(u64::MAX/(1<<(32+7))))
-        }
-    }
-
-    #[test]
-    fn out_of_range() {
-        macro_rules! check {
-            ($T:ident($t:ident,$($v:expr),*)) => {
-                $(
-                    let data = Array::<$t, _>::from_shape_vec([1, 1], vec![$v]).unwrap();
-                    compress(
-                        data.view(),
-                        &Jpeg2000CompressionMode::Lossless,
-                    )
-                    .unwrap_err();
-                )*
-            };
-            ($($T:ident($($tt:tt),*)),*) => {
-                $(check! { $T($($tt),*) })*
-            };
-        }
-
-        check! {
-            I32(i32,(i32::MIN),(i32::MAX)), U32(u32,(u32::MAX)),
-            I64(i64,(i64::MIN),(i64::MAX)), U64(u64,(u64::MAX))
-        }
-    }
-
-    #[test]
-    fn large_2d() {
-        std::mem::drop(simple_logger::init());
-
+    fn large_3d() {
         let encoded = compress(
-            Array::<i16, _>::zeros((64, 64)),
-            &Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
+            Array::<f64, _>::zeros((64, 64, 64)),
+            &SperrCompressionMode::PeakSignalToNoiseRatio {
+                psnr: Positive(42.0),
+            },
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
 
-        assert_eq!(decoded.dtype(), AnyArrayDType::I16);
-        assert_eq!(decoded.len(), 64 * 64);
-        assert_eq!(decoded.shape(), &[64, 64]);
+        assert_eq!(decoded.dtype(), AnyArrayDType::F64);
+        assert_eq!(decoded.len(), 64 * 64 * 64);
+        assert_eq!(decoded.shape(), &[64, 64, 64]);
     }
 
     #[test]
     fn all_modes() {
-        std::mem::drop(simple_logger::init());
-
         for mode in [
-            Jpeg2000CompressionMode::PSNR { psnr: 42.0 },
-            Jpeg2000CompressionMode::Rate { rate: 5.0 },
-            Jpeg2000CompressionMode::Lossless,
+            SperrCompressionMode::BitsPerPixel { bpp: Positive(1.0) },
+            SperrCompressionMode::PeakSignalToNoiseRatio {
+                psnr: Positive(42.0),
+            },
+            SperrCompressionMode::PointwiseError { pwe: Positive(0.1) },
         ] {
-            let encoded = compress(Array::<i16, _>::zeros((64, 64)), &mode).unwrap();
+            let encoded = compress(Array::<f64, _>::zeros((64, 64, 64)), &mode).unwrap();
             let decoded = decompress(&encoded).unwrap();
 
-            assert_eq!(decoded.dtype(), AnyArrayDType::I16);
-            assert_eq!(decoded.len(), 64 * 64);
-            assert_eq!(decoded.shape(), &[64, 64]);
+            assert_eq!(decoded.dtype(), AnyArrayDType::F64);
+            assert_eq!(decoded.len(), 64 * 64 * 64);
+            assert_eq!(decoded.shape(), &[64, 64, 64]);
         }
     }
 
     #[test]
     fn many_dimensions() {
-        std::mem::drop(simple_logger::init());
-
         for data in [
-            Array::<i16, Ix0>::from_shape_vec([], vec![42])
+            Array::<f32, Ix0>::from_shape_vec([], vec![42.0])
                 .unwrap()
                 .into_dyn(),
-            Array::<i16, Ix1>::from_shape_vec([2], vec![1, 2])
+            Array::<f32, Ix1>::from_shape_vec([2], vec![1.0, 2.0])
                 .unwrap()
                 .into_dyn(),
-            Array::<i16, Ix2>::from_shape_vec([2, 2], vec![1, 2, 3, 4])
+            Array::<f32, Ix2>::from_shape_vec([2, 2], vec![1.0, 2.0, 3.0, 4.0])
                 .unwrap()
                 .into_dyn(),
-            Array::<i16, Ix3>::from_shape_vec([2, 2, 2], vec![1, 2, 3, 4, 5, 6, 7, 8])
-                .unwrap()
-                .into_dyn(),
-            Array::<i16, Ix4>::from_shape_vec(
+            Array::<f32, Ix3>::from_shape_vec(
+                [2, 2, 2],
+                vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+            )
+            .unwrap()
+            .into_dyn(),
+            Array::<f32, Ix4>::from_shape_vec(
                 [2, 2, 2, 2],
-                vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+                vec![
+                    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0,
+                    15.0, 16.0,
+                ],
             )
             .unwrap()
             .into_dyn(),
         ] {
-            let encoded = compress(data.view(), &Jpeg2000CompressionMode::Lossless).unwrap();
+            let encoded = compress(
+                data.view(),
+                &SperrCompressionMode::PointwiseError {
+                    pwe: Positive(f64::EPSILON),
+                },
+            )
+            .unwrap();
             let decoded = decompress(&encoded).unwrap();
 
-            assert_eq!(decoded, AnyArray::I16(data));
+            assert_eq!(decoded, AnyArray::F32(data));
         }
     }
 }
