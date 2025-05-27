@@ -10,6 +10,7 @@ numcodecs_wasm_pco
 numcodecs_wasm_random_projection
 numcodecs_wasm_reinterpret
 numcodecs_wasm_round
+numcodecs_wasm_sperr
 numcodecs_wasm_swizzle_reshape
 numcodecs_wasm_sz3
 numcodecs_wasm_tthresh

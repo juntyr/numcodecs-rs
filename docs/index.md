@@ -26,6 +26,7 @@ The following Python packages, all published independently on PyPi, use [`numcod
 - [`numcodecs_wasm_random_projection`][numcodecs_wasm_random_projection]: random projection codec
 - [`numcodecs_wasm_reinterpret`][numcodecs_wasm_reinterpret]: binary reinterpret codec
 - [`numcodecs_wasm_round`][numcodecs_wasm_round]: rounding codec
+- [`numcodecs_wasm_sperr`][numcodecs_wasm_sperr]: SPERR codec
 - [`numcodecs_wasm_swizzle_reshape`][numcodecs_wasm_swizzle_reshape]: array axis swizzle and reshape codec
 - [`numcodecs_wasm_sz3`][numcodecs_wasm_sz3]: SZ3 codec
 - [`numcodecs_wasm_tthresh`][numcodecs_wasm_tthresh]: Tthresh codec

@@ -1,0 +1,74 @@
+{
+  "type": "object",
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "bpp": {
+          "type": "number",
+          "exclusiveMinimum": 0.0,
+          "description": "positive bits-per-pixel"
+        },
+        "mode": {
+          "type": "string",
+          "const": "bpp"
+        }
+      },
+      "required": [
+        "mode",
+        "bpp"
+      ],
+      "description": "Fixed bit-per-pixel rate"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "psnr": {
+          "type": "number",
+          "exclusiveMinimum": 0.0,
+          "description": "positive peak signal-to-noise ratio"
+        },
+        "mode": {
+          "type": "string",
+          "const": "psnr"
+        }
+      },
+      "required": [
+        "mode",
+        "psnr"
+      ],
+      "description": "Fixed peak signal-to-noise ratio"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "pwe": {
+          "type": "number",
+          "exclusiveMinimum": 0.0,
+          "description": "positive point-wise (absolute) error"
+        },
+        "mode": {
+          "type": "string",
+          "const": "pwe"
+        }
+      },
+      "required": [
+        "mode",
+        "pwe"
+      ],
+      "description": "Fixed point-wise (absolute) error"
+    }
+  ],
+  "description": "Codec providing compression using SPERR.\n\n Arrays that are higher-dimensional than 3D are encoded by compressing each\n 3D slice with SPERR independently. Specifically, the array's shape is\n interpreted as `[.., depth, height, width]`. If you want to compress 3D\n slices along three different axes, you can swizzle the array axes\n beforehand.",
+  "properties": {
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "0.1.0"
+    }
+  },
+  "title": "SperrCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
