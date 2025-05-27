@@ -4,12 +4,12 @@
 #include <cstdlib>
 #include <new>
 
-extern "C" void __cxa_pure_virtual() { std::abort(); }
-extern "C" void* __cxa_allocate_exception(size_t) throw() { std::abort(); }
-extern "C" void __cxa_throw() { std::abort(); }
-extern "C" unsigned int __cxa_uncaught_exceptions() { return 0; }
+extern "C" inline void __cxa_pure_virtual() { std::abort(); }
+extern "C" inline void* __cxa_allocate_exception(size_t) throw() { std::abort(); }
+extern "C" inline void __cxa_throw() { std::abort(); }
+extern "C" inline unsigned int __cxa_uncaught_exceptions() { return 0; }
 
-void* operator new(std::size_t n)
+inline void* operator new(std::size_t n)
 #if __cplusplus < 201703L
     throw(std::bad_alloc)
 #endif
@@ -21,7 +21,7 @@ void* operator new(std::size_t n)
     return ret;
 }
 
-void* operator new[](std::size_t n)
+inline void* operator new[](std::size_t n)
 #if __cplusplus < 201703L
     throw(std::bad_alloc)
 #endif
@@ -33,7 +33,7 @@ void* operator new[](std::size_t n)
     return ret;
 }
 
-void* operator new(std::size_t n, std::align_val_t a)
+inline void* operator new(std::size_t n, std::align_val_t a)
 #if __cplusplus < 201703L
     throw(std::bad_alloc)
 #endif
@@ -45,22 +45,22 @@ void* operator new(std::size_t n, std::align_val_t a)
     return ret;
 }
 
-void operator delete(void* p) noexcept
+inline void operator delete(void* p) noexcept
 {
     std::free(p);
 }
 
-void operator delete[](void* p) noexcept
+inline void operator delete[](void* p) noexcept
 {
     std::free(p);
 }
 
-void operator delete(void* p, std::align_val_t a) noexcept
+inline void operator delete(void* p, std::align_val_t a) noexcept
 {
     std::free(p);
 }
 
-void operator delete(void* p, std::size_t sz) noexcept
+inline void operator delete(void* p, std::size_t sz) noexcept
 {
     std::free(p);
 }
