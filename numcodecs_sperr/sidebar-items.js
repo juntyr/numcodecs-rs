@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["SperrCodecError","SperrCompressionMode","SperrDType"],"fn":["compress","decompress"],"struct":["Positive","SperrCodec","SperrCodingError","SperrHeaderError","SperrSliceError"],"trait":["SperrElement"]};
