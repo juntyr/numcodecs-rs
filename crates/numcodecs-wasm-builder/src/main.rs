@@ -58,7 +58,7 @@ fn main() -> io::Result<()> {
         &crate_dir,
         &format!("{}-wasm", args.crate_),
     )?;
-    let wasm = optimize_wasm_codec(&wasm, &nix_env)?;
+    // let wasm = optimize_wasm_codec(&wasm, &nix_env)?;
     let wasm = adapt_wasi_snapshot_to_preview2(&wasm)?;
 
     fs::copy(wasm, args.output)?;
@@ -254,7 +254,7 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
     cmd.arg(format!(
         "CFLAGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir {resource_dir} \
          --sysroot={wasi_sysroot} -isystem {clang_include} -isystem {wasi32_wasi_include} \
-         -isystem {include} -B {lld} -D_WASI_EMULATED_PROCESS_CLOCKS -O3",
+         -isystem {include} -B {lld} -D_WASI_EMULATED_PROCESS_CLOCKS -g -O0",
         resource_dir = libclang.join("clang").join(llvm_version).display(),
         wasi_sysroot = wasi_sysroot.display(),
         clang_include = libclang
@@ -270,7 +270,7 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
         "CXXFLAGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir {resource_dir} \
          --sysroot={wasi_sysroot} -isystem {wasm32_wasi_cxx_include} -isystem {cxx_include} \
          -isystem {clang_include} -isystem {wasi32_wasi_include} -isystem {include} -B {lld} \
-         -D_WASI_EMULATED_PROCESS_CLOCKS -include {cpp_include_path} -O3",
+         -D_WASI_EMULATED_PROCESS_CLOCKS -include {cpp_include_path} -g -O0",
         resource_dir = libclang.join("clang").join(llvm_version).display(),
         wasi_sysroot = wasi_sysroot.display(),
         wasm32_wasi_cxx_include = wasi_sysroot
@@ -326,7 +326,7 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
     cmd.arg("CRATE_CC_NO_DEFAULTS=1");
     cmd.arg("LDFLAGS=-lc -lwasi-emulated-process-clocks");
     cmd.arg(format!(
-        "RUSTFLAGS=-C link-arg=-L{wasm32_wasi_lib}",
+        "RUSTFLAGS=-C link-arg=-L{wasm32_wasi_lib} -C debuginfo=2 -C opt-level=0",
         wasm32_wasi_lib = wasi_sysroot.join("lib").join("wasm32-wasip1").display(),
     ));
     cmd.arg(format!(
