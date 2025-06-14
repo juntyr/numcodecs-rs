@@ -326,7 +326,7 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
     cmd.arg("CRATE_CC_NO_DEFAULTS=1");
     cmd.arg("LDFLAGS=-lc -lwasi-emulated-process-clocks");
     cmd.arg(format!(
-        "RUSTFLAGS=-C panic=abort -C strip=symbols -C link-arg=-L{wasm32_wasi_lib}",
+        "RUSTFLAGS=-C link-arg=-L{wasm32_wasi_lib}",
         wasm32_wasi_lib = wasi_sysroot.join("lib").join("wasm32-wasip1").display(),
     ));
     cmd.arg(format!(
@@ -353,11 +353,6 @@ fn build_wasm_codec(
     let mut cmd = configure_cargo_cmd(nix_env, target_dir, crate_dir);
     cmd.arg("rustc")
         .arg("--crate-type=cdylib")
-        .arg("-Z")
-        .arg("build-std=std,panic_abort")
-        .arg("-Z")
-        .arg("build-std-features=panic_immediate_abort")
-        .arg("--release")
         .arg("--target=wasm32-wasip1");
 
     eprintln!("executing {cmd:?}");
@@ -369,7 +364,7 @@ fn build_wasm_codec(
 
     Ok(target_dir
         .join("wasm32-wasip1")
-        .join("release")
+        .join("debug")
         .join(crate_name.replace('-', "_"))
         .with_extension("wasm"))
 }
