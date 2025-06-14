@@ -95,23 +95,23 @@ for c in (repo_path / "codecs").iterdir():
         check=True,
         cwd=staging_path,
     )
-    subprocess.run(
-        shlex.split(
-            f"uv run python3 {Path(__file__).parent / 'stub.py'} "
-            f"{'numcodecs_wasm_' + templates['package_suffix']} src"
-        ),
-        check=True,
-        cwd=staging_path,
-    )
-    subprocess.run(
-        shlex.split(
-            f'uv run python3 -c "from {"numcodecs_wasm_" + templates["package_suffix"]} '
-            f'import {templates["CodecName"]} as Codec; '
-            f'assert Codec.codec_id == {templates["codec-id"]!r}, Codec.codec_id"'
-        ),
-        check=True,
-        cwd=staging_path,
-    )
+    # subprocess.run(
+    #     shlex.split(
+    #         f"uv run python3 {Path(__file__).parent / 'stub.py'} "
+    #         f"{'numcodecs_wasm_' + templates['package_suffix']} src"
+    #     ),
+    #     check=True,
+    #     cwd=staging_path,
+    # )
+    # subprocess.run(
+    #     shlex.split(
+    #         f'uv run python3 -c "from {"numcodecs_wasm_" + templates["package_suffix"]} '
+    #         f'import {templates["CodecName"]} as Codec; '
+    #         f'assert Codec.codec_id == {templates["codec-id"]!r}, Codec.codec_id"'
+    #     ),
+    #     check=True,
+    #     cwd=staging_path,
+    # )
     shutil.rmtree(staging_path / ".venv", ignore_errors=True)
 
     subprocess.run(

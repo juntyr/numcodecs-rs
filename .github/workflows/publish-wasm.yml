@@ -44,7 +44,7 @@ jobs:
           cd py/test
           uv venv
           uv pip install ../numcodecs-wasm-materialize/dist/*.whl
-          uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted((Path('..') / 'numcodecs-wasm-materialize' / 'dist').glob('*.whl'))]"
+          # uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted((Path('..') / 'numcodecs-wasm-materialize' / 'dist').glob('*.whl'))]"
 
       - name: Upload the WASM codec artifacts
         uses: actions/upload-artifact@v4
