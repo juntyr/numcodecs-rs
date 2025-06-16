@@ -54,7 +54,7 @@
       "description": "Lossless compression"
     }
   ],
-  "description": "Codec providing compression using JPEG 2000.\n\n Arrays that are higher-dimensional than 2D are encoded by compressing each\n 2D slice with JPEG 2000 independently. Specifically, the array's shape is\n interpreted as `[.., height, width]`. If you want to compress 2D slices\n along two different axes, you can swizzle the array axes beforehand.",
+  "description": "Codec providing compression using JPEG 2000.\n\nArrays that are higher-dimensional than 2D are encoded by compressing each\n2D slice with JPEG 2000 independently. Specifically, the array's shape is\ninterpreted as `[.., height, width]`. If you want to compress 2D slices\nalong two different axes, you can swizzle the array axes beforehand.",
   "properties": {
     "_version": {
       "type": "string",
