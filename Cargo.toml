@@ -100,7 +100,7 @@ pyo3-error = { version = "0.5", default-features = false }
 pyo3-log = { version = "0.12.4", default-features = false }
 pythonize = { version = "0.25", default-features = false }
 rand = { version = "0.9.1", default-features = false }
-schemars = { version = "=1.0.0-rc.1", default-features = false }
+schemars = { version = "1.0.1", default-features = false }
 scratch = { version = "1.0", default-features = false }
 semver = { version = "1.0.23", default-features = false }
 serde = { version = "1.0.218", default-features = false }
@@ -113,7 +113,7 @@ thiserror = { version = "2.0.12", default-features = false }
 tthresh = { version = "0.1", default-features = false }
 twofloat = { version = "0.8", default-features = false }
 vecmap-rs = { version = "0.2", default-features = false }
-wac-graph = { version = "0.6", default-features = false }
+wac-graph = { version = "0.7", default-features = false }
 wasi-sandboxed-component-provider = { version = "=0.2.3", default-features = false }
 wasi-logger = { version = "0.1", default-features = false }
 wasi-preview1-component-adapter-provider = { version = "33.0", default-features = false }
@@ -122,7 +122,7 @@ wasmtime = { version = "33.0", default-features = false }
 wasmtime_runtime_layer = { version = "33.0", default-features = false }
 wasm-encoder = { version = "0.235", default-features = false }
 wasm_runtime_layer = { version = "0.5", default-features = false }
-wit-bindgen = { version = "0.42", default-features = false }
+wit-bindgen = { version = "0.43", default-features = false }
 wit-component = { version = "0.235", default-features = false }
 wit-parser = { version = "0.235", default-features = false }
 wyhash = { version = "0.6", default-features = false }

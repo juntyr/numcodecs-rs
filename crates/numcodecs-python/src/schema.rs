@@ -137,7 +137,7 @@ pub fn docs_from_schema(schema: &Schema) -> Option<String> {
     let mut docs = String::new();
 
     if let Some(Value::String(description)) = schema.get("description") {
-        docs.push_str(&derust_doc_comment(description));
+        docs.push_str(description);
         docs.push_str("\n\n");
     }
 
@@ -307,7 +307,7 @@ fn extend_parameters_from_one_of_schema<'a>(
                 _ => &[],
             };
             let variant_docs = match schema.get("description") {
-                Some(Value::String(docs)) => Some(derust_doc_comment(docs)),
+                Some(Value::String(docs)) => Some(docs),
                 _ => None,
             };
 
@@ -350,22 +350,6 @@ fn extend_parameters_from_one_of_schema<'a>(
                 .map(VariantParameter::into_parameter),
         );
     }
-}
-
-fn derust_doc_comment(docs: &str) -> Cow<str> {
-    if docs.trim() != docs {
-        return Cow::Borrowed(docs);
-    }
-
-    if !docs
-        .split('\n')
-        .skip(1)
-        .all(|l| l.trim().is_empty() || l.starts_with(' '))
-    {
-        return Cow::Borrowed(docs);
-    }
-
-    Cow::Owned(docs.replace("\n ", "\n"))
 }
 
 #[derive(Debug, Error)]
@@ -412,7 +396,7 @@ impl<'a> Parameter<'a> {
                 .any(|r| matches!(r, Value::String(n) if n == name)),
             default: parameter.get("default"),
             docs: match parameter.get("description") {
-                Some(Value::String(docs)) => Some(derust_doc_comment(docs)),
+                Some(Value::String(docs)) => Some(docs),
                 _ => None,
             },
         }
