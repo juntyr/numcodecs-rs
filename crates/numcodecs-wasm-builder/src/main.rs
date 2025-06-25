@@ -1,4 +1,5 @@
 #![expect(missing_docs)] // FIXME
+#![allow(clippy::multiple_crate_versions)] // windows_i686_gnullvm
 
 use std::{
     collections::HashMap,
