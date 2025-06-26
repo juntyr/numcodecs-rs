@@ -321,7 +321,7 @@ fn extend_parameters_from_one_of_schema<'a>(
                                 name,
                                 parameter,
                                 required,
-                                variant_docs.clone(),
+                                variant_docs.map(|x| Cow::Borrowed(x.as_str())),
                             ));
                         }
                         Entry::Occupied(mut entry) => {
@@ -330,7 +330,7 @@ fn extend_parameters_from_one_of_schema<'a>(
                                 name,
                                 parameter,
                                 required,
-                                variant_docs.clone(),
+                                variant_docs.map(|x| Cow::Borrowed(x.as_str())),
                             );
                         }
                     }
@@ -396,7 +396,7 @@ impl<'a> Parameter<'a> {
                 .any(|r| matches!(r, Value::String(n) if n == name)),
             default: parameter.get("default"),
             docs: match parameter.get("description") {
-                Some(Value::String(docs)) => Some(docs),
+                Some(Value::String(docs)) => Some(Cow::Borrowed(docs.as_str())),
                 _ => None,
             },
         }
