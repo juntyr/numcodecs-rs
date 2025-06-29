@@ -121,7 +121,7 @@
   "oneOf": [
     {
       "type": "object",
-      "description": "Errors are bounded by *both* the absolute and relative error, i.e. by\n whichever bound is stricter",
+      "description": "Errors are bounded by *both* the absolute and relative error, i.e. by\nwhichever bound is stricter",
       "properties": {
         "eb_abs": {
           "type": "number",
@@ -146,7 +146,7 @@
     },
     {
       "type": "object",
-      "description": "Errors are bounded by *either* the absolute or relative error, i.e. by\n whichever bound is weaker",
+      "description": "Errors are bounded by *either* the absolute or relative error, i.e. by\nwhichever bound is weaker",
       "properties": {
         "eb_abs": {
           "type": "number",

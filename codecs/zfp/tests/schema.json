@@ -27,7 +27,7 @@
         "min_exp": {
           "type": "integer",
           "format": "int32",
-          "description": "Smallest absolute bit plane number encoded.\n\n This parameter applies to floating-point data only and is ignored\n for integer data."
+          "description": "Smallest absolute bit plane number encoded.\n\nThis parameter applies to floating-point data only and is ignored\nfor integer data."
         },
         "mode": {
           "type": "string",
@@ -44,7 +44,7 @@
     },
     {
       "type": "object",
-      "description": "In fixed-rate mode, each d-dimensional compressed block of `$4^d$`\n values is stored using a fixed number of bits. This number of\n compressed bits per block is amortized over the `$4^d$` values to give\n a rate of `$rate = \\frac{maxbits}{4^d}$` in bits per value.",
+      "description": "In fixed-rate mode, each d-dimensional compressed block of `$4^d$`\nvalues is stored using a fixed number of bits. This number of\ncompressed bits per block is amortized over the `$4^d$` values to give\na rate of `$rate = \\frac{maxbits}{4^d}$` in bits per value.",
       "properties": {
         "rate": {
           "type": "number",
@@ -63,7 +63,7 @@
     },
     {
       "type": "object",
-      "description": "In fixed-precision mode, the number of bits used to encode a block may\n vary, but the number of bit planes (the precision) encoded for the\n transform coefficients is fixed.",
+      "description": "In fixed-precision mode, the number of bits used to encode a block may\nvary, but the number of bit planes (the precision) encoded for the\ntransform coefficients is fixed.",
       "properties": {
         "precision": {
           "type": "integer",
@@ -83,7 +83,7 @@
     },
     {
       "type": "object",
-      "description": "In fixed-accuracy mode, all transform coefficient bit planes up to a\n minimum bit plane number are encoded. The smallest absolute bit plane\n number is chosen such that\n `$minexp = \\text{floor}(\\log_{2}(tolerance))$`.",
+      "description": "In fixed-accuracy mode, all transform coefficient bit planes up to a\nminimum bit plane number are encoded. The smallest absolute bit plane\nnumber is chosen such that\n`$minexp = \\text{floor}(\\log_{2}(tolerance))$`.",
       "properties": {
         "tolerance": {
           "type": "number",
@@ -111,7 +111,7 @@
       "required": [
         "mode"
       ],
-      "description": "Lossless per-block compression that preserves integer and floating point\n bit patterns."
+      "description": "Lossless per-block compression that preserves integer and floating point\nbit patterns."
     }
   ],
   "description": "Codec providing compression using ZFP",
