@@ -21,9 +21,6 @@
 
 #![expect(clippy::multiple_crate_versions)] // FIXME
 
-#[cfg(test)]
-use ::{ndarray as _, ndarray_rand as _, wasmtime as _, wasmtime_runtime_layer as _};
-
 #[macro_use]
 extern crate log;
 
@@ -32,5 +29,8 @@ mod engine;
 mod logging;
 mod stdio;
 mod transform;
+
+#[cfg(test)]
+mod tests;
 
 pub use codec::{ReproducibleWasmCodec, ReproducibleWasmCodecError, ReproducibleWasmCodecType};

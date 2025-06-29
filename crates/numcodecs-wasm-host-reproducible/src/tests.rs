@@ -1,17 +1,9 @@
-#![expect(missing_docs)]
-
-use ::{
-    anyhow as _, indexmap as _, log as _, numcodecs_wasm_host as _, polonius_the_crab as _,
-    schemars as _, semver as _, serde as _, thiserror as _, vecmap as _, wac_graph as _,
-    wasi_sandboxed_component_provider as _, wasm_component_layer as _, wasm_encoder as _,
-    wasm_runtime_layer as _, wasmparser as _, wit_component as _, wit_parser as _,
-};
-
 use ndarray::Array;
 use ndarray_rand::RandomExt;
 use ndarray_rand::rand_distr::Normal;
 use numcodecs::{Codec, DynCodecType};
-use numcodecs_wasm_host_reproducible::ReproducibleWasmCodecType;
+
+use crate::ReproducibleWasmCodecType;
 
 // codecs don't need to preallocate the full 4GB wasm32 memory space, but
 //  still give them a reasonable static allocation for better codegen
@@ -55,7 +47,7 @@ fn codec_roundtrip() {
 
     let engine = wasmtime_runtime_layer::Engine::new(wasmtime::Engine::new(&config).unwrap());
 
-    let ty = match ReproducibleWasmCodecType::new(engine, include_bytes!("round.wasm")) {
+    let ty = match ReproducibleWasmCodecType::new(engine, include_bytes!("../tests/round.wasm")) {
         Ok(ty) => ty,
         Err(err) => panic!(
             "ReproducibleWasmCodecType::new:\n===\n{err}\n===\n{err:?}\n===\n{err:#}\n===\n{err:#?}\n===\n"
