@@ -25,8 +25,9 @@ impl Image {
     ) -> Result<Self, Jpeg2000Error> {
         let mut image = std::ptr::null_mut();
 
-        if unsafe { openjpeg_sys::opj_read_header(stream.as_raw(), decoder.as_raw(), &mut image) }
-            != 1
+        if unsafe {
+            openjpeg_sys::opj_read_header(stream.as_raw(), decoder.as_raw(), &raw mut image)
+        } != 1
         {
             return Err(Jpeg2000Error::InvalidMainHeader);
         }
@@ -56,7 +57,7 @@ impl Image {
         let image = NonNull::new(unsafe {
             openjpeg_sys::opj_image_create(
                 1,
-                &mut image_params,
+                &raw mut image_params,
                 openjpeg_sys::OPJ_COLOR_SPACE::OPJ_CLRSPC_GRAY,
             )
         })

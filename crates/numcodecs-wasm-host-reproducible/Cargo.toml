@@ -42,5 +42,11 @@ wit-component = { workspace = true }
 wit-parser = { workspace = true }
 vecmap-rs = { workspace = true }
 
+[dev-dependencies]
+ndarray = { workspace = true }
+ndarray-rand = { workspace = true }
+wasmtime = { workspace = true, features = ["runtime", "cranelift", "cache", "gc-null"] }
+wasmtime_runtime_layer = { workspace = true }
+
 [lints]
 workspace = true

@@ -60,7 +60,7 @@
       "description": "Fixed point-wise (absolute) error"
     }
   ],
-  "description": "Codec providing compression using SPERR.\n\n Arrays that are higher-dimensional than 3D are encoded by compressing each\n 3D slice with SPERR independently. Specifically, the array's shape is\n interpreted as `[.., depth, height, width]`. If you want to compress 3D\n slices along three different axes, you can swizzle the array axes\n beforehand.",
+  "description": "Codec providing compression using SPERR.\n\nArrays that are higher-dimensional than 3D are encoded by compressing each\n3D slice with SPERR independently. Specifically, the array's shape is\ninterpreted as `[.., depth, height, width]`. If you want to compress 3D\nslices along three different axes, you can swizzle the array axes\nbeforehand.",
   "properties": {
     "_version": {
       "type": "string",

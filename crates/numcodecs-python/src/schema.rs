@@ -137,7 +137,7 @@ pub fn docs_from_schema(schema: &Schema) -> Option<String> {
     let mut docs = String::new();
 
     if let Some(Value::String(description)) = schema.get("description") {
-        docs.push_str(&derust_doc_comment(description));
+        docs.push_str(description);
         docs.push_str("\n\n");
     }
 
@@ -307,7 +307,7 @@ fn extend_parameters_from_one_of_schema<'a>(
                 _ => &[],
             };
             let variant_docs = match schema.get("description") {
-                Some(Value::String(docs)) => Some(derust_doc_comment(docs)),
+                Some(Value::String(docs)) => Some(docs),
                 _ => None,
             };
 
@@ -321,7 +321,7 @@ fn extend_parameters_from_one_of_schema<'a>(
                                 name,
                                 parameter,
                                 required,
-                                variant_docs.clone(),
+                                variant_docs.map(|x| Cow::Borrowed(x.as_str())),
                             ));
                         }
                         Entry::Occupied(mut entry) => {
@@ -330,7 +330,7 @@ fn extend_parameters_from_one_of_schema<'a>(
                                 name,
                                 parameter,
                                 required,
-                                variant_docs.clone(),
+                                variant_docs.map(|x| Cow::Borrowed(x.as_str())),
                             );
                         }
                     }
@@ -350,22 +350,6 @@ fn extend_parameters_from_one_of_schema<'a>(
                 .map(VariantParameter::into_parameter),
         );
     }
-}
-
-fn derust_doc_comment(docs: &str) -> Cow<str> {
-    if docs.trim() != docs {
-        return Cow::Borrowed(docs);
-    }
-
-    if !docs
-        .split('\n')
-        .skip(1)
-        .all(|l| l.trim().is_empty() || l.starts_with(' '))
-    {
-        return Cow::Borrowed(docs);
-    }
-
-    Cow::Owned(docs.replace("\n ", "\n"))
 }
 
 #[derive(Debug, Error)]
@@ -412,7 +396,7 @@ impl<'a> Parameter<'a> {
                 .any(|r| matches!(r, Value::String(n) if n == name)),
             default: parameter.get("default"),
             docs: match parameter.get("description") {
-                Some(Value::String(docs)) => Some(derust_doc_comment(docs)),
+                Some(Value::String(docs)) => Some(Cow::Borrowed(docs.as_str())),
                 _ => None,
             },
         }
@@ -541,7 +525,7 @@ mod tests {
     fn schema() {
         assert_eq!(
             format!("{}", schema_for!(MyCodec).to_value()),
-            r#"{"type":"object","properties":{"param":{"type":["integer","null"],"format":"int32","description":"An optional integer value."}},"unevaluatedProperties":false,"oneOf":[{"type":"object","description":"Mode a.\n\n It gets another line.","properties":{"value":{"type":"boolean","description":"A boolean value. And some really, really, really, long first\n line that wraps around.\n\n With multiple lines of comments."},"common":{"type":"string","description":"A common string value.\n\n Something else here."},"mode":{"type":"string","const":"A"}},"required":["mode","value","common"]},{"type":"object","description":"Mode b.","properties":{"common":{"type":"string","description":"A common string value.\n\n Something else here."},"mode":{"type":"string","const":"B"}},"required":["mode","common"]}],"description":"A codec that does something on encoding and decoding.\n\n With multiple lines of comments.","title":"MyCodec","$schema":"https://json-schema.org/draft/2020-12/schema"}"#
+            r#"{"type":"object","properties":{"param":{"type":["integer","null"],"format":"int32","description":"An optional integer value."}},"unevaluatedProperties":false,"oneOf":[{"type":"object","description":"Mode a.\n\nIt gets another line.","properties":{"value":{"type":"boolean","description":"A boolean value. And some really, really, really, long first\nline that wraps around.\n\nWith multiple lines of comments."},"common":{"type":"string","description":"A common string value.\n\nSomething else here."},"mode":{"type":"string","const":"A"}},"required":["mode","value","common"]},{"type":"object","description":"Mode b.","properties":{"common":{"type":"string","description":"A common string value.\n\nSomething else here."},"mode":{"type":"string","const":"B"}},"required":["mode","common"]}],"description":"A codec that does something on encoding and decoding.\n\nWith multiple lines of comments.","title":"MyCodec","$schema":"https://json-schema.org/draft/2020-12/schema"}"#
         );
     }
 
