@@ -21,6 +21,9 @@
 
 #![expect(clippy::multiple_crate_versions)] // FIXME
 
+#[cfg(test)]
+use ::{ndarray as _, ndarray_rand as _, wasmtime as _, wasmtime_runtime_layer as _};
+
 #[macro_use]
 extern crate log;
 

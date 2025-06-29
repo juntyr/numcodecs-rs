@@ -81,7 +81,7 @@ burn = { version = "0.17", default-features = false }
 clap = { version = "4.5", default-features = false }
 convert_case = { version = "0.8", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
-indexmap = { version = "2.7.1", default-features = false }
+indexmap = { version = "2.10", default-features = false }
 itertools = { version = "0.14", default-features = false }
 log = { version = "0.4.27", default-features = false }
 simple_logger = { version = "5.0", default-features = false }
@@ -100,7 +100,7 @@ pyo3-error = { version = "0.5", default-features = false }
 pyo3-log = { version = "0.12.4", default-features = false }
 pythonize = { version = "0.25", default-features = false }
 rand = { version = "0.9.1", default-features = false }
-schemars = { version = "1.0.1", default-features = false }
+schemars = { version = "1.0.3", default-features = false }
 scratch = { version = "1.0", default-features = false }
 semver = { version = "1.0.23", default-features = false }
 serde = { version = "1.0.218", default-features = false }
