@@ -37,7 +37,7 @@
       ],
       "format": "uint",
       "minimum": 1,
-      "description": "The optional mini-batch size used during training\n\n Setting the mini-batch size to `None` disables the use of batching,\n i.e. the network is trained using one large batch that includes the\n full data."
+      "description": "The optional mini-batch size used during training\n\nSetting the mini-batch size to `None` disables the use of batching,\ni.e. the network is trained using one large batch that includes the\nfull data."
     },
     "seed": {
       "type": "integer",
@@ -61,7 +61,7 @@
     "mini_batch_size",
     "seed"
   ],
-  "description": "Fourier network codec which trains and overfits a fourier feature neural\n network on encoding and predicts during decoding.\n\n The approach is based on the papers by Tancik et al. 2020\n (<https://dl.acm.org/doi/abs/10.5555/3495724.3496356>)\n and by Huang and Hoefler 2020 (<https://arxiv.org/abs/2210.12538>).",
+  "description": "Fourier network codec which trains and overfits a fourier feature neural\nnetwork on encoding and predicts during decoding.\n\nThe approach is based on the papers by Tancik et al. 2020\n(<https://dl.acm.org/doi/abs/10.5555/3495724.3496356>)\nand by Huang and Hoefler 2020 (<https://arxiv.org/abs/2210.12538>).",
   "title": "FourierNetworkCodec",
   "$schema": "https://json-schema.org/draft/2020-12/schema"
 }

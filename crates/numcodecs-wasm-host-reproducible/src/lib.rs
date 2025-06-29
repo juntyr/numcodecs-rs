@@ -30,4 +30,7 @@ mod logging;
 mod stdio;
 mod transform;
 
+#[cfg(test)]
+mod tests;
+
 pub use codec::{ReproducibleWasmCodec, ReproducibleWasmCodecError, ReproducibleWasmCodecType};

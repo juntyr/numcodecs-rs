@@ -114,6 +114,8 @@ jobs:
     steps:
       - name: Checkout the Repository
         uses: actions/checkout@v2
+        with:
+          lfs: true
 
       - name: Install the Rust toolchain
         uses: actions-rs/toolchain@v1

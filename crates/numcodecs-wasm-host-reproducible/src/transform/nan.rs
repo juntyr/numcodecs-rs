@@ -324,7 +324,8 @@ impl NaNCanonicaliserReencoder {
             wasmparser::Operator::Drop | wasmparser::Operator::Select => Ok(None),
             // === Reference types ===
             // non-float operation
-            wasmparser::Operator::TypedSelect { .. } => Ok(None),
+            wasmparser::Operator::TypedSelect { .. }
+            | wasmparser::Operator::TypedSelectMulti { .. } => Ok(None),
             // locals may contain floats, but get/set/tee are deterministic
             wasmparser::Operator::LocalGet { .. }
             | wasmparser::Operator::LocalSet { .. }
