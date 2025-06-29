@@ -103,7 +103,7 @@ pub fn encode_into<T: Jpeg2000Element>(
     let mut image = Image::from_gray_data(data, width, height)?;
 
     if unsafe {
-        openjpeg_sys::opj_setup_encoder(encoder.as_raw(), &mut encode_params, image.as_raw())
+        openjpeg_sys::opj_setup_encoder(encoder.as_raw(), &raw mut encode_params, image.as_raw())
     } != 1
     {
         return Err(Jpeg2000Error::EncoderSetupError);
@@ -136,7 +136,7 @@ pub fn decode<T: Jpeg2000Element>(bytes: &[u8]) -> Result<(Vec<T>, (usize, usize
     let mut decode_params = unsafe { decode_params.assume_init() };
     decode_params.decod_format = 1; // JP2
 
-    if unsafe { openjpeg_sys::opj_setup_decoder(decoder.as_raw(), &mut decode_params) } != 1 {
+    if unsafe { openjpeg_sys::opj_setup_decoder(decoder.as_raw(), &raw mut decode_params) } != 1 {
         return Err(Jpeg2000Error::DecoderSetupError);
     }
 

@@ -21,7 +21,7 @@
         11,
         12
       ],
-      "description": "Compression level, ranging from 0 (weak) over 8 (very good) to 12\n (expensive)"
+      "description": "Compression level, ranging from 0 (weak) over 8 (very good) to 12\n(expensive)"
     },
     "_version": {
       "type": "string",
@@ -46,7 +46,7 @@
           "required": [
             "mode"
           ],
-          "description": "Automatically detects a good mode.\n\n This works well most of the time, but costs some compression time and\n can select a bad mode in adversarial cases."
+          "description": "Automatically detects a good mode.\n\nThis works well most of the time, but costs some compression time and\ncan select a bad mode in adversarial cases."
         },
         {
           "type": "object",
@@ -63,7 +63,7 @@
         },
         {
           "type": "object",
-          "description": "Tries using the `FloatMult` mode with a given base.\n\n Only applies to floating-point types.",
+          "description": "Tries using the `FloatMult` mode with a given base.\n\nOnly applies to floating-point types.",
           "properties": {
             "float_mult_base": {
               "type": "number",
@@ -82,7 +82,7 @@
         },
         {
           "type": "object",
-          "description": "Tries using the `FloatQuant` mode with the given number of bits of\n quantization.\n\n Only applies to floating-point types.",
+          "description": "Tries using the `FloatQuant` mode with the given number of bits of\nquantization.\n\nOnly applies to floating-point types.",
           "properties": {
             "float_quant_bits": {
               "type": "integer",
@@ -102,7 +102,7 @@
         },
         {
           "type": "object",
-          "description": "Tries using the `IntMult` mode with a given base.\n\n Only applies to integer types.",
+          "description": "Tries using the `IntMult` mode with a given base.\n\nOnly applies to integer types.",
           "properties": {
             "int_mult_base": {
               "type": "integer",
@@ -135,7 +135,7 @@
           "required": [
             "delta"
           ],
-          "description": "Automatically detects a detects a good delta encoding.\n\n This works well most of the time, but costs some compression time and\n can select a bad delta encoding in adversarial cases."
+          "description": "Automatically detects a detects a good delta encoding.\n\nThis works well most of the time, but costs some compression time and\ncan select a bad delta encoding in adversarial cases."
         },
         {
           "type": "object",
@@ -148,11 +148,11 @@
           "required": [
             "delta"
           ],
-          "description": "Never uses delta encoding.\n\n This is best if your data is in a random order or adjacent numbers have\n no relation to each other."
+          "description": "Never uses delta encoding.\n\nThis is best if your data is in a random order or adjacent numbers have\nno relation to each other."
         },
         {
           "type": "object",
-          "description": "Tries taking nth order consecutive deltas.\n\n Supports a delta encoding order up to 7. For instance, 1st order is\n just regular delta encoding, 2nd is deltas-of-deltas, etc. It is legal\n to use 0th order, but it is identical to None.",
+          "description": "Tries taking nth order consecutive deltas.\n\nSupports a delta encoding order up to 7. For instance, 1st order is\njust regular delta encoding, 2nd is deltas-of-deltas, etc. It is legal\nto use 0th order, but it is identical to None.",
           "properties": {
             "delta_encoding_order": {
               "type": "integer",
@@ -189,7 +189,7 @@
           "required": [
             "delta"
           ],
-          "description": "Tries delta encoding according to an extra latent variable of\n \"lookback\".\n\n This can improve compression ratio when there are nontrivial patterns\n in the array, but reduces compression speed substantially."
+          "description": "Tries delta encoding according to an extra latent variable of\n\"lookback\".\n\nThis can improve compression ratio when there are nontrivial patterns\nin the array, but reduces compression speed substantially."
         }
       ]
     }
@@ -197,7 +197,7 @@
   "oneOf": [
     {
       "type": "object",
-      "description": "Divide the chunk into equal pages of up to this many numbers.\n\n For example, with equal pages up to 100,000, a chunk of 150,000 numbers\n would be divided into 2 pages, each of 75,000 numbers.",
+      "description": "Divide the chunk into equal pages of up to this many numbers.\n\nFor example, with equal pages up to 100,000, a chunk of 150,000 numbers\nwould be divided into 2 pages, each of 75,000 numbers.",
       "properties": {
         "equal_pages_up_to": {
           "type": "integer",

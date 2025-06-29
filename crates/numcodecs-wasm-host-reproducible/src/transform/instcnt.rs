@@ -292,7 +292,8 @@ impl InstructionCounterInjecterReencoder {
             wasmparser::Operator::Drop | wasmparser::Operator::Select => Some(false),
             // === Reference types ===
             // no control flow
-            wasmparser::Operator::TypedSelect { .. } => Some(false),
+            wasmparser::Operator::TypedSelect { .. }
+            | wasmparser::Operator::TypedSelectMulti { .. } => Some(false),
             // === MVP ===
             // no control flow
             wasmparser::Operator::LocalGet { .. }
