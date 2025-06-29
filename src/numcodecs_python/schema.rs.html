@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/schema.rs`."><title>schema.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-84e720fa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.89.0-nightly (d4e1159b8 2025-06-21)" data-channel="nightly" data-search-js="search-92309212.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-4e99c027.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fd3af306.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-python/src/schema.rs`."><title>schema.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-84e720fa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_python" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (11ad40bb8 2025-06-28)" data-channel="nightly" data-search-js="search-179e01a3.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-4e99c027.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-340f468f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -68,10 +68,10 @@
 <a href=#30 id=30 data-nosnippet>30</a><span class="kw">pub fn </span>schema_from_codec_class(
 <a href=#31 id=31 data-nosnippet>31</a>    py: <a href="https://docs.rs/pyo3/0.23/pyo3/marker/struct.Python.html">Python</a>,
 <a href=#32 id=32 data-nosnippet>32</a>    class: <span class="kw-2">&amp;</span><a href="https://docs.rs/pyo3/0.23/pyo3/instance/struct.Bound.html">Bound</a>&lt;<a href="codec_class.rs.html#17-19">PyCodecClass</a>&gt;,
-<a href=#33 id=33 data-nosnippet>33</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;Schema, <a href="#372-391">SchemaError</a>&gt; {
+<a href=#33 id=33 data-nosnippet>33</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;Schema, <a href="#356-375">SchemaError</a>&gt; {
 <a href=#34 id=34 data-nosnippet>34</a>    <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(schema) = <a href="#32">class</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.23/pyo3/macro.intern.html">intern!</a>(py, RustCodec::SCHEMA_ATTRIBUTE)) {
 <a href=#35 id=35 data-nosnippet>35</a>        <span class="kw">return </span>depythonize(<span class="kw-2">&amp;</span><a href="#34">schema</a>)
-<a href=#36 id=36 data-nosnippet>36</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#374">SchemaError::InvalidCachedJsonSchema</a> { source: <a href="#36">err</a> });
+<a href=#36 id=36 data-nosnippet>36</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#358">SchemaError::InvalidCachedJsonSchema</a> { source: <a href="#36">err</a> });
 <a href=#37 id=37 data-nosnippet>37</a>    }
 <a href=#38 id=38 data-nosnippet>38</a>
 <a href=#39 id=39 data-nosnippet>39</a>    <span class="kw">let </span><span class="kw-2">mut </span>schema = <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Schema::default</a>();
@@ -148,7 +148,7 @@
 <a href=#110 id=110 data-nosnippet>110</a>            <span class="kw">if </span>!doc.is_none() {
 <a href=#111 id=111 data-nosnippet>111</a>                <span class="kw">let </span>doc: <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a> = <a href="#109">doc</a>
 <a href=#112 id=112 data-nosnippet>112</a>                    .<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>()
-<a href=#113 id=113 data-nosnippet>113</a>                    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#388">SchemaError::InvalidClassDocs</a> { source: <a href="#113">err</a> })<span class="question-mark">?</span>;
+<a href=#113 id=113 data-nosnippet>113</a>                    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#372">SchemaError::InvalidClassDocs</a> { source: <a href="#113">err</a> })<span class="question-mark">?</span>;
 <a href=#114 id=114 data-nosnippet>114</a>                <a href="#42">schema</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/map/struct.Map.html#method.insert">insert</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">String::from</a>(<span class="string">"description"</span>), <a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#variant.String">Value::String</a>(<a href="#111">doc</a>));
 <a href=#115 id=115 data-nosnippet>115</a>            }
 <a href=#116 id=116 data-nosnippet>116</a>        }
@@ -156,7 +156,7 @@
 <a href=#118 id=118 data-nosnippet>118</a>        <span class="kw">let </span>name = <a href="#32">class</a>
 <a href=#119 id=119 data-nosnippet>119</a>            .<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.getattr">getattr</a>(<a class="macro" href="https://docs.rs/pyo3/0.23/pyo3/macro.intern.html">intern!</a>(py, <span class="string">"__name__"</span>))
 <a href=#120 id=120 data-nosnippet>120</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.and_then">and_then</a>(|name| <a href="#120">name</a>.<a href="https://docs.rs/pyo3/0.23/pyo3/types/any/trait.PyAnyMethods.html#tymethod.extract">extract</a>())
-<a href=#121 id=121 data-nosnippet>121</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#390">SchemaError::InvalidClassName</a> { source: <a href="#121">err</a> })<span class="question-mark">?</span>;
+<a href=#121 id=121 data-nosnippet>121</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| <a href="#374">SchemaError::InvalidClassName</a> { source: <a href="#121">err</a> })<span class="question-mark">?</span>;
 <a href=#122 id=122 data-nosnippet>122</a>        <a href="#42">schema</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/map/struct.Map.html#method.insert">insert</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">String::from</a>(<span class="string">"title"</span>), <a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#variant.String">Value::String</a>(<a href="#118">name</a>));
 <a href=#123 id=123 data-nosnippet>123</a>
 <a href=#124 id=124 data-nosnippet>124</a>        <a href="#42">schema</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/map/struct.Map.html#method.insert">insert</a>(
@@ -175,7 +175,7 @@
 <a href=#137 id=137 data-nosnippet>137</a>    <span class="kw">let </span><span class="kw-2">mut </span>docs = <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.new">String::new</a>();
 <a href=#138 id=138 data-nosnippet>138</a>
 <a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::String(description)) = <a href="#135">schema</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/map/struct.Map.html#method.get">get</a>(<span class="string">"description"</span>) {
-<a href=#140 id=140 data-nosnippet>140</a>        <a href="#137">docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.push_str">push_str</a>(<span class="kw-2">&amp;</span><a href="#355-369">derust_doc_comment</a>(<a href="#139">description</a>));
+<a href=#140 id=140 data-nosnippet>140</a>        <a href="#137">docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.push_str">push_str</a>(<a href="#139">description</a>);
 <a href=#141 id=141 data-nosnippet>141</a>        <a href="#137">docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.push_str">push_str</a>(<span class="string">"\n\n"</span>);
 <a href=#142 id=142 data-nosnippet>142</a>    }
 <a href=#143 id=143 data-nosnippet>143</a>
@@ -252,10 +252,10 @@
 <a href=#214 id=214 data-nosnippet>214</a>    <a href="#194">signature</a>
 <a href=#215 id=215 data-nosnippet>215</a>}
 <a href=#216 id=216 data-nosnippet>216</a>
-<a href=#217 id=217 data-nosnippet>217</a><span class="kw">fn </span>parameters_from_schema(schema: <span class="kw-2">&amp;</span>Schema) -&gt; <a href="#393-396">Parameters</a> {
+<a href=#217 id=217 data-nosnippet>217</a><span class="kw">fn </span>parameters_from_schema(schema: <span class="kw-2">&amp;</span>Schema) -&gt; <a href="#377-380">Parameters</a> {
 <a href=#218 id=218 data-nosnippet>218</a>    <span class="comment">// schema = true means that any parameters are allowed
 <a href=#219 id=219 data-nosnippet>219</a>    </span><span class="kw">if </span>schema.as_bool() == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
-<a href=#220 id=220 data-nosnippet>220</a>        <span class="kw">return </span><a href="#393-396">Parameters</a> {
+<a href=#220 id=220 data-nosnippet>220</a>        <span class="kw">return </span><a href="#377-380">Parameters</a> {
 <a href=#221 id=221 data-nosnippet>221</a>            named: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>(),
 <a href=#222 id=222 data-nosnippet>222</a>            additional: <span class="bool-val">true</span>,
 <a href=#223 id=223 data-nosnippet>223</a>        };
@@ -264,7 +264,7 @@
 <a href=#226 id=226 data-nosnippet>226</a>    <span class="comment">// schema = false means that no config is valid
 <a href=#227 id=227 data-nosnippet>227</a>    // we approximate that by saying that no parameters are allowed
 <a href=#228 id=228 data-nosnippet>228</a>    </span><span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(schema) = <a href="#217">schema</a>.as_object() <span class="kw">else </span>{
-<a href=#229 id=229 data-nosnippet>229</a>        <span class="kw">return </span><a href="#393-396">Parameters</a> {
+<a href=#229 id=229 data-nosnippet>229</a>        <span class="kw">return </span><a href="#377-380">Parameters</a> {
 <a href=#230 id=230 data-nosnippet>230</a>            named: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>(),
 <a href=#231 id=231 data-nosnippet>231</a>            additional: <span class="bool-val">false</span>,
 <a href=#232 id=232 data-nosnippet>232</a>        };
@@ -309,7 +309,7 @@
 <a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
 <a href=#272 id=272 data-nosnippet>272</a>    };
 <a href=#273 id=273 data-nosnippet>273</a>
-<a href=#274 id=274 data-nosnippet>274</a>    <a href="#393-396">Parameters</a> {
+<a href=#274 id=274 data-nosnippet>274</a>    <a href="#377-380">Parameters</a> {
 <a href=#275 id=275 data-nosnippet>275</a>        named: <a href="#235">parameters</a>,
 <a href=#276 id=276 data-nosnippet>276</a>        <a href="#249">additional</a>,
 <a href=#277 id=277 data-nosnippet>277</a>    }
@@ -317,7 +317,7 @@
 <a href=#279 id=279 data-nosnippet>279</a>
 <a href=#280 id=280 data-nosnippet>280</a><span class="kw">fn </span>extend_parameters_from_one_of_schema&lt;<span class="lifetime">'a</span>&gt;(
 <a href=#281 id=281 data-nosnippet>281</a>    schema: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/map/struct.Map.html">Map</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a>, <a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>&gt;,
-<a href=#282 id=282 data-nosnippet>282</a>    parameters: <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="#398-403">Parameter</a>&lt;<span class="lifetime">'a</span>&gt;&gt;,
+<a href=#282 id=282 data-nosnippet>282</a>    parameters: <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="#382-387">Parameter</a>&lt;<span class="lifetime">'a</span>&gt;&gt;,
 <a href=#283 id=283 data-nosnippet>283</a>    additional: <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
 <a href=#284 id=284 data-nosnippet>284</a>) {
 <a href=#285 id=285 data-nosnippet>285</a>    <span class="comment">// iterate over oneOf to handle top-level or flattened enums
@@ -345,7 +345,7 @@
 <a href=#307 id=307 data-nosnippet>307</a>                <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>[],
 <a href=#308 id=308 data-nosnippet>308</a>            };
 <a href=#309 id=309 data-nosnippet>309</a>            <span class="kw">let </span>variant_docs = <span class="kw">match </span>schema.get(<span class="string">"description"</span>) {
-<a href=#310 id=310 data-nosnippet>310</a>                <span class="prelude-val">Some</span>(Value::String(docs)) =&gt; <span class="prelude-val">Some</span>(derust_doc_comment(docs)),
+<a href=#310 id=310 data-nosnippet>310</a>                <span class="prelude-val">Some</span>(Value::String(docs)) =&gt; <span class="prelude-val">Some</span>(docs),
 <a href=#311 id=311 data-nosnippet>311</a>                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
 <a href=#312 id=312 data-nosnippet>312</a>            };
 <a href=#313 id=313 data-nosnippet>313</a>
@@ -359,7 +359,7 @@
 <a href=#321 id=321 data-nosnippet>321</a>                                name,
 <a href=#322 id=322 data-nosnippet>322</a>                                parameter,
 <a href=#323 id=323 data-nosnippet>323</a>                                required,
-<a href=#324 id=324 data-nosnippet>324</a>                                variant_docs.clone(),
+<a href=#324 id=324 data-nosnippet>324</a>                                variant_docs.map(|x| Cow::Borrowed(x.as_str())),
 <a href=#325 id=325 data-nosnippet>325</a>                            ));
 <a href=#326 id=326 data-nosnippet>326</a>                        }
 <a href=#327 id=327 data-nosnippet>327</a>                        Entry::Occupied(<span class="kw-2">mut </span>entry) =&gt; {
@@ -368,7 +368,7 @@
 <a href=#330 id=330 data-nosnippet>330</a>                                name,
 <a href=#331 id=331 data-nosnippet>331</a>                                parameter,
 <a href=#332 id=332 data-nosnippet>332</a>                                required,
-<a href=#333 id=333 data-nosnippet>333</a>                                variant_docs.clone(),
+<a href=#333 id=333 data-nosnippet>333</a>                                variant_docs.map(|x| Cow::Borrowed(x.as_str())),
 <a href=#334 id=334 data-nosnippet>334</a>                            );
 <a href=#335 id=335 data-nosnippet>335</a>                        }
 <a href=#336 id=336 data-nosnippet>336</a>                    }
@@ -390,279 +390,263 @@
 <a href=#352 id=352 data-nosnippet>352</a>    }
 <a href=#353 id=353 data-nosnippet>353</a>}
 <a href=#354 id=354 data-nosnippet>354</a>
-<a href=#355 id=355 data-nosnippet>355</a><span class="kw">fn </span>derust_doc_comment(docs: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
-<a href=#356 id=356 data-nosnippet>356</a>    <span class="kw">if </span>docs.trim() != docs {
-<a href=#357 id=357 data-nosnippet>357</a>        <span class="kw">return </span><a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#355">docs</a>);
-<a href=#358 id=358 data-nosnippet>358</a>    }
-<a href=#359 id=359 data-nosnippet>359</a>
-<a href=#360 id=360 data-nosnippet>360</a>    <span class="kw">if </span>!docs
-<a href=#361 id=361 data-nosnippet>361</a>        .split(<span class="string">'\n'</span>)
-<a href=#362 id=362 data-nosnippet>362</a>        .skip(<span class="number">1</span>)
-<a href=#363 id=363 data-nosnippet>363</a>        .all(|l| l.trim().is_empty() || l.starts_with(<span class="string">' '</span>))
-<a href=#364 id=364 data-nosnippet>364</a>    {
-<a href=#365 id=365 data-nosnippet>365</a>        <span class="kw">return </span><a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#355">docs</a>);
-<a href=#366 id=366 data-nosnippet>366</a>    }
-<a href=#367 id=367 data-nosnippet>367</a>
-<a href=#368 id=368 data-nosnippet>368</a>    <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#355">docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.str.html#method.replace">replace</a>(<span class="string">"\n "</span>, <span class="string">"\n"</span>))
-<a href=#369 id=369 data-nosnippet>369</a>}
-<a href=#370 id=370 data-nosnippet>370</a>
-<a href=#371 id=371 data-nosnippet>371</a><span class="attr">#[derive(Debug, Error)]
-<a href=#372 id=372 data-nosnippet>372</a></span><span class="kw">pub enum </span>SchemaError {
-<a href=#373 id=373 data-nosnippet>373</a>    <span class="attr">#[error(<span class="string">"codec class' cached config schema is invalid"</span>)]
-<a href=#374 id=374 data-nosnippet>374</a>    </span>InvalidCachedJsonSchema { source: PythonizeError },
-<a href=#375 id=375 data-nosnippet>375</a>    <span class="attr">#[error(<span class="string">"extracting the codec signature failed"</span>)]
-<a href=#376 id=376 data-nosnippet>376</a>    </span>SignatureExtraction {
-<a href=#377 id=377 data-nosnippet>377</a>        <span class="attr">#[from]
-<a href=#378 id=378 data-nosnippet>378</a>        </span>source: <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a>,
-<a href=#379 id=379 data-nosnippet>379</a>    },
-<a href=#380 id=380 data-nosnippet>380</a>    <span class="attr">#[error(<span class="string">"codec's signature must not contain an `*args` parameter"</span>)]
-<a href=#381 id=381 data-nosnippet>381</a>    </span>ArgsParameterInSignature,
-<a href=#382 id=382 data-nosnippet>382</a>    <span class="attr">#[error(<span class="string">"{name} parameter's default value is invalid"</span>)]
-<a href=#383 id=383 data-nosnippet>383</a>    </span>InvalidParameterDefault {
-<a href=#384 id=384 data-nosnippet>384</a>        name: <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a>,
-<a href=#385 id=385 data-nosnippet>385</a>        source: PythonizeError,
-<a href=#386 id=386 data-nosnippet>386</a>    },
-<a href=#387 id=387 data-nosnippet>387</a>    <span class="attr">#[error(<span class="string">"codec class's `__doc__` must be a string"</span>)]
-<a href=#388 id=388 data-nosnippet>388</a>    </span>InvalidClassDocs { source: <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a> },
-<a href=#389 id=389 data-nosnippet>389</a>    <span class="attr">#[error(<span class="string">"codec class must have a string `__name__`"</span>)]
-<a href=#390 id=390 data-nosnippet>390</a>    </span>InvalidClassName { source: <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a> },
-<a href=#391 id=391 data-nosnippet>391</a>}
-<a href=#392 id=392 data-nosnippet>392</a>
-<a href=#393 id=393 data-nosnippet>393</a><span class="kw">struct </span>Parameters&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#394 id=394 data-nosnippet>394</a>    named: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="#398-403">Parameter</a>&lt;<span class="lifetime">'a</span>&gt;&gt;,
-<a href=#395 id=395 data-nosnippet>395</a>    additional: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
-<a href=#396 id=396 data-nosnippet>396</a>}
-<a href=#397 id=397 data-nosnippet>397</a>
-<a href=#398 id=398 data-nosnippet>398</a><span class="kw">struct </span>Parameter&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#399 id=399 data-nosnippet>399</a>    name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
-<a href=#400 id=400 data-nosnippet>400</a>    required: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
-<a href=#401 id=401 data-nosnippet>401</a>    default: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>&gt;,
-<a href=#402 id=402 data-nosnippet>402</a>    docs: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;&gt;,
-<a href=#403 id=403 data-nosnippet>403</a>}
-<a href=#404 id=404 data-nosnippet>404</a>
-<a href=#405 id=405 data-nosnippet>405</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <a href="#398-403">Parameter</a>&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#406 id=406 data-nosnippet>406</a>    <span class="attr">#[must_use]
-<a href=#407 id=407 data-nosnippet>407</a>    </span><span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, parameter: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>, required: <span class="kw-2">&amp;</span>[<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>]) -&gt; <span class="self">Self </span>{
-<a href=#408 id=408 data-nosnippet>408</a>        <span class="self">Self </span>{
-<a href=#409 id=409 data-nosnippet>409</a>            <a href="#407">name</a>,
-<a href=#410 id=410 data-nosnippet>410</a>            required: <a href="#407">required</a>
-<a href=#411 id=411 data-nosnippet>411</a>                .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
-<a href=#412 id=412 data-nosnippet>412</a>                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.any">any</a>(|r| <a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(r, Value::String(n) <span class="kw">if </span>n == name)),
-<a href=#413 id=413 data-nosnippet>413</a>            default: <a href="#407">parameter</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"default"</span>),
-<a href=#414 id=414 data-nosnippet>414</a>            docs: <span class="kw">match </span><a href="#407">parameter</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"description"</span>) {
-<a href=#415 id=415 data-nosnippet>415</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::String(docs)) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="#355-369">derust_doc_comment</a>(<a href="#415">docs</a>)),
-<a href=#416 id=416 data-nosnippet>416</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
-<a href=#417 id=417 data-nosnippet>417</a>            },
-<a href=#418 id=418 data-nosnippet>418</a>        }
-<a href=#419 id=419 data-nosnippet>419</a>    }
-<a href=#420 id=420 data-nosnippet>420</a>}
-<a href=#421 id=421 data-nosnippet>421</a>
-<a href=#422 id=422 data-nosnippet>422</a><span class="kw">struct </span>VariantParameter&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#423 id=423 data-nosnippet>423</a>    generation: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
-<a href=#424 id=424 data-nosnippet>424</a>    parameter: <a href="#398-403">Parameter</a>&lt;<span class="lifetime">'a</span>&gt;,
-<a href=#425 id=425 data-nosnippet>425</a>    <span class="attr">#[expect(clippy::type_complexity)]
-<a href=#426 id=426 data-nosnippet>426</a>    </span>tag_docs: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>, <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;&gt;)&gt;&gt;,
-<a href=#427 id=427 data-nosnippet>427</a>}
-<a href=#428 id=428 data-nosnippet>428</a>
-<a href=#429 id=429 data-nosnippet>429</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <a href="#422-427">VariantParameter</a>&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#430 id=430 data-nosnippet>430</a>    <span class="attr">#[must_use]
-<a href=#431 id=431 data-nosnippet>431</a>    </span><span class="kw">pub fn </span>new(
-<a href=#432 id=432 data-nosnippet>432</a>        generation: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
-<a href=#433 id=433 data-nosnippet>433</a>        name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
-<a href=#434 id=434 data-nosnippet>434</a>        parameter: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>,
-<a href=#435 id=435 data-nosnippet>435</a>        required: <span class="kw-2">&amp;</span>[<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>],
-<a href=#436 id=436 data-nosnippet>436</a>        variant_docs: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;&gt;,
-<a href=#437 id=437 data-nosnippet>437</a>    ) -&gt; <span class="self">Self </span>{
-<a href=#438 id=438 data-nosnippet>438</a>        <span class="kw">let </span>r#const = <a href="#434">parameter</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"const"</span>);
-<a href=#439 id=439 data-nosnippet>439</a>
-<a href=#440 id=440 data-nosnippet>440</a>        <span class="kw">let </span><span class="kw-2">mut </span>parameter = <a href="#407-419">Parameter::new</a>(<a href="#433">name</a>, <a href="#434">parameter</a>, <a href="#435">required</a>);
-<a href=#441 id=441 data-nosnippet>441</a>        <a href="#440">parameter</a>.required &amp;= <a href="#432">generation</a> == <span class="number">0</span>;
+<a href=#355 id=355 data-nosnippet>355</a><span class="attr">#[derive(Debug, Error)]
+<a href=#356 id=356 data-nosnippet>356</a></span><span class="kw">pub enum </span>SchemaError {
+<a href=#357 id=357 data-nosnippet>357</a>    <span class="attr">#[error(<span class="string">"codec class' cached config schema is invalid"</span>)]
+<a href=#358 id=358 data-nosnippet>358</a>    </span>InvalidCachedJsonSchema { source: PythonizeError },
+<a href=#359 id=359 data-nosnippet>359</a>    <span class="attr">#[error(<span class="string">"extracting the codec signature failed"</span>)]
+<a href=#360 id=360 data-nosnippet>360</a>    </span>SignatureExtraction {
+<a href=#361 id=361 data-nosnippet>361</a>        <span class="attr">#[from]
+<a href=#362 id=362 data-nosnippet>362</a>        </span>source: <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a>,
+<a href=#363 id=363 data-nosnippet>363</a>    },
+<a href=#364 id=364 data-nosnippet>364</a>    <span class="attr">#[error(<span class="string">"codec's signature must not contain an `*args` parameter"</span>)]
+<a href=#365 id=365 data-nosnippet>365</a>    </span>ArgsParameterInSignature,
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="attr">#[error(<span class="string">"{name} parameter's default value is invalid"</span>)]
+<a href=#367 id=367 data-nosnippet>367</a>    </span>InvalidParameterDefault {
+<a href=#368 id=368 data-nosnippet>368</a>        name: <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a>,
+<a href=#369 id=369 data-nosnippet>369</a>        source: PythonizeError,
+<a href=#370 id=370 data-nosnippet>370</a>    },
+<a href=#371 id=371 data-nosnippet>371</a>    <span class="attr">#[error(<span class="string">"codec class's `__doc__` must be a string"</span>)]
+<a href=#372 id=372 data-nosnippet>372</a>    </span>InvalidClassDocs { source: <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a> },
+<a href=#373 id=373 data-nosnippet>373</a>    <span class="attr">#[error(<span class="string">"codec class must have a string `__name__`"</span>)]
+<a href=#374 id=374 data-nosnippet>374</a>    </span>InvalidClassName { source: <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a> },
+<a href=#375 id=375 data-nosnippet>375</a>}
+<a href=#376 id=376 data-nosnippet>376</a>
+<a href=#377 id=377 data-nosnippet>377</a><span class="kw">struct </span>Parameters&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#378 id=378 data-nosnippet>378</a>    named: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="#382-387">Parameter</a>&lt;<span class="lifetime">'a</span>&gt;&gt;,
+<a href=#379 id=379 data-nosnippet>379</a>    additional: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+<a href=#380 id=380 data-nosnippet>380</a>}
+<a href=#381 id=381 data-nosnippet>381</a>
+<a href=#382 id=382 data-nosnippet>382</a><span class="kw">struct </span>Parameter&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#383 id=383 data-nosnippet>383</a>    name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+<a href=#384 id=384 data-nosnippet>384</a>    required: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+<a href=#385 id=385 data-nosnippet>385</a>    default: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>&gt;,
+<a href=#386 id=386 data-nosnippet>386</a>    docs: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;&gt;,
+<a href=#387 id=387 data-nosnippet>387</a>}
+<a href=#388 id=388 data-nosnippet>388</a>
+<a href=#389 id=389 data-nosnippet>389</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <a href="#382-387">Parameter</a>&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#390 id=390 data-nosnippet>390</a>    <span class="attr">#[must_use]
+<a href=#391 id=391 data-nosnippet>391</a>    </span><span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, parameter: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>, required: <span class="kw-2">&amp;</span>[<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>]) -&gt; <span class="self">Self </span>{
+<a href=#392 id=392 data-nosnippet>392</a>        <span class="self">Self </span>{
+<a href=#393 id=393 data-nosnippet>393</a>            <a href="#391">name</a>,
+<a href=#394 id=394 data-nosnippet>394</a>            required: <a href="#391">required</a>
+<a href=#395 id=395 data-nosnippet>395</a>                .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
+<a href=#396 id=396 data-nosnippet>396</a>                .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.any">any</a>(|r| <a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(r, Value::String(n) <span class="kw">if </span>n == name)),
+<a href=#397 id=397 data-nosnippet>397</a>            default: <a href="#391">parameter</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"default"</span>),
+<a href=#398 id=398 data-nosnippet>398</a>            docs: <span class="kw">match </span><a href="#391">parameter</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"description"</span>) {
+<a href=#399 id=399 data-nosnippet>399</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(Value::String(docs)) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Cow::Borrowed</a>(<a href="#399">docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.as_str">as_str</a>())),
+<a href=#400 id=400 data-nosnippet>400</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
+<a href=#401 id=401 data-nosnippet>401</a>            },
+<a href=#402 id=402 data-nosnippet>402</a>        }
+<a href=#403 id=403 data-nosnippet>403</a>    }
+<a href=#404 id=404 data-nosnippet>404</a>}
+<a href=#405 id=405 data-nosnippet>405</a>
+<a href=#406 id=406 data-nosnippet>406</a><span class="kw">struct </span>VariantParameter&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#407 id=407 data-nosnippet>407</a>    generation: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#408 id=408 data-nosnippet>408</a>    parameter: <a href="#382-387">Parameter</a>&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#409 id=409 data-nosnippet>409</a>    <span class="attr">#[expect(clippy::type_complexity)]
+<a href=#410 id=410 data-nosnippet>410</a>    </span>tag_docs: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>, <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;&gt;)&gt;&gt;,
+<a href=#411 id=411 data-nosnippet>411</a>}
+<a href=#412 id=412 data-nosnippet>412</a>
+<a href=#413 id=413 data-nosnippet>413</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <a href="#406-411">VariantParameter</a>&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#414 id=414 data-nosnippet>414</a>    <span class="attr">#[must_use]
+<a href=#415 id=415 data-nosnippet>415</a>    </span><span class="kw">pub fn </span>new(
+<a href=#416 id=416 data-nosnippet>416</a>        generation: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#417 id=417 data-nosnippet>417</a>        name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+<a href=#418 id=418 data-nosnippet>418</a>        parameter: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>,
+<a href=#419 id=419 data-nosnippet>419</a>        required: <span class="kw-2">&amp;</span>[<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>],
+<a href=#420 id=420 data-nosnippet>420</a>        variant_docs: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;&gt;,
+<a href=#421 id=421 data-nosnippet>421</a>    ) -&gt; <span class="self">Self </span>{
+<a href=#422 id=422 data-nosnippet>422</a>        <span class="kw">let </span>r#const = <a href="#418">parameter</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"const"</span>);
+<a href=#423 id=423 data-nosnippet>423</a>
+<a href=#424 id=424 data-nosnippet>424</a>        <span class="kw">let </span><span class="kw-2">mut </span>parameter = <a href="#391-403">Parameter::new</a>(<a href="#417">name</a>, <a href="#418">parameter</a>, <a href="#419">required</a>);
+<a href=#425 id=425 data-nosnippet>425</a>        <a href="#424">parameter</a>.required &amp;= <a href="#416">generation</a> == <span class="number">0</span>;
+<a href=#426 id=426 data-nosnippet>426</a>
+<a href=#427 id=427 data-nosnippet>427</a>        <span class="kw">let </span>tag_docs = <span class="kw">match </span><a href="#422">r#const</a> {
+<a href=#428 id=428 data-nosnippet>428</a>            <span class="comment">// a tag parameter must be introduced in the first generation
+<a href=#429 id=429 data-nosnippet>429</a>            </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(r#const) <span class="kw">if </span><a href="#416">generation</a> == <span class="number">0 </span>=&gt; {
+<a href=#430 id=430 data-nosnippet>430</a>                <span class="kw">let </span>docs = <a href="#424">parameter</a>.docs.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.take">take</a>().<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.or">or</a>(<a href="#420">variant_docs</a>);
+<a href=#431 id=431 data-nosnippet>431</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[(r#const, docs)])
+<a href=#432 id=432 data-nosnippet>432</a>            }
+<a href=#433 id=433 data-nosnippet>433</a>            <span class="kw">_ </span>=&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
+<a href=#434 id=434 data-nosnippet>434</a>        };
+<a href=#435 id=435 data-nosnippet>435</a>
+<a href=#436 id=436 data-nosnippet>436</a>        <span class="self">Self </span>{
+<a href=#437 id=437 data-nosnippet>437</a>            <a href="#416">generation</a>,
+<a href=#438 id=438 data-nosnippet>438</a>            <a href="#424">parameter</a>,
+<a href=#439 id=439 data-nosnippet>439</a>            <a href="#427">tag_docs</a>,
+<a href=#440 id=440 data-nosnippet>440</a>        }
+<a href=#441 id=441 data-nosnippet>441</a>    }
 <a href=#442 id=442 data-nosnippet>442</a>
-<a href=#443 id=443 data-nosnippet>443</a>        <span class="kw">let </span>tag_docs = <span class="kw">match </span><a href="#438">r#const</a> {
-<a href=#444 id=444 data-nosnippet>444</a>            <span class="comment">// a tag parameter must be introduced in the first generation
-<a href=#445 id=445 data-nosnippet>445</a>            </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(r#const) <span class="kw">if </span><a href="#432">generation</a> == <span class="number">0 </span>=&gt; {
-<a href=#446 id=446 data-nosnippet>446</a>                <span class="kw">let </span>docs = <a href="#440">parameter</a>.docs.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.take">take</a>().<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.or">or</a>(<a href="#436">variant_docs</a>);
-<a href=#447 id=447 data-nosnippet>447</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.vec.html">vec!</a>[(r#const, docs)])
-<a href=#448 id=448 data-nosnippet>448</a>            }
-<a href=#449 id=449 data-nosnippet>449</a>            <span class="kw">_ </span>=&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
-<a href=#450 id=450 data-nosnippet>450</a>        };
-<a href=#451 id=451 data-nosnippet>451</a>
-<a href=#452 id=452 data-nosnippet>452</a>        <span class="self">Self </span>{
-<a href=#453 id=453 data-nosnippet>453</a>            <a href="#432">generation</a>,
-<a href=#454 id=454 data-nosnippet>454</a>            <a href="#440">parameter</a>,
-<a href=#455 id=455 data-nosnippet>455</a>            <a href="#443">tag_docs</a>,
-<a href=#456 id=456 data-nosnippet>456</a>        }
-<a href=#457 id=457 data-nosnippet>457</a>    }
-<a href=#458 id=458 data-nosnippet>458</a>
-<a href=#459 id=459 data-nosnippet>459</a>    <span class="kw">pub fn </span>merge(
-<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#461 id=461 data-nosnippet>461</a>        generation: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
-<a href=#462 id=462 data-nosnippet>462</a>        name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
-<a href=#463 id=463 data-nosnippet>463</a>        parameter: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>,
-<a href=#464 id=464 data-nosnippet>464</a>        required: <span class="kw-2">&amp;</span>[<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>],
-<a href=#465 id=465 data-nosnippet>465</a>        variant_docs: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;&gt;,
-<a href=#466 id=466 data-nosnippet>466</a>    ) {
-<a href=#467 id=467 data-nosnippet>467</a>        <a class="self" href="#460">self</a>.generation = <a href="#461">generation</a>;
-<a href=#468 id=468 data-nosnippet>468</a>
-<a href=#469 id=469 data-nosnippet>469</a>        <span class="kw">let </span>r#const = <a href="#463">parameter</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"const"</span>);
-<a href=#470 id=470 data-nosnippet>470</a>
-<a href=#471 id=471 data-nosnippet>471</a>        <span class="kw">let </span>parameter = <a href="#407-419">Parameter::new</a>(<a href="#462">name</a>, <a href="#463">parameter</a>, <a href="#464">required</a>);
-<a href=#472 id=472 data-nosnippet>472</a>
-<a href=#473 id=473 data-nosnippet>473</a>        <a class="self" href="#460">self</a>.parameter.required &amp;= <a href="#471">parameter</a>.required;
-<a href=#474 id=474 data-nosnippet>474</a>        <span class="kw">if </span><span class="self">self</span>.parameter.default != parameter.default {
-<a href=#475 id=475 data-nosnippet>475</a>            <a class="self" href="#460">self</a>.parameter.default = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
-<a href=#476 id=476 data-nosnippet>476</a>        }
-<a href=#477 id=477 data-nosnippet>477</a>
-<a href=#478 id=478 data-nosnippet>478</a>        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(tag_docs) = <span class="kw-2">&amp;mut </span><a class="self" href="#460">self</a>.tag_docs {
-<a href=#479 id=479 data-nosnippet>479</a>            <span class="comment">// we're building docs for a tag-like parameter
-<a href=#480 id=480 data-nosnippet>480</a>            </span><span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(r#const) = <a href="#469">r#const</a> {
-<a href=#481 id=481 data-nosnippet>481</a>                <a href="#478">tag_docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.push">push</a>((<a href="#480">r#const</a>, <a href="#471">parameter</a>.docs.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.or">or</a>(<a href="#465">variant_docs</a>)));
-<a href=#482 id=482 data-nosnippet>482</a>            } <span class="kw">else </span>{
-<a href=#483 id=483 data-nosnippet>483</a>                <span class="comment">// mixing tag and non-tag parameter =&gt; no docs
-<a href=#484 id=484 data-nosnippet>484</a>                </span><a class="self" href="#460">self</a>.tag_docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
-<a href=#485 id=485 data-nosnippet>485</a>                <a class="self" href="#460">self</a>.parameter.docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
-<a href=#486 id=486 data-nosnippet>486</a>            }
-<a href=#487 id=487 data-nosnippet>487</a>        } <span class="kw">else </span>{
-<a href=#488 id=488 data-nosnippet>488</a>            <span class="comment">// we're building docs for a normal parameter
-<a href=#489 id=489 data-nosnippet>489</a>            </span><span class="kw">if </span>r#const.is_none() {
-<a href=#490 id=490 data-nosnippet>490</a>                <span class="comment">// we only accept always matching docs for normal parameters
-<a href=#491 id=491 data-nosnippet>491</a>                </span><span class="kw">if </span><span class="self">self</span>.parameter.docs != parameter.docs {
-<a href=#492 id=492 data-nosnippet>492</a>                    <a class="self" href="#460">self</a>.parameter.docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
-<a href=#493 id=493 data-nosnippet>493</a>                }
-<a href=#494 id=494 data-nosnippet>494</a>            } <span class="kw">else </span>{
-<a href=#495 id=495 data-nosnippet>495</a>                <span class="comment">// mixing tag and non-tag parameter =&gt; no docs
-<a href=#496 id=496 data-nosnippet>496</a>                </span><a class="self" href="#460">self</a>.tag_docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
-<a href=#497 id=497 data-nosnippet>497</a>            }
-<a href=#498 id=498 data-nosnippet>498</a>        }
-<a href=#499 id=499 data-nosnippet>499</a>    }
-<a href=#500 id=500 data-nosnippet>500</a>
-<a href=#501 id=501 data-nosnippet>501</a>    <span class="kw">pub fn </span>update_generation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, generation: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) {
-<a href=#502 id=502 data-nosnippet>502</a>        <span class="kw">if </span><span class="self">self</span>.generation &lt; generation {
-<a href=#503 id=503 data-nosnippet>503</a>            <span class="comment">// required and tag parameters must appear in all generations
-<a href=#504 id=504 data-nosnippet>504</a>            </span><a class="self" href="#501">self</a>.parameter.required = <span class="bool-val">false</span>;
-<a href=#505 id=505 data-nosnippet>505</a>            <a class="self" href="#501">self</a>.tag_docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
-<a href=#506 id=506 data-nosnippet>506</a>        }
-<a href=#507 id=507 data-nosnippet>507</a>    }
+<a href=#443 id=443 data-nosnippet>443</a>    <span class="kw">pub fn </span>merge(
+<a href=#444 id=444 data-nosnippet>444</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#445 id=445 data-nosnippet>445</a>        generation: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#446 id=446 data-nosnippet>446</a>        name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+<a href=#447 id=447 data-nosnippet>447</a>        parameter: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>,
+<a href=#448 id=448 data-nosnippet>448</a>        required: <span class="kw-2">&amp;</span>[<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html">Value</a>],
+<a href=#449 id=449 data-nosnippet>449</a>        variant_docs: <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'a</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;&gt;,
+<a href=#450 id=450 data-nosnippet>450</a>    ) {
+<a href=#451 id=451 data-nosnippet>451</a>        <a class="self" href="#444">self</a>.generation = <a href="#445">generation</a>;
+<a href=#452 id=452 data-nosnippet>452</a>
+<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw">let </span>r#const = <a href="#447">parameter</a>.<a href="https://docs.rs/serde_json/1.0.140/serde_json/value/enum.Value.html#method.get">get</a>(<span class="string">"const"</span>);
+<a href=#454 id=454 data-nosnippet>454</a>
+<a href=#455 id=455 data-nosnippet>455</a>        <span class="kw">let </span>parameter = <a href="#391-403">Parameter::new</a>(<a href="#446">name</a>, <a href="#447">parameter</a>, <a href="#448">required</a>);
+<a href=#456 id=456 data-nosnippet>456</a>
+<a href=#457 id=457 data-nosnippet>457</a>        <a class="self" href="#444">self</a>.parameter.required &amp;= <a href="#455">parameter</a>.required;
+<a href=#458 id=458 data-nosnippet>458</a>        <span class="kw">if </span><span class="self">self</span>.parameter.default != parameter.default {
+<a href=#459 id=459 data-nosnippet>459</a>            <a class="self" href="#444">self</a>.parameter.default = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
+<a href=#460 id=460 data-nosnippet>460</a>        }
+<a href=#461 id=461 data-nosnippet>461</a>
+<a href=#462 id=462 data-nosnippet>462</a>        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(tag_docs) = <span class="kw-2">&amp;mut </span><a class="self" href="#444">self</a>.tag_docs {
+<a href=#463 id=463 data-nosnippet>463</a>            <span class="comment">// we're building docs for a tag-like parameter
+<a href=#464 id=464 data-nosnippet>464</a>            </span><span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(r#const) = <a href="#453">r#const</a> {
+<a href=#465 id=465 data-nosnippet>465</a>                <a href="#462">tag_docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.push">push</a>((<a href="#464">r#const</a>, <a href="#455">parameter</a>.docs.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.or">or</a>(<a href="#449">variant_docs</a>)));
+<a href=#466 id=466 data-nosnippet>466</a>            } <span class="kw">else </span>{
+<a href=#467 id=467 data-nosnippet>467</a>                <span class="comment">// mixing tag and non-tag parameter =&gt; no docs
+<a href=#468 id=468 data-nosnippet>468</a>                </span><a class="self" href="#444">self</a>.tag_docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
+<a href=#469 id=469 data-nosnippet>469</a>                <a class="self" href="#444">self</a>.parameter.docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
+<a href=#470 id=470 data-nosnippet>470</a>            }
+<a href=#471 id=471 data-nosnippet>471</a>        } <span class="kw">else </span>{
+<a href=#472 id=472 data-nosnippet>472</a>            <span class="comment">// we're building docs for a normal parameter
+<a href=#473 id=473 data-nosnippet>473</a>            </span><span class="kw">if </span>r#const.is_none() {
+<a href=#474 id=474 data-nosnippet>474</a>                <span class="comment">// we only accept always matching docs for normal parameters
+<a href=#475 id=475 data-nosnippet>475</a>                </span><span class="kw">if </span><span class="self">self</span>.parameter.docs != parameter.docs {
+<a href=#476 id=476 data-nosnippet>476</a>                    <a class="self" href="#444">self</a>.parameter.docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
+<a href=#477 id=477 data-nosnippet>477</a>                }
+<a href=#478 id=478 data-nosnippet>478</a>            } <span class="kw">else </span>{
+<a href=#479 id=479 data-nosnippet>479</a>                <span class="comment">// mixing tag and non-tag parameter =&gt; no docs
+<a href=#480 id=480 data-nosnippet>480</a>                </span><a class="self" href="#444">self</a>.tag_docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
+<a href=#481 id=481 data-nosnippet>481</a>            }
+<a href=#482 id=482 data-nosnippet>482</a>        }
+<a href=#483 id=483 data-nosnippet>483</a>    }
+<a href=#484 id=484 data-nosnippet>484</a>
+<a href=#485 id=485 data-nosnippet>485</a>    <span class="kw">pub fn </span>update_generation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, generation: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) {
+<a href=#486 id=486 data-nosnippet>486</a>        <span class="kw">if </span><span class="self">self</span>.generation &lt; generation {
+<a href=#487 id=487 data-nosnippet>487</a>            <span class="comment">// required and tag parameters must appear in all generations
+<a href=#488 id=488 data-nosnippet>488</a>            </span><a class="self" href="#485">self</a>.parameter.required = <span class="bool-val">false</span>;
+<a href=#489 id=489 data-nosnippet>489</a>            <a class="self" href="#485">self</a>.tag_docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>;
+<a href=#490 id=490 data-nosnippet>490</a>        }
+<a href=#491 id=491 data-nosnippet>491</a>    }
+<a href=#492 id=492 data-nosnippet>492</a>
+<a href=#493 id=493 data-nosnippet>493</a>    <span class="attr">#[must_use]
+<a href=#494 id=494 data-nosnippet>494</a>    </span><span class="kw">pub fn </span>into_parameter(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <a href="#382-387">Parameter</a>&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#495 id=495 data-nosnippet>495</a>        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(tag_docs) = <a class="self" href="#494">self</a>.tag_docs {
+<a href=#496 id=496 data-nosnippet>496</a>            <span class="kw">let </span><span class="kw-2">mut </span>docs = <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.new">String::new</a>();
+<a href=#497 id=497 data-nosnippet>497</a>
+<a href=#498 id=498 data-nosnippet>498</a>            <span class="attr">#[expect(clippy::format_push_string)] </span><span class="comment">// FIXME
+<a href=#499 id=499 data-nosnippet>499</a>            </span><span class="kw">for </span>(tag, tag_docs) <span class="kw">in </span>tag_docs {
+<a href=#500 id=500 data-nosnippet>500</a>                docs.push_str(<span class="string">" - "</span>);
+<a href=#501 id=501 data-nosnippet>501</a>                docs.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{tag}"</span>));
+<a href=#502 id=502 data-nosnippet>502</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(tag_docs) = tag_docs {
+<a href=#503 id=503 data-nosnippet>503</a>                    docs.push_str(<span class="string">": "</span>);
+<a href=#504 id=504 data-nosnippet>504</a>                    docs.push_str(<span class="kw-2">&amp;</span>tag_docs.replace(<span class="string">'\n'</span>, <span class="string">"\n    "</span>));
+<a href=#505 id=505 data-nosnippet>505</a>                }
+<a href=#506 id=506 data-nosnippet>506</a>                docs.push_str(<span class="string">"\n\n"</span>);
+<a href=#507 id=507 data-nosnippet>507</a>            }
 <a href=#508 id=508 data-nosnippet>508</a>
-<a href=#509 id=509 data-nosnippet>509</a>    <span class="attr">#[must_use]
-<a href=#510 id=510 data-nosnippet>510</a>    </span><span class="kw">pub fn </span>into_parameter(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <a href="#398-403">Parameter</a>&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#511 id=511 data-nosnippet>511</a>        <span class="kw">if let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(tag_docs) = <a class="self" href="#510">self</a>.tag_docs {
-<a href=#512 id=512 data-nosnippet>512</a>            <span class="kw">let </span><span class="kw-2">mut </span>docs = <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.new">String::new</a>();
+<a href=#509 id=509 data-nosnippet>509</a>            <a href="#496">docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.truncate">truncate</a>(<a href="#496">docs</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.trim_end">trim_end</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.len">len</a>());
+<a href=#510 id=510 data-nosnippet>510</a>
+<a href=#511 id=511 data-nosnippet>511</a>            <a class="self" href="#494">self</a>.parameter.docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#496">docs</a>));
+<a href=#512 id=512 data-nosnippet>512</a>        }
 <a href=#513 id=513 data-nosnippet>513</a>
-<a href=#514 id=514 data-nosnippet>514</a>            <span class="attr">#[expect(clippy::format_push_string)] </span><span class="comment">// FIXME
-<a href=#515 id=515 data-nosnippet>515</a>            </span><span class="kw">for </span>(tag, tag_docs) <span class="kw">in </span>tag_docs {
-<a href=#516 id=516 data-nosnippet>516</a>                docs.push_str(<span class="string">" - "</span>);
-<a href=#517 id=517 data-nosnippet>517</a>                docs.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{tag}"</span>));
-<a href=#518 id=518 data-nosnippet>518</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(tag_docs) = tag_docs {
-<a href=#519 id=519 data-nosnippet>519</a>                    docs.push_str(<span class="string">": "</span>);
-<a href=#520 id=520 data-nosnippet>520</a>                    docs.push_str(<span class="kw-2">&amp;</span>tag_docs.replace(<span class="string">'\n'</span>, <span class="string">"\n    "</span>));
-<a href=#521 id=521 data-nosnippet>521</a>                }
-<a href=#522 id=522 data-nosnippet>522</a>                docs.push_str(<span class="string">"\n\n"</span>);
-<a href=#523 id=523 data-nosnippet>523</a>            }
-<a href=#524 id=524 data-nosnippet>524</a>
-<a href=#525 id=525 data-nosnippet>525</a>            <a href="#512">docs</a>.<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.truncate">truncate</a>(<a href="#512">docs</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.trim_end">trim_end</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.len">len</a>());
-<a href=#526 id=526 data-nosnippet>526</a>
-<a href=#527 id=527 data-nosnippet>527</a>            <a class="self" href="#510">self</a>.parameter.docs = <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Owned">Cow::Owned</a>(<a href="#512">docs</a>));
-<a href=#528 id=528 data-nosnippet>528</a>        }
-<a href=#529 id=529 data-nosnippet>529</a>
-<a href=#530 id=530 data-nosnippet>530</a>        <a class="self" href="#510">self</a>.parameter
-<a href=#531 id=531 data-nosnippet>531</a>    }
-<a href=#532 id=532 data-nosnippet>532</a>}
-<a href=#533 id=533 data-nosnippet>533</a>
-<a href=#534 id=534 data-nosnippet>534</a><span class="attr">#[cfg(test)]
-<a href=#535 id=535 data-nosnippet>535</a></span><span class="kw">mod </span>tests {
-<a href=#536 id=536 data-nosnippet>536</a>    <span class="kw">use </span>schemars::{JsonSchema, schema_for};
-<a href=#537 id=537 data-nosnippet>537</a>
-<a href=#538 id=538 data-nosnippet>538</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#539 id=539 data-nosnippet>539</a>
-<a href=#540 id=540 data-nosnippet>540</a>    <span class="attr">#[test]
-<a href=#541 id=541 data-nosnippet>541</a>    </span><span class="kw">fn </span>schema() {
-<a href=#542 id=542 data-nosnippet>542</a>        <span class="macro">assert_eq!</span>(
-<a href=#543 id=543 data-nosnippet>543</a>            <span class="macro">format!</span>(<span class="string">"{}"</span>, <span class="macro">schema_for!</span>(MyCodec).to_value()),
-<a href=#544 id=544 data-nosnippet>544</a>            <span class="string">r#"{"type":"object","properties":{"param":{"type":["integer","null"],"format":"int32","description":"An optional integer value."}},"unevaluatedProperties":false,"oneOf":[{"type":"object","description":"Mode a.\n\n It gets another line.","properties":{"value":{"type":"boolean","description":"A boolean value. And some really, really, really, long first\n line that wraps around.\n\n With multiple lines of comments."},"common":{"type":"string","description":"A common string value.\n\n Something else here."},"mode":{"type":"string","const":"A"}},"required":["mode","value","common"]},{"type":"object","description":"Mode b.","properties":{"common":{"type":"string","description":"A common string value.\n\n Something else here."},"mode":{"type":"string","const":"B"}},"required":["mode","common"]}],"description":"A codec that does something on encoding and decoding.\n\n With multiple lines of comments.","title":"MyCodec","$schema":"https://json-schema.org/draft/2020-12/schema"}"#
-<a href=#545 id=545 data-nosnippet>545</a>        </span>);
-<a href=#546 id=546 data-nosnippet>546</a>    }
-<a href=#547 id=547 data-nosnippet>547</a>
-<a href=#548 id=548 data-nosnippet>548</a>    <span class="attr">#[test]
-<a href=#549 id=549 data-nosnippet>549</a>    </span><span class="kw">fn </span>docs() {
-<a href=#550 id=550 data-nosnippet>550</a>        <span class="macro">assert_eq!</span>(
-<a href=#551 id=551 data-nosnippet>551</a>            docs_from_schema(<span class="kw-2">&amp;</span><span class="macro">schema_for!</span>(MyCodec)).as_deref(),
-<a href=#552 id=552 data-nosnippet>552</a>            <span class="prelude-val">Some</span>(
-<a href=#553 id=553 data-nosnippet>553</a>                <span class="string">r#"A codec that does something on encoding and decoding.
-<a href=#554 id=554 data-nosnippet>554</a>
-<a href=#555 id=555 data-nosnippet>555</a>With multiple lines of comments.
-<a href=#556 id=556 data-nosnippet>556</a>
-<a href=#557 id=557 data-nosnippet>557</a>Parameters
-<a href=#558 id=558 data-nosnippet>558</a>----------
-<a href=#559 id=559 data-nosnippet>559</a>common : ...
-<a href=#560 id=560 data-nosnippet>560</a>    A common string value.
-<a href=#561 id=561 data-nosnippet>561</a>    
-<a href=#562 id=562 data-nosnippet>562</a>    Something else here.
-<a href=#563 id=563 data-nosnippet>563</a>mode : ...
-<a href=#564 id=564 data-nosnippet>564</a>     - "A": Mode a.
-<a href=#565 id=565 data-nosnippet>565</a>        
-<a href=#566 id=566 data-nosnippet>566</a>        It gets another line.
-<a href=#567 id=567 data-nosnippet>567</a>    
-<a href=#568 id=568 data-nosnippet>568</a>     - "B": Mode b.
-<a href=#569 id=569 data-nosnippet>569</a>param : ..., optional
-<a href=#570 id=570 data-nosnippet>570</a>    An optional integer value.
-<a href=#571 id=571 data-nosnippet>571</a>value : ..., optional
-<a href=#572 id=572 data-nosnippet>572</a>    A boolean value. And some really, really, really, long first
-<a href=#573 id=573 data-nosnippet>573</a>    line that wraps around.
-<a href=#574 id=574 data-nosnippet>574</a>    
-<a href=#575 id=575 data-nosnippet>575</a>    With multiple lines of comments."#
-<a href=#576 id=576 data-nosnippet>576</a>            </span>)
-<a href=#577 id=577 data-nosnippet>577</a>        );
-<a href=#578 id=578 data-nosnippet>578</a>    }
-<a href=#579 id=579 data-nosnippet>579</a>
-<a href=#580 id=580 data-nosnippet>580</a>    <span class="attr">#[test]
-<a href=#581 id=581 data-nosnippet>581</a>    </span><span class="kw">fn </span>signature() {
-<a href=#582 id=582 data-nosnippet>582</a>        <span class="macro">assert_eq!</span>(
-<a href=#583 id=583 data-nosnippet>583</a>            signature_from_schema(<span class="kw-2">&amp;</span><span class="macro">schema_for!</span>(MyCodec)),
-<a href=#584 id=584 data-nosnippet>584</a>            <span class="string">"self, common, mode, param=None, value=None"</span>,
-<a href=#585 id=585 data-nosnippet>585</a>        );
-<a href=#586 id=586 data-nosnippet>586</a>    }
-<a href=#587 id=587 data-nosnippet>587</a>
-<a href=#588 id=588 data-nosnippet>588</a>    <span class="attr">#[expect(dead_code)]
-<a href=#589 id=589 data-nosnippet>589</a>    #[derive(JsonSchema)]
+<a href=#514 id=514 data-nosnippet>514</a>        <a class="self" href="#494">self</a>.parameter
+<a href=#515 id=515 data-nosnippet>515</a>    }
+<a href=#516 id=516 data-nosnippet>516</a>}
+<a href=#517 id=517 data-nosnippet>517</a>
+<a href=#518 id=518 data-nosnippet>518</a><span class="attr">#[cfg(test)]
+<a href=#519 id=519 data-nosnippet>519</a></span><span class="kw">mod </span>tests {
+<a href=#520 id=520 data-nosnippet>520</a>    <span class="kw">use </span>schemars::{JsonSchema, schema_for};
+<a href=#521 id=521 data-nosnippet>521</a>
+<a href=#522 id=522 data-nosnippet>522</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#523 id=523 data-nosnippet>523</a>
+<a href=#524 id=524 data-nosnippet>524</a>    <span class="attr">#[test]
+<a href=#525 id=525 data-nosnippet>525</a>    </span><span class="kw">fn </span>schema() {
+<a href=#526 id=526 data-nosnippet>526</a>        <span class="macro">assert_eq!</span>(
+<a href=#527 id=527 data-nosnippet>527</a>            <span class="macro">format!</span>(<span class="string">"{}"</span>, <span class="macro">schema_for!</span>(MyCodec).to_value()),
+<a href=#528 id=528 data-nosnippet>528</a>            <span class="string">r#"{"type":"object","properties":{"param":{"type":["integer","null"],"format":"int32","description":"An optional integer value."}},"unevaluatedProperties":false,"oneOf":[{"type":"object","description":"Mode a.\n\nIt gets another line.","properties":{"value":{"type":"boolean","description":"A boolean value. And some really, really, really, long first\nline that wraps around.\n\nWith multiple lines of comments."},"common":{"type":"string","description":"A common string value.\n\nSomething else here."},"mode":{"type":"string","const":"A"}},"required":["mode","value","common"]},{"type":"object","description":"Mode b.","properties":{"common":{"type":"string","description":"A common string value.\n\nSomething else here."},"mode":{"type":"string","const":"B"}},"required":["mode","common"]}],"description":"A codec that does something on encoding and decoding.\n\nWith multiple lines of comments.","title":"MyCodec","$schema":"https://json-schema.org/draft/2020-12/schema"}"#
+<a href=#529 id=529 data-nosnippet>529</a>        </span>);
+<a href=#530 id=530 data-nosnippet>530</a>    }
+<a href=#531 id=531 data-nosnippet>531</a>
+<a href=#532 id=532 data-nosnippet>532</a>    <span class="attr">#[test]
+<a href=#533 id=533 data-nosnippet>533</a>    </span><span class="kw">fn </span>docs() {
+<a href=#534 id=534 data-nosnippet>534</a>        <span class="macro">assert_eq!</span>(
+<a href=#535 id=535 data-nosnippet>535</a>            docs_from_schema(<span class="kw-2">&amp;</span><span class="macro">schema_for!</span>(MyCodec)).as_deref(),
+<a href=#536 id=536 data-nosnippet>536</a>            <span class="prelude-val">Some</span>(
+<a href=#537 id=537 data-nosnippet>537</a>                <span class="string">r#"A codec that does something on encoding and decoding.
+<a href=#538 id=538 data-nosnippet>538</a>
+<a href=#539 id=539 data-nosnippet>539</a>With multiple lines of comments.
+<a href=#540 id=540 data-nosnippet>540</a>
+<a href=#541 id=541 data-nosnippet>541</a>Parameters
+<a href=#542 id=542 data-nosnippet>542</a>----------
+<a href=#543 id=543 data-nosnippet>543</a>common : ...
+<a href=#544 id=544 data-nosnippet>544</a>    A common string value.
+<a href=#545 id=545 data-nosnippet>545</a>    
+<a href=#546 id=546 data-nosnippet>546</a>    Something else here.
+<a href=#547 id=547 data-nosnippet>547</a>mode : ...
+<a href=#548 id=548 data-nosnippet>548</a>     - "A": Mode a.
+<a href=#549 id=549 data-nosnippet>549</a>        
+<a href=#550 id=550 data-nosnippet>550</a>        It gets another line.
+<a href=#551 id=551 data-nosnippet>551</a>    
+<a href=#552 id=552 data-nosnippet>552</a>     - "B": Mode b.
+<a href=#553 id=553 data-nosnippet>553</a>param : ..., optional
+<a href=#554 id=554 data-nosnippet>554</a>    An optional integer value.
+<a href=#555 id=555 data-nosnippet>555</a>value : ..., optional
+<a href=#556 id=556 data-nosnippet>556</a>    A boolean value. And some really, really, really, long first
+<a href=#557 id=557 data-nosnippet>557</a>    line that wraps around.
+<a href=#558 id=558 data-nosnippet>558</a>    
+<a href=#559 id=559 data-nosnippet>559</a>    With multiple lines of comments."#
+<a href=#560 id=560 data-nosnippet>560</a>            </span>)
+<a href=#561 id=561 data-nosnippet>561</a>        );
+<a href=#562 id=562 data-nosnippet>562</a>    }
+<a href=#563 id=563 data-nosnippet>563</a>
+<a href=#564 id=564 data-nosnippet>564</a>    <span class="attr">#[test]
+<a href=#565 id=565 data-nosnippet>565</a>    </span><span class="kw">fn </span>signature() {
+<a href=#566 id=566 data-nosnippet>566</a>        <span class="macro">assert_eq!</span>(
+<a href=#567 id=567 data-nosnippet>567</a>            signature_from_schema(<span class="kw-2">&amp;</span><span class="macro">schema_for!</span>(MyCodec)),
+<a href=#568 id=568 data-nosnippet>568</a>            <span class="string">"self, common, mode, param=None, value=None"</span>,
+<a href=#569 id=569 data-nosnippet>569</a>        );
+<a href=#570 id=570 data-nosnippet>570</a>    }
+<a href=#571 id=571 data-nosnippet>571</a>
+<a href=#572 id=572 data-nosnippet>572</a>    <span class="attr">#[expect(dead_code)]
+<a href=#573 id=573 data-nosnippet>573</a>    #[derive(JsonSchema)]
+<a href=#574 id=574 data-nosnippet>574</a>    #[schemars(deny_unknown_fields)]
+<a href=#575 id=575 data-nosnippet>575</a>    </span><span class="doccomment">/// A codec that does something on encoding and decoding.
+<a href=#576 id=576 data-nosnippet>576</a>    ///
+<a href=#577 id=577 data-nosnippet>577</a>    /// With multiple lines of comments.
+<a href=#578 id=578 data-nosnippet>578</a>    </span><span class="kw">struct </span>MyCodec {
+<a href=#579 id=579 data-nosnippet>579</a>        <span class="doccomment">/// An optional integer value.
+<a href=#580 id=580 data-nosnippet>580</a>        </span><span class="attr">#[schemars(default, skip_serializing_if = <span class="string">"Option::is_none"</span>)]
+<a href=#581 id=581 data-nosnippet>581</a>        </span>param: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+<a href=#582 id=582 data-nosnippet>582</a>        <span class="doccomment">/// The flattened configuration.
+<a href=#583 id=583 data-nosnippet>583</a>        </span><span class="attr">#[schemars(flatten)]
+<a href=#584 id=584 data-nosnippet>584</a>        </span>config: Config,
+<a href=#585 id=585 data-nosnippet>585</a>    }
+<a href=#586 id=586 data-nosnippet>586</a>
+<a href=#587 id=587 data-nosnippet>587</a>    <span class="attr">#[expect(dead_code)]
+<a href=#588 id=588 data-nosnippet>588</a>    #[derive(JsonSchema)]
+<a href=#589 id=589 data-nosnippet>589</a>    #[schemars(tag = <span class="string">"mode"</span>)]
 <a href=#590 id=590 data-nosnippet>590</a>    #[schemars(deny_unknown_fields)]
-<a href=#591 id=591 data-nosnippet>591</a>    </span><span class="doccomment">/// A codec that does something on encoding and decoding.
-<a href=#592 id=592 data-nosnippet>592</a>    ///
-<a href=#593 id=593 data-nosnippet>593</a>    /// With multiple lines of comments.
-<a href=#594 id=594 data-nosnippet>594</a>    </span><span class="kw">struct </span>MyCodec {
-<a href=#595 id=595 data-nosnippet>595</a>        <span class="doccomment">/// An optional integer value.
-<a href=#596 id=596 data-nosnippet>596</a>        </span><span class="attr">#[schemars(default, skip_serializing_if = <span class="string">"Option::is_none"</span>)]
-<a href=#597 id=597 data-nosnippet>597</a>        </span>param: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-<a href=#598 id=598 data-nosnippet>598</a>        <span class="doccomment">/// The flattened configuration.
-<a href=#599 id=599 data-nosnippet>599</a>        </span><span class="attr">#[schemars(flatten)]
-<a href=#600 id=600 data-nosnippet>600</a>        </span>config: Config,
-<a href=#601 id=601 data-nosnippet>601</a>    }
-<a href=#602 id=602 data-nosnippet>602</a>
-<a href=#603 id=603 data-nosnippet>603</a>    <span class="attr">#[expect(dead_code)]
-<a href=#604 id=604 data-nosnippet>604</a>    #[derive(JsonSchema)]
-<a href=#605 id=605 data-nosnippet>605</a>    #[schemars(tag = <span class="string">"mode"</span>)]
-<a href=#606 id=606 data-nosnippet>606</a>    #[schemars(deny_unknown_fields)]
-<a href=#607 id=607 data-nosnippet>607</a>    </span><span class="kw">enum </span>Config {
-<a href=#608 id=608 data-nosnippet>608</a>        <span class="doccomment">/// Mode a.
-<a href=#609 id=609 data-nosnippet>609</a>        ///
-<a href=#610 id=610 data-nosnippet>610</a>        /// It gets another line.
-<a href=#611 id=611 data-nosnippet>611</a>        </span>A {
-<a href=#612 id=612 data-nosnippet>612</a>            <span class="doccomment">/// A boolean value. And some really, really, really, long first
-<a href=#613 id=613 data-nosnippet>613</a>            /// line that wraps around.
-<a href=#614 id=614 data-nosnippet>614</a>            ///
-<a href=#615 id=615 data-nosnippet>615</a>            /// With multiple lines of comments.
-<a href=#616 id=616 data-nosnippet>616</a>            </span>value: bool,
-<a href=#617 id=617 data-nosnippet>617</a>            <span class="doccomment">/// A common string value.
-<a href=#618 id=618 data-nosnippet>618</a>            ///
-<a href=#619 id=619 data-nosnippet>619</a>            /// Something else here.
-<a href=#620 id=620 data-nosnippet>620</a>            </span>common: String,
-<a href=#621 id=621 data-nosnippet>621</a>        },
-<a href=#622 id=622 data-nosnippet>622</a>        <span class="doccomment">/// Mode b.
-<a href=#623 id=623 data-nosnippet>623</a>        </span>B {
-<a href=#624 id=624 data-nosnippet>624</a>            <span class="doccomment">/// A common string value.
-<a href=#625 id=625 data-nosnippet>625</a>            ///
-<a href=#626 id=626 data-nosnippet>626</a>            /// Something else here.
-<a href=#627 id=627 data-nosnippet>627</a>            </span>common: String,
-<a href=#628 id=628 data-nosnippet>628</a>        },
-<a href=#629 id=629 data-nosnippet>629</a>    }
-<a href=#630 id=630 data-nosnippet>630</a>}</code></pre></div></section></main></body></html>
+<a href=#591 id=591 data-nosnippet>591</a>    </span><span class="kw">enum </span>Config {
+<a href=#592 id=592 data-nosnippet>592</a>        <span class="doccomment">/// Mode a.
+<a href=#593 id=593 data-nosnippet>593</a>        ///
+<a href=#594 id=594 data-nosnippet>594</a>        /// It gets another line.
+<a href=#595 id=595 data-nosnippet>595</a>        </span>A {
+<a href=#596 id=596 data-nosnippet>596</a>            <span class="doccomment">/// A boolean value. And some really, really, really, long first
+<a href=#597 id=597 data-nosnippet>597</a>            /// line that wraps around.
+<a href=#598 id=598 data-nosnippet>598</a>            ///
+<a href=#599 id=599 data-nosnippet>599</a>            /// With multiple lines of comments.
+<a href=#600 id=600 data-nosnippet>600</a>            </span>value: bool,
+<a href=#601 id=601 data-nosnippet>601</a>            <span class="doccomment">/// A common string value.
+<a href=#602 id=602 data-nosnippet>602</a>            ///
+<a href=#603 id=603 data-nosnippet>603</a>            /// Something else here.
+<a href=#604 id=604 data-nosnippet>604</a>            </span>common: String,
+<a href=#605 id=605 data-nosnippet>605</a>        },
+<a href=#606 id=606 data-nosnippet>606</a>        <span class="doccomment">/// Mode b.
+<a href=#607 id=607 data-nosnippet>607</a>        </span>B {
+<a href=#608 id=608 data-nosnippet>608</a>            <span class="doccomment">/// A common string value.
+<a href=#609 id=609 data-nosnippet>609</a>            ///
+<a href=#610 id=610 data-nosnippet>610</a>            /// Something else here.
+<a href=#611 id=611 data-nosnippet>611</a>            </span>common: String,
+<a href=#612 id=612 data-nosnippet>612</a>        },
+<a href=#613 id=613 data-nosnippet>613</a>    }
+<a href=#614 id=614 data-nosnippet>614</a>}</code></pre></div></section></main></body></html>
