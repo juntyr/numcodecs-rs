@@ -209,7 +209,7 @@
 <a href=#171 id=171 data-nosnippet>171</a>
 <a href=#172 id=172 data-nosnippet>172</a>        <span class="comment">// if x / precision is not finite, don't try to round
 <a href=#173 id=173 data-nosnippet>173</a>        //  e.g. when x / eps = inf
-<a href=#174 id=174 data-nosnippet>174</a>        </span><span class="kw">if </span><a href="#170">n</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.is_finite">is_finite</a>() {
+<a href=#174 id=174 data-nosnippet>174</a>        </span><span class="kw">if </span>!<a href="#170">n</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.is_finite">is_finite</a>() {
 <a href=#175 id=175 data-nosnippet>175</a>            <span class="kw">return </span><a href="#169">x</a>;
 <a href=#176 id=176 data-nosnippet>176</a>        }
 <a href=#177 id=177 data-nosnippet>177</a>
