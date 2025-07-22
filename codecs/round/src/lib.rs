@@ -37,7 +37,7 @@ use thiserror::Error;
 /// The codec only supports floating point data.
 pub struct RoundCodec {
     /// Precision of the rounding operation
-    pub precision: Positive<f64>,
+    pub precision: NonNegative<f64>,
     /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<1, 0, 0>,
@@ -51,7 +51,7 @@ impl Codec for RoundCodec {
             #[expect(clippy::cast_possible_truncation)]
             AnyCowArray::F32(data) => Ok(AnyArray::F32(round(
                 data,
-                Positive(self.precision.0 as f32),
+                NonNegative(self.precision.0 as f32),
             ))),
             AnyCowArray::F64(data) => Ok(AnyArray::F64(round(data, self.precision))),
             encoded => Err(RoundCodecError::UnsupportedDtype(encoded.dtype())),
@@ -95,37 +95,37 @@ impl StaticCodec for RoundCodec {
 
 #[expect(clippy::derive_partial_eq_without_eq)] // floats are not Eq
 #[derive(Copy, Clone, PartialEq, PartialOrd, Hash)]
-/// Positive floating point number
-pub struct Positive<T: Float>(T);
+/// Non-negative floating point number
+pub struct NonNegative<T: Float>(T);
 
-impl Serialize for Positive<f64> {
+impl Serialize for NonNegative<f64> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_f64(self.0)
     }
 }
 
-impl<'de> Deserialize<'de> for Positive<f64> {
+impl<'de> Deserialize<'de> for NonNegative<f64> {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let x = f64::deserialize(deserializer)?;
 
-        if x > 0.0 {
+        if x >= 0.0 {
             Ok(Self(x))
         } else {
             Err(serde::de::Error::invalid_value(
                 serde::de::Unexpected::Float(x),
-                &"a positive value",
+                &"a non-negative value",
             ))
         }
     }
 }
 
-impl JsonSchema for Positive<f64> {
+impl JsonSchema for NonNegative<f64> {
     fn schema_name() -> Cow<'static, str> {
-        Cow::Borrowed("PositiveF64")
+        Cow::Borrowed("NonNegativeF64")
     }
 
     fn schema_id() -> Cow<'static, str> {
-        Cow::Borrowed(concat!(module_path!(), "::", "Positive<f64>"))
+        Cow::Borrowed(concat!(module_path!(), "::", "NonNegative<f64>"))
     }
 
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
@@ -154,11 +154,104 @@ pub enum RoundCodecError {
 #[must_use]
 /// Rounds the input `data` using
 /// `$c = \text{round}\left( \frac{x}{precision} \right) \cdot precision$`
+///
+/// If precision is zero, the `data` is returned unchanged.
 pub fn round<T: Float, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,
-    precision: Positive<T>,
+    precision: NonNegative<T>,
 ) -> Array<T, D> {
     let mut encoded = data.into_owned();
-    encoded.mapv_inplace(|x| (x / precision.0).round() * precision.0);
+
+    if precision.0.is_zero() {
+        return encoded;
+    }
+
+    encoded.mapv_inplace(|x| {
+        let n = x / precision.0;
+
+        // if x / precision is not finite, don't try to round
+        //  e.g. when x / eps = inf
+        if !n.is_finite() {
+            return x;
+        }
+
+        // round x to be a multiple of precision
+        n.round() * precision.0
+    });
+
     encoded
+}
+
+#[cfg(test)]
+mod tests {
+    use ndarray::array;
+
+    use super::*;
+
+    #[test]
+    fn round_zero_precision() {
+        let data = array![1.1, 2.1];
+
+        let rounded = round(data.view(), NonNegative(0.0));
+
+        assert_eq!(data, rounded);
+    }
+
+    #[test]
+    fn round_minimal_precision() {
+        let data = array![0.1, 1.0, 11.0, 21.0];
+
+        assert_eq!(11.0 / f64::MIN_POSITIVE, f64::INFINITY);
+        let rounded = round(data.view(), NonNegative(f64::MIN_POSITIVE));
+
+        assert_eq!(data, rounded);
+    }
+
+    #[test]
+    fn round_roundoff_errors() {
+        let data = array![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+
+        let rounded = round(data.view(), NonNegative(0.1));
+
+        assert_eq!(
+            rounded,
+            array![
+                0.0,
+                0.1,
+                0.2,
+                0.30000000000000004,
+                0.4,
+                0.5,
+                0.6000000000000001,
+                0.7000000000000001,
+                0.8,
+                0.9,
+                1.0
+            ]
+        );
+
+        let rounded_twice = round(rounded.view(), NonNegative(0.1));
+
+        assert_eq!(rounded, rounded_twice);
+    }
+
+    #[test]
+    fn round_edge_cases() {
+        let data = array![
+            -f64::NAN,
+            -f64::INFINITY,
+            -42.0,
+            -0.0,
+            0.0,
+            42.0,
+            f64::INFINITY,
+            f64::NAN
+        ];
+
+        let rounded = round(data.view(), NonNegative(1.0));
+
+        for (d, r) in data.into_iter().zip(rounded) {
+            assert!(d == r || d.to_bits() == r.to_bits());
+        }
+    }
 }

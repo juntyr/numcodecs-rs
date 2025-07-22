@@ -77,7 +77,7 @@ numcodecs-zstd = { version = "0.3", path = "codecs/zstd", default-features = fal
 
 # crates.io third-party dependencies
 anyhow = { version = "1.0.93", default-features = false }
-burn = { version = "0.17", default-features = false }
+burn = { version = "0.18", default-features = false }
 clap = { version = "4.5", default-features = false }
 convert_case = { version = "0.8", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
@@ -85,7 +85,7 @@ indexmap = { version = "2.7.1", default-features = false }
 itertools = { version = "0.14", default-features = false }
 log = { version = "0.4.27", default-features = false }
 simple_logger = { version = "5.0", default-features = false }
-miniz_oxide = { version = "0.8.4", default-features = false }
+miniz_oxide = { version = "0.8.5", default-features = false }
 ndarray = { version = "0.16.1", default-features = false } # keep in sync with numpy
 ndarray-rand = { version = "0.15", default-features = false }
 numpy = { version = "0.25", default-features = false }
