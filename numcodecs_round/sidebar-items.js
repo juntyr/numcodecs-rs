@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["RoundCodecError"],"fn":["round"],"struct":["Positive","RoundCodec"]};
+window.SIDEBAR_ITEMS = {"enum":["RoundCodecError"],"fn":["round"],"struct":["NonNegative","RoundCodec"]};

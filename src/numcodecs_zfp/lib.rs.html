@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-84e720fa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (71e4c005c 2025-07-01)" data-channel="nightly" data-search-js="search-179e01a3.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-4e99c027.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-340f468f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (9748d87dc 2025-07-21)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-4e99c027.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -158,8 +158,8 @@
 <a href=#120 id=120 data-nosnippet>120</a>    <span class="kw">type </span>Error = <a href="#202-276">ZfpCodecError</a>;
 <a href=#121 id=121 data-nosnippet>121</a>
 <a href=#122 id=122 data-nosnippet>122</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
-<a href=#123 id=123 data-nosnippet>123</a>        <span class="kw">if </span><span class="macro">matches!</span>(data.dtype(), AnyArrayDType::I32 | AnyArrayDType::I64)
-<a href=#124 id=124 data-nosnippet>124</a>            &amp;&amp; <span class="macro">matches!</span>(
+<a href=#123 id=123 data-nosnippet>123</a>        <span class="kw">if </span><a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(data.dtype(), AnyArrayDType::I32 | AnyArrayDType::I64)
+<a href=#124 id=124 data-nosnippet>124</a>            &amp;&amp; <a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(
 <a href=#125 id=125 data-nosnippet>125</a>                <span class="self">self</span>.mode,
 <a href=#126 id=126 data-nosnippet>126</a>                ZfpCompressionMode::FixedAccuracy { tolerance: <span class="kw">_ </span>}
 <a href=#127 id=127 data-nosnippet>127</a>            )
@@ -191,7 +191,7 @@
 <a href=#153 id=153 data-nosnippet>153</a>            });
 <a href=#154 id=154 data-nosnippet>154</a>        };
 <a href=#155 id=155 data-nosnippet>155</a>
-<a href=#156 id=156 data-nosnippet>156</a>        <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
+<a href=#156 id=156 data-nosnippet>156</a>        <span class="kw">if </span>!<a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(encoded.shape(), [<span class="kw">_</span>]) {
 <a href=#157 id=157 data-nosnippet>157</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#253-256">ZfpCodecError::EncodedDataNotOneDimensional</a> {
 <a href=#158 id=158 data-nosnippet>158</a>                shape: <a href="#150">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
 <a href=#159 id=159 data-nosnippet>159</a>            });
@@ -211,7 +211,7 @@
 <a href=#173 id=173 data-nosnippet>173</a>            });
 <a href=#174 id=174 data-nosnippet>174</a>        };
 <a href=#175 id=175 data-nosnippet>175</a>
-<a href=#176 id=176 data-nosnippet>176</a>        <span class="kw">if </span>!<span class="macro">matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
+<a href=#176 id=176 data-nosnippet>176</a>        <span class="kw">if </span>!<a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(encoded.shape(), [<span class="kw">_</span>]) {
 <a href=#177 id=177 data-nosnippet>177</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#253-256">ZfpCodecError::EncodedDataNotOneDimensional</a> {
 <a href=#178 id=178 data-nosnippet>178</a>                shape: <a href="#170">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
 <a href=#179 id=179 data-nosnippet>179</a>            });
@@ -337,7 +337,7 @@
 <a href=#299 id=299 data-nosnippet>299</a>    data: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>&lt;T, D&gt;,
 <a href=#300 id=300 data-nosnippet>300</a>    mode: <span class="kw-2">&amp;</span><a href="#71-117">ZfpCompressionMode</a>,
 <a href=#301 id=301 data-nosnippet>301</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#202-276">ZfpCodecError</a>&gt; {
-<a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">if </span>!<span class="macro">matches!</span>(mode, ZfpCompressionMode::Reversible) &amp;&amp; !Zip::from(<span class="kw-2">&amp;</span>data).all(|x| x.is_finite()) {
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">if </span>!<a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(mode, ZfpCompressionMode::Reversible) &amp;&amp; !<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.from">Zip::from</a>(<span class="kw-2">&amp;</span><a href="#299">data</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.all">all</a>(|x| <a href="#302">x</a>.<a href="ffi.rs.html#346">is_finite</a>()) {
 <a href=#303 id=303 data-nosnippet>303</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#226">ZfpCodecError::NonFiniteData</a>);
 <a href=#304 id=304 data-nosnippet>304</a>    }
 <a href=#305 id=305 data-nosnippet>305</a>
@@ -354,7 +354,7 @@
 <a href=#316 id=316 data-nosnippet>316</a>    })<span class="question-mark">?</span>;
 <a href=#317 id=317 data-nosnippet>317</a>
 <a href=#318 id=318 data-nosnippet>318</a>    <span class="comment">// ZFP cannot handle zero-length dimensions
-<a href=#319 id=319 data-nosnippet>319</a>    </span><span class="kw">if </span>data.is_empty() {
+<a href=#319 id=319 data-nosnippet>319</a>    </span><span class="kw">if </span><a href="#299">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.is_empty">is_empty</a>() {
 <a href=#320 id=320 data-nosnippet>320</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#306">encoded</a>);
 <a href=#321 id=321 data-nosnippet>321</a>    }
 <a href=#322 id=322 data-nosnippet>322</a>
@@ -394,7 +394,7 @@
 <a href=#356 id=356 data-nosnippet>356</a>        })<span class="question-mark">?</span>;
 <a href=#357 id=357 data-nosnippet>357</a>
 <a href=#358 id=358 data-nosnippet>358</a>    <span class="comment">// Return empty data for zero-size arrays
-<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">if </span>header.shape.iter().copied().product::&lt;usize&gt;() == <span class="number">0 </span>{
+<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">if </span><a href="#351">header</a>.shape.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>().<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.product">product</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;() == <span class="number">0 </span>{
 <a href=#360 id=360 data-nosnippet>360</a>        <span class="kw">let </span>decoded = <span class="kw">match </span><a href="#351">header</a>.dtype {
 <a href=#361 id=361 data-nosnippet>361</a>            <a href="#467">ZfpDType::I32</a> =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I32">AnyArray::I32</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.zeros">Array::zeros</a>(<span class="kw-2">&amp;*</span><a href="#351">header</a>.shape)),
 <a href=#362 id=362 data-nosnippet>362</a>            <a href="#469">ZfpDType::I64</a> =&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.I64">AnyArray::I64</a>(<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.zeros">Array::zeros</a>(<span class="kw-2">&amp;*</span><a href="#351">header</a>.shape)),
@@ -454,7 +454,7 @@
 <a href=#416 id=416 data-nosnippet>416</a>            }
 <a href=#417 id=417 data-nosnippet>417</a>        })<span class="question-mark">?</span>;
 <a href=#418 id=418 data-nosnippet>418</a>
-<a href=#419 id=419 data-nosnippet>419</a>    <span class="kw">if </span>decoded.shape() != <span class="kw-2">&amp;*</span>header.shape {
+<a href=#419 id=419 data-nosnippet>419</a>    <span class="kw">if </span><a href="#411">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>() != <span class="kw-2">&amp;*</span><a href="#412">header</a>.shape {
 <a href=#420 id=420 data-nosnippet>420</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="#268-272">ZfpCodecError::MismatchedDecodeIntoArray</a> {
 <a href=#421 id=421 data-nosnippet>421</a>            source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">AnyArrayAssignError::ShapeMismatch</a> {
 <a href=#422 id=422 data-nosnippet>422</a>                src: <a href="#412">header</a>.shape.<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#method.into_owned">into_owned</a>(),
@@ -464,7 +464,7 @@
 <a href=#426 id=426 data-nosnippet>426</a>    }
 <a href=#427 id=427 data-nosnippet>427</a>
 <a href=#428 id=428 data-nosnippet>428</a>    <span class="comment">// Empty data doesn't need to be initialized
-<a href=#429 id=429 data-nosnippet>429</a>    </span><span class="kw">if </span>decoded.is_empty() {
+<a href=#429 id=429 data-nosnippet>429</a>    </span><span class="kw">if </span><a href="#411">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.is_empty">is_empty</a>() {
 <a href=#430 id=430 data-nosnippet>430</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(());
 <a href=#431 id=431 data-nosnippet>431</a>    }
 <a href=#432 id=432 data-nosnippet>432</a>
