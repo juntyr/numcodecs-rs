@@ -62,7 +62,7 @@ pub trait StaticCodec: Codec {
     ///
     /// The [`StaticCodecConfig`] ensures that the returned config includes an
     /// `id` field with the codec's [`StaticCodec::CODEC_ID`].
-    fn get_config(&self) -> StaticCodecConfig<Self>;
+    fn get_config(&self) -> StaticCodecConfig<'_, Self>;
 }
 
 /// Dynamically typed compression codec.

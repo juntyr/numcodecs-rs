@@ -176,7 +176,7 @@ where
 {
     #[must_use]
     /// Returns a read-only view of the array.
-    pub fn view(&self) -> AnyArrayView {
+    pub fn view(&self) -> AnyArrayView<'_> {
         match self {
             Self::U8(a) => AnyArrayView::U8(a.view()),
             Self::U16(a) => AnyArrayView::U16(a.view()),
@@ -193,7 +193,7 @@ where
 
     #[must_use]
     /// Returns a copy-on-write view of the array.
-    pub fn cow(&self) -> AnyCowArray {
+    pub fn cow(&self) -> AnyCowArray<'_> {
         match self {
             Self::U8(a) => AnyCowArray::U8(a.into()),
             Self::U16(a) => AnyCowArray::U16(a.into()),
@@ -234,8 +234,8 @@ where
     /// elements, a view of the data is returned without cloning.
     ///
     /// Otherwise, the data is cloned and put into standard order first.
-    pub fn as_bytes(&self) -> Cow<[u8]> {
-        fn array_into_bytes<T: Copy, S: Data<Elem = T>>(x: &ArrayBase<S, IxDyn>) -> Cow<[u8]> {
+    pub fn as_bytes(&self) -> Cow<'_, [u8]> {
+        fn array_into_bytes<T: Copy, S: Data<Elem = T>>(x: &ArrayBase<S, IxDyn>) -> Cow<'_, [u8]> {
             #[expect(clippy::option_if_let_else)]
             if let Some(x) = x.as_slice() {
                 #[expect(unsafe_code)]
@@ -295,7 +295,7 @@ where
 {
     #[must_use]
     /// Returns a read-write view of the array.
-    pub fn view_mut(&mut self) -> AnyArrayViewMut {
+    pub fn view_mut(&mut self) -> AnyArrayViewMut<'_> {
         match self {
             Self::U8(a) => AnyArrayViewMut::U8(a.view_mut()),
             Self::U16(a) => AnyArrayViewMut::U16(a.view_mut()),

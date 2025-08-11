@@ -223,7 +223,7 @@ impl Codec for LinearQuantizeCodec {
         #[expect(clippy::option_if_let_else)]
         fn as_standard_order<T: Copy, S: Data<Elem = T>, D: Dimension>(
             array: &ArrayBase<S, D>,
-        ) -> Cow<[T]> {
+        ) -> Cow<'_, [T]> {
             if let Some(data) = array.as_slice() {
                 Cow::Borrowed(data)
             } else {
@@ -303,7 +303,7 @@ impl Codec for LinearQuantizeCodec {
     ) -> Result<(), Self::Error> {
         fn as_standard_order<T: Copy, S: Data<Elem = T>, D: Dimension>(
             array: &ArrayBase<S, D>,
-        ) -> Cow<[T]> {
+        ) -> Cow<'_, [T]> {
             #[expect(clippy::option_if_let_else)]
             if let Some(data) = array.as_slice() {
                 Cow::Borrowed(data)
@@ -406,7 +406,7 @@ impl StaticCodec for LinearQuantizeCodec {
         config
     }
 
-    fn get_config(&self) -> StaticCodecConfig<Self> {
+    fn get_config(&self) -> StaticCodecConfig<'_, Self> {
         StaticCodecConfig::from(self)
     }
 }

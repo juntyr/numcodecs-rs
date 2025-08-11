@@ -70,7 +70,7 @@ impl<T: StaticCodec> StaticCodec for LoggingCodec<T> {
     }
 
     #[inline]
-    fn get_config(&self) -> StaticCodecConfig<Self> {
+    fn get_config(&self) -> StaticCodecConfig<'_, Self> {
         ensure_logger();
 
         StaticCodecConfig::new(self.0.get_config().config)
