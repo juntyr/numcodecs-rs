@@ -13,7 +13,7 @@ use crate::{PyCodecClass, export::RustCodec};
 
 macro_rules! once {
     ($py:ident, $module:literal $(, $path:literal)*) => {{
-        fn once(py: Python) -> Result<&Bound<PyAny>, PyErr> {
+        fn once(py: Python<'_>) -> Result<&Bound<'_, PyAny>, PyErr> {
             static ONCE: GILOnceCell<Py<PyAny>> = GILOnceCell::new();
             Ok(ONCE.get_or_try_init(py, || -> Result<Py<PyAny>, PyErr> {
                 Ok(py
@@ -214,7 +214,7 @@ pub fn signature_from_schema(schema: &Schema) -> String {
     signature
 }
 
-fn parameters_from_schema(schema: &Schema) -> Parameters {
+fn parameters_from_schema(schema: &Schema) -> Parameters<'_> {
     // schema = true means that any parameters are allowed
     if schema.as_bool() == Some(true) {
         return Parameters {

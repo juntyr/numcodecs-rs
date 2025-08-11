@@ -92,7 +92,7 @@ impl StaticCodec for LogCodec {
         config
     }
 
-    fn get_config(&self) -> StaticCodecConfig<Self> {
+    fn get_config(&self) -> StaticCodecConfig<'_, Self> {
         StaticCodecConfig::from(self)
     }
 }

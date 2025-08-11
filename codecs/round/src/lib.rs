@@ -88,7 +88,7 @@ impl StaticCodec for RoundCodec {
         config
     }
 
-    fn get_config(&self) -> StaticCodecConfig<Self> {
+    fn get_config(&self) -> StaticCodecConfig<'_, Self> {
         StaticCodecConfig::from(self)
     }
 }
