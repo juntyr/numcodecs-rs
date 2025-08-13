@@ -24,6 +24,7 @@ members = [
     "codecs/reinterpret",
     "codecs/round",
     "codecs/sperr",
+    "codecs/stochastic-rounding",
     "codecs/swizzle-reshape",
     "codecs/sz3",
     "codecs/tthresh",
@@ -39,7 +40,7 @@ edition = "2024"
 authors = ["Juniper Tyree <juniper.tyree@helsinki.fi>"]
 repository = "https://github.com/juntyr/numcodecs-rs"
 license = "MPL-2.0"
-rust-version = "1.85"
+rust-version = "1.86"
 
 [workspace.dependencies]
 # workspace-internal numcodecs crates
@@ -66,6 +67,7 @@ numcodecs-pco = { version = "0.2", path = "codecs/pco", default-features = false
 numcodecs-random-projection = { version = "0.3", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.3", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.3", path = "codecs/round", default-features = false }
+numcodecs-stochastic-rounding = { version = "0.1", path = "codecs/stochastic-rounding", default-features = false }
 numcodecs-swizzle-reshape = { version = "0.3", path = "codecs/swizzle-reshape", default-features = false }
 numcodecs-sz3 = { version = "0.6", path = "codecs/sz3", default-features = false }
 numcodecs-tthresh = { version = "0.2", path = "codecs/tthresh", default-features = false }

@@ -1,0 +1,28 @@
+[package]
+name = "numcodecs-stochastic-rounding"
+version = "0.1.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "Stochastic rounding codec implementation for the numcodecs API"
+readme = "README.md"
+categories = ["compression", "encoding"]
+keywords = ["stochastic", "round", "numcodecs", "compression", "encoding"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ndarray = { workspace = true, features = ["std"] }
+numcodecs = { workspace = true }
+num-traits = { workspace = true, features = ["std"] }
+rand = { workspace = true }
+wyhash = { workspace = true }
+schemars = { workspace = true, features = ["derive", "preserve_order"] }
+serde = { workspace = true, features = ["std", "derive"] }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

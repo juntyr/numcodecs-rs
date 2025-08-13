@@ -52,7 +52,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.85", stable, nightly]
+        rust: ["1.86", stable, nightly]
         lock: ["Cargo.lock", "Cargo.lock.min"]
     runs-on: ${{ matrix.os }}
     needs: lock
@@ -172,7 +172,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.85", stable]
+        rust: ["1.86", stable]
         lock: ["Cargo.lock", "Cargo.lock.min"]
     runs-on: ${{ matrix.os }}
     needs: lock

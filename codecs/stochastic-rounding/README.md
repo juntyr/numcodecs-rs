@@ -6,24 +6,24 @@
 [MSRV]: https://img.shields.io/badge/MSRV-1.86.0-blue
 [repo]: https://github.com/juntyr/numcodecs-rs
 
-[Latest Version]: https://img.shields.io/crates/v/numcodecs-identity
-[crates.io]: https://crates.io/crates/numcodecs-identity
+[Latest Version]: https://img.shields.io/crates/v/numcodecs-stochastic-rounding
+[crates.io]: https://crates.io/crates/numcodecs-stochastic-rounding
 
-[PyPi Release]: https://img.shields.io/pypi/v/numcodecs-wasm-identity.svg
-[pypi]: https://pypi.python.org/pypi/numcodecs-wasm-identity
+[PyPi Release]: https://img.shields.io/pypi/v/numcodecs-wasm-stochastic-rounding.svg
+[pypi]: https://pypi.python.org/pypi/numcodecs-wasm-stochastic-rounding
 
-[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-identity
-[docs.rs]: https://docs.rs/numcodecs-identity/
+[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-stochastic-rounding
+[docs.rs]: https://docs.rs/numcodecs-stochastic-rounding/
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_identity
+[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_stochastic_rounding
 
 [Read the Docs]: https://img.shields.io/readthedocs/numcodecs-wasm?label=readthedocs
-[rtdocs]: https://numcodecs-wasm.readthedocs.io/en/stable/api/numcodecs_wasm_identity/
+[rtdocs]: https://numcodecs-wasm.readthedocs.io/en/stable/api/numcodecs_wasm_stochastic_rounding/
 
-# numcodecs-identity
+# numcodecs-stochastic-rounding
 
-Identity codec implementation for the [`numcodecs`] API.
+Stochastic rounding codec implementation for the [`numcodecs`] API.
 
 [`numcodecs`]: https://docs.rs/numcodecs/0.2/numcodecs/
 
@@ -33,6 +33,6 @@ Licensed under the Mozilla Public License, Version 2.0 ([LICENSE](LICENSE) or ht
 
 ## Funding
 
-The `numcodecs-identity` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
+The `numcodecs-stochastic-rounding` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
 
 Funded by the European Union. This work has received funding from the European High Performance Computing Joint Undertaking (JU) under grant agreement No 101093054.
