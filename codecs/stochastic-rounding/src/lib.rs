@@ -15,7 +15,7 @@
 //! [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
 //! [docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_stochastic_rounding
 //!
-//! Uniform noise codec implementation for the [`numcodecs`] API.
+//! Stochastic rounding codec implementation for the [`numcodecs`] API.
 
 use std::borrow::Cow;
 use std::hash::{Hash, Hasher};
@@ -48,11 +48,11 @@ use wyhash::{WyHash, WyRng};
 /// This codec first hashes the input array data and shape to then `seed` a
 /// pseudo-random number generator that is used to sample the stochasticity for
 /// rounding. Therefore, passing in the same input with the same `seed` will
-/// produce the same noise and thus the same encoded output.
+/// produce the same stochasticity and thus the same encoded output.
 pub struct StochasticRoundingCodec {
     /// The precision of the rounding operation
     pub precision: NonNegative<f64>,
-    /// Seed for the random noise generator
+    /// Seed for the random generator
     pub seed: u64,
     /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
@@ -158,7 +158,7 @@ impl JsonSchema for NonNegative<f64> {
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         json_schema!({
             "type": "number",
-            "exclusiveMinimum": 0.0
+            "minimum": 0.0
         })
     }
 }
@@ -187,7 +187,7 @@ pub enum StochasticRoundingCodecError {
 /// This function first hashes the input array data and shape to then `seed` a
 /// pseudo-random number generator that is used to sample the stochasticity for
 /// rounding. Therefore, passing in the same input with the same `seed` will
-/// produce the same noise and thus the same encoded output.
+/// produce the same stochasticity and thus the same encoded output.
 #[must_use]
 pub fn stochastic_rounding<T: FloatExt, S: Data<Elem = T>, D: Dimension>(
     data: ArrayBase<S, D>,

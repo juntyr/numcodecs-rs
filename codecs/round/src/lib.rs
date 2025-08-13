@@ -131,7 +131,7 @@ impl JsonSchema for NonNegative<f64> {
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         json_schema!({
             "type": "number",
-            "exclusiveMinimum": 0.0
+            "minimum": 0.0
         })
     }
 }
