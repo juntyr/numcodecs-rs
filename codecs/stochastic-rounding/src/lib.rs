@@ -221,7 +221,7 @@ where
             continue;
         }
 
-        let remainder = *x % precision.0;
+        let remainder = x.rem_euclid(precision.0);
 
         // compute the nearest multiples of precision based on the remainder
         // correct max 1 ULP rounding errors to ensure that the nearest
@@ -255,6 +255,10 @@ pub trait FloatExt: Float {
     /// Hash the binary representation of the floating point value
     fn hash_bits<H: Hasher>(self, hasher: &mut H);
 
+    /// Calculates the least nonnegative remainder of self (mod rhs).
+    #[must_use]
+    fn rem_euclid(self, rhs: Self) -> Self;
+
     /// Returns the least number greater than `self`.
     #[must_use]
     fn next_up(self) -> Self;
@@ -271,6 +275,10 @@ impl FloatExt for f32 {
         hasher.write_u32(self.to_bits());
     }
 
+    fn rem_euclid(self, rhs: Self) -> Self {
+        Self::rem_euclid(self, rhs)
+    }
+
     fn next_up(self) -> Self {
         Self::next_up(self)
     }
@@ -285,6 +293,10 @@ impl FloatExt for f64 {
 
     fn hash_bits<H: Hasher>(self, hasher: &mut H) {
         hasher.write_u64(self.to_bits());
+    }
+
+    fn rem_euclid(self, rhs: Self) -> Self {
+        Self::rem_euclid(self, rhs)
     }
 
     fn next_up(self) -> Self {
@@ -336,28 +348,67 @@ mod tests {
             -f64::NAN,
             -f64::INFINITY,
             -42.0,
+            -4.2,
             -0.0,
             0.0,
+            4.2,
             42.0,
             f64::INFINITY,
             f64::NAN
         ];
+        let precision = 1.0;
 
-        let rounded = stochastic_rounding(data.view(), NonNegative(1.0), 42);
+        let rounded = stochastic_rounding(data.view(), NonNegative(precision), 42);
 
         for (d, r) in data.into_iter().zip(rounded) {
-            assert!((r - d).abs() <= 1.0 || d.to_bits() == r.to_bits());
+            assert!((r - d).abs() <= precision || d.to_bits() == r.to_bits());
         }
     }
 
     #[test]
     fn round_rounding_errors() {
         let data = Array::from_iter(linspace(-100.0, 100.0, 3741));
+        let precision = 0.1;
 
-        let rounded = stochastic_rounding(data.view(), NonNegative(0.1), 42);
+        let rounded = stochastic_rounding(data.view(), NonNegative(precision), 42);
 
         for (d, r) in data.into_iter().zip(rounded) {
-            assert!((r - d).abs() <= 0.1);
+            assert!((r - d).abs() <= precision);
+        }
+    }
+
+    #[test]
+    fn test_rounding_bug() {
+        let data = array![
+            -1.23540_f32,
+            -1.23539_f32,
+            -1.23538_f32,
+            -1.23537_f32,
+            -1.23536_f32,
+            -1.23535_f32,
+            -1.23534_f32,
+            -1.23533_f32,
+            -1.23532_f32,
+            -1.23531_f32,
+            -1.23530_f32,
+            1.23540_f32,
+            1.23539_f32,
+            1.23538_f32,
+            1.23537_f32,
+            1.23536_f32,
+            1.23535_f32,
+            1.23534_f32,
+            1.23533_f32,
+            1.23532_f32,
+            1.23531_f32,
+            1.23530_f32,
+        ];
+        let precision = 0.00018_f32;
+
+        let rounded = stochastic_rounding(data.view(), NonNegative(precision), 42);
+
+        for (d, r) in data.into_iter().zip(rounded) {
+            assert!((r - d).abs() <= precision);
         }
     }
 }
