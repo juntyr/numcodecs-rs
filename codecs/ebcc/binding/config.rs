@@ -14,24 +14,18 @@ pub const NDIMS: usize = 3;
 pub enum ResidualType {
     /// No residual compression - base JPEG2000 only
     None,
-    /// Residual compression with sparsification factor
-    SparsificationFactor,
     /// Residual compression with absolute maximum error bound
     MaxError,
     /// Residual compression with relative error bound
     RelativeError,
-    /// Residual compression with quantile-based error bound (deprecated)
-    Quantile,
 }
 
 impl From<ResidualType> for ffi::residual_t::Type {
     fn from(rt: ResidualType) -> Self {
         match rt {
             ResidualType::None => ffi::residual_t::NONE,
-            ResidualType::SparsificationFactor => ffi::residual_t::SPARSIFICATION_FACTOR,
             ResidualType::MaxError => ffi::residual_t::MAX_ERROR,
             ResidualType::RelativeError => ffi::residual_t::RELATIVE_ERROR,
-            ResidualType::Quantile => ffi::residual_t::QUANTILE,
         }
     }
 }
@@ -40,10 +34,10 @@ impl From<ffi::residual_t::Type> for ResidualType {
     fn from(rt: ffi::residual_t::Type) -> Self {
         match rt {
             ffi::residual_t::NONE => ResidualType::None,
-            ffi::residual_t::SPARSIFICATION_FACTOR => ResidualType::SparsificationFactor,
             ffi::residual_t::MAX_ERROR => ResidualType::MaxError,
             ffi::residual_t::RELATIVE_ERROR => ResidualType::RelativeError,
-            ffi::residual_t::QUANTILE => ResidualType::Quantile,
+            // Deprecated types map to None for backward compatibility
+            ffi::residual_t::SPARSIFICATION_FACTOR | ffi::residual_t::QUANTILE => ResidualType::None,
             _ => ResidualType::None, // Default case for unknown values
         }
     }
@@ -63,14 +57,8 @@ pub struct EBCCConfig {
     /// Type of residual compression to apply
     pub residual_compression_type: ResidualType,
     
-    /// Residual compression ratio (used with SparsificationFactor)
-    pub residual_cr: f32,
-    
     /// Maximum allowed error (used with MaxError and RelativeError)
     pub error: f32,
-    
-    /// Quantile threshold (used with deprecated Quantile mode)
-    pub quantile: f64,
 }
 
 impl EBCCConfig {
@@ -80,9 +68,7 @@ impl EBCCConfig {
             dims,
             base_cr: 10.0,
             residual_compression_type: ResidualType::None,
-            residual_cr: 1.0,
             error: 0.01,
-            quantile: 1e-6,
         }
     }
     
@@ -92,9 +78,7 @@ impl EBCCConfig {
             dims,
             base_cr: compression_ratio,
             residual_compression_type: ResidualType::None,
-            residual_cr: 1.0,
             error: 0.0,
-            quantile: 1e-6,
         }
     }
     
@@ -108,9 +92,7 @@ impl EBCCConfig {
             dims,
             base_cr,
             residual_compression_type: ResidualType::MaxError,
-            residual_cr: 1.0,
             error: max_error,
-            quantile: 1e-6,
         }
     }
     
@@ -124,9 +106,7 @@ impl EBCCConfig {
             dims,
             base_cr,
             residual_compression_type: ResidualType::RelativeError,
-            residual_cr: 1.0,
             error: relative_error,
-            quantile: 1e-6,
         }
     }
     
@@ -160,19 +140,9 @@ impl EBCCConfig {
         
         // Check residual-specific parameters
         match self.residual_compression_type {
-            ResidualType::SparsificationFactor => {
-                if self.residual_cr <= 0.0 {
-                    return Err(EBCCError::invalid_config("Residual compression ratio must be > 0"));
-                }
-            }
             ResidualType::MaxError | ResidualType::RelativeError => {
                 if self.error <= 0.0 {
                     return Err(EBCCError::invalid_config("Error bound must be > 0"));
-                }
-            }
-            ResidualType::Quantile => {
-                if !(0.0..=1.0).contains(&self.quantile) {
-                    return Err(EBCCError::invalid_config("Quantile must be in [0, 1]"));
                 }
             }
             ResidualType::None => {
@@ -194,9 +164,9 @@ impl EBCCConfig {
             dims: self.dims,
             base_cr: self.base_cr,
             residual_compression_type: self.residual_compression_type.into(),
-            residual_cr: self.residual_cr,
+            residual_cr: 1.0, // Default value for removed field
             error: self.error,
-            quantile: self.quantile,
+            quantile: 1e-6, // Default value for removed field
         }
     }
     
@@ -207,9 +177,8 @@ impl EBCCConfig {
             dims: config.dims,
             base_cr: config.base_cr,
             residual_compression_type: config.residual_compression_type.into(),
-            residual_cr: config.residual_cr,
             error: config.error,
-            quantile: config.quantile,
+            // Note: residual_cr and quantile are removed from the Rust struct
         }
     }
 }

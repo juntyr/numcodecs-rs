@@ -26,9 +26,7 @@
 //!         dims: [1, 721, 1440],
 //!         base_cr: 30.0,
 //!         residual_compression_type: ResidualType::MaxError,
-//!         residual_cr: 0.0,
 //!         error: 0.01,
-//!         quantile: 0.0,
 //!     };
 //!     
 //!     // Compress the data

@@ -261,10 +261,8 @@ pub enum EBCCCodecError {
 /// 
 /// - `dims`: Array dimensions as [frames, height, width]
 /// - `base_cr`: Base JPEG2000 compression ratio (default: 10.0)
-/// - `residual_type`: Residual compression type ("none", "max_error", "relative_error", "sparsification")
-/// - `residual_cr`: Residual compression ratio (default: 1.0)
+/// - `residual_type`: Residual compression type ("none", "max_error", "relative_error")
 /// - `error`: Error bound for error-bounded modes (default: 0.01)
-/// - `quantile`: Quantile threshold (default: 1e-6)
 /// 
 /// # Returns
 /// 
@@ -316,32 +314,26 @@ pub fn ebcc_codec_from_config(
         "none" => ResidualType::None,
         "max_error" => ResidualType::MaxError,
         "relative_error" => ResidualType::RelativeError,
-        "sparsification" => ResidualType::SparsificationFactor,
-        "quantile" => ResidualType::Quantile,
+        // Deprecated types are ignored and default to None
+        "sparsification" | "quantile" => {
+            return Err(EBCCError::invalid_config(format!(
+                "Residual type '{}' is deprecated and no longer supported", residual_type_str
+            )));
+        },
         _ => return Err(EBCCError::invalid_config(format!(
             "Unknown residual type: {}", residual_type_str
         ))),
     };
     
-    let residual_cr = config_map.get("residual_cr")
-        .and_then(|v| v.as_f64())
-        .unwrap_or(1.0) as f32;
-    
     let error = config_map.get("error")
         .and_then(|v| v.as_f64())
         .unwrap_or(0.01) as f32;
-    
-    let quantile = config_map.get("quantile")
-        .and_then(|v| v.as_f64())
-        .unwrap_or(1e-6);
     
     let config = EBCCConfig {
         dims,
         base_cr,
         residual_compression_type: residual_type,
-        residual_cr,
         error,
-        quantile,
     };
     
     EBCCCodec::new(config)
@@ -391,6 +383,24 @@ mod tests {
         
         let result = ebcc_codec_from_config(config_map);
         assert!(result.is_err());
+    }
+    
+    #[test]
+    fn test_deprecated_residual_types() {
+        let mut config_map = HashMap::new();
+        config_map.insert("dims".to_string(), serde_json::json!([1, 32, 32]));
+        
+        // Test sparsification is rejected
+        config_map.insert("residual_type".to_string(), serde_json::json!("sparsification"));
+        let result = ebcc_codec_from_config(config_map.clone());
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("deprecated"));
+        
+        // Test quantile is rejected
+        config_map.insert("residual_type".to_string(), serde_json::json!("quantile"));
+        let result = ebcc_codec_from_config(config_map);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("deprecated"));
     }
     
     #[test]

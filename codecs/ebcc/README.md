@@ -6,19 +6,11 @@ This directory contains Rust bindings for EBCC (Error Bounded Climate Compressor
 
 - **Safe Rust API**: Memory-safe wrappers around the C library with automatic error handling
 - **numcodecs Integration**: Compatible with the Rust numcodecs ecosystem for array compression
-- **Multiple Compression Modes**: Support for JPEG2000-only, error-bounded, and sparsification-based compression
-- **Configuration Management**: Serde-based serialization/deserialization of compression parameters
-- **Comprehensive Testing**: Unit tests, integration tests, and property-based testing
-- **Documentation**: Full API documentation with examples
+- **Multiple Compression Modes**: Support for JPEG2000-only and error-bounded compression
+
 
 ## Quick Start
 
-### Prerequisites
-
-- Rust 1.70+ (edition 2021)
-- CMake 3.18+
-- C compiler with C99 support
-- System math library (`libm`)
 
 ### Basic Usage
 
@@ -60,9 +52,7 @@ let config = EBCCConfig {
     dims: [2, 721, 1440],  // 2 time steps, 721x1440 spatial grid
     base_cr: 25.0,         // JPEG2000 compression ratio
     residual_compression_type: ResidualType::MaxError,
-    residual_cr: 1.0,      // Not used for MaxError mode
     error: 0.05,           // 0.05 unit maximum error
-    quantile: 1e-6,        // Error quantile threshold
 };
 ```
 
@@ -139,9 +129,7 @@ Main configuration struct with the following fields:
 - `dims: [usize; 3]` - Data dimensions as [frames, height, width]
 - `base_cr: f32` - Base JPEG2000 compression ratio
 - `residual_compression_type: ResidualType` - Type of residual compression
-- `residual_cr: f32` - Residual compression ratio (for sparsification)
 - `error: f32` - Error bound (for error-bounded modes)
-- `quantile: f64` - Error quantile threshold
 
 #### `ResidualType`
 
@@ -149,8 +137,6 @@ Compression modes:
 - `None` - JPEG2000 only
 - `MaxError` - Absolute error bound
 - `RelativeError` - Relative error bound
-- `SparsificationFactor` - Sparsification-based compression
-- `Quantile` - Quantile-based compression (deprecated)
 
 ### Error Handling
 
@@ -190,21 +176,6 @@ let codec = ebcc_codec_from_config(config_map)?;
 - `EBCC_DISABLE_PURE_BASE_COMPRESSION_FALLBACK` - Disable pure JPEG2000 fallback
 - `EBCC_DISABLE_MEAN_ADJUSTMENT` - Disable mean error adjustment
 
-## Performance
-
-EBCC typically achieves:
-- **Compression ratios**: 10:1 to 50:1 depending on data characteristics and error tolerance
-- **Speed**: Comparable to other scientific lossy compressors
-- **Error bounds**: Guaranteed maximum error bounds when configured
-
-### Benchmarks
-
-Run benchmarks with:
-
-```bash
-cargo bench
-```
-
 ## Architecture
 
 ```
@@ -241,23 +212,6 @@ cargo bench
 - Run `cargo test` for unit tests 
 - Use `EBCC_LOG_LEVEL=0` for verbose logging during development
 
-### Code Style
-
-- Follow standard Rust formatting: `cargo fmt`
-- Run linter: `cargo clippy`
-- Document public APIs with examples
-- Add tests for new functionality
-
-## License
-
-This project follows the same license as the main EBCC project.
-
 ## Citation
 
 If you use EBCC in your research, please cite the original paper and software.
-
-## Support
-
-- **Issues**: Report bugs and feature requests via GitHub issues
-- **Documentation**: Full API docs available at `cargo doc --open`
-- **Examples**: See `examples/` directory for usage patterns
