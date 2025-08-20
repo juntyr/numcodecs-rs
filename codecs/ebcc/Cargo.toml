@@ -26,9 +26,6 @@ ndarray = { workspace = true }
 thiserror = { workspace = true }
 anyhow = { workspace = true }
 
-# C interop
-libc = "0.2"
-
 # Serialization for configuration
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }

@@ -15,12 +15,12 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 // If bindgen is not available, provide manual bindings for the core types
 #[cfg(not(feature = "bindgen"))]
 mod manual_bindings {
-    use std::os::raw::{c_float, c_double, c_uchar};
+    use core::ffi::{c_float, c_double, c_uchar};
     
     pub const NDIMS: usize = 3;
     
     pub mod residual_t {
-        pub type Type = ::std::os::raw::c_uint;
+        pub type Type = ::core::ffi::c_uint;
         pub const NONE: Type = 0;
         pub const SPARSIFICATION_FACTOR: Type = 1;
         pub const MAX_ERROR: Type = 2;
@@ -51,6 +51,8 @@ mod manual_bindings {
             data_size: usize,
             out_buffer: *mut *mut c_float,
         ) -> usize;
+        
+        pub fn free_buffer(buffer: *mut ::core::ffi::c_void);
         
         pub fn print_config(config: *mut codec_config_t);
         

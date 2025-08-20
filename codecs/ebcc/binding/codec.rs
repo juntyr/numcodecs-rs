@@ -84,7 +84,7 @@ pub fn encode_climate_variable(data: &[f32], config: &EBCCConfig) -> EBCCResult<
     let compressed_data = unsafe {
         let slice = slice::from_raw_parts(out_buffer, compressed_size);
         let vec = slice.to_vec();
-        libc::free(out_buffer as *mut libc::c_void);
+        ffi::free_buffer(out_buffer as *mut core::ffi::c_void);
         vec
     };
     
@@ -146,7 +146,7 @@ pub fn decode_climate_variable(compressed_data: &[u8]) -> EBCCResult<Vec<f32>> {
     let decompressed_data = unsafe {
         let slice = slice::from_raw_parts(out_buffer, decompressed_size);
         let vec = slice.to_vec();
-        libc::free(out_buffer as *mut libc::c_void);
+        ffi::free_buffer(out_buffer as *mut core::ffi::c_void);
         vec
     };
     

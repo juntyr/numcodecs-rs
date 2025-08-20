@@ -51,6 +51,7 @@ fn main() {
             .allowlist_type("residual_t")
             .allowlist_function("encode_climate_variable")
             .allowlist_function("decode_climate_variable")
+            .allowlist_function("free_buffer")
             .allowlist_function("print_config")
             .allowlist_function("log_set_level_from_env")
             // Generate constants
