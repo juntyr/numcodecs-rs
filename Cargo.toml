@@ -13,6 +13,7 @@ members = [
 
     "codecs/asinh",
     "codecs/bit-round",
+    "codecs/ebcc",
     "codecs/fixed-offset-scale",
     "codecs/fourier-network",
     "codecs/identity",
@@ -55,6 +56,7 @@ numcodecs-wasm-host-reproducible = { version = "0.1", path = "crates/numcodecs-w
 numcodecs-wasm = { version = "0.1", path = "py/numcodecs-wasm", default-features = false }
 
 # workspace-internal codecs crates
+numcodecs-ebcc = { version = "1.0.0", path = "codecs/ebcc", default-features = true }
 numcodecs-asinh = { version = "0.3", path = "codecs/asinh", default-features = false }
 numcodecs-bit-round = { version = "0.3", path = "codecs/bit-round", default-features = false }
 numcodecs-fixed-offset-scale = { version = "0.3", path = "codecs/fixed-offset-scale", default-features = false }

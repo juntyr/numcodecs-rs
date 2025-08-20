@@ -1,0 +1,103 @@
+[package]
+name = "numcodecs-ebcc"
+version = "1.0.0"
+edition = { workspace = true }
+rust-version = { workspace = true }
+authors = ["EBCC Contributors"]
+description = "Rust bindings for EBCC (Error Bounded Climate Compressor) with numcodecs support"
+license = { workspace = true }
+repository = "https://github.com/spcl/EBCC"
+readme = "README.md"
+keywords = ["compression", "climate", "hdf5", "jpeg2000", "wavelet"]
+categories = ["compression", "science", "encoding", "api-bindings"]
+
+[dependencies]
+# Core numcodecs traits
+numcodecs = { workspace = true }
+
+# Additional dependencies needed for numcodecs integration
+postcard = { workspace = true }
+schemars = { workspace = true, features = ["derive", "preserve_order"] }
+
+# Array handling 
+ndarray = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# C interop
+libc = "0.2"
+
+# Serialization for configuration
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["std"] }
+
+# Logging
+log = { workspace = true }
+
+[dev-dependencies]
+# Testing
+criterion = "0.5"
+proptest = "1.0"
+tempfile = "3.0"
+
+[build-dependencies]
+bindgen = { version = "0.70", optional = true }
+cmake = "0.1"
+pkg-config = "0.3"
+
+[lib]
+name = "numcodecs_ebcc"
+crate-type = ["rlib"]
+path = "binding/lib.rs"
+
+[[example]]
+name = "basic_compression"
+path = "binding/examples/basic_compression.rs"
+required-features = []
+
+[[example]]
+name = "numcodecs_integration"
+path = "binding/examples/numcodecs_integration.rs"
+required-features = []
+
+[[test]]
+name = "integration_tests"
+path = "binding/tests/integration_tests.rs"
+
+[package.metadata.docs.rs]
+features = ["bindgen"]
+
+# Profile configurations
+[profile.dev]
+# Use release-like optimizations for dev builds
+opt-level = 2
+debug = true
+debug-assertions = true
+overflow-checks = true
+lto = false
+panic = 'unwind'
+incremental = true
+codegen-units = 256
+
+[profile.release]
+# Optimize for performance
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = true
+panic = 'abort'
+incremental = false
+codegen-units = 1
+
+[profile.bench]
+# Same as release but with debug info for profiling
+inherits = "release"
+debug = true
+
+[profile.test]
+# Use optimized builds for tests but keep debug info
+opt-level = 2
+debug = true
