@@ -23,7 +23,7 @@ This directory contains Rust bindings for EBCC (Error Bounded Climate Compressor
 ### Basic Usage
 
 ```rust
-use ebcc::{encode_climate_variable, decode_climate_variable, EBCCConfig, ResidualType};
+use numcodecs_ebcc::{encode_climate_variable, decode_climate_variable, EBCCConfig, ResidualType};
 
 // Create climate data (e.g., ERA5-like temperature field)
 let data = vec![273.15; 721 * 1440]; // 721x1440 grid at 0°C
@@ -44,7 +44,7 @@ assert_eq!(data.len(), decompressed.len());
 ### Configuration Types
 
 ```rust
-use ebcc::{EBCCConfig, ResidualType};
+use numcodecs_ebcc::{EBCCConfig, ResidualType};
 
 // JPEG2000-only compression
 let config = EBCCConfig::jpeg2000_only([1, 721, 1440], 20.0);
@@ -166,7 +166,7 @@ All functions return `EBCCResult<T>` which is `Result<T, EBCCError>`. Error type
 
 
 ```rust
-use ebcc::numcodecs_impl::{EBCCCodec, ebcc_codec_from_config};
+use numcodecs_ebcc::numcodecs_impl::{EBCCCodec, ebcc_codec_from_config};
 use std::collections::HashMap;
 
 // Create codec directly

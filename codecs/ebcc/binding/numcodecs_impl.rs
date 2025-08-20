@@ -9,7 +9,7 @@ use crate::error::{EBCCError, EBCCResult};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use ndarray::{Array, ShapeError};
+use ndarray::Array;
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig,
@@ -127,7 +127,7 @@ impl Codec for EBCCCodec {
         // Reshape to the original dimensions
         Ok(AnyArray::F32(
             Array::from_shape_vec(self.config.dims, decompressed)
-                .map_err(|source| EBCCCodecError::ShapeError { source })?
+                .map_err(|err| EBCCCodecError::ShapeError { message: err.to_string() })?
                 .into_dyn()
         ))
     }
@@ -241,10 +241,10 @@ pub enum EBCCCodecError {
     },
     
     /// Shape error when creating arrays
-    #[error("Shape error")]
+    #[error("Shape error when creating arrays: {message}")]
     ShapeError {
-        /// The source of the error
-        source: ShapeError,
+        /// The error message
+        message: String,
     },
 }
 
@@ -274,7 +274,7 @@ pub enum EBCCCodecError {
 /// 
 /// ```rust,no_run
 /// use std::collections::HashMap;
-/// use ebcc::numcodecs_impl::ebcc_codec_from_config;
+/// use numcodecs_ebcc::numcodecs_impl::ebcc_codec_from_config;
 /// 
 /// fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let mut config = HashMap::new();

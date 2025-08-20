@@ -1,6 +1,6 @@
 //! Integration tests for EBCC Rust bindings.
 
-use ebcc::{encode_climate_variable, decode_climate_variable, EBCCConfig, init_logging};
+use numcodecs_ebcc::{encode_climate_variable, decode_climate_variable, EBCCConfig, init_logging};
 
 #[test]
 fn test_basic_compression_roundtrip() {
@@ -253,7 +253,8 @@ fn test_config_validation() {
 
 mod numcodecs_tests {
     use super::*;
-    use ebcc::numcodecs_impl::{EBCCCodec, ebcc_codec_from_config};
+    use numcodecs_ebcc::numcodecs_impl::{EBCCCodec, ebcc_codec_from_config};
+    use numcodecs_ebcc::ResidualType;
     use std::collections::HashMap;
     
     #[test]

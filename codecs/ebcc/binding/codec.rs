@@ -28,7 +28,7 @@ use crate::ffi;
 /// # Examples
 /// 
 /// ```rust,no_run
-/// use ebcc::{encode_climate_variable, EBCCConfig, ResidualType};
+/// use numcodecs_ebcc::{encode_climate_variable, EBCCConfig, ResidualType};
 /// 
 /// // 2D ERA5-like data: 721x1440
 /// let data = vec![0.0f32; 721 * 1440];
@@ -111,7 +111,7 @@ pub fn encode_climate_variable(data: &[f32], config: &EBCCConfig) -> EBCCResult<
 /// # Examples
 /// 
 /// ```rust,no_run
-/// use ebcc::{encode_climate_variable, decode_climate_variable, EBCCConfig};
+/// use numcodecs_ebcc::{encode_climate_variable, decode_climate_variable, EBCCConfig};
 /// 
 /// let data = vec![1.0f32; 100];
 /// let config = EBCCConfig::new([1, 10, 10]);

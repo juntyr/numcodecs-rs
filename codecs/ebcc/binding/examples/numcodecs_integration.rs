@@ -4,7 +4,8 @@
 //! including configuration serialization, codec creation, and actual
 //! compression/decompression using the numcodecs API.
 
-use ebcc::{EBCCCodec, EBCCConfig, ebcc_codec_from_config, init_logging};
+use numcodecs_ebcc::{EBCCCodec, EBCCConfig, ebcc_codec_from_config, init_logging};
+use std::collections::HashMap;
 
 use numcodecs::{Codec, AnyCowArray, AnyArray};
 

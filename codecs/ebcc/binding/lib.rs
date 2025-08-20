@@ -14,7 +14,7 @@
 //! ## Examples
 //! 
 //! ```rust,no_run
-//! use ebcc::{EBCCConfig, ResidualType, encode_climate_variable, decode_climate_variable};
+//! use numcodecs_ebcc::{EBCCConfig, ResidualType, encode_climate_variable, decode_climate_variable};
 //! use ndarray::Array2;
 //! 
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
