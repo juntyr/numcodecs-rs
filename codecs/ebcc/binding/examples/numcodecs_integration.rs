@@ -79,7 +79,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
              test_data.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)));
     
     // Create the array (note: need to match codec dimensions exactly)
-    let data_array = Array::from_shape_vec(32 * 32, test_data.clone())?;
+    let data_array = Array::from_shape_vec(32 * 32, test_data.clone())
+        .map_err(|e| format!("Shape error: {}", e))?;
     let cow_array = AnyCowArray::F32(data_array.into_dyn().into());
     
     // Compress using numcodecs API
@@ -124,14 +125,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n5. Error handling:");
     
     // Test unsupported data type
-    let int_data = Array::from_shape_vec([10, 10], vec![1i32; 100])?;
+    let int_data = Array::from_shape_vec([10, 10], vec![1i32; 100])
+        .map_err(|e| format!("Shape error: {}", e))?;
     match jpeg_codec.encode(AnyCowArray::I32(int_data.into_dyn().into())) {
         Err(e) => println!("   ✓ Correctly rejected i32 data: {}", e),
         Ok(_) => println!("   ❌ Should have rejected i32 data"),
     }
     
     // Test shape mismatch - use data that doesn't match codec dimensions
-    let wrong_size_data = Array::from_shape_vec(64 * 64, vec![1.0f32; 64 * 64])?;
+    let wrong_size_data = Array::from_shape_vec(64 * 64, vec![1.0f32; 64 * 64])
+        .map_err(|e| format!("Shape error: {}", e))?;
     match jpeg_codec.encode(AnyCowArray::F32(wrong_size_data.into_dyn().into())) {
         Err(e) => println!("   ✓ Correctly rejected wrong size data (64x64 vs expected 32x32): {}", e),
         Ok(_) => println!("   ❌ Should have rejected wrong size data"),

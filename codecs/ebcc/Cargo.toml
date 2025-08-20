@@ -43,7 +43,7 @@ proptest = "1.0"
 tempfile = "3.0"
 
 [build-dependencies]
-bindgen = { version = "0.70", optional = true }
+bindgen = { version = "0.72", optional = true }
 cmake = "0.1"
 pkg-config = "0.3"
 
