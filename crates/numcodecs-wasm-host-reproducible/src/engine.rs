@@ -366,6 +366,9 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
         cm_async_builtins: false,
         // NO-CORE: components must have been translated into core WASM
         //          modules by now
+        cm_threading: false,
+        // NO-CORE: components must have been translated into core WASM
+        //          modules by now
         cm_error_context: false,
         // NO-CORE: components must have been translated into core WASM
         //          modules by now
