@@ -23,9 +23,9 @@ impl<E: WasmEngine> WasmEngine for ReproducibleEngine<E> {
     type Instance = ReproducibleInstance<E>;
     type Memory = ReproducibleMemory<E>;
     type Module = ReproducibleModule<E>;
-    type Store<T> = ReproducibleStore<T, E>;
-    type StoreContext<'a, T: 'a> = ReproducibleStoreContext<'a, T, E>;
-    type StoreContextMut<'a, T: 'a> = ReproducibleStoreContextMut<'a, T, E>;
+    type Store<T: 'static> = ReproducibleStore<T, E>;
+    type StoreContext<'a, T: 'static> = ReproducibleStoreContext<'a, T, E>;
+    type StoreContextMut<'a, T: 'static> = ReproducibleStoreContextMut<'a, T, E>;
     type Table = ReproducibleTable<E>;
 }
 
@@ -62,7 +62,7 @@ impl<E: WasmEngine> WasmExternRef<ReproducibleEngine<E>> for ReproducibleExternR
         ))
     }
 
-    fn downcast<'a, 's: 'a, T: 'static, S: 'a>(
+    fn downcast<'a, 's: 'a, T: 'static, S: 'static>(
         &'a self,
         store: ReproducibleStoreContext<'s, S, E>,
     ) -> anyhow::Result<&'a T> {
@@ -75,7 +75,7 @@ impl<E: WasmEngine> WasmExternRef<ReproducibleEngine<E>> for ReproducibleExternR
 pub struct ReproducibleFunc<E: WasmEngine>(E::Func);
 
 impl<E: WasmEngine> WasmFunc<ReproducibleEngine<E>> for ReproducibleFunc<E> {
-    fn new<T>(
+    fn new<T: 'static>(
         mut ctx: impl AsContextMut<ReproducibleEngine<E>, UserState = T>,
         ty: FuncType,
         func: impl 'static
@@ -431,9 +431,9 @@ struct StoreData<T, E: WasmEngine> {
 
 #[derive(Clone)]
 #[repr(transparent)]
-pub struct ReproducibleStore<T, E: WasmEngine>(E::Store<StoreData<T, E>>);
+pub struct ReproducibleStore<T: 'static, E: WasmEngine>(E::Store<StoreData<T, E>>);
 
-impl<T, E: WasmEngine> WasmStore<T, ReproducibleEngine<E>> for ReproducibleStore<T, E> {
+impl<T: 'static, E: WasmEngine> WasmStore<T, ReproducibleEngine<E>> for ReproducibleStore<T, E> {
     fn new(engine: &ReproducibleEngine<E>, data: T) -> Self {
         Self(<E::Store<StoreData<T, E>> as WasmStore<
             StoreData<T, E>,
@@ -464,7 +464,7 @@ impl<T, E: WasmEngine> WasmStore<T, ReproducibleEngine<E>> for ReproducibleStore
     }
 }
 
-impl<T, E: WasmEngine> AsContext<ReproducibleEngine<E>> for ReproducibleStore<T, E> {
+impl<T: 'static, E: WasmEngine> AsContext<ReproducibleEngine<E>> for ReproducibleStore<T, E> {
     type UserState = T;
 
     fn as_context(&self) -> ReproducibleStoreContext<'_, Self::UserState, E> {
@@ -472,16 +472,18 @@ impl<T, E: WasmEngine> AsContext<ReproducibleEngine<E>> for ReproducibleStore<T,
     }
 }
 
-impl<T, E: WasmEngine> AsContextMut<ReproducibleEngine<E>> for ReproducibleStore<T, E> {
+impl<T: 'static, E: WasmEngine> AsContextMut<ReproducibleEngine<E>> for ReproducibleStore<T, E> {
     fn as_context_mut(&mut self) -> ReproducibleStoreContextMut<'_, Self::UserState, E> {
         ReproducibleStoreContextMut(AsContextMut::as_context_mut(&mut self.0))
     }
 }
 
 #[repr(transparent)]
-pub struct ReproducibleStoreContext<'a, T: 'a, E: WasmEngine>(E::StoreContext<'a, StoreData<T, E>>);
+pub struct ReproducibleStoreContext<'a, T: 'static, E: WasmEngine>(
+    E::StoreContext<'a, StoreData<T, E>>,
+);
 
-impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ReproducibleEngine<E>>
+impl<'a, T: 'static, E: WasmEngine> WasmStoreContext<'a, T, ReproducibleEngine<E>>
     for ReproducibleStoreContext<'a, T, E>
 {
     fn engine(&self) -> &ReproducibleEngine<E> {
@@ -493,8 +495,8 @@ impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ReproducibleEngine<E>>
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> AsContext<ReproducibleEngine<E>>
-    for ReproducibleStoreContext<'a, T, E>
+impl<T: 'static, E: WasmEngine> AsContext<ReproducibleEngine<E>>
+    for ReproducibleStoreContext<'_, T, E>
 {
     type UserState = T;
 
@@ -503,18 +505,18 @@ impl<'a, T: 'a, E: WasmEngine> AsContext<ReproducibleEngine<E>>
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> ReproducibleStoreContext<'a, T, E> {
+impl<T: 'static, E: WasmEngine> ReproducibleStoreContext<'_, T, E> {
     fn as_inner_context(&self) -> E::StoreContext<'_, StoreData<T, E>> {
         self.0.as_context()
     }
 }
 
 #[repr(transparent)]
-pub struct ReproducibleStoreContextMut<'a, T: 'a, E: WasmEngine>(
+pub struct ReproducibleStoreContextMut<'a, T: 'static, E: WasmEngine>(
     E::StoreContextMut<'a, StoreData<T, E>>,
 );
 
-impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ReproducibleEngine<E>>
+impl<'a, T: 'static, E: WasmEngine> WasmStoreContext<'a, T, ReproducibleEngine<E>>
     for ReproducibleStoreContextMut<'a, T, E>
 {
     fn engine(&self) -> &ReproducibleEngine<E> {
@@ -526,7 +528,7 @@ impl<'a, T: 'a, E: WasmEngine> WasmStoreContext<'a, T, ReproducibleEngine<E>>
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> WasmStoreContextMut<'a, T, ReproducibleEngine<E>>
+impl<'a, T: 'static, E: WasmEngine> WasmStoreContextMut<'a, T, ReproducibleEngine<E>>
     for ReproducibleStoreContextMut<'a, T, E>
 {
     fn data_mut(&mut self) -> &mut T {
@@ -534,8 +536,8 @@ impl<'a, T: 'a, E: WasmEngine> WasmStoreContextMut<'a, T, ReproducibleEngine<E>>
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> AsContext<ReproducibleEngine<E>>
-    for ReproducibleStoreContextMut<'a, T, E>
+impl<T: 'static, E: WasmEngine> AsContext<ReproducibleEngine<E>>
+    for ReproducibleStoreContextMut<'_, T, E>
 {
     type UserState = T;
 
@@ -544,15 +546,15 @@ impl<'a, T: 'a, E: WasmEngine> AsContext<ReproducibleEngine<E>>
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> AsContextMut<ReproducibleEngine<E>>
-    for ReproducibleStoreContextMut<'a, T, E>
+impl<T: 'static, E: WasmEngine> AsContextMut<ReproducibleEngine<E>>
+    for ReproducibleStoreContextMut<'_, T, E>
 {
     fn as_context_mut(&mut self) -> ReproducibleStoreContextMut<'_, Self::UserState, E> {
         ReproducibleStoreContextMut(AsContextMut::as_context_mut(&mut self.0))
     }
 }
 
-impl<'a, T: 'a, E: WasmEngine> ReproducibleStoreContextMut<'a, T, E> {
+impl<T: 'static, E: WasmEngine> ReproducibleStoreContextMut<'_, T, E> {
     fn as_inner_context_mut(&mut self) -> E::StoreContextMut<'_, StoreData<T, E>> {
         self.0.as_context_mut()
     }
