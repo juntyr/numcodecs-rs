@@ -3,7 +3,7 @@ use std::{
     collections::{HashMap, hash_map::Entry},
 };
 
-use pyo3::{intern, prelude::*, sync::GILOnceCell};
+use pyo3::{intern, prelude::*, sync::PyOnceLock};
 use pythonize::{PythonizeError, depythonize};
 use schemars::Schema;
 use serde_json::{Map, Value};
@@ -14,7 +14,7 @@ use crate::{PyCodecClass, export::RustCodec};
 macro_rules! once {
     ($py:ident, $module:literal $(, $path:literal)*) => {{
         fn once(py: Python<'_>) -> Result<&Bound<'_, PyAny>, PyErr> {
-            static ONCE: GILOnceCell<Py<PyAny>> = GILOnceCell::new();
+            static ONCE: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
             Ok(ONCE.get_or_try_init(py, || -> Result<Py<PyAny>, PyErr> {
                 Ok(py
                     .import(intern!(py, $module))?

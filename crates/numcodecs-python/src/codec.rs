@@ -3,7 +3,7 @@ use pyo3::{
     ffi::PyTypeObject,
     intern,
     prelude::*,
-    sync::GILOnceCell,
+    sync::PyOnceLock,
     types::{DerefToPyAny, IntoPyDict, PyDict, PyType},
 };
 
@@ -126,7 +126,7 @@ unsafe impl PyTypeInfo for PyCodec {
 
     #[inline]
     fn type_object_raw(py: Python) -> *mut PyTypeObject {
-        static CODEC_TYPE: GILOnceCell<Py<PyType>> = GILOnceCell::new();
+        static CODEC_TYPE: PyOnceLock<Py<PyType>> = PyOnceLock::new();
 
         let ty = CODEC_TYPE.import(py, "numcodecs.abc", "Codec");
 

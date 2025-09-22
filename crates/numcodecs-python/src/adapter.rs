@@ -47,7 +47,7 @@ impl PyCodecAdapter {
     pub fn from_registry_with_config<'de, D: Deserializer<'de>>(
         config: D,
     ) -> Result<Self, D::Error> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let config = transcode(config, Pythonizer::new(py))?;
             let config: Bound<PyDict> = config.extract()?;
 
@@ -136,7 +136,7 @@ impl PyCodecAdapter {
 
         // The `with` closure contains arbitrary Rust code and may block,
         // which we cannot allow while holding the GIL
-        Some(py.allow_threads(|| with(codec)))
+        Some(py.detach(|| with(codec)))
     }
 }
 
@@ -144,7 +144,7 @@ impl Codec for PyCodecAdapter {
     type Error = PyErr;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             self.with_any_array_view_as_ndarray(py, &data.view(), |data| {
                 let encoded = self.codec.bind(py).encode(data.as_borrowed())?;
 
@@ -154,7 +154,7 @@ impl Codec for PyCodecAdapter {
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             self.with_any_array_view_as_ndarray(py, &encoded.view(), |encoded| {
                 let decoded = self.codec.bind(py).decode(encoded.as_borrowed(), None)?;
 
@@ -168,7 +168,7 @@ impl Codec for PyCodecAdapter {
         encoded: AnyArrayView,
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let decoded_out = self.with_any_array_view_as_ndarray(py, &encoded, |encoded| {
                 self.with_any_array_view_mut_as_ndarray(py, &mut decoded, |decoded_in| {
                     let decoded_out = self
@@ -396,7 +396,7 @@ impl PyCodecAdapter {
 impl Clone for PyCodecAdapter {
     fn clone(&self) -> Self {
         #[expect(clippy::expect_used)] // clone is *not* fallible
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             self.try_clone(py)
                 .expect("cloning a PyCodec should not fail")
         })
@@ -407,7 +407,7 @@ impl DynCodec for PyCodecAdapter {
     type Type = PyCodecClassAdapter;
 
     fn ty(&self) -> Self::Type {
-        Python::with_gil(|py| PyCodecClassAdapter {
+        Python::attach(|py| PyCodecClassAdapter {
             class: self.class.clone_ref(py),
             codec_id: self.codec_id.clone(),
             codec_config_schema: self.codec_config_schema.clone(),
@@ -415,7 +415,7 @@ impl DynCodec for PyCodecAdapter {
     }
 
     fn get_config<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let config = self
                 .codec
                 .bind(py)
@@ -492,7 +492,7 @@ impl PyCodecClassAdapter {
 
         // The `with` closure contains arbitrary Rust code and may block,
         // which we cannot allow while holding the GIL
-        Some(py.allow_threads(|| with(ty)))
+        Some(py.detach(|| with(ty)))
     }
 }
 
@@ -511,7 +511,7 @@ impl DynCodecType for PyCodecClassAdapter {
         &self,
         config: D,
     ) -> Result<Self::Codec, D::Error> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let config =
                 transcode(config, Pythonizer::new(py)).map_err(serde::de::Error::custom)?;
             let config: Bound<PyDict> = config.extract().map_err(serde::de::Error::custom)?;

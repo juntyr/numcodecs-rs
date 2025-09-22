@@ -110,8 +110,8 @@ pub(crate) struct RustCodecType {
 
 impl Drop for RustCodecType {
     fn drop(&mut self) {
-        Python::with_gil(|py| {
-            py.allow_threads(|| {
+        Python::attach(|py| {
+            py.detach(|| {
                 #[allow(unsafe_code)]
                 unsafe {
                     ManuallyDrop::drop(&mut self.ty);
@@ -146,12 +146,12 @@ trait AnyCodec: 'static + Send + Sync + Ungil {
 
 impl<T: DynCodec + Ungil> AnyCodec for T {
     fn encode(&self, py: Python, data: AnyCowArray) -> Result<AnyArray, PyErr> {
-        py.allow_threads(|| <T as Codec>::encode(self, data))
+        py.detach(|| <T as Codec>::encode(self, data))
             .map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn decode(&self, py: Python, encoded: AnyCowArray) -> Result<AnyArray, PyErr> {
-        py.allow_threads(|| <T as Codec>::decode(self, encoded))
+        py.detach(|| <T as Codec>::decode(self, encoded))
             .map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
@@ -161,13 +161,13 @@ impl<T: DynCodec + Ungil> AnyCodec for T {
         encoded: AnyArrayView,
         decoded: AnyArrayViewMut,
     ) -> Result<(), PyErr> {
-        py.allow_threads(|| <T as Codec>::decode_into(self, encoded, decoded))
+        py.detach(|| <T as Codec>::decode_into(self, encoded, decoded))
             .map_err(|err| PyErrChain::pyerr_from_err(py, err))
     }
 
     fn get_config<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyDict>, PyErr> {
         let config: serde_json::Value = py
-            .allow_threads(|| <T as DynCodec>::get_config(self, serde_json::value::Serializer))
+            .detach(|| <T as DynCodec>::get_config(self, serde_json::value::Serializer))
             .map_err(|err| PyErrChain::pyerr_from_err(py, err))?;
         pythonize::pythonize(py, &config)?.extract()
     }
@@ -203,7 +203,7 @@ impl<T: DynCodecType + Ungil> AnyCodecType for T {
         )
         .map_err(|err| PyErrChain::pyerr_from_err(py, err))?;
 
-        py.allow_threads(|| -> Result<RustCodec, serde_json::Error> {
+        py.detach(|| -> Result<RustCodec, serde_json::Error> {
             let codec = <T as DynCodecType>::codec_from_config(self, config)?;
 
             Ok(RustCodec {
@@ -233,8 +233,8 @@ pub(crate) struct RustCodec {
 
 impl Drop for RustCodec {
     fn drop(&mut self) {
-        Python::with_gil(|py| {
-            py.allow_threads(|| {
+        Python::attach(|py| {
+            py.detach(|| {
                 #[allow(unsafe_code)]
                 unsafe {
                     ManuallyDrop::drop(&mut self.codec);

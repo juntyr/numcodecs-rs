@@ -10,7 +10,7 @@ use pyo3::{intern, prelude::*};
 
 #[test]
 fn collect_schemas() -> Result<(), PyErr> {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let registry = py
             .import(intern!(py, "numcodecs"))?
             .getattr(intern!(py, "registry"))?

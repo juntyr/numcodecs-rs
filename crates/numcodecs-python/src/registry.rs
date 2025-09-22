@@ -1,4 +1,4 @@
-use pyo3::{prelude::*, sync::GILOnceCell, types::PyDict};
+use pyo3::{prelude::*, sync::PyOnceLock, types::PyDict};
 
 #[expect(unused_imports)] // FIXME: use expect, only used in docs
 use crate::PyCodecClassMethods;
@@ -20,7 +20,7 @@ impl PyCodecRegistry {
     /// Errors if no codec with a matching `id` has been registered, or if
     /// constructing the codec fails.
     pub fn get_codec<'py>(config: Borrowed<'_, 'py, PyDict>) -> Result<Bound<'py, PyCodec>, PyErr> {
-        static GET_CODEC: GILOnceCell<Py<PyAny>> = GILOnceCell::new();
+        static GET_CODEC: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 
         let py = config.py();
 
@@ -45,7 +45,7 @@ impl PyCodecRegistry {
         class: Borrowed<PyCodecClass>,
         codec_id: Option<&str>,
     ) -> Result<(), PyErr> {
-        static REGISTER_CODEC: GILOnceCell<Py<PyAny>> = GILOnceCell::new();
+        static REGISTER_CODEC: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 
         let py = class.py();
 
