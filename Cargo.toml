@@ -45,14 +45,14 @@ rust-version = "1.86"
 [workspace.dependencies]
 # workspace-internal numcodecs crates
 numcodecs = { version = "0.2.1", path = "crates/numcodecs", default-features = false }
-numcodecs-python = { version = "0.6", path = "crates/numcodecs-python", default-features = false }
-numcodecs-wasm-builder = { version = "0.1", path = "crates/numcodecs-wasm-builder", default-features = false }
+numcodecs-python = { version = "0.7", path = "crates/numcodecs-python", default-features = false }
+numcodecs-wasm-builder = { version = "0.2", path = "crates/numcodecs-wasm-builder", default-features = false }
 numcodecs-wasm-logging = { version = "0.1", path = "crates/numcodecs-wasm-logging", default-features = false }
 numcodecs-wasm-guest = { version = "0.2", path = "crates/numcodecs-wasm-guest", default-features = false }
 numcodecs-wasm-host = { version = "0.1", path = "crates/numcodecs-wasm-host", default-features = false }
-numcodecs-wasm-host-reproducible = { version = "0.1", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
+numcodecs-wasm-host-reproducible = { version = "0.2", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
 
-numcodecs-wasm = { version = "0.1", path = "py/numcodecs-wasm", default-features = false }
+numcodecs-wasm = { version = "0.2", path = "py/numcodecs-wasm", default-features = false }
 
 # workspace-internal codecs crates
 numcodecs-asinh = { version = "0.3", path = "codecs/asinh", default-features = false }
@@ -116,14 +116,14 @@ tthresh = { version = "0.1", default-features = false }
 twofloat = { version = "0.8", default-features = false }
 vecmap-rs = { version = "0.2", default-features = false }
 wac-graph = { version = "0.8", default-features = false }
-wasi-sandboxed-component-provider = { version = "=0.2.3", default-features = false }
+wasi-sandboxed-component-provider = { version = "=0.2.6", default-features = false }
 wasi-logger = { version = "0.1", default-features = false }
-wasi-preview1-component-adapter-provider = { version = "33.0", default-features = false }
+wasi-preview1-component-adapter-provider = { version = "37.0", default-features = false }
 wasmparser = { version = "0.239", default-features = false }
-wasmtime = { version = "33.0", default-features = false }
-wasmtime_runtime_layer = { version = "33.0", default-features = false }
+wasmtime = { version = "37.0", default-features = false }
+wasmtime_runtime_layer = { version = "37.0", default-features = false }
 wasm-encoder = { version = "0.239", default-features = false }
-wasm_runtime_layer = { version = "0.5", default-features = false }
+wasm_runtime_layer = { version = "0.6", default-features = false }
 wit-bindgen = { version = "0.46", default-features = false }
 wit-component = { version = "0.239", default-features = false }
 wit-parser = { version = "0.239", default-features = false }

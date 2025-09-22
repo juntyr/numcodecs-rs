@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "numcodecs_wasm"
-version = "0.1.7" # wasi 0.2.3
+version = "0.2.0" # wasi 0.2.6
 description = "numcodecs compression for codecs compiled to WebAssembly"
 
 authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
