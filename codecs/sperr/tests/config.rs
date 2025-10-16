@@ -63,3 +63,19 @@ fn pwe_config() {
         SperrCompressionMode::PointwiseError { pwe } if pwe.get() == 0.1
     ));
 }
+
+#[test]
+fn q_config() {
+    let codec = SperrCodec::from_config(
+        Deserialize::deserialize(json!({
+            "mode": "q",
+            "q": 1.5,
+        }))
+        .unwrap(),
+    );
+
+    assert!(matches!(
+        codec.mode,
+        SperrCompressionMode::QuantisationStep { q } if q.get() == 1.5
+    ));
+}
