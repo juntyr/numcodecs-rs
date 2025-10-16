@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.86.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-sperr
@@ -35,7 +35,7 @@ use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-type SperrCodecVersion = StaticCodecVersion<0, 1, 0>;
+type SperrCodecVersion = StaticCodecVersion<0, 2, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // serde cannot deny unknown fields because of the flatten
@@ -77,6 +77,12 @@ pub enum SperrCompressionMode {
     PointwiseError {
         /// positive point-wise (absolute) error
         pwe: Positive<f64>,
+    },
+    /// Fixed quantisation step
+    #[serde(rename = "q")]
+    QuantisationStep {
+        /// positive quantisation step
+        q: Positive<f64>,
     },
 }
 
@@ -292,6 +298,9 @@ pub fn compress<T: SperrElement, S: Data<Elem = T>, D: Dimension>(
                 }
                 SperrCompressionMode::PointwiseError { pwe } => {
                     sperr::CompressionMode::PointwiseError { pwe: pwe.0 }
+                }
+                SperrCompressionMode::QuantisationStep { q } => {
+                    sperr::CompressionMode::QuantisationStep { q: q.0 }
                 }
             },
             (256, 256, 256),
@@ -548,6 +557,7 @@ mod tests {
                 psnr: Positive(42.0),
             },
             SperrCompressionMode::PointwiseError { pwe: Positive(0.1) },
+            SperrCompressionMode::QuantisationStep { q: Positive(1.5) },
         ] {
             let encoded = compress(Array::<f64, _>::zeros((64, 64, 64)), &mode).unwrap();
             let decoded = decompress(&encoded).unwrap();

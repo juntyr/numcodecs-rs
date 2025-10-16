@@ -120,7 +120,7 @@ impl WasiSandboxedStdioInterface {
             stdio: InterfaceIdentifier::new(
                 PackageIdentifier::new(
                     PackageName::new("wasi-sandboxed", "io"),
-                    Some(semver::Version::new(0, 2, 3)),
+                    Some(semver::Version::new(0, 2, 6)),
                 ),
                 "stdio",
             ),

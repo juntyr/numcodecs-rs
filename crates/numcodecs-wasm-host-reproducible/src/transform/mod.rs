@@ -229,12 +229,10 @@ struct PackageWithPorts {
 fn register_wasi_component_packages(
     wac: &mut wac_graph::CompositionGraph,
 ) -> Result<Vec<PackageWithPorts>, Error> {
-    // TODO: switch to merged component with wasi_sandboxed_component_provider >= v0.2.4
-    // const WASI_COMPONENTS: &[(&str, &[u8])] = &[(
-    //     "wasi-sandboxed:merged",
-    //     wasi_sandboxed_component_provider::MERGED_COMPONENT,
-    // )];
-    const WASI_COMPONENTS: &[(&str, &[u8])] = wasi_sandboxed_component_provider::ALL_COMPONENTS;
+    const WASI_COMPONENTS: &[(&str, &[u8])] = &[(
+        "wasi-sandboxed:merged",
+        wasi_sandboxed_component_provider::MERGED_COMPONENT,
+    )];
 
     let wasi_component_packages = WASI_COMPONENTS
         .iter()

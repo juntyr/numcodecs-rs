@@ -25,7 +25,7 @@ impl InstructionCounterInjecter {
         };
         reencoder
             .parse_core_module(&mut module, parser, wasm)
-            .map_err(|err| anyhow::format_err!("{}", err))?;
+            .map_err(|err| anyhow::format_err!("{err}"))?;
 
         if let Some(instruction_counter_func_index) = reencoder.instruction_counter_func_index {
             anyhow::ensure!(

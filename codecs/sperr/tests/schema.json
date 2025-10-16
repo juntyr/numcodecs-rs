@@ -58,6 +58,25 @@
         "pwe"
       ],
       "description": "Fixed point-wise (absolute) error"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "q": {
+          "type": "number",
+          "exclusiveMinimum": 0.0,
+          "description": "positive quantisation step"
+        },
+        "mode": {
+          "type": "string",
+          "const": "q"
+        }
+      },
+      "required": [
+        "mode",
+        "q"
+      ],
+      "description": "Fixed quantisation step"
     }
   ],
   "description": "Codec providing compression using SPERR.\n\nArrays that are higher-dimensional than 3D are encoded by compressing each\n3D slice with SPERR independently. Specifically, the array's shape is\ninterpreted as `[.., depth, height, width]`. If you want to compress 3D\nslices along three different axes, you can swizzle the array axes\nbeforehand.",
@@ -66,7 +85,7 @@
       "type": "string",
       "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
       "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
-      "default": "0.1.0"
+      "default": "0.2.0"
     }
   },
   "title": "SperrCodec",

@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.86.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-zfp-classic
@@ -30,7 +30,7 @@
 
 use std::{borrow::Cow, fmt};
 
-use ndarray::{Array, Array1, ArrayView, Dimension};
+use ndarray::{Array, Array1, ArrayView, Dimension, Zip};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
@@ -44,7 +44,7 @@ use ::serde_json as _;
 
 mod ffi;
 
-type ZfpClassicCodecVersion = StaticCodecVersion<0, 1, 0>;
+type ZfpClassicCodecVersion = StaticCodecVersion<0, 2, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // serde cannot deny unknown fields because of the flatten
@@ -54,6 +54,9 @@ pub struct ZfpClassicCodec {
     /// ZFP compression mode
     #[serde(flatten)]
     pub mode: ZfpCompressionMode,
+    /// ZFP non-finite values mode
+    #[serde(default)]
+    pub non_finite: ZfpNonFiniteValuesMode,
     /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: ZfpClassicCodecVersion,
@@ -111,6 +114,20 @@ pub enum ZfpCompressionMode {
     Reversible,
 }
 
+#[derive(Copy, Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
+/// ZFP non-finite values mode
+pub enum ZfpNonFiniteValuesMode {
+    /// Deny compressing non-finite values, i.e. return an error.
+    #[default]
+    #[serde(rename = "deny")]
+    Deny,
+    /// Unsafely allow compressing non-finite values, even though undefined
+    /// behaviour may be triggered, see
+    /// <https://zfp.readthedocs.io/en/release1.0.1/faq.html#q-valid>.
+    #[serde(rename = "allow-unsafe")]
+    AllowUnsafe,
+}
+
 impl Codec for ZfpClassicCodec {
     type Error = ZfpClassicCodecError;
 
@@ -126,16 +143,16 @@ impl Codec for ZfpClassicCodec {
 
         match data {
             AnyCowArray::I32(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data.view(), &self.mode)?).into_dyn(),
+                Array1::from(compress(data.view(), &self.mode, self.non_finite)?).into_dyn(),
             )),
             AnyCowArray::I64(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data.view(), &self.mode)?).into_dyn(),
+                Array1::from(compress(data.view(), &self.mode, self.non_finite)?).into_dyn(),
             )),
             AnyCowArray::F32(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data.view(), &self.mode)?).into_dyn(),
+                Array1::from(compress(data.view(), &self.mode, self.non_finite)?).into_dyn(),
             )),
             AnyCowArray::F64(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data.view(), &self.mode)?).into_dyn(),
+                Array1::from(compress(data.view(), &self.mode, self.non_finite)?).into_dyn(),
             )),
             encoded => Err(ZfpClassicCodecError::UnsupportedDtype(encoded.dtype())),
         }
@@ -214,6 +231,12 @@ pub enum ZfpClassicCodecError {
         /// The unexpected compression mode
         mode: ZfpCompressionMode,
     },
+    /// [`ZfpCodec`] does not support non-finite (infinite or NaN) floating
+    /// point data  in non-reversible lossy compression
+    #[error(
+        "Zfp does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression"
+    )]
+    NonFiniteData,
     /// [`ZfpClassicCodec`] failed to encode the header
     #[error("ZfpClassic failed to encode the header")]
     HeaderEncodeFailed,
@@ -275,6 +298,9 @@ pub struct ZfpHeaderError(postcard::Error);
 /// # Errors
 ///
 /// Errors with
+/// - [`ZfpCodecError::NonFiniteData`] if any data element is non-finite
+///   (infinite or NaN) and a non-reversible lossy compression `mode` is used
+///   and the `non_finite` mode is not [`ZfpNonFiniteValuesMode::AllowUnsafe`]
 /// - [`ZfpClassicCodecError::ExcessiveDimensionality`] if data is more than
 ///   4-dimensional
 /// - [`ZfpClassicCodecError::InvalidExpertMode`] if the `mode` has invalid
@@ -288,7 +314,15 @@ pub struct ZfpHeaderError(postcard::Error);
 pub fn compress<T: ffi::ZfpCompressible, D: Dimension>(
     data: ArrayView<T, D>,
     mode: &ZfpCompressionMode,
+    non_finite: ZfpNonFiniteValuesMode,
 ) -> Result<Vec<u8>, ZfpClassicCodecError> {
+    if !matches!(mode, ZfpCompressionMode::Reversible)
+        && !matches!(non_finite, ZfpNonFiniteValuesMode::AllowUnsafe)
+        && !Zip::from(&data).all(|x| x.is_finite())
+    {
+        return Err(ZfpClassicCodecError::NonFiniteData);
+    }
+
     let mut encoded = postcard::to_extend(
         &CompressionHeader {
             dtype: <T as ffi::ZfpCompressible>::D_TYPE,
@@ -504,6 +538,7 @@ mod tests {
                 .unwrap()
                 .view(),
             &ZfpCompressionMode::FixedPrecision { precision: 7 },
+            ZfpNonFiniteValuesMode::Deny,
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
@@ -524,6 +559,7 @@ mod tests {
         let encoded = compress(
             data.view(),
             &ZfpCompressionMode::FixedAccuracy { tolerance: 0.1 },
+            ZfpNonFiniteValuesMode::Deny,
         )
         .unwrap();
         let decoded = decompress(&encoded).unwrap();
@@ -543,6 +579,7 @@ mod tests {
             let encoded = compress(
                 ArrayView1::from(data),
                 &ZfpCompressionMode::FixedAccuracy { tolerance: 0.1 },
+                ZfpNonFiniteValuesMode::Deny,
             )
             .unwrap();
             let decoded = decompress(&encoded).unwrap();

@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 
 #[test]
 fn export() -> Result<(), PyErr> {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let module = PyModule::new(py, "codecs")?;
         export_codec_class(
             py,
@@ -71,7 +71,7 @@ fn export() -> Result<(), PyErr> {
 
 #[test]
 fn schema() -> Result<(), PyErr> {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let module = PyModule::new(py, "codecs")?;
         let class = export_codec_class(
             py,
@@ -108,7 +108,7 @@ This codec does *not* take any parameters."
 
 #[test]
 fn downcast() -> Result<(), PyErr> {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let module = PyModule::new(py, "codecs")?;
         let class = export_codec_class(
             py,

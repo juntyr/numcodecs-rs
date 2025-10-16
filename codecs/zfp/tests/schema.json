@@ -116,11 +116,27 @@
   ],
   "description": "Codec providing compression using ZFP",
   "properties": {
+    "non_finite": {
+      "oneOf": [
+        {
+          "type": "string",
+          "const": "deny",
+          "description": "Deny compressing non-finite values, i.e. return an error."
+        },
+        {
+          "type": "string",
+          "const": "allow-unsafe",
+          "description": "Unsafely allow compressing non-finite values, even though undefined\nbehaviour may be triggered, see\n<https://zfp.readthedocs.io/en/release1.0.1/faq.html#q-valid>."
+        }
+      ],
+      "description": "ZFP non-finite values mode",
+      "default": "deny"
+    },
     "_version": {
       "type": "string",
       "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
       "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
-      "default": "0.1.0"
+      "default": "0.2.0"
     }
   },
   "title": "ZfpCodec",

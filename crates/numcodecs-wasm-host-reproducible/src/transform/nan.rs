@@ -29,7 +29,7 @@ impl NaNCanonicaliser {
         };
         reencoder
             .parse_core_module(&mut module, parser, wasm)
-            .map_err(|err| anyhow::format_err!("{}", err))?;
+            .map_err(|err| anyhow::format_err!("{err}"))?;
 
         let wasm = module.finish();
         wasmparser::Validator::new_with_features(features).validate_all(&wasm)?;

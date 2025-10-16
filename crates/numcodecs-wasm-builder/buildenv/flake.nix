@@ -8,7 +8,7 @@
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" "x86_64-darwin" ];
       # keep in sync with rust-toolchain and wasi-sysroot
-      llvmVersion = "19";
+      llvmVersion = "20";
 
       forEachSystem = f:
         nixpkgs.lib.genAttrs allSystems (system:
@@ -24,12 +24,12 @@
         let
           wasi-sysroot = pkgs.stdenv.mkDerivation {
             pname = "wasi-sysroot";
-            version = "25.0";
+            version = "27.0";
             src = pkgs.fetchurl {
               url =
-                "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sysroot-25.0.tar.gz";
+                "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sysroot-27.0.tar.gz";
               sha256 =
-                "d09c62c18efcddffe4b2fdd8c5830109cc8e36130cdbc9acdc0bd1b204c942bb";
+                "7110ac48f5d0b1f6ab67d57aecf52450540dddd790cafdc45f0fdfb429bdab84";
             };
 
             phases = "installPhase";
