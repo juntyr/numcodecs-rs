@@ -46,6 +46,9 @@ use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
+// FIXME: bytemuck 1.24 fails to compile on 1.87
+use ::bytemuck as _;
+
 #[cfg(test)]
 use ::serde_json as _;
 
