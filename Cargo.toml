@@ -49,10 +49,10 @@ numcodecs-python = { version = "0.7", path = "crates/numcodecs-python", default-
 numcodecs-wasm-builder = { version = "0.2", path = "crates/numcodecs-wasm-builder", default-features = false }
 numcodecs-wasm-guest = { version = "0.3", path = "crates/numcodecs-wasm-guest", default-features = false }
 numcodecs-wasm-host = { version = "0.2", path = "crates/numcodecs-wasm-host", default-features = false }
-numcodecs-wasm-host-reproducible = { version = "0.2", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
+numcodecs-wasm-host-reproducible = { version = "0.2.1", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
 numcodecs-wasm-logging = { version = "0.2", path = "crates/numcodecs-wasm-logging", default-features = false }
 
-numcodecs-wasm = { version = "0.2", path = "py/numcodecs-wasm", default-features = false }
+numcodecs-wasm = { version = "0.2.1", path = "py/numcodecs-wasm", default-features = false }
 
 # workspace-internal codecs crates
 numcodecs-asinh = { version = "0.4", path = "codecs/asinh", default-features = false }
