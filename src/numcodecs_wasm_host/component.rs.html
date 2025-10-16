@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/component.rs`."><title>component.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (9eb4a2652 2025-08-18)" data-channel="nightly" data-search-js="search-b069538f.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-68b7e25d.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host/src/component.rs`."><title>component.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0-nightly (57ef8d642 2025-10-15)" data-channel="nightly" data-search-js="search-8d3311b9.js" data-stringdex-js="stringdex-828709d0.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -36,43 +36,43 @@
     });
 </script>
 
-</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_wasm_host/</div>component.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">std::sync::Arc</a>;
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_wasm_host/</div>component.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><a href="#146-152"><a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">std::sync::Arc</a>;
 <a href=#2 id=2 data-nosnippet>2</a>
-<a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>schemars::Schema;
-<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserializer.html">serde::Deserializer</a>;
-<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>wasm_component_layer::{
+<a href=#3 id=3 data-nosnippet>3</a></a><span class="kw">use </span><a href="#146-152">schemars::Schema;
+<a href=#4 id=4 data-nosnippet>4</a></a><span class="kw">use </span><a href="#146-152"><a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserializer.html">serde::Deserializer</a>;
+<a href=#5 id=5 data-nosnippet>5</a></a><span class="kw">use </span><a href="#146-152">wasm_component_layer::{
 <a href=#6 id=6 data-nosnippet>6</a>    AsContextMut, ComponentList, ExportInstance, Func, Instance, TypedFunc, Value,
 <a href=#7 id=7 data-nosnippet>7</a>};
 <a href=#8 id=8 data-nosnippet>8</a>
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use crate</span>::{
+<a href=#9 id=9 data-nosnippet>9</a></a><span class="kw">use crate</span><a href="#146-152">::{
 <a href=#10 id=10 data-nosnippet>10</a>    <a href="codec.rs.html#24-39">codec::WasmCodec</a>,
 <a href=#11 id=11 data-nosnippet>11</a>    <a href="error.rs.html#6">error::RuntimeError</a>,
 <a href=#12 id=12 data-nosnippet>12</a>    wit::{<a href="wit.rs.html#10-13">NumcodecsWitInterfaces</a>, <a href="wit.rs.html#33-66">guest_error_from_wasm</a>},
 <a href=#13 id=13 data-nosnippet>13</a>};
 <a href=#14 id=14 data-nosnippet>14</a>
-<a href=#15 id=15 data-nosnippet>15</a><span class="doccomment">/// WebAssembly component that exports the `numcodecs:abc/codec` interface.
+<a href=#15 id=15 data-nosnippet>15</a></a><span class="doccomment">/// WebAssembly component that exports the `numcodecs:abc/codec` interface.
 <a href=#16 id=16 data-nosnippet>16</a>///
 <a href=#17 id=17 data-nosnippet>17</a>/// `WasmCodecComponent` does not implement the
 <a href=#18 id=18 data-nosnippet>18</a>/// [`DynCodecType`][numcodecs::DynCodecType] trait itself so that it can expose
 <a href=#19 id=19 data-nosnippet>19</a>/// un-opinionated bindings. However, it provides methods with that can be used
 <a href=#20 id=20 data-nosnippet>20</a>/// to implement the trait on a wrapper.
-<a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">pub struct </span><a href="../../numcodecs_wasm_host/struct.WasmCodecComponent.html">WasmCodecComponent</a> {
-<a href=#22 id=22 data-nosnippet>22</a>    <span class="comment">// precomputed properties
-<a href=#23 id=23 data-nosnippet>23</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) codec_id: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;,
-<a href=#24 id=24 data-nosnippet>24</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;Schema&gt;,
-<a href=#25 id=25 data-nosnippet>25</a>    <span class="comment">// wit functions
+<a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">pub struct </span><a href="#146-152"><a href="../../numcodecs_wasm_host/struct.WasmCodecComponent.html">WasmCodecComponent</a> {
+<a href=#22 id=22 data-nosnippet>22</a>    </a><span class="comment">// precomputed properties
+<a href=#23 id=23 data-nosnippet>23</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span><a href="#146-152">) codec_id: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;,
+<a href=#24 id=24 data-nosnippet>24</a>    </a><span class="kw">pub</span>(<span class="kw">crate</span><a href="#146-152">) codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;Schema&gt;,
+<a href=#25 id=25 data-nosnippet>25</a>    </a><span class="comment">// wit functions
 <a href=#26 id=26 data-nosnippet>26</a>    // FIXME: make typed instead
-<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) from_config: Func,
-<a href=#28 id=28 data-nosnippet>28</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) encode: Func,
-<a href=#29 id=29 data-nosnippet>29</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) decode: Func,
-<a href=#30 id=30 data-nosnippet>30</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) decode_into: Func,
-<a href=#31 id=31 data-nosnippet>31</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) get_config: Func,
-<a href=#32 id=32 data-nosnippet>32</a>    <span class="comment">// wasm component instance
-<a href=#33 id=33 data-nosnippet>33</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) instance: Instance,
+<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span><a href="#146-152">) from_config: Func,
+<a href=#28 id=28 data-nosnippet>28</a>    </a><span class="kw">pub</span>(<span class="kw">crate</span><a href="#146-152">) encode: Func,
+<a href=#29 id=29 data-nosnippet>29</a>    </a><span class="kw">pub</span>(<span class="kw">crate</span><a href="#146-152">) decode: Func,
+<a href=#30 id=30 data-nosnippet>30</a>    </a><span class="kw">pub</span>(<span class="kw">crate</span><a href="#146-152">) decode_into: Func,
+<a href=#31 id=31 data-nosnippet>31</a>    </a><span class="kw">pub</span>(<span class="kw">crate</span><a href="#146-152">) get_config: Func,
+<a href=#32 id=32 data-nosnippet>32</a>    </a><span class="comment">// wasm component instance
+<a href=#33 id=33 data-nosnippet>33</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span><a href="#146-152">) instance: Instance,
 <a href=#34 id=34 data-nosnippet>34</a>}
 <a href=#35 id=35 data-nosnippet>35</a>
-<a href=#36 id=36 data-nosnippet>36</a><span class="kw">impl </span><a href="#21-34">WasmCodecComponent</a> {
-<a href=#37 id=37 data-nosnippet>37</a>    <span class="comment">// NOTE: the WasmCodecComponent never calls Instance::drop
+<a href=#36 id=36 data-nosnippet>36</a></a><span class="kw">impl </span><a href="#146-152"><a href="#21-34">WasmCodecComponent</a> {
+<a href=#37 id=37 data-nosnippet>37</a>    </a><span class="comment">// NOTE: the WasmCodecComponent never calls Instance::drop
 <a href=#38 id=38 data-nosnippet>38</a>    </span><span class="doccomment">/// Import the `numcodecs:abc/codec` interface from a WebAssembly component
 <a href=#39 id=39 data-nosnippet>39</a>    /// `instance`.
 <a href=#40 id=40 data-nosnippet>40</a>    ///
@@ -89,73 +89,73 @@
 <a href=#51 id=51 data-nosnippet>51</a>    ///
 <a href=#52 id=52 data-nosnippet>52</a>    /// Errors if the `instance` does not export the `numcodecs:abc/codec`
 <a href=#53 id=53 data-nosnippet>53</a>    /// interface or if interacting with the component fails.
-<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub fn </span>new(<span class="kw-2">mut </span>ctx: <span class="kw">impl </span>AsContextMut, instance: Instance) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="error.rs.html#6">RuntimeError</a>&gt; {
-<a href=#55 id=55 data-nosnippet>55</a>        <span class="kw">fn </span>load_func(interface: <span class="kw-2">&amp;</span>ExportInstance, name: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;Func, <a href="error.rs.html#6">RuntimeError</a>&gt; {
-<a href=#56 id=56 data-nosnippet>56</a>            <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(func) = <a href="#55">interface</a>.func(<a href="#55">name</a>) <span class="kw">else </span>{
-<a href=#57 id=57 data-nosnippet>57</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a href="https://docs.rs/anyhow/1.0.99/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub fn </span><a href="#146-152">new(</a><span class="kw-2">mut </span><a href="#146-152">ctx: </a><span class="kw">impl </span><a href="#146-152">AsContextMut, instance: Instance) -&gt; </a><a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span><a href="#146-152">, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+<a href=#55 id=55 data-nosnippet>55</a>        </a><span class="kw">fn </span><a href="#146-152">load_func(interface: </a><span class="kw-2">&amp;</span><a href="#146-152">ExportInstance, name: </a><span class="kw-2">&amp;</span><a href="#146-152"><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; </a><a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a><a href="#146-152">&lt;Func, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+<a href=#56 id=56 data-nosnippet>56</a>            </a><span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a><a href="#146-152">(func) = <a href="#55">interface</a>.func(<a href="#55">name</a>) </a><span class="kw">else </span>{
+<a href=#57 id=57 data-nosnippet>57</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#146-152">(<a href="error.rs.html#6">RuntimeError</a>::<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">from</a>(anyhow::<a href="https://docs.rs/anyhow/1.0.100/anyhow/struct.Error.html">Error</a>::<a href="https://docs.rs/anyhow/1.0.100/anyhow/struct.Error.html#method.msg">msg</a>(</a><a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
 <a href=#58 id=58 data-nosnippet>58</a>                    <span class="string">"WASM component interface does not contain a function named `{name}`"
 <a href=#59 id=59 data-nosnippet>59</a>                </span>))));
 <a href=#60 id=60 data-nosnippet>60</a>            };
 <a href=#61 id=61 data-nosnippet>61</a>
-<a href=#62 id=62 data-nosnippet>62</a>            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#56">func</a>)
+<a href=#62 id=62 data-nosnippet>62</a>            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a><a href="#146-152">(<a href="#56">func</a>)
 <a href=#63 id=63 data-nosnippet>63</a>        }
 <a href=#64 id=64 data-nosnippet>64</a>
-<a href=#65 id=65 data-nosnippet>65</a>        <span class="kw">fn </span>load_typed_func&lt;P: ComponentList, R: ComponentList&gt;(
-<a href=#66 id=66 data-nosnippet>66</a>            interface: <span class="kw-2">&amp;</span>ExportInstance,
-<a href=#67 id=67 data-nosnippet>67</a>            name: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
-<a href=#68 id=68 data-nosnippet>68</a>        ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;TypedFunc&lt;P, R&gt;, <a href="error.rs.html#6">RuntimeError</a>&gt; {
-<a href=#69 id=69 data-nosnippet>69</a>            <a href="#55-63">load_func</a>(<a href="#66">interface</a>, <a href="#67">name</a>)<span class="question-mark">?
-<a href=#70 id=70 data-nosnippet>70</a>                </span>.typed()
-<a href=#71 id=71 data-nosnippet>71</a>                .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(RuntimeError::from)
+<a href=#65 id=65 data-nosnippet>65</a>        </a><span class="kw">fn </span><a href="#146-152">load_typed_func&lt;P: ComponentList, R: ComponentList&gt;(
+<a href=#66 id=66 data-nosnippet>66</a>            interface: </a><span class="kw-2">&amp;</span><a href="#146-152">ExportInstance,
+<a href=#67 id=67 data-nosnippet>67</a>            name: </a><span class="kw-2">&amp;</span><a href="#146-152"><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>,
+<a href=#68 id=68 data-nosnippet>68</a>        ) -&gt; </a><a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a><a href="#146-152">&lt;TypedFunc&lt;P, R&gt;, <a href="error.rs.html#6">RuntimeError</a>&gt; {
+<a href=#69 id=69 data-nosnippet>69</a>            <a href="#55-63">load_func</a>(<a href="#66">interface</a>, <a href="#67">name</a>)</a><span class="question-mark">?
+<a href=#70 id=70 data-nosnippet>70</a>                </span><a href="#146-152">.typed()
+<a href=#71 id=71 data-nosnippet>71</a>                .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="error.rs.html#6">RuntimeError</a>::<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">from</a>)
 <a href=#72 id=72 data-nosnippet>72</a>        }
 <a href=#73 id=73 data-nosnippet>73</a>
-<a href=#74 id=74 data-nosnippet>74</a>        <span class="kw">let </span>interfaces = <a href="wit.rs.html#18-30">NumcodecsWitInterfaces::get</a>();
+<a href=#74 id=74 data-nosnippet>74</a>        </a><span class="kw">let </span><a href="#146-152">interfaces = <a href="wit.rs.html#10-13">NumcodecsWitInterfaces</a>::<a href="wit.rs.html#18-30">get</a>();
 <a href=#75 id=75 data-nosnippet>75</a>
-<a href=#76 id=76 data-nosnippet>76</a>        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a>(codecs_interface) = <a href="#54">instance</a>.exports().instance(<span class="kw-2">&amp;</span><a href="#74">interfaces</a>.codec) <span class="kw">else </span>{
-<a href=#77 id=77 data-nosnippet>77</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">RuntimeError::from</a>(<a href="https://docs.rs/anyhow/1.0.99/anyhow/struct.Error.html#method.msg">anyhow::Error::msg</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
-<a href=#78 id=78 data-nosnippet>78</a>                <span class="string">"WASM component does not contain an interface named `{}`"</span>,
+<a href=#76 id=76 data-nosnippet>76</a>        </a><span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a><a href="#146-152">(codecs_interface) = <a href="#54">instance</a>.exports().instance(</a><span class="kw-2">&amp;</span><a href="#146-152"><a href="#74">interfaces</a>.codec) </a><span class="kw">else </span>{
+<a href=#77 id=77 data-nosnippet>77</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#146-152">(<a href="error.rs.html#6">RuntimeError</a>::<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">from</a>(anyhow::<a href="https://docs.rs/anyhow/1.0.100/anyhow/struct.Error.html">Error</a>::<a href="https://docs.rs/anyhow/1.0.100/anyhow/struct.Error.html#method.msg">msg</a>(</a><a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+<a href=#78 id=78 data-nosnippet>78</a>                <span class="string">"WASM component does not contain an interface named `{}`"</span><a href="#146-152">,
 <a href=#79 id=79 data-nosnippet>79</a>                interfaces.codec
 <a href=#80 id=80 data-nosnippet>80</a>            ))));
 <a href=#81 id=81 data-nosnippet>81</a>        };
 <a href=#82 id=82 data-nosnippet>82</a>
-<a href=#83 id=83 data-nosnippet>83</a>        <span class="kw">let </span>codec_id = <a href="#65-72">load_typed_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"codec-id"</span>)<span class="question-mark">?</span>;
-<a href=#84 id=84 data-nosnippet>84</a>        <span class="kw">let </span>codec_id = <a href="#83">codec_id</a>.call(<span class="kw-2">&amp;mut </span><a href="#54">ctx</a>, ())<span class="question-mark">?</span>;
+<a href=#83 id=83 data-nosnippet>83</a>        </a><span class="kw">let </span><a href="#146-152">codec_id = <a href="#65-72">load_typed_func</a>(<a href="#76">codecs_interface</a>, </a><span class="string">"codec-id"</span>)<span class="question-mark">?</span>;
+<a href=#84 id=84 data-nosnippet>84</a>        <span class="kw">let </span><a href="#146-152">codec_id = <a href="#83">codec_id</a>.call(</a><span class="kw-2">&amp;mut </span><a href="#146-152"><a href="#54">ctx</a>, ())</a><span class="question-mark">?</span>;
 <a href=#85 id=85 data-nosnippet>85</a>
-<a href=#86 id=86 data-nosnippet>86</a>        <span class="kw">let </span>codec_config_schema = <a href="#65-72">load_typed_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"codec-config-schema"</span>)<span class="question-mark">?</span>;
-<a href=#87 id=87 data-nosnippet>87</a>        <span class="kw">let </span>codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; = <a href="#86">codec_config_schema</a>.call(<span class="kw-2">&amp;mut </span><a href="#54">ctx</a>, ())<span class="question-mark">?</span>;
-<a href=#88 id=88 data-nosnippet>88</a>        <span class="kw">let </span>codec_config_schema: Schema =
-<a href=#89 id=89 data-nosnippet>89</a>            <a href="https://docs.rs/serde_json/1.0.143/serde_json/de/fn.from_str.html">serde_json::from_str</a>(<span class="kw-2">&amp;</span><a href="#87">codec_config_schema</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::Error::new)<span class="question-mark">?</span>;
+<a href=#86 id=86 data-nosnippet>86</a>        <span class="kw">let </span><a href="#146-152">codec_config_schema = <a href="#65-72">load_typed_func</a>(<a href="#76">codecs_interface</a>, </a><span class="string">"codec-config-schema"</span>)<span class="question-mark">?</span>;
+<a href=#87 id=87 data-nosnippet>87</a>        <span class="kw">let </span><a href="#146-152">codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; = <a href="#86">codec_config_schema</a>.call(</a><span class="kw-2">&amp;mut </span><a href="#146-152"><a href="#54">ctx</a>, ())</a><span class="question-mark">?</span>;
+<a href=#88 id=88 data-nosnippet>88</a>        <span class="kw">let </span><a href="#146-152">codec_config_schema: Schema =
+<a href=#89 id=89 data-nosnippet>89</a>            serde_json::<a href="https://docs.rs/serde_json/1.0.145/serde_json/de/fn.from_str.html">from_str</a>(</a><span class="kw-2">&amp;</span><a href="#146-152"><a href="#87">codec_config_schema</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(anyhow::<a href="https://docs.rs/anyhow/1.0.100/anyhow/struct.Error.html">Error</a>::<a href="https://docs.rs/anyhow/1.0.100/anyhow/struct.Error.html#method.new">new</a>)</a><span class="question-mark">?</span>;
 <a href=#90 id=90 data-nosnippet>90</a>
-<a href=#91 id=91 data-nosnippet>91</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="self">Self </span>{
+<a href=#91 id=91 data-nosnippet>91</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="self" href="#146-152">Self </a><a href="#146-152">{
 <a href=#92 id=92 data-nosnippet>92</a>            <a href="#84">codec_id</a>,
-<a href=#93 id=93 data-nosnippet>93</a>            codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#method.new">Arc::new</a>(<a href="#88">codec_config_schema</a>),
-<a href=#94 id=94 data-nosnippet>94</a>            from_config: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[static]codec.from-config"</span>)<span class="question-mark">?</span>,
-<a href=#95 id=95 data-nosnippet>95</a>            encode: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[method]codec.encode"</span>)<span class="question-mark">?</span>,
-<a href=#96 id=96 data-nosnippet>96</a>            decode: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[method]codec.decode"</span>)<span class="question-mark">?</span>,
-<a href=#97 id=97 data-nosnippet>97</a>            decode_into: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[method]codec.decode-into"</span>)<span class="question-mark">?</span>,
-<a href=#98 id=98 data-nosnippet>98</a>            get_config: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, <span class="string">"[method]codec.get-config"</span>)<span class="question-mark">?</span>,
+<a href=#93 id=93 data-nosnippet>93</a>            codec_config_schema: <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html">Arc</a>::<a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#method.new">new</a>(<a href="#88">codec_config_schema</a>),
+<a href=#94 id=94 data-nosnippet>94</a>            from_config: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, </a><span class="string">"[static]codec.from-config"</span>)<span class="question-mark">?</span><a href="#146-152">,
+<a href=#95 id=95 data-nosnippet>95</a>            encode: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, </a><span class="string">"[method]codec.encode"</span>)<span class="question-mark">?</span><a href="#146-152">,
+<a href=#96 id=96 data-nosnippet>96</a>            decode: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, </a><span class="string">"[method]codec.decode"</span>)<span class="question-mark">?</span><a href="#146-152">,
+<a href=#97 id=97 data-nosnippet>97</a>            decode_into: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, </a><span class="string">"[method]codec.decode-into"</span>)<span class="question-mark">?</span><a href="#146-152">,
+<a href=#98 id=98 data-nosnippet>98</a>            get_config: <a href="#55-63">load_func</a>(<a href="#76">codecs_interface</a>, </a><span class="string">"[method]codec.get-config"</span>)<span class="question-mark">?</span><a href="#146-152">,
 <a href=#99 id=99 data-nosnippet>99</a>            <a href="#54">instance</a>,
 <a href=#100 id=100 data-nosnippet>100</a>        })
 <a href=#101 id=101 data-nosnippet>101</a>    }
 <a href=#102 id=102 data-nosnippet>102</a>}
 <a href=#103 id=103 data-nosnippet>103</a>
-<a href=#104 id=104 data-nosnippet>104</a><span class="doccomment">/// Methods for implementing the [`DynCodecType`][numcodecs::DynCodecType] trait
-<a href=#105 id=105 data-nosnippet>105</a></span><span class="kw">impl </span><a href="#21-34">WasmCodecComponent</a> {
-<a href=#106 id=106 data-nosnippet>106</a>    <span class="attr">#[allow(clippy::missing_const_for_fn)] </span><span class="comment">// FIXME: false positive, has Arc deref
+<a href=#104 id=104 data-nosnippet>104</a></a><span class="doccomment">/// Methods for implementing the [`DynCodecType`][numcodecs::DynCodecType] trait
+<a href=#105 id=105 data-nosnippet>105</a></span><span class="kw">impl </span><a href="#146-152"><a href="#21-34">WasmCodecComponent</a> {
+<a href=#106 id=106 data-nosnippet>106</a>    </a><span class="attr">#[allow(clippy::missing_const_for_fn)] </span><span class="comment">// FIXME: false positive, has Arc deref
 <a href=#107 id=107 data-nosnippet>107</a>    </span><span class="doccomment">/// Codec identifier.
 <a href=#108 id=108 data-nosnippet>108</a>    </span><span class="attr">#[must_use]
-<a href=#109 id=109 data-nosnippet>109</a>    </span><span class="kw">pub fn </span>codec_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
-<a href=#110 id=110 data-nosnippet>110</a>        <span class="kw-2">&amp;</span><a class="self" href="#109">self</a>.codec_id
+<a href=#109 id=109 data-nosnippet>109</a>    </span><span class="kw">pub fn </span><a href="#146-152">codec_id(</a><span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><a href="#146-152"><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
+<a href=#110 id=110 data-nosnippet>110</a>        </a><span class="kw-2">&amp;</span><a class="self" href="#109">self</a><a href="#146-152">.codec_id
 <a href=#111 id=111 data-nosnippet>111</a>    }
 <a href=#112 id=112 data-nosnippet>112</a>
-<a href=#113 id=113 data-nosnippet>113</a>    <span class="attr">#[allow(clippy::missing_const_for_fn)] </span><span class="comment">// FIXME: false positive, has Arc deref
+<a href=#113 id=113 data-nosnippet>113</a>    </a><span class="attr">#[allow(clippy::missing_const_for_fn)] </span><span class="comment">// FIXME: false positive, has Arc deref
 <a href=#114 id=114 data-nosnippet>114</a>    </span><span class="doccomment">/// JSON schema for the codec's configuration.
 <a href=#115 id=115 data-nosnippet>115</a>    </span><span class="attr">#[must_use]
-<a href=#116 id=116 data-nosnippet>116</a>    </span><span class="kw">pub fn </span>codec_config_schema(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Schema {
-<a href=#117 id=117 data-nosnippet>117</a>        <span class="kw-2">&amp;</span><a class="self" href="#116">self</a>.codec_config_schema
+<a href=#116 id=116 data-nosnippet>116</a>    </span><span class="kw">pub fn </span><a href="#146-152">codec_config_schema(</a><span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><a href="#146-152">Schema {
+<a href=#117 id=117 data-nosnippet>117</a>        </a><span class="kw-2">&amp;</span><a class="self" href="#116">self</a><a href="#146-152">.codec_config_schema
 <a href=#118 id=118 data-nosnippet>118</a>    }
 <a href=#119 id=119 data-nosnippet>119</a>
-<a href=#120 id=120 data-nosnippet>120</a>    <span class="doccomment">/// Instantiate a codec of this type from a serialized `config`uration.
+<a href=#120 id=120 data-nosnippet>120</a>    </a><span class="doccomment">/// Instantiate a codec of this type from a serialized `config`uration.
 <a href=#121 id=121 data-nosnippet>121</a>    ///
 <a href=#122 id=122 data-nosnippet>122</a>    /// The `config` must *not* contain an `id` field. If the `config` *may*
 <a href=#123 id=123 data-nosnippet>123</a>    /// contain one, use the
@@ -168,57 +168,57 @@
 <a href=#130 id=130 data-nosnippet>130</a>    ///
 <a href=#131 id=131 data-nosnippet>131</a>    /// Errors if constructing the codec or interacting with the component
 <a href=#132 id=132 data-nosnippet>132</a>    /// fails.
-<a href=#133 id=133 data-nosnippet>133</a>    </span><span class="kw">pub fn </span>codec_from_config&lt;<span class="lifetime">'de</span>, D: <a href="https://docs.rs/serde/1.0.219/serde/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
+<a href=#133 id=133 data-nosnippet>133</a>    </span><span class="kw">pub fn </span><a href="#146-152">codec_from_config&lt;</a><span class="lifetime">'de</span><a href="#146-152">, D: <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserializer.html">Deserializer</a>&lt;</a><span class="lifetime">'de</span>&gt;&gt;(
 <a href=#134 id=134 data-nosnippet>134</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
-<a href=#135 id=135 data-nosnippet>135</a>        <span class="kw-2">mut </span>ctx: <span class="kw">impl </span>AsContextMut,
+<a href=#135 id=135 data-nosnippet>135</a>        <span class="kw-2">mut </span><a href="#146-152">ctx: </a><span class="kw">impl </span><a href="#146-152">AsContextMut,
 <a href=#136 id=136 data-nosnippet>136</a>        config: D,
-<a href=#137 id=137 data-nosnippet>137</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="codec.rs.html#24-39">WasmCodec</a>, D::Error&gt; {
-<a href=#138 id=138 data-nosnippet>138</a>        <span class="kw">let </span><span class="kw-2">mut </span>config_bytes = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>();
-<a href=#139 id=139 data-nosnippet>139</a>        <a href="https://docs.rs/serde-transcode/1.0.1/serde_transcode/fn.transcode.html">serde_transcode::transcode</a>(<a href="#136">config</a>, <span class="kw-2">&amp;mut </span><a href="https://docs.rs/serde_json/1.0.143/serde_json/ser/struct.Serializer.html#method.new">serde_json::Serializer::new</a>(<span class="kw-2">&amp;mut </span><a href="#138">config_bytes</a>))
-<a href=#140 id=140 data-nosnippet>140</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
-<a href=#141 id=141 data-nosnippet>141</a>        <span class="kw">let </span>config = <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.from_utf8">String::from_utf8</a>(<a href="#138">config_bytes</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
+<a href=#137 id=137 data-nosnippet>137</a>    ) -&gt; </a><a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a><a href="#146-152">&lt;<a href="codec.rs.html#24-39">WasmCodec</a>, D::Error&gt; {
+<a href=#138 id=138 data-nosnippet>138</a>        </a><span class="kw">let </span><span class="kw-2">mut </span><a href="#146-152">config_bytes = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>::<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">new</a>();
+<a href=#139 id=139 data-nosnippet>139</a>        serde_transcode::<a href="https://docs.rs/serde-transcode/1.0.1/serde_transcode/fn.transcode.html">transcode</a>(<a href="#136">config</a>, </a><span class="kw-2">&amp;mut </span><a href="#146-152">serde_json::<a href="https://docs.rs/serde_json/1.0.145/serde_json/ser/struct.Serializer.html">Serializer</a>::<a href="https://docs.rs/serde_json/1.0.145/serde_json/ser/struct.Serializer.html#method.new">new</a>(</a><span class="kw-2">&amp;mut </span><a href="#146-152"><a href="#138">config_bytes</a>))
+<a href=#140 id=140 data-nosnippet>140</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(serde::de::Error::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Error.html#tymethod.custom">custom</a>)</a><span class="question-mark">?</span>;
+<a href=#141 id=141 data-nosnippet>141</a>        <span class="kw">let </span><a href="#146-152">config = <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html">String</a>::<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.from_utf8">from_utf8</a>(<a href="#138">config_bytes</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(serde::de::Error::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Error.html#tymethod.custom">custom</a>)</a><span class="question-mark">?</span>;
 <a href=#142 id=142 data-nosnippet>142</a>
-<a href=#143 id=143 data-nosnippet>143</a>        <span class="kw">let </span>args = Value::String(<a href="#141">config</a>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>());
-<a href=#144 id=144 data-nosnippet>144</a>        <span class="kw">let </span><span class="kw-2">mut </span>result = Value::U8(<span class="number">0</span>);
+<a href=#143 id=143 data-nosnippet>143</a>        <span class="kw">let </span><a href="#146-152">args = Value::String(<a href="#141">config</a>.<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>());
+<a href=#144 id=144 data-nosnippet>144</a>        </a><span class="kw">let </span><span class="kw-2">mut </span><a href="#146-152">result = Value::U8(</a><span class="number">0</span>);
 <a href=#145 id=145 data-nosnippet>145</a>
-<a href=#146 id=146 data-nosnippet>146</a>        <a class="self" href="#134">self</a>.from_config
+<a href=#146 id=146 data-nosnippet>146</a>        <a class="self" href="#134">self</a><a href="#146-152">.from_config
 <a href=#147 id=147 data-nosnippet>147</a>            .call(
-<a href=#148 id=148 data-nosnippet>148</a>                <span class="kw-2">&amp;mut </span><a href="#135">ctx</a>,
-<a href=#149 id=149 data-nosnippet>149</a>                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_ref.html">std::slice::from_ref</a>(<span class="kw-2">&amp;</span><a href="#143">args</a>),
-<a href=#150 id=150 data-nosnippet>150</a>                <a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_mut.html">std::slice::from_mut</a>(<span class="kw-2">&amp;mut </span><a href="#144">result</a>),
+<a href=#148 id=148 data-nosnippet>148</a>                </a><span class="kw-2">&amp;mut </span><a href="#146-152"><a href="#135">ctx</a>,
+<a href=#149 id=149 data-nosnippet>149</a>                std::slice::<a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_ref.html">from_ref</a>(</a><span class="kw-2">&amp;</span><a href="#146-152"><a href="#143">args</a>),
+<a href=#150 id=150 data-nosnippet>150</a>                std::slice::<a href="https://doc.rust-lang.org/nightly/core/slice/raw/fn.from_mut.html">from_mut</a>(</a><span class="kw-2">&amp;mut </span><a href="#146-152"><a href="#144">result</a>),
 <a href=#151 id=151 data-nosnippet>151</a>            )
-<a href=#152 id=152 data-nosnippet>152</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>)<span class="question-mark">?</span>;
+<a href=#152 id=152 data-nosnippet>152</a>            .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(serde::de::Error::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Error.html#tymethod.custom">custom</a>)</a><span class="question-mark">?</span>;
 <a href=#153 id=153 data-nosnippet>153</a>
-<a href=#154 id=154 data-nosnippet>154</a>        <span class="kw">let </span>codec = <span class="kw">match </span><a href="#144">result</a> {
-<a href=#155 id=155 data-nosnippet>155</a>            Value::Result(result) =&gt; <span class="kw">match </span><span class="kw-2">&amp;*</span><a href="#155">result</a> {
-<a href=#156 id=156 data-nosnippet>156</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="prelude-val">Some</span>(Value::Own(resource))) =&gt; <a href="codec.rs.html#24-39">WasmCodec</a> {
+<a href=#154 id=154 data-nosnippet>154</a>        <span class="kw">let </span><a href="#146-152">codec = </a><span class="kw">match </span><a href="#146-152"><a href="#144">result</a> {
+<a href=#155 id=155 data-nosnippet>155</a>            Value::Result(result) =&gt; </a><span class="kw">match </span><span class="kw-2">&amp;*</span><a href="#146-152"><a href="#155">result</a> {
+<a href=#156 id=156 data-nosnippet>156</a>                </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.Some">Some</a><a href="#146-152">(Value::Own(resource))) =&gt; <a href="codec.rs.html#24-39">WasmCodec</a> {
 <a href=#157 id=157 data-nosnippet>157</a>                    resource: <a href="#156">resource</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-<a href=#158 id=158 data-nosnippet>158</a>                    codec_id: <a class="self" href="#134">self</a>.codec_id.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-<a href=#159 id=159 data-nosnippet>159</a>                    codec_config_schema: <a class="self" href="#134">self</a>.codec_config_schema.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-<a href=#160 id=160 data-nosnippet>160</a>                    from_config: <a class="self" href="#134">self</a>.from_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-<a href=#161 id=161 data-nosnippet>161</a>                    encode: <a class="self" href="#134">self</a>.encode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-<a href=#162 id=162 data-nosnippet>162</a>                    decode: <a class="self" href="#134">self</a>.decode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-<a href=#163 id=163 data-nosnippet>163</a>                    decode_into: <a class="self" href="#134">self</a>.decode_into.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-<a href=#164 id=164 data-nosnippet>164</a>                    get_config: <a class="self" href="#134">self</a>.get_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
-<a href=#165 id=165 data-nosnippet>165</a>                    instance: <a class="self" href="#134">self</a>.instance.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+<a href=#158 id=158 data-nosnippet>158</a>                    codec_id: </a><a class="self" href="#134">self</a><a href="#146-152">.codec_id.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+<a href=#159 id=159 data-nosnippet>159</a>                    codec_config_schema: </a><a class="self" href="#134">self</a><a href="#146-152">.codec_config_schema.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+<a href=#160 id=160 data-nosnippet>160</a>                    from_config: </a><a class="self" href="#134">self</a><a href="#146-152">.from_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+<a href=#161 id=161 data-nosnippet>161</a>                    encode: </a><a class="self" href="#134">self</a><a href="#146-152">.encode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+<a href=#162 id=162 data-nosnippet>162</a>                    decode: </a><a class="self" href="#134">self</a><a href="#146-152">.decode.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+<a href=#163 id=163 data-nosnippet>163</a>                    decode_into: </a><a class="self" href="#134">self</a><a href="#146-152">.decode_into.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+<a href=#164 id=164 data-nosnippet>164</a>                    get_config: </a><a class="self" href="#134">self</a><a href="#146-152">.get_config.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
+<a href=#165 id=165 data-nosnippet>165</a>                    instance: </a><a class="self" href="#134">self</a><a href="#146-152">.instance.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>(),
 <a href=#166 id=166 data-nosnippet>166</a>                },
-<a href=#167 id=167 data-nosnippet>167</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">match </span><a href="wit.rs.html#33-66">guest_error_from_wasm</a>(<a href="#167">err</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>()) {
-<a href=#168 id=168 data-nosnippet>168</a>                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a href="#168">err</a>)),
-<a href=#169 id=169 data-nosnippet>169</a>                    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a href="#169">err</a>)),
+<a href=#167 id=167 data-nosnippet>167</a>                </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#146-152">(err) =&gt; </a><span class="kw">match </span><a href="#146-152"><a href="wit.rs.html#33-66">guest_error_from_wasm</a>(<a href="#167">err</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.as_ref">as_ref</a>()) {
+<a href=#168 id=168 data-nosnippet>168</a>                    </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a><a href="#146-152">(err) =&gt; </a><span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#146-152">(serde::de::Error::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Error.html#tymethod.custom">custom</a>(<a href="#168">err</a>)),
+<a href=#169 id=169 data-nosnippet>169</a>                    </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#146-152">(err) =&gt; </a><span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#146-152">(serde::de::Error::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Error.html#tymethod.custom">custom</a>(<a href="#169">err</a>)),
 <a href=#170 id=170 data-nosnippet>170</a>                },
 <a href=#171 id=171 data-nosnippet>171</a>                result =&gt; {
-<a href=#172 id=172 data-nosnippet>172</a>                    <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+<a href=#172 id=172 data-nosnippet>172</a>                    </a><span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#146-152">(serde::de::Error::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Error.html#tymethod.custom">custom</a>(</a><a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
 <a href=#173 id=173 data-nosnippet>173</a>                        <span class="string">"unexpected from-config result value {result:?}"
-<a href=#174 id=174 data-nosnippet>174</a>                    </span>)));
+<a href=#174 id=174 data-nosnippet>174</a>                    </span><a href="#146-152">)));
 <a href=#175 id=175 data-nosnippet>175</a>                }
 <a href=#176 id=176 data-nosnippet>176</a>            },
 <a href=#177 id=177 data-nosnippet>177</a>            value =&gt; {
-<a href=#178 id=178 data-nosnippet>178</a>                <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(<a href="https://docs.rs/serde/1.0.219/serde/de/trait.Error.html#tymethod.custom">serde::de::Error::custom</a>(<a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
+<a href=#178 id=178 data-nosnippet>178</a>                </a><span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#146-152">(serde::de::Error::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Error.html#tymethod.custom">custom</a>(</a><a class="macro" href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(
 <a href=#179 id=179 data-nosnippet>179</a>                    <span class="string">"unexpected from-config result value {value:?}"
 <a href=#180 id=180 data-nosnippet>180</a>                </span>)));
 <a href=#181 id=181 data-nosnippet>181</a>            }
 <a href=#182 id=182 data-nosnippet>182</a>        };
 <a href=#183 id=183 data-nosnippet>183</a>
-<a href=#184 id=184 data-nosnippet>184</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#154">codec</a>)
+<a href=#184 id=184 data-nosnippet>184</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a><a href="#146-152">(<a href="#154">codec</a>)
 <a href=#185 id=185 data-nosnippet>185</a>    }
-<a href=#186 id=186 data-nosnippet>186</a>}</code></pre></div></section></main></body></html>
+<a href=#186 id=186 data-nosnippet>186</a>}</a></code></pre></div></section></main></body></html>
