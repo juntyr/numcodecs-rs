@@ -95,8 +95,8 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-numcodecs-wasm-logging = {{ version = "0.1", default-features = false }}
-numcodecs-wasm-guest = {{ version = "0.2", default-features = false }}
+numcodecs-wasm-logging = {{ version = "0.2", default-features = false }}
+numcodecs-wasm-guest = {{ version = "0.3", default-features = false }}
 numcodecs-my-codec = {{ package = "{crate_}", version = "{version}", default-features = false }}
     "#
         ),
