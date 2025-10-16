@@ -44,38 +44,39 @@ rust-version = "1.87"
 
 [workspace.dependencies]
 # workspace-internal numcodecs crates
-numcodecs = { version = "0.2.1", path = "crates/numcodecs", default-features = false }
+numcodecs = { version = "0.3", path = "crates/numcodecs", default-features = false }
 numcodecs-python = { version = "0.7", path = "crates/numcodecs-python", default-features = false }
 numcodecs-wasm-builder = { version = "0.2", path = "crates/numcodecs-wasm-builder", default-features = false }
-numcodecs-wasm-logging = { version = "0.1", path = "crates/numcodecs-wasm-logging", default-features = false }
-numcodecs-wasm-guest = { version = "0.2", path = "crates/numcodecs-wasm-guest", default-features = false }
-numcodecs-wasm-host = { version = "0.1", path = "crates/numcodecs-wasm-host", default-features = false }
+numcodecs-wasm-guest = { version = "0.3", path = "crates/numcodecs-wasm-guest", default-features = false }
+numcodecs-wasm-host = { version = "0.2", path = "crates/numcodecs-wasm-host", default-features = false }
 numcodecs-wasm-host-reproducible = { version = "0.2", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
+numcodecs-wasm-logging = { version = "0.2", path = "crates/numcodecs-wasm-logging", default-features = false }
 
 numcodecs-wasm = { version = "0.2", path = "py/numcodecs-wasm", default-features = false }
 
 # workspace-internal codecs crates
-numcodecs-asinh = { version = "0.3", path = "codecs/asinh", default-features = false }
-numcodecs-bit-round = { version = "0.3", path = "codecs/bit-round", default-features = false }
-numcodecs-fixed-offset-scale = { version = "0.3", path = "codecs/fixed-offset-scale", default-features = false }
-numcodecs-fourier-network = { version = "0.2", path = "codecs/fourier-network", default-features = false }
-numcodecs-identity = { version = "0.3", path = "codecs/identity", default-features = false }
-numcodecs-jpeg2000 = { version = "0.2", path = "codecs/jpeg2000", default-features = false }
-numcodecs-linear-quantize = { version = "0.4", path = "codecs/linear-quantize", default-features = false }
-numcodecs-log = { version = "0.4", path = "codecs/log", default-features = false }
-numcodecs-pco = { version = "0.2", path = "codecs/pco", default-features = false }
-numcodecs-random-projection = { version = "0.3", path = "codecs/random-projection", default-features = false }
-numcodecs-reinterpret = { version = "0.3", path = "codecs/reinterpret", default-features = false }
-numcodecs-round = { version = "0.3", path = "codecs/round", default-features = false }
-numcodecs-stochastic-rounding = { version = "0.1", path = "codecs/stochastic-rounding", default-features = false }
-numcodecs-swizzle-reshape = { version = "0.3", path = "codecs/swizzle-reshape", default-features = false }
-numcodecs-sz3 = { version = "0.6", path = "codecs/sz3", default-features = false }
-numcodecs-tthresh = { version = "0.2", path = "codecs/tthresh", default-features = false }
-numcodecs-uniform-noise = { version = "0.3", path = "codecs/uniform-noise", default-features = false }
-numcodecs-zfp = { version = "0.5", path = "codecs/zfp", default-features = false }
-numcodecs-zfp-classic = { version = "0.3", path = "codecs/zfp-classic", default-features = false }
-numcodecs-zlib = { version = "0.3", path = "codecs/zlib", default-features = false }
-numcodecs-zstd = { version = "0.3", path = "codecs/zstd", default-features = false }
+numcodecs-asinh = { version = "0.4", path = "codecs/asinh", default-features = false }
+numcodecs-bit-round = { version = "0.4", path = "codecs/bit-round", default-features = false }
+numcodecs-fixed-offset-scale = { version = "0.4", path = "codecs/fixed-offset-scale", default-features = false }
+numcodecs-fourier-network = { version = "0.3", path = "codecs/fourier-network", default-features = false }
+numcodecs-identity = { version = "0.4", path = "codecs/identity", default-features = false }
+numcodecs-jpeg2000 = { version = "0.3", path = "codecs/jpeg2000", default-features = false }
+numcodecs-linear-quantize = { version = "0.5", path = "codecs/linear-quantize", default-features = false }
+numcodecs-log = { version = "0.5", path = "codecs/log", default-features = false }
+numcodecs-pco = { version = "0.3", path = "codecs/pco", default-features = false }
+numcodecs-random-projection = { version = "0.4", path = "codecs/random-projection", default-features = false }
+numcodecs-reinterpret = { version = "0.4", path = "codecs/reinterpret", default-features = false }
+numcodecs-round = { version = "0.5", path = "codecs/round", default-features = false }
+numcodecs-sperr = { version = "0.2", path = "codecs/sperr", default-features = false }
+numcodecs-stochastic-rounding = { version = "0.2", path = "codecs/stochastic-rounding", default-features = false }
+numcodecs-swizzle-reshape = { version = "0.4", path = "codecs/swizzle-reshape", default-features = false }
+numcodecs-sz3 = { version = "0.7", path = "codecs/sz3", default-features = false }
+numcodecs-tthresh = { version = "0.3", path = "codecs/tthresh", default-features = false }
+numcodecs-uniform-noise = { version = "0.4", path = "codecs/uniform-noise", default-features = false }
+numcodecs-zfp = { version = "0.6", path = "codecs/zfp", default-features = false }
+numcodecs-zfp-classic = { version = "0.4", path = "codecs/zfp-classic", default-features = false }
+numcodecs-zlib = { version = "0.4", path = "codecs/zlib", default-features = false }
+numcodecs-zstd = { version = "0.4", path = "codecs/zstd", default-features = false }
 
 # crates.io third-party dependencies
 anyhow = { version = "1.0.93", default-features = false }

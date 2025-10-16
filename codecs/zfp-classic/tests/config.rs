@@ -3,7 +3,7 @@
 use ::{ndarray as _, postcard as _, schemars as _, thiserror as _, zfp_sys as _};
 
 use numcodecs::StaticCodec;
-use numcodecs_zfp_classic::{ZfpClassicCodec, ZfpCompressionMode};
+use numcodecs_zfp_classic::{ZfpClassicCodec, ZfpCompressionMode, ZfpNonFiniteValuesMode};
 use serde::Deserialize;
 use serde_json::json;
 
@@ -95,4 +95,42 @@ fn reversible_config() {
     );
 
     assert!(matches!(codec.mode, ZfpCompressionMode::Reversible));
+}
+
+#[test]
+fn deny_non_finite_config() {
+    let codec = ZfpClassicCodec::from_config(
+        Deserialize::deserialize(json!({
+            "mode": "reversible",
+        }))
+        .unwrap(),
+    );
+
+    assert!(matches!(codec.non_finite, ZfpNonFiniteValuesMode::Deny));
+
+    let codec = ZfpClassicCodec::from_config(
+        Deserialize::deserialize(json!({
+            "mode": "reversible",
+            "non_finite": "deny",
+        }))
+        .unwrap(),
+    );
+
+    assert!(matches!(codec.non_finite, ZfpNonFiniteValuesMode::Deny));
+}
+
+#[test]
+fn allow_unsafe_non_finite_config() {
+    let codec = ZfpClassicCodec::from_config(
+        Deserialize::deserialize(json!({
+            "mode": "reversible",
+            "non_finite": "allow-unsafe",
+        }))
+        .unwrap(),
+    );
+
+    assert!(matches!(
+        codec.non_finite,
+        ZfpNonFiniteValuesMode::AllowUnsafe
+    ));
 }
