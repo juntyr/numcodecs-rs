@@ -157,7 +157,11 @@ pub fn docs_from_schema(schema: &Schema) -> Option<String> {
         #[expect(clippy::format_push_string)] // FIXME
         if let Some(default) = parameter.default {
             docs.push_str(", default = ");
-            docs.push_str(&format!("{default}"));
+            docs.push_str(
+                &format!("{default}")
+                    .replace("false", "False")
+                    .replace("true", "True"),
+            );
         }
 
         docs.push('\n');
@@ -201,7 +205,11 @@ pub fn signature_from_schema(schema: &Schema) -> String {
         #[expect(clippy::format_push_string)] // FIXME
         if let Some(default) = parameter.default {
             signature.push('=');
-            signature.push_str(&format!("{default}"));
+            signature.push_str(
+                &format!("{default}")
+                    .replace("false", "False")
+                    .replace("true", "True"),
+            );
         } else if !parameter.required {
             signature.push_str("=None");
         }

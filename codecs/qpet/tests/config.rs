@@ -3,7 +3,7 @@
 use ::{ndarray as _, num_traits as _, postcard as _, schemars as _, sperr as _, thiserror as _};
 
 use numcodecs::StaticCodec;
-use numcodecs_sperr::{SperrCodec, SperrCompressionMode};
+use numcodecs_qpet::{SperrCodec, SperrCompressionMode};
 use serde::Deserialize;
 use serde_json::json;
 

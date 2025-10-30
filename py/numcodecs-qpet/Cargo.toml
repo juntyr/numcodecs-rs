@@ -1,0 +1,21 @@
+[package]
+name = "numcodecs-qpet-py"
+version = "0.1.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "numcodecs_qpet"
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = { workspace = true }
+numcodecs = { workspace = true }
+numcodecs-python = { workspace = true }
+numcodecs-qpet = { workspace = true }
+pyo3 = { workspace = true, features = ["macros", "abi3-py310"] }
