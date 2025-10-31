@@ -1,5 +1,5 @@
 [package]
-name = "numcodecs-qpet"
+name = "numcodecs-qpet-sperr"
 version = "0.1.0"
 edition = { workspace = true }
 authors = { workspace = true }
@@ -7,10 +7,10 @@ repository = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 
-description = "SPERR codec implementation for the numcodecs API"
+description = "QPET-SPERR codec implementation for the numcodecs API"
 readme = "README.md"
 categories = ["compression", "encoding"]
-keywords = ["SPERR", "numcodecs", "compression", "encoding"]
+keywords = ["QPET-SPERR", "numcodecs", "compression", "encoding"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -21,7 +21,7 @@ num-traits = { workspace = true, features = ["std"] }
 postcard = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
-sperr = { path = "../../../qpet-sperr-rs" }
+qpet-sperr = { path = "../../../qpet-sperr-rs" }
 thiserror = { workspace = true }
 
 [dev-dependencies]

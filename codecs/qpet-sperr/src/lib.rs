@@ -22,8 +22,9 @@
 #[cfg(test)]
 use ::serde_json as _;
 
-use std::borrow::Cow;
 use std::fmt;
+use std::num::NonZeroUsize;
+use std::{borrow::Cow, num::NonZeroU32};
 
 use ndarray::{Array, Array1, ArrayBase, Axis, Data, Dimension, IxDyn, ShapeError};
 use num_traits::{Float, identities::Zero};
@@ -35,7 +36,7 @@ use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-type SperrCodecVersion = StaticCodecVersion<0, 2, 0>;
+type QpetSperrCodecVersion = StaticCodecVersion<0, 1, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // serde cannot deny unknown fields because of the flatten
@@ -53,48 +54,52 @@ pub struct SperrCodec {
     pub mode: SperrCompressionMode,
     /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
-    pub version: SperrCodecVersion,
+    pub version: QpetSperrCodecVersion,
 }
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 /// SPERR compression mode
 #[serde(tag = "mode")]
 pub enum SperrCompressionMode {
-    /// Fixed bit-per-pixel rate
-    #[serde(rename = "bpp")]
-    BitsPerPixel {
-        /// positive bits-per-pixel
-        bpp: Positive<f64>,
-    },
-    /// Fixed peak signal-to-noise ratio
-    #[serde(rename = "psnr")]
-    PeakSignalToNoiseRatio {
-        /// positive peak signal-to-noise ratio
-        psnr: Positive<f64>,
-    },
-    /// Fixed point-wise (absolute) error
-    #[serde(rename = "pwe")]
-    PointwiseError {
-        /// positive point-wise (absolute) error
-        pwe: Positive<f64>,
-    },
-    /// Fixed quantisation step
-    #[serde(rename = "q")]
-    QuantisationStep {
-        /// positive quantisation step
-        q: Positive<f64>,
-    },
-    /// Quantity of Interest
-    #[serde(rename = "qoi")]
-    QuantityOfInterest {
-        /// positive point-wise (absolute) error
-        tol: Positive<f64>,
+    /// Symbolic Quantity of Interest (QoI)
+    #[serde(rename = "qoi-symbolic")]
+    SymbolicQuantityOfInterest {
         /// quantity of interest expression
         qoi: String,
-        /// high precision
+        /// block size over which the QoI errors are averaged, 1 for pointwise
+        #[serde(default = "default_qoi_block_size")]
+        qoi_block_size: NonZeroU32,
+        /// positive (pointwise) absolute error bound over the QoI
+        qoi_pwe: Positive<f64>,
+        /// 3D size of the chunks (z, y, x) that SPERR uses internally
+        #[serde(default = "default_sperr_chunks")]
+        sperr_chunks: (NonZeroUsize, NonZeroUsize, NonZeroUsize),
+        /// optional positive pointwise absolute error bound over the data
+        #[serde(default)]
+        data_pwe: Option<Positive<f64>>,
+        /// positive QoI k parameter (3.0 is a good default)
+        #[serde(default = "default_qoi_k")]
+        qoi_k: Positive<f64>,
+        /// high precision mode for SPERR, useful for small error bounds
         #[serde(default)]
         high_prec: bool,
     },
+}
+
+fn default_qoi_block_size() -> NonZeroU32 {
+    const NON_ZERO_ONE: NonZeroU32 = NonZeroU32::MIN;
+    // 1: pointwise
+    NON_ZERO_ONE
+}
+
+fn default_sperr_chunks() -> (NonZeroUsize, NonZeroUsize, NonZeroUsize) {
+    const NON_ZERO_256: NonZeroUsize = NonZeroUsize::MIN.saturating_add(255);
+    (NON_ZERO_256, NON_ZERO_256, NON_ZERO_256)
+}
+
+fn default_qoi_k() -> Positive<f64> {
+    // c=3.0, suggested default
+    Positive(3.0)
 }
 
 impl Codec for SperrCodec {
@@ -140,7 +145,7 @@ impl Codec for SperrCodec {
 }
 
 impl StaticCodec for SperrCodec {
-    const CODEC_ID: &'static str = "qpet.rs";
+    const CODEC_ID: &'static str = "qpet-sperr.rs";
 
     type Config<'de> = Self;
 
@@ -244,7 +249,7 @@ pub struct SperrSliceError(postcard::Error);
 #[derive(Debug, Error)]
 #[error(transparent)]
 /// Opaque error for when encoding or decoding with SPERR fails
-pub struct SperrCodingError(sperr::Error);
+pub struct SperrCodingError(qpet_sperr::Error);
 
 /// Compress the `data` array using SPERR with the provided `mode`.
 ///
@@ -298,32 +303,31 @@ pub fn compress<T: SperrElement, S: Data<Elem = T>, D: Dimension>(
         //  must be of size 1
         let slice = slice.into_shape_with_order((depth, height, width)).unwrap();
 
-        let encoded_slice = sperr::compress_3d(
+        let SperrCompressionMode::SymbolicQuantityOfInterest {
+            qoi,
+            qoi_block_size,
+            qoi_pwe,
+            sperr_chunks,
+            data_pwe,
+            qoi_k,
+            high_prec,
+        } = mode;
+
+        let encoded_slice = qpet_sperr::compress_3d(
             slice,
-            match mode {
-                SperrCompressionMode::BitsPerPixel { bpp } => {
-                    sperr::CompressionMode::BitsPerPixel { bpp: bpp.0 }
-                }
-                SperrCompressionMode::PeakSignalToNoiseRatio { psnr } => {
-                    sperr::CompressionMode::PeakSignalToNoiseRatio { psnr: psnr.0 }
-                }
-                SperrCompressionMode::PointwiseError { pwe } => {
-                    sperr::CompressionMode::PointwiseError { pwe: pwe.0 }
-                }
-                SperrCompressionMode::QuantisationStep { q } => {
-                    sperr::CompressionMode::QuantisationStep { q: q.0 }
-                }
-                SperrCompressionMode::QuantityOfInterest {
-                    tol,
-                    qoi,
-                    high_prec,
-                } => sperr::CompressionMode::QuantityOfInterest {
-                    tol: tol.0,
-                    qoi: qoi.as_str(),
-                    high_prec: *high_prec,
-                },
+            qpet_sperr::CompressionMode::SymbolicQuantityOfInterest {
+                qoi: qoi.as_str(),
+                qoi_block_size: *qoi_block_size,
+                qoi_pwe: qoi_pwe.0,
+                data_pwe: data_pwe.map(|data_pwe| data_pwe.0),
+                qoi_k: qoi_k.0,
+                high_prec: *high_prec,
             },
-            (256, 256, 256),
+            (
+                sperr_chunks.0.get(),
+                sperr_chunks.1.get(),
+                sperr_chunks.2.get(),
+            ),
         )
         .map_err(|err| SperrCodecError::SperrEncodeFailed {
             source: SperrCodingError(err),
@@ -388,7 +392,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, SperrCodecError> {
             //  three must be of size 1
             let slice = slice.into_shape_with_order((depth, height, width)).unwrap();
 
-            sperr::decompress_into_3d(&encoded_slice, slice).map_err(|err| {
+            qpet_sperr::decompress_into_3d(&encoded_slice, slice).map_err(|err| {
                 SperrCodecError::SperrDecodeFailed {
                     source: SperrCodingError(err),
                 }
@@ -424,7 +428,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, SperrCodecError> {
 }
 
 /// Array element types which can be compressed with SPERR.
-pub trait SperrElement: sperr::Element + Zero {
+pub trait SperrElement: qpet_sperr::Element + Zero {
     /// The dtype representation of the type
     const DTYPE: SperrDType;
 }
@@ -492,7 +496,7 @@ struct CompressionHeader<'a> {
     dtype: SperrDType,
     #[serde(borrow)]
     shape: Cow<'a, [usize]>,
-    version: SperrCodecVersion,
+    version: QpetSperrCodecVersion,
 }
 
 /// Dtypes that SPERR can compress and decompress
@@ -517,6 +521,8 @@ impl fmt::Display for SperrDType {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
+    use std::f64;
+
     use ndarray::{Ix0, Ix1, Ix2, Ix3, Ix4};
 
     use super::*;
@@ -525,8 +531,14 @@ mod tests {
     fn zero_length() {
         let encoded = compress(
             Array::<f32, _>::from_shape_vec([3, 0], vec![]).unwrap(),
-            &SperrCompressionMode::PeakSignalToNoiseRatio {
-                psnr: Positive(42.0),
+            &SperrCompressionMode::SymbolicQuantityOfInterest {
+                qoi: String::from("x"),
+                qoi_block_size: default_qoi_block_size(),
+                qoi_pwe: Positive(42.0),
+                sperr_chunks: default_sperr_chunks(),
+                data_pwe: None,
+                qoi_k: default_qoi_k(),
+                high_prec: false,
             },
         )
         .unwrap();
@@ -541,8 +553,14 @@ mod tests {
     fn small_2d() {
         let encoded = compress(
             Array::<f32, _>::from_shape_vec([1, 1], vec![42.0]).unwrap(),
-            &SperrCompressionMode::PeakSignalToNoiseRatio {
-                psnr: Positive(42.0),
+            &SperrCompressionMode::SymbolicQuantityOfInterest {
+                qoi: String::from("x"),
+                qoi_block_size: default_qoi_block_size(),
+                qoi_pwe: Positive(42.0),
+                sperr_chunks: default_sperr_chunks(),
+                data_pwe: None,
+                qoi_k: default_qoi_k(),
+                high_prec: false,
             },
         )
         .unwrap();
@@ -557,8 +575,14 @@ mod tests {
     fn large_3d() {
         let encoded = compress(
             Array::<f64, _>::zeros((64, 64, 64)),
-            &SperrCompressionMode::PeakSignalToNoiseRatio {
-                psnr: Positive(42.0),
+            &SperrCompressionMode::SymbolicQuantityOfInterest {
+                qoi: String::from("x"),
+                qoi_block_size: default_qoi_block_size(),
+                qoi_pwe: Positive(42.0),
+                sperr_chunks: default_sperr_chunks(),
+                data_pwe: None,
+                qoi_k: default_qoi_k(),
+                high_prec: false,
             },
         )
         .unwrap();
@@ -571,19 +595,15 @@ mod tests {
 
     #[test]
     fn all_modes() {
-        for mode in [
-            SperrCompressionMode::BitsPerPixel { bpp: Positive(1.0) },
-            SperrCompressionMode::PeakSignalToNoiseRatio {
-                psnr: Positive(42.0),
-            },
-            SperrCompressionMode::PointwiseError { pwe: Positive(0.1) },
-            SperrCompressionMode::QuantisationStep { q: Positive(1.5) },
-            SperrCompressionMode::QuantityOfInterest {
-                tol: Positive(0.1),
-                qoi: String::from("x^2"),
-                high_prec: false,
-            },
-        ] {
+        for mode in [SperrCompressionMode::SymbolicQuantityOfInterest {
+            qoi: String::from("x^2"),
+            qoi_block_size: default_qoi_block_size(),
+            qoi_pwe: Positive(0.1),
+            sperr_chunks: default_sperr_chunks(),
+            data_pwe: None,
+            qoi_k: default_qoi_k(),
+            high_prec: false,
+        }] {
             let encoded = compress(Array::<f64, _>::zeros((64, 64, 64)), &mode).unwrap();
             let decoded = decompress(&encoded).unwrap();
 
@@ -623,8 +643,14 @@ mod tests {
         ] {
             let encoded = compress(
                 data.view(),
-                &SperrCompressionMode::PointwiseError {
-                    pwe: Positive(f64::EPSILON),
+                &SperrCompressionMode::SymbolicQuantityOfInterest {
+                    qoi: String::from("x"),
+                    qoi_block_size: default_qoi_block_size(),
+                    qoi_pwe: Positive(f64::EPSILON),
+                    sperr_chunks: default_sperr_chunks(),
+                    data_pwe: None,
+                    qoi_k: default_qoi_k(),
+                    high_prec: false,
                 },
             )
             .unwrap();
@@ -635,12 +661,16 @@ mod tests {
     }
 
     #[test]
-    fn qoi_crash() {
+    fn zero_square_qoi() {
         let encoded = compress(
             Array::<f64, _>::zeros((64, 64, 1)),
-            &SperrCompressionMode::QuantityOfInterest {
-                tol: Positive(0.1),
+            &SperrCompressionMode::SymbolicQuantityOfInterest {
                 qoi: String::from("x^2"),
+                qoi_block_size: default_qoi_block_size(),
+                qoi_pwe: Positive(0.1),
+                sperr_chunks: default_sperr_chunks(),
+                data_pwe: None,
+                qoi_k: default_qoi_k(),
                 high_prec: false,
             },
         )

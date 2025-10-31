@@ -159,6 +159,7 @@ pub fn docs_from_schema(schema: &Schema) -> Option<String> {
             docs.push_str(", default = ");
             docs.push_str(
                 &format!("{default}")
+                    .replace("null", "None")
                     .replace("false", "False")
                     .replace("true", "True"),
             );
@@ -207,6 +208,7 @@ pub fn signature_from_schema(schema: &Schema) -> String {
             signature.push('=');
             signature.push_str(
                 &format!("{default}")
+                    .replace("null", "None")
                     .replace("false", "False")
                     .replace("true", "True"),
             );
@@ -550,20 +552,20 @@ Parameters
 ----------
 common : ...
     A common string value.
-    
+
     Something else here.
 mode : ...
      - "A": Mode a.
-        
+
         It gets another line.
-    
+
      - "B": Mode b.
 param : ..., optional
     An optional integer value.
 value : ..., optional
     A boolean value. And some really, really, really, long first
     line that wraps around.
-    
+
     With multiple lines of comments."#
             )
         );

@@ -1,12 +1,12 @@
 #![expect(missing_docs)]
 
 use ::{
-    ndarray as _, num_traits as _, postcard as _, schemars as _, serde as _, serde_json as _,
-    sperr as _, thiserror as _,
+    ndarray as _, num_traits as _, postcard as _, qpet_sperr as _, schemars as _, serde as _,
+    serde_json as _, thiserror as _,
 };
 
 use numcodecs::{DynCodecType, StaticCodecType};
-use numcodecs_qpet::SperrCodec;
+use numcodecs_qpet_sperr::SperrCodec;
 
 #[test]
 fn schema() {
@@ -18,6 +18,6 @@ fn schema() {
     );
 
     if schema != include_str!("schema.json") {
-        panic!("QPET schema has changed\n===\n{schema}\n===");
+        panic!("QPET-SPERR schema has changed\n===\n{schema}\n===");
     }
 }

@@ -10,7 +10,7 @@ members = [
     "crates/numcodecs-wasm-host-reproducible",
 
     "py/numcodecs-wasm",
-    "py/numcodecs-qpet",
+    "py/numcodecs-qpet-sperr",
 
     "codecs/asinh",
     "codecs/bit-round",
@@ -21,7 +21,7 @@ members = [
     "codecs/linear-quantize",
     "codecs/log",
     "codecs/pco",
-    "codecs/qpet",
+    "codecs/qpet-sperr",
     "codecs/random-projection",
     "codecs/reinterpret",
     "codecs/round",
@@ -47,7 +47,7 @@ rust-version = "1.87"
 [workspace.dependencies]
 # workspace-internal numcodecs crates
 numcodecs = { version = "0.3", path = "crates/numcodecs", default-features = false }
-numcodecs-python = { version = "0.7", path = "crates/numcodecs-python", default-features = false }
+numcodecs-python = { version = "0.7.1", path = "crates/numcodecs-python", default-features = false }
 numcodecs-wasm-builder = { version = "0.2", path = "crates/numcodecs-wasm-builder", default-features = false }
 numcodecs-wasm-guest = { version = "0.3", path = "crates/numcodecs-wasm-guest", default-features = false }
 numcodecs-wasm-host = { version = "0.2", path = "crates/numcodecs-wasm-host", default-features = false }
@@ -55,7 +55,7 @@ numcodecs-wasm-host-reproducible = { version = "0.2.1", path = "crates/numcodecs
 numcodecs-wasm-logging = { version = "0.2", path = "crates/numcodecs-wasm-logging", default-features = false }
 
 numcodecs-wasm = { version = "0.2.1", path = "py/numcodecs-wasm", default-features = false }
-numcodecs-qpet-py = { version = "0.1", path = "py/numcodecs-qpet", default-features = false }
+numcodecs-qpet-sperr-py = { version = "0.1", path = "py/numcodecs-qpet-sperr", default-features = false }
 
 # workspace-internal codecs crates
 numcodecs-asinh = { version = "0.4", path = "codecs/asinh", default-features = false }
@@ -67,7 +67,7 @@ numcodecs-jpeg2000 = { version = "0.3", path = "codecs/jpeg2000", default-featur
 numcodecs-linear-quantize = { version = "0.5", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.5", path = "codecs/log", default-features = false }
 numcodecs-pco = { version = "0.3", path = "codecs/pco", default-features = false }
-numcodecs-qpet = { version = "0.1", path = "codecs/qpet", default-features = false }
+numcodecs-qpet-sperr = { version = "0.1", path = "codecs/qpet-sperr", default-features = false }
 numcodecs-random-projection = { version = "0.4", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.4", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.5", path = "codecs/round", default-features = false }
