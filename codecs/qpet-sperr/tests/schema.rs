@@ -6,13 +6,13 @@ use ::{
 };
 
 use numcodecs::{DynCodecType, StaticCodecType};
-use numcodecs_qpet_sperr::SperrCodec;
+use numcodecs_qpet_sperr::QpetSperrCodec;
 
 #[test]
 fn schema() {
     let schema = format!(
         "{:#}",
-        StaticCodecType::<SperrCodec>::of()
+        StaticCodecType::<QpetSperrCodec>::of()
             .codec_config_schema()
             .to_value()
     );

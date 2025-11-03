@@ -6,24 +6,24 @@
 [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
 [repo]: https://github.com/juntyr/numcodecs-rs
 
-[Latest Version]: https://img.shields.io/crates/v/numcodecs-sperr
-[crates.io]: https://crates.io/crates/numcodecs-sperr
+[Latest Version]: https://img.shields.io/crates/v/numcodecs-qpet-sperr
+[crates.io]: https://crates.io/crates/numcodecs-qpet-sperr
 
-[PyPi Release]: https://img.shields.io/pypi/v/numcodecs-wasm-sperr.svg
-[pypi]: https://pypi.python.org/pypi/numcodecs-wasm-sperr
+[PyPi Release]: https://img.shields.io/pypi/v/numcodecs-wasm-qpet-sperr.svg
+[pypi]: https://pypi.python.org/pypi/numcodecs-wasm-qpet-sperr
 
-[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-sperr
-[docs.rs]: https://docs.rs/numcodecs-sperr/
+[Rust Doc Crate]: https://img.shields.io/docsrs/numcodecs-qpet-sperr
+[docs.rs]: https://docs.rs/numcodecs-qpet-sperr/
 
 [Rust Doc Main]: https://img.shields.io/badge/docs-main-blue
-[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_sperr
+[docs]: https://juntyr.github.io/numcodecs-rs/numcodecs_qpet_sperr
 
 [Read the Docs]: https://img.shields.io/readthedocs/numcodecs-wasm?label=readthedocs
-[rtdocs]: https://numcodecs-wasm.readthedocs.io/en/stable/api/numcodecs_wasm_sperr/
+[rtdocs]: https://numcodecs-wasm.readthedocs.io/en/stable/api/numcodecs_wasm_qpet_sperr/
 
-# numcodecs-sperr
+# numcodecs-qpet-sperr
 
-SPERR codec implementation for the [`numcodecs`] API.
+QPET-SPERR codec implementation for the [`numcodecs`] API.
 
 [`numcodecs`]: https://docs.rs/numcodecs/0.2/numcodecs/
 
@@ -33,6 +33,6 @@ Licensed under the Mozilla Public License, Version 2.0 ([LICENSE](LICENSE) or ht
 
 ## Funding
 
-The `numcodecs-sperr` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
+The `numcodecs-qpet-sperr` crate has been developed as part of [ESiWACE3](https://www.esiwace.eu), the third phase of the Centre of Excellence in Simulation of Weather and Climate in Europe.
 
 Funded by the European Union. This work has received funding from the European High Performance Computing Joint Undertaking (JU) under grant agreement No 101093054.

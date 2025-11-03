@@ -5,19 +5,19 @@ use ::{
 };
 
 use numcodecs::StaticCodec;
-use numcodecs_qpet_sperr::{SperrCodec, SperrCompressionMode};
+use numcodecs_qpet_sperr::{QpetSperrCodec, QpetSperrCompressionMode};
 use serde::Deserialize;
 use serde_json::json;
 
 #[test]
 #[should_panic(expected = "missing field `mode`")]
 fn empty_config() {
-    let _ = SperrCodec::from_config(Deserialize::deserialize(json!({})).unwrap());
+    let _ = QpetSperrCodec::from_config(Deserialize::deserialize(json!({})).unwrap());
 }
 
 #[test]
 fn symbolic_qoi_config() {
-    let codec = SperrCodec::from_config(
+    let codec = QpetSperrCodec::from_config(
         Deserialize::deserialize(json!({
             "mode": "qoi-symbolic",
             "qoi": "x^2",
@@ -28,6 +28,6 @@ fn symbolic_qoi_config() {
 
     assert!(matches!(
         codec.mode,
-        SperrCompressionMode::SymbolicQuantityOfInterest { qoi, .. } if qoi == "x^2"
+        QpetSperrCompressionMode::SymbolicQuantityOfInterest { qoi, .. } if qoi == "x^2"
     ));
 }
