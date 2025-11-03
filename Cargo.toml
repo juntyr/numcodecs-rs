@@ -106,6 +106,7 @@ pyo3 = { version = "0.26", default-features = false }
 pyo3-error = { version = "0.6", default-features = false }
 pyo3-log = { version = "0.13.0", default-features = false }
 pythonize = { version = "0.26", default-features = false }
+qpet-sperr = { version = "0.1", default-features = false }
 rand = { version = "0.9.1", default-features = false }
 schemars = { version = "1.0.3", default-features = false }
 scratch = { version = "1.0", default-features = false }
