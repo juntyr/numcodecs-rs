@@ -1,6 +1,8 @@
 use std::{
     borrow::Cow,
     collections::{HashMap, hash_map::Entry},
+    io,
+    num::FpCategory,
 };
 
 use pyo3::{intern, prelude::*, sync::PyOnceLock};
@@ -154,15 +156,9 @@ pub fn docs_from_schema(schema: &Schema) -> Option<String> {
             docs.push_str(", optional");
         }
 
-        #[expect(clippy::format_push_string)] // FIXME
         if let Some(default) = parameter.default {
             docs.push_str(", default = ");
-            docs.push_str(
-                &format!("{default}")
-                    .replace("null", "None")
-                    .replace("false", "False")
-                    .replace("true", "True"),
-            );
+            JsonToPythonFormatter::push_to_string(&mut docs, default);
         }
 
         docs.push('\n');
@@ -203,15 +199,9 @@ pub fn signature_from_schema(schema: &Schema) -> String {
         signature.push_str(", ");
         signature.push_str(parameter.name);
 
-        #[expect(clippy::format_push_string)] // FIXME
         if let Some(default) = parameter.default {
             signature.push('=');
-            signature.push_str(
-                &format!("{default}")
-                    .replace("null", "None")
-                    .replace("false", "False")
-                    .replace("true", "True"),
-            );
+            JsonToPythonFormatter::push_to_string(&mut signature, default);
         } else if !parameter.required {
             signature.push_str("=None");
         }
@@ -505,10 +495,9 @@ impl<'a> VariantParameter<'a> {
         if let Some(tag_docs) = self.tag_docs {
             let mut docs = String::new();
 
-            #[expect(clippy::format_push_string)] // FIXME
             for (tag, tag_docs) in tag_docs {
                 docs.push_str(" - ");
-                docs.push_str(&format!("{tag}"));
+                JsonToPythonFormatter::push_to_string(&mut docs, tag);
                 if let Some(tag_docs) = tag_docs {
                     docs.push_str(": ");
                     docs.push_str(&tag_docs.replace('\n', "\n    "));
@@ -522,6 +511,62 @@ impl<'a> VariantParameter<'a> {
         }
 
         self.parameter
+    }
+}
+
+struct JsonToPythonFormatter;
+
+impl JsonToPythonFormatter {
+    fn push_to_string(buffer: &mut String, value: &Value) {
+        // Safety: serde_json::Serializer only produces valid UTF8 bytes
+        //  - JsonToPythonFormatter only writes valid UTF8 bytes
+        //  - serde_json::ser::CompactFormatter only writes valid UTF8 bytes
+        #[expect(unsafe_code)]
+        let mut ser = serde_json::Serializer::with_formatter(unsafe { buffer.as_mut_vec() }, Self);
+        #[allow(clippy::expect_used)]
+        serde::Serialize::serialize(value, &mut ser)
+            .expect("JSON value must not fail to serialize");
+    }
+}
+
+impl serde_json::ser::Formatter for JsonToPythonFormatter {
+    #[inline]
+    fn write_null<W: ?Sized + io::Write>(&mut self, writer: &mut W) -> io::Result<()> {
+        writer.write_all(b"None")
+    }
+
+    #[inline]
+    fn write_bool<W: ?Sized + io::Write>(&mut self, writer: &mut W, value: bool) -> io::Result<()> {
+        let s: &[u8] = if value { b"True" } else { b"False" };
+        writer.write_all(s)
+    }
+
+    #[inline]
+    fn write_f32<W: ?Sized + io::Write>(&mut self, writer: &mut W, value: f32) -> io::Result<()> {
+        let s: &[u8] = match (value.classify(), value.is_sign_negative()) {
+            (FpCategory::Nan, false) => b"float('nan')",
+            (FpCategory::Nan, true) => b"float('-nan')",
+            (FpCategory::Infinite, false) => b"float('inf')",
+            (FpCategory::Infinite, true) => b"float('-inf')",
+            (FpCategory::Zero | FpCategory::Subnormal | FpCategory::Normal, false | true) => {
+                return serde_json::ser::CompactFormatter.write_f32(writer, value);
+            }
+        };
+        writer.write_all(s)
+    }
+
+    #[inline]
+    fn write_f64<W: ?Sized + io::Write>(&mut self, writer: &mut W, value: f64) -> io::Result<()> {
+        let s: &[u8] = match (value.classify(), value.is_sign_negative()) {
+            (FpCategory::Nan, false) => b"float('nan')",
+            (FpCategory::Nan, true) => b"float('-nan')",
+            (FpCategory::Infinite, false) => b"float('inf')",
+            (FpCategory::Infinite, true) => b"float('-inf')",
+            (FpCategory::Zero | FpCategory::Subnormal | FpCategory::Normal, false | true) => {
+                return serde_json::ser::CompactFormatter.write_f64(writer, value);
+            }
+        };
+        writer.write_all(s)
     }
 }
 
@@ -552,20 +597,20 @@ Parameters
 ----------
 common : ...
     A common string value.
-
+    
     Something else here.
 mode : ...
      - "A": Mode a.
-
+        
         It gets another line.
-
+    
      - "B": Mode b.
 param : ..., optional
     An optional integer value.
 value : ..., optional
     A boolean value. And some really, really, really, long first
     line that wraps around.
-
+    
     With multiple lines of comments."#
             )
         );
