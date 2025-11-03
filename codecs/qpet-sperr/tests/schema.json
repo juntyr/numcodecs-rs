@@ -11,8 +11,9 @@
         },
         "qoi_block_size": {
           "type": "integer",
-          "format": "uint32",
+          "format": "uint16",
           "minimum": 1,
+          "maximum": 65535,
           "description": "block size over which the QoI errors are averaged, 1 for pointwise",
           "default": 1
         },

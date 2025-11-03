@@ -24,7 +24,7 @@ use ::serde_json as _;
 
 use std::fmt;
 use std::num::NonZeroUsize;
-use std::{borrow::Cow, num::NonZeroU32};
+use std::{borrow::Cow, num::NonZeroU16};
 
 use ndarray::{Array, Array1, ArrayBase, Axis, Data, Dimension, IxDyn, ShapeError};
 use num_traits::{Float, identities::Zero};
@@ -68,7 +68,7 @@ pub enum SperrCompressionMode {
         qoi: String,
         /// block size over which the QoI errors are averaged, 1 for pointwise
         #[serde(default = "default_qoi_block_size")]
-        qoi_block_size: NonZeroU32,
+        qoi_block_size: NonZeroU16,
         /// positive (pointwise) absolute error bound over the QoI
         qoi_pwe: Positive<f64>,
         /// 3D size of the chunks (z, y, x) that SPERR uses internally
@@ -86,8 +86,8 @@ pub enum SperrCompressionMode {
     },
 }
 
-fn default_qoi_block_size() -> NonZeroU32 {
-    const NON_ZERO_ONE: NonZeroU32 = NonZeroU32::MIN;
+fn default_qoi_block_size() -> NonZeroU16 {
+    const NON_ZERO_ONE: NonZeroU16 = NonZeroU16::MIN;
     // 1: pointwise
     NON_ZERO_ONE
 }
