@@ -24,6 +24,9 @@ schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+gmp-mpfr-sys = { workspace = true, features = ["force-cross"] }
+
 [dev-dependencies]
 serde_json = { workspace = true, features = ["std"] }
 

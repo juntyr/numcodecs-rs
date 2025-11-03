@@ -4,6 +4,9 @@ use ::{
     ndarray as _, num_traits as _, postcard as _, qpet_sperr as _, schemars as _, thiserror as _,
 };
 
+#[cfg(target_arch = "wasm32")]
+use ::gmp_mpfr_sys as _;
+
 use numcodecs::StaticCodec;
 use numcodecs_qpet_sperr::{QpetSperrCodec, QpetSperrCompressionMode};
 use serde::Deserialize;
