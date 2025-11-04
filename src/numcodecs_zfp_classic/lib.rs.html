@@ -269,10 +269,10 @@
 <a href=#231 id=231 data-nosnippet>231</a>        <span class="doccomment">/// The unexpected compression mode
 <a href=#232 id=232 data-nosnippet>232</a>        </span>mode: <a href="#69-115">ZfpCompressionMode</a>,
 <a href=#233 id=233 data-nosnippet>233</a>    },
-<a href=#234 id=234 data-nosnippet>234</a>    <span class="doccomment">/// [`ZfpCodec`] does not support non-finite (infinite or NaN) floating
-<a href=#235 id=235 data-nosnippet>235</a>    /// point data  in non-reversible lossy compression
+<a href=#234 id=234 data-nosnippet>234</a>    <span class="doccomment">/// [`ZfpClassicCodec`] does not support non-finite (infinite or NaN)
+<a href=#235 id=235 data-nosnippet>235</a>    /// floating point data  in non-reversible lossy compression
 <a href=#236 id=236 data-nosnippet>236</a>    </span><span class="attr">#[error(
-<a href=#237 id=237 data-nosnippet>237</a>        <span class="string">"Zfp does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression"
+<a href=#237 id=237 data-nosnippet>237</a>        <span class="string">"ZfpClassic does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression"
 <a href=#238 id=238 data-nosnippet>238</a>    </span>)]
 <a href=#239 id=239 data-nosnippet>239</a>    </span>NonFiniteData,
 <a href=#240 id=240 data-nosnippet>240</a>    <span class="doccomment">/// [`ZfpClassicCodec`] failed to encode the header
@@ -336,7 +336,7 @@
 <a href=#298 id=298 data-nosnippet>298</a>/// # Errors
 <a href=#299 id=299 data-nosnippet>299</a>///
 <a href=#300 id=300 data-nosnippet>300</a>/// Errors with
-<a href=#301 id=301 data-nosnippet>301</a>/// - [`ZfpCodecError::NonFiniteData`] if any data element is non-finite
+<a href=#301 id=301 data-nosnippet>301</a>/// - [`ZfpClassicCodecError::NonFiniteData`] if any data element is non-finite
 <a href=#302 id=302 data-nosnippet>302</a>///   (infinite or NaN) and a non-reversible lossy compression `mode` is used
 <a href=#303 id=303 data-nosnippet>303</a>///   and the `non_finite` mode is not [`ZfpNonFiniteValuesMode::AllowUnsafe`]
 <a href=#304 id=304 data-nosnippet>304</a>/// - [`ZfpClassicCodecError::ExcessiveDimensionality`] if data is more than
