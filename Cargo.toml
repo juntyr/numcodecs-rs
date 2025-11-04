@@ -54,7 +54,7 @@ numcodecs-wasm-host = { version = "0.2", path = "crates/numcodecs-wasm-host", de
 numcodecs-wasm-host-reproducible = { version = "0.2.1", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
 numcodecs-wasm-logging = { version = "0.2", path = "crates/numcodecs-wasm-logging", default-features = false }
 
-numcodecs-wasm = { version = "0.2.1", path = "py/numcodecs-wasm", default-features = false }
+numcodecs-wasm = { version = "0.2.2", path = "py/numcodecs-wasm", default-features = false }
 numcodecs-qpet-sperr-py = { version = "0.1", path = "py/numcodecs-qpet-sperr", default-features = false }
 
 # workspace-internal codecs crates
