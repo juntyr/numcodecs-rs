@@ -231,10 +231,10 @@ pub enum ZfpClassicCodecError {
         /// The unexpected compression mode
         mode: ZfpCompressionMode,
     },
-    /// [`ZfpCodec`] does not support non-finite (infinite or NaN) floating
-    /// point data  in non-reversible lossy compression
+    /// [`ZfpClassicCodec`] does not support non-finite (infinite or NaN)
+    /// floating point data  in non-reversible lossy compression
     #[error(
-        "Zfp does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression"
+        "ZfpClassic does not support non-finite (infinite or NaN) floating point data in non-reversible lossy compression"
     )]
     NonFiniteData,
     /// [`ZfpClassicCodec`] failed to encode the header
@@ -298,7 +298,7 @@ pub struct ZfpHeaderError(postcard::Error);
 /// # Errors
 ///
 /// Errors with
-/// - [`ZfpCodecError::NonFiniteData`] if any data element is non-finite
+/// - [`ZfpClassicCodecError::NonFiniteData`] if any data element is non-finite
 ///   (infinite or NaN) and a non-reversible lossy compression `mode` is used
 ///   and the `non_finite` mode is not [`ZfpNonFiniteValuesMode::AllowUnsafe`]
 /// - [`ZfpClassicCodecError::ExcessiveDimensionality`] if data is more than

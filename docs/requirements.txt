@@ -7,6 +7,7 @@ numcodecs_wasm_jpeg2000
 numcodecs_wasm_linear_quantize
 numcodecs_wasm_log
 numcodecs_wasm_pco
+numcodecs_wasm_qpet_sperr
 numcodecs_wasm_random_projection
 numcodecs_wasm_reinterpret
 numcodecs_wasm_round
