@@ -1,12 +1,9 @@
 #![expect(missing_docs)]
 
-use ::{
-    ndarray as _, num_traits as _, numcodecs_sperr::SperrCompressionMode, postcard as _,
-    schemars as _, sperr as _, thiserror as _,
-};
+use ::{ndarray as _, num_traits as _, postcard as _, schemars as _, sperr as _, thiserror as _};
 
 use numcodecs::StaticCodec;
-use numcodecs_sperr::SperrCodec;
+use numcodecs_sperr::{SperrCodec, SperrCompressionMode};
 use serde::Deserialize;
 use serde_json::json;
 

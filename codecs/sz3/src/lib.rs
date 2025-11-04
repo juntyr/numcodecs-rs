@@ -31,7 +31,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 // Only included to explicitly enable the `no_wasm_shim` feature for
-// sz3-sys/Sz3-sys
+// sz3-sys/zstd-sys
 use ::zstd_sys as _;
 
 #[cfg(test)]

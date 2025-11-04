@@ -131,6 +131,10 @@ fn copy_buildenv_to_crate(crate_dir: &Path) -> io::Result<()> {
     )?;
 
     fs::write(
+        crate_dir.join("include.h"),
+        include_str!("../buildenv/include.h"),
+    )?;
+    fs::write(
         crate_dir.join("include.hpp"),
         include_str!("../buildenv/include.hpp"),
     )?;
@@ -150,7 +154,12 @@ struct NixEnv {
     libclang: PathBuf,
     lld: PathBuf,
     nm: PathBuf,
+    ranlib: PathBuf,
+    strip: PathBuf,
+    objdump: PathBuf,
+    dlltool: PathBuf,
     wasi_sysroot: PathBuf,
+    libclang_rt: PathBuf,
     wasm_opt: PathBuf,
 }
 
@@ -210,7 +219,12 @@ impl NixEnv {
             libclang: try_read_env(&env, "MY_LIBCLANG")?,
             lld: try_read_env(&env, "MY_LLD")?,
             nm: try_read_env(&env, "MY_NM")?,
+            ranlib: try_read_env(&env, "MY_RANLIB")?,
+            strip: try_read_env(&env, "MY_STRIP")?,
+            objdump: try_read_env(&env, "MY_OBJDUMP")?,
+            dlltool: try_read_env(&env, "MY_DLLTOOL")?,
             wasi_sysroot: try_read_env(&env, "MY_WASI_SYSROOT")?,
+            libclang_rt: try_read_env(&env, "MY_LIBCLANG_RT")?,
             wasm_opt: try_read_env(&env, "MY_WASM_OPT")?,
         })
     }
@@ -225,7 +239,12 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
         libclang,
         lld,
         nm,
+        ranlib,
+        strip,
+        objdump,
+        dlltool,
         wasi_sysroot,
+        libclang_rt,
         ..
     } = nix_env;
 
@@ -239,6 +258,7 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
     cmd.arg("path:.");
     cmd.arg("--command");
     cmd.arg("env");
+    cmd.arg("GMP_MPFR_SYS_CACHE=");
     cmd.arg(format!("CC={clang}", clang = clang.join("clang").display()));
     cmd.arg(format!(
         "CXX={clang}",
@@ -248,6 +268,10 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
     cmd.arg(format!("LLD={lld}", lld = lld.join("lld").display()));
     cmd.arg(format!("AR={ar}", ar = ar.display()));
     cmd.arg(format!("NM={nm}", nm = nm.display()));
+    cmd.arg(format!("RANLIB={ranlib}", ranlib = ranlib.display()));
+    cmd.arg(format!("STRIP={strip}", strip = strip.display()));
+    cmd.arg(format!("OBJDUMP={objdump}", objdump = objdump.display()));
+    cmd.arg(format!("DLLTOOL={dlltool}", dlltool = dlltool.display()));
     cmd.arg(format!(
         "LIBCLANG_PATH={libclang}",
         libclang = libclang.display()
@@ -255,7 +279,9 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
     cmd.arg(format!(
         "CFLAGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir {resource_dir} \
          --sysroot={wasi_sysroot} -isystem {clang_include} -isystem {wasi32_wasi_include} \
-         -isystem {include} -B {lld} -D_WASI_EMULATED_PROCESS_CLOCKS -O3",
+         -isystem {include} -B {lld} -D_WASI_EMULATED_PROCESS_CLOCKS -D_WASI_EMULATED_SIGNAL \
+         -include {c_include_path} -O3 \
+         -DHAVE_STRNLEN=1 -DHAVE_MEMSET=1 -DHAVE_RAISE=1",
         resource_dir = libclang.join("clang").join(llvm_version).display(),
         wasi_sysroot = wasi_sysroot.display(),
         clang_include = libclang
@@ -266,6 +292,7 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
         wasi32_wasi_include = wasi_sysroot.join("include").join("wasm32-wasip1").display(),
         include = wasi_sysroot.join("include").display(),
         lld = lld.display(),
+        c_include_path = crate_dir.join("include.h").display(),
     ));
     cmd.arg(format!(
         "CXXFLAGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir {resource_dir} \
@@ -325,10 +352,17 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
     cmd.arg("CXXSTDLIB=c++");
     // disable default flags from cc
     cmd.arg("CRATE_CC_NO_DEFAULTS=1");
-    cmd.arg("LDFLAGS=-lc -lwasi-emulated-process-clocks");
     cmd.arg(format!(
-        "RUSTFLAGS=-C panic=abort -C strip=symbols -C link-arg=-L{wasm32_wasi_lib}",
+        "LDFLAGS=-lc -lwasi-emulated-process-clocks -lwasi-emulated-signal \
+        -L{libclang_rt} -lclang_rt.builtins",
+        libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
+    ));
+    cmd.arg(format!(
+        "RUSTFLAGS=-C panic=abort -C strip=symbols \
+        -C link-arg=-L{wasm32_wasi_lib} \
+        -C link-arg=-L{libclang_rt} -C link-arg=-lclang_rt.builtins",
         wasm32_wasi_lib = wasi_sysroot.join("lib").join("wasm32-wasip1").display(),
+        libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
     ));
     cmd.arg(format!(
         "CARGO_TARGET_DIR={target_dir}",
