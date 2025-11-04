@@ -1,8 +1,10 @@
+#ifndef __ASSEMBLER__
 #ifndef _CODECS_BUILD_CPP_INCLUDE_HPP
 #define _CODECS_BUILD_CPP_INCLUDE_HPP
 
 #include <cstdlib>
 #include <new>
+#include <typeinfo>
 
 extern "C" inline void __cxa_pure_virtual()
 {
@@ -14,13 +16,18 @@ extern "C" inline void *__cxa_allocate_exception(size_t) throw()
     std::abort();
 }
 
-extern "C" inline void __cxa_throw()
+extern "C" inline void *__dynamic_cast(const void* __src_ptr, const void* __src_type, const void* __dst_type, ptrdiff_t __src2dst)
 {
     std::abort();
 }
 
-extern "C" unsigned int __attribute__((weak)) __cxa_uncaught_exceptions();
-extern "C" unsigned int __cxa_uncaught_exceptions()
+extern "C" inline void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void *(*dest)(void *))
+{
+    std::abort();
+}
+
+extern "C" unsigned int __attribute__((weak)) __cxa_uncaught_exceptions() noexcept;
+extern "C" unsigned int __cxa_uncaught_exceptions() noexcept
 {
     return 0;
 }
@@ -104,3 +111,4 @@ void operator delete(void *p, std::size_t sz) noexcept
 }
 
 #endif // _CODECS_BUILD_CPP_INCLUDE_HPP
+#endif // __ASSEMBLER__

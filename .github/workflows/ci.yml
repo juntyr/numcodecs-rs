@@ -92,6 +92,7 @@ jobs:
             --exclude numcodecs-python \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-qpet-sperr \
+            --exclude numcodecs-qpet-sperr-py \
             --exclude numcodecs-sperr \
             --exclude numcodecs-sz3 \
             --exclude numcodecs-tthresh \
@@ -226,6 +227,7 @@ jobs:
             --exclude numcodecs-python \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-qpet-sperr \
+            --exclude numcodecs-qpet-sperr-py \
             --exclude numcodecs-sperr \
             --exclude numcodecs-sz3 \
             --exclude numcodecs-tthresh \
@@ -243,6 +245,7 @@ jobs:
             --exclude numcodecs-python \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-qpet-sperr \
+            --exclude numcodecs-qpet-sperr-py \
             --exclude numcodecs-sperr \
             --exclude numcodecs-sz3 \
             --exclude numcodecs-tthresh \

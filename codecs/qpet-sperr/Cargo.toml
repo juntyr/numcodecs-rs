@@ -23,9 +23,8 @@ qpet-sperr = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
-
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-gmp-mpfr-sys = { workspace = true, features = ["force-cross"] }
+# Explicitly enable the `no_wasm_shim` feature for qpet-sperr-sys/zstd-sys
+zstd-sys = { workspace = true, features = ["no_wasm_shim"] }
 
 [dev-dependencies]
 serde_json = { workspace = true, features = ["std"] }

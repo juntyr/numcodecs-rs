@@ -19,9 +19,6 @@
 
 #![allow(clippy::multiple_crate_versions)] // embedded-io
 
-#[cfg(target_arch = "wasm32")]
-use ::gmp_mpfr_sys as _;
-
 #[cfg(test)]
 use ::serde_json as _;
 

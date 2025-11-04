@@ -88,7 +88,6 @@ burn = { version = "0.18", default-features = false }
 clap = { version = "4.5", default-features = false }
 convert_case = { version = "0.8", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
-gmp-mpfr-sys = { version = "1.6", default-features = false }
 indexmap = { version = "2.10", default-features = false }
 itertools = { version = "0.14", default-features = false }
 log = { version = "0.4.27", default-features = false }
