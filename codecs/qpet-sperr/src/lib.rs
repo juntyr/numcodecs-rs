@@ -19,6 +19,10 @@
 
 #![allow(clippy::multiple_crate_versions)] // embedded-io
 
+// Only included to explicitly enable the `no_wasm_shim` feature for
+// qpet-sperr-sys/zstd-sys
+use ::zstd_sys as _;
+
 #[cfg(test)]
 use ::serde_json as _;
 

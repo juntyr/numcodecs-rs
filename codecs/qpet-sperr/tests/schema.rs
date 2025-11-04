@@ -2,7 +2,7 @@
 
 use ::{
     ndarray as _, num_traits as _, postcard as _, qpet_sperr as _, schemars as _, serde as _,
-    serde_json as _, thiserror as _,
+    serde_json as _, thiserror as _, zstd_sys as _,
 };
 
 #[cfg(target_arch = "wasm32")]
