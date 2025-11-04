@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/stochastic-rounding/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_stochastic_rounding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0-nightly (53a741fc4 2025-10-16)" data-channel="nightly" data-search-js="search-8d3311b9.js" data-stringdex-js="stringdex-828709d0.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/stochastic-rounding/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_stochastic_rounding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.0-nightly (20383c9f1 2025-11-03)" data-channel="nightly" data-search-js="search-5c29b3b5.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -55,25 +55,25 @@
 <a href=#17 id=17 data-nosnippet>17</a>//!
 <a href=#18 id=18 data-nosnippet>18</a>//! Stochastic rounding codec implementation for the [`numcodecs`] API.
 <a href=#19 id=19 data-nosnippet>19</a>
-<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">use </span><a href="#136"><a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">std::borrow::Cow</a>;
-<a href=#21 id=21 data-nosnippet>21</a></a><span class="kw">use </span><a href="#136">std::hash::{<a href="https://doc.rust-lang.org/nightly/core/hash/macros/derive.Hash.html">Hash</a>, <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>};
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">use </span><a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">std::borrow::Cow</a>;
+<a href=#21 id=21 data-nosnippet>21</a><span class="kw">use </span>std::hash::{<a href="https://doc.rust-lang.org/nightly/core/hash/macros/derive.Hash.html">Hash</a>, <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>};
 <a href=#22 id=22 data-nosnippet>22</a>
-<a href=#23 id=23 data-nosnippet>23</a></a><span class="kw">use </span><a href="#136">ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>};
-<a href=#24 id=24 data-nosnippet>24</a></a><span class="kw">use </span><a href="#136"><a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">num_traits::Float</a>;
-<a href=#25 id=25 data-nosnippet>25</a></a><span class="kw">use </span><a href="#136">numcodecs::{
+<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>};
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span><a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">num_traits::Float</a>;
+<a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span>numcodecs::{
 <a href=#26 id=26 data-nosnippet>26</a>    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>,
 <a href=#27 id=27 data-nosnippet>27</a>    <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>, <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecVersion.html">StaticCodecVersion</a>,
 <a href=#28 id=28 data-nosnippet>28</a>};
-<a href=#29 id=29 data-nosnippet>29</a></a><span class="kw">use </span><a href="#136">rand::{
+<a href=#29 id=29 data-nosnippet>29</a><span class="kw">use </span>rand::{
 <a href=#30 id=30 data-nosnippet>30</a>    <a href="https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html">SeedableRng</a>,
 <a href=#31 id=31 data-nosnippet>31</a>    distr::{<a href="https://rust-random.github.io/rand/rand/distr/distribution/trait.Distribution.html">Distribution</a>, <a href="https://rust-random.github.io/rand/rand/distr/float/struct.Open01.html">Open01</a>},
 <a href=#32 id=32 data-nosnippet>32</a>};
-<a href=#33 id=33 data-nosnippet>33</a></a><span class="kw">use </span><a href="#136">schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
-<a href=#34 id=34 data-nosnippet>34</a></a><span class="kw">use </span><a href="#136">serde::{<a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serializer.html">Serializer</a>};
-<a href=#35 id=35 data-nosnippet>35</a></a><span class="kw">use </span><a href="#136">thiserror::Error;
-<a href=#36 id=36 data-nosnippet>36</a></a><span class="kw">use </span><a href="#136">wyhash::{<a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyHash.html">WyHash</a>, <a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyRng.html">WyRng</a>};
+<a href=#33 id=33 data-nosnippet>33</a><span class="kw">use </span>schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
+<a href=#34 id=34 data-nosnippet>34</a><span class="kw">use </span>serde::{<a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserializer.html">Deserializer</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serializer.html">Serializer</a>};
+<a href=#35 id=35 data-nosnippet>35</a><span class="kw">use </span>thiserror::Error;
+<a href=#36 id=36 data-nosnippet>36</a><span class="kw">use </span>wyhash::{<a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyHash.html">WyHash</a>, <a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyRng.html">WyRng</a>};
 <a href=#37 id=37 data-nosnippet>37</a>
-<a href=#38 id=38 data-nosnippet>38</a></a><span class="attr">#[derive(<a href="#52-60">Clone</a>, Serialize, Deserialize, JsonSchema)]
+<a href=#38 id=38 data-nosnippet>38</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
 <a href=#39 id=39 data-nosnippet>39</a>#[serde(deny_unknown_fields)]
 <a href=#40 id=40 data-nosnippet>40</a></span><span class="doccomment">/// Codec that stochastically rounds the data to the nearest multiple of
 <a href=#41 id=41 data-nosnippet>41</a>/// `precision` on encoding and passes through the input unchanged during
@@ -87,136 +87,136 @@
 <a href=#49 id=49 data-nosnippet>49</a>/// pseudo-random number generator that is used to sample the stochasticity for
 <a href=#50 id=50 data-nosnippet>50</a>/// rounding. Therefore, passing in the same input with the same `seed` will
 <a href=#51 id=51 data-nosnippet>51</a>/// produce the same stochasticity and thus the same encoded output.
-<a href=#52 id=52 data-nosnippet>52</a></span><span class="kw">pub struct </span><a href="#136"><a href="../../numcodecs_stochastic_rounding/struct.StochasticRoundingCodec.html">StochasticRoundingCodec</a> {
-<a href=#53 id=53 data-nosnippet>53</a>    </a><span class="doccomment">/// The precision of the rounding operation
-<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub </span><a href="#136">precision: <a href="#126">NonNegative</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;,
-<a href=#55 id=55 data-nosnippet>55</a>    </a><span class="doccomment">/// Seed for the random generator
-<a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">pub </span><a href="#136">seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
-<a href=#57 id=57 data-nosnippet>57</a>    </a><span class="doccomment">/// The codec's encoding format version. Do not provide this parameter explicitly.
-<a href=#58 id=58 data-nosnippet>58</a>    </span><span class="attr"><a href="#136">#[serde(default, rename = </a><span class="string">"_version"</span>)]
-<a href=#59 id=59 data-nosnippet>59</a>    </span><span class="kw">pub </span><a href="#136">version: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecVersion.html">StaticCodecVersion</a>&lt;</a><span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>&gt;,
+<a href=#52 id=52 data-nosnippet>52</a></span><span class="kw">pub struct </span><a href="../../numcodecs_stochastic_rounding/struct.StochasticRoundingCodec.html">StochasticRoundingCodec</a> {
+<a href=#53 id=53 data-nosnippet>53</a>    <span class="doccomment">/// The precision of the rounding operation
+<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub </span>precision: <a href="#126">NonNegative</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;,
+<a href=#55 id=55 data-nosnippet>55</a>    <span class="doccomment">/// Seed for the random generator
+<a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">pub </span>seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
+<a href=#57 id=57 data-nosnippet>57</a>    <span class="doccomment">/// The codec's encoding format version. Do not provide this parameter explicitly.
+<a href=#58 id=58 data-nosnippet>58</a>    </span><span class="attr">#[serde(default, rename = <span class="string">"_version"</span>)]
+<a href=#59 id=59 data-nosnippet>59</a>    </span><span class="kw">pub </span>version: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecVersion.html">StaticCodecVersion</a>&lt;<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>&gt;,
 <a href=#60 id=60 data-nosnippet>60</a>}
 <a href=#61 id=61 data-nosnippet>61</a>
-<a href=#62 id=62 data-nosnippet>62</a><span class="kw">impl </span><a href="#136"><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> </a><span class="kw">for </span><a href="#136"><a href="#52-60">StochasticRoundingCodec</a> {
-<a href=#63 id=63 data-nosnippet>63</a>    </a><span class="kw">type </span><a href="#136">Error = <a href="#168-179">StochasticRoundingCodecError</a>;
+<a href=#62 id=62 data-nosnippet>62</a><span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#52-60">StochasticRoundingCodec</a> {
+<a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">type </span>Error = <a href="#168-179">StochasticRoundingCodecError</a>;
 <a href=#64 id=64 data-nosnippet>64</a>
-<a href=#65 id=65 data-nosnippet>65</a>    </a><span class="kw">fn </span><a href="#136">encode(</a><span class="kw-2">&amp;</span><span class="self">self</span><a href="#136">, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; </a><a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a><a href="#136">&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
-<a href=#66 id=66 data-nosnippet>66</a>        </a><span class="kw">match </span><a href="#136"><a href="#65">data</a> {
-<a href=#67 id=67 data-nosnippet>67</a>            </a><span class="attr">#[expect(clippy::cast_possible_truncation)]
-<a href=#68 id=68 data-nosnippet>68</a>            </span><a href="#136"><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(data) =&gt; </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a><a href="#136">(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(<a href="#192-248">stochastic_rounding</a>(
+<a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+<a href=#66 id=66 data-nosnippet>66</a>        <span class="kw">match </span><a href="#65">data</a> {
+<a href=#67 id=67 data-nosnippet>67</a>            <span class="attr">#[expect(clippy::cast_possible_truncation)]
+<a href=#68 id=68 data-nosnippet>68</a>            </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(<a href="#192-248">stochastic_rounding</a>(
 <a href=#69 id=69 data-nosnippet>69</a>                <a href="#68">data</a>,
-<a href=#70 id=70 data-nosnippet>70</a>                <a href="#126">NonNegative</a>(</a><a class="self" href="#65">self</a><a href="#136">.precision.</a><span class="number">0 </span><span class="kw">as </span><a href="#136"><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>),
-<a href=#71 id=71 data-nosnippet>71</a>                </a><a class="self" href="#65">self</a><a href="#136">.seed,
+<a href=#70 id=70 data-nosnippet>70</a>                <a href="#126">NonNegative</a>(<a class="self" href="#65">self</a>.precision.<span class="number">0 </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>),
+<a href=#71 id=71 data-nosnippet>71</a>                <a class="self" href="#65">self</a>.seed,
 <a href=#72 id=72 data-nosnippet>72</a>            ))),
-<a href=#73 id=73 data-nosnippet>73</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(data) =&gt; </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a><a href="#136">(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(<a href="#192-248">stochastic_rounding</a>(
+<a href=#73 id=73 data-nosnippet>73</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(<a href="#192-248">stochastic_rounding</a>(
 <a href=#74 id=74 data-nosnippet>74</a>                <a href="#73">data</a>,
-<a href=#75 id=75 data-nosnippet>75</a>                </a><a class="self" href="#65">self</a><a href="#136">.precision,
-<a href=#76 id=76 data-nosnippet>76</a>                </a><a class="self" href="#65">self</a><a href="#136">.seed,
+<a href=#75 id=75 data-nosnippet>75</a>                <a class="self" href="#65">self</a>.precision,
+<a href=#76 id=76 data-nosnippet>76</a>                <a class="self" href="#65">self</a>.seed,
 <a href=#77 id=77 data-nosnippet>77</a>            ))),
-<a href=#78 id=78 data-nosnippet>78</a>            encoded =&gt; </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#136">(StochasticRoundingCodecError::<a href="#171">UnsupportedDtype</a>(
+<a href=#78 id=78 data-nosnippet>78</a>            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(StochasticRoundingCodecError::<a href="#171">UnsupportedDtype</a>(
 <a href=#79 id=79 data-nosnippet>79</a>                <a href="#78">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
 <a href=#80 id=80 data-nosnippet>80</a>            )),
 <a href=#81 id=81 data-nosnippet>81</a>        }
 <a href=#82 id=82 data-nosnippet>82</a>    }
 <a href=#83 id=83 data-nosnippet>83</a>
-<a href=#84 id=84 data-nosnippet>84</a>    </a><span class="kw">fn </span><a href="#136">decode(</a><span class="kw-2">&amp;</span><span class="self">self</span><a href="#136">, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; </a><a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a><a href="#136">&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
-<a href=#85 id=85 data-nosnippet>85</a>        </a><span class="kw">match </span><a href="#136"><a href="#84">encoded</a> {
-<a href=#86 id=86 data-nosnippet>86</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(encoded) =&gt; </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a><a href="#136">(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(<a href="#86">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
-<a href=#87 id=87 data-nosnippet>87</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(encoded) =&gt; </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a><a href="#136">(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(<a href="#87">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
-<a href=#88 id=88 data-nosnippet>88</a>            encoded =&gt; </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#136">(StochasticRoundingCodecError::<a href="#171">UnsupportedDtype</a>(
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="kw">fn </span>decode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
+<a href=#85 id=85 data-nosnippet>85</a>        <span class="kw">match </span><a href="#84">encoded</a> {
+<a href=#86 id=86 data-nosnippet>86</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(encoded) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(<a href="#86">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
+<a href=#87 id=87 data-nosnippet>87</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(encoded) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(<a href="#87">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>())),
+<a href=#88 id=88 data-nosnippet>88</a>            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(StochasticRoundingCodecError::<a href="#171">UnsupportedDtype</a>(
 <a href=#89 id=89 data-nosnippet>89</a>                <a href="#88">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
 <a href=#90 id=90 data-nosnippet>90</a>            )),
 <a href=#91 id=91 data-nosnippet>91</a>        }
 <a href=#92 id=92 data-nosnippet>92</a>    }
 <a href=#93 id=93 data-nosnippet>93</a>
-<a href=#94 id=94 data-nosnippet>94</a>    </a><span class="kw">fn </span><a href="#136">decode_into(
-<a href=#95 id=95 data-nosnippet>95</a>        </a><span class="kw-2">&amp;</span><span class="self">self</span><a href="#136">,
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="kw">fn </span>decode_into(
+<a href=#95 id=95 data-nosnippet>95</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
 <a href=#96 id=96 data-nosnippet>96</a>        encoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>,
-<a href=#97 id=97 data-nosnippet>97</a>        </a><span class="kw-2">mut </span><a href="#136">decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
-<a href=#98 id=98 data-nosnippet>98</a>    ) -&gt; </a><a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a><a href="#136">&lt;(), <span class="self">Self</span>::Error&gt; {
-<a href=#99 id=99 data-nosnippet>99</a>        </a><span class="kw">if </span>!<a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a><a href="#136">(encoded.dtype(), AnyArrayDType::F32 | AnyArrayDType::F64) {
-<a href=#100 id=100 data-nosnippet>100</a>            </a><span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#136">(StochasticRoundingCodecError::<a href="#171">UnsupportedDtype</a>(
+<a href=#97 id=97 data-nosnippet>97</a>        <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>,
+<a href=#98 id=98 data-nosnippet>98</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <span class="self">Self</span>::Error&gt; {
+<a href=#99 id=99 data-nosnippet>99</a>        <span class="macro">if !matches!</span>(encoded.dtype(), AnyArrayDType::F32 | AnyArrayDType::F64) {
+<a href=#100 id=100 data-nosnippet>100</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(StochasticRoundingCodecError::<a href="#171">UnsupportedDtype</a>(
 <a href=#101 id=101 data-nosnippet>101</a>                <a href="#96">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
 <a href=#102 id=102 data-nosnippet>102</a>            ));
 <a href=#103 id=103 data-nosnippet>103</a>        }
 <a href=#104 id=104 data-nosnippet>104</a>
-<a href=#105 id=105 data-nosnippet>105</a>        </a><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a><a href="#136">(<a href="#97">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(</a><span class="kw-2">&amp;</span><a href="#136"><a href="#96">encoded</a>)</a><span class="question-mark">?</span>)
+<a href=#105 id=105 data-nosnippet>105</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#97">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.assign">assign</a>(<span class="kw-2">&amp;</span><a href="#96">encoded</a>)<span class="question-mark">?</span>)
 <a href=#106 id=106 data-nosnippet>106</a>    }
 <a href=#107 id=107 data-nosnippet>107</a>}
 <a href=#108 id=108 data-nosnippet>108</a>
-<a href=#109 id=109 data-nosnippet>109</a><span class="kw">impl </span><a href="#136"><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> </a><span class="kw">for </span><a href="#136"><a href="#52-60">StochasticRoundingCodec</a> {
-<a href=#110 id=110 data-nosnippet>110</a>    </a><span class="kw">const </span><a href="#136">CODEC_ID: </a><span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="#136"><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = </a><span class="string">"stochastic-rounding.rs"</span>;
+<a href=#109 id=109 data-nosnippet>109</a><span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.StaticCodec.html">StaticCodec</a> <span class="kw">for </span><a href="#52-60">StochasticRoundingCodec</a> {
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">const </span>CODEC_ID: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"stochastic-rounding.rs"</span>;
 <a href=#111 id=111 data-nosnippet>111</a>
-<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">type </span><a href="#136">Config&lt;</a><span class="lifetime">'de</span>&gt; = <span class="self">Self</span>;
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">type </span>Config&lt;<span class="lifetime">'de</span>&gt; = <span class="self">Self</span>;
 <a href=#113 id=113 data-nosnippet>113</a>
-<a href=#114 id=114 data-nosnippet>114</a>    <span class="kw">fn </span><a href="#136">from_config(config: <span class="self">Self</span>::Config&lt;</a><span class="lifetime">'_</span>&gt;) -&gt; <a class="self" href="#136">Self </a><a href="#136">{
+<a href=#114 id=114 data-nosnippet>114</a>    <span class="kw">fn </span>from_config(config: <span class="self">Self</span>::Config&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self </span>{
 <a href=#115 id=115 data-nosnippet>115</a>        <a href="#114">config</a>
 <a href=#116 id=116 data-nosnippet>116</a>    }
 <a href=#117 id=117 data-nosnippet>117</a>
-<a href=#118 id=118 data-nosnippet>118</a>    </a><span class="kw">fn </span><a href="#136">get_config(</a><span class="kw-2">&amp;</span><span class="self">self</span><a href="#136">) -&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;</a><span class="lifetime">'_</span>, <span class="self">Self</span><a href="#136">&gt; {
-<a href=#119 id=119 data-nosnippet>119</a>        <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>::<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">from</a>(</a><a class="self" href="#118">self</a>)
+<a href=#118 id=118 data-nosnippet>118</a>    <span class="kw">fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>&gt; {
+<a href=#119 id=119 data-nosnippet>119</a>        <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecConfig.html">StaticCodecConfig</a>::<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">from</a>(<a class="self" href="#118">self</a>)
 <a href=#120 id=120 data-nosnippet>120</a>    }
 <a href=#121 id=121 data-nosnippet>121</a>}
 <a href=#122 id=122 data-nosnippet>122</a>
 <a href=#123 id=123 data-nosnippet>123</a><span class="attr">#[expect(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
-<a href=#124 id=124 data-nosnippet>124</a></span><span class="attr">#[derive(<a href="#126">Copy</a>, <a href="#126">Clone</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">PartialEq</a>, <a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">PartialOrd</a>, <a href="#126">Hash</a>)]
+<a href=#124 id=124 data-nosnippet>124</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/macro.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/cmp/macro.PartialEq.html">PartialEq</a>, <a href="https://doc.rust-lang.org/nightly/core/cmp/macro.PartialOrd.html">PartialOrd</a>, <a href="https://doc.rust-lang.org/nightly/core/hash/macros/derive.Hash.html">Hash</a>)]
 <a href=#125 id=125 data-nosnippet>125</a></span><span class="doccomment">/// Non-negative floating point number
-<a href=#126 id=126 data-nosnippet>126</a></span><span class="kw">pub struct </span><a href="#136"><a href="../../numcodecs_stochastic_rounding/struct.NonNegative.html">NonNegative</a>&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a>&gt;(T);
+<a href=#126 id=126 data-nosnippet>126</a></span><span class="kw">pub struct </span><a href="../../numcodecs_stochastic_rounding/struct.NonNegative.html">NonNegative</a>&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a>&gt;(T);
 <a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a></a><span class="kw">impl </span><a href="#136"><a href="https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serialize.html">Serialize</a> </a><span class="kw">for </span><a href="#136"><a href="#126">NonNegative</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
-<a href=#129 id=129 data-nosnippet>129</a>    </a><span class="kw">fn </span><a href="#136">serialize&lt;S: <a href="https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serializer.html">Serializer</a>&gt;(</a><span class="kw-2">&amp;</span><span class="self">self</span><a href="#136">, serializer: S) -&gt; </a><a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a><a href="#136">&lt;S::Ok, S::Error&gt; {
-<a href=#130 id=130 data-nosnippet>130</a>        <a href="#129">serializer</a>.<a href="https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serializer.html#tymethod.serialize_f64">serialize_f64</a>(</a><a class="self" href="#129">self</a>.<span class="number">0</span>)
+<a href=#128 id=128 data-nosnippet>128</a><span class="kw">impl </span><a href="https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serialize.html">Serialize</a> <span class="kw">for </span><a href="#126">NonNegative</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
+<a href=#129 id=129 data-nosnippet>129</a>    <span class="kw">fn </span>serialize&lt;S: <a href="https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serializer.html">Serializer</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;S::Ok, S::Error&gt; {
+<a href=#130 id=130 data-nosnippet>130</a>        <a href="#129">serializer</a>.<a href="https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serializer.html#tymethod.serialize_f64">serialize_f64</a>(<a class="self" href="#129">self</a>.<span class="number">0</span>)
 <a href=#131 id=131 data-nosnippet>131</a>    }
 <a href=#132 id=132 data-nosnippet>132</a>}
 <a href=#133 id=133 data-nosnippet>133</a>
-<a href=#134 id=134 data-nosnippet>134</a><span class="kw">impl</span>&lt;<span class="lifetime">'de</span><a href="#136">&gt; <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html">Deserialize</a>&lt;</a><span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#136"><a href="#126">NonNegative</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
-<a href=#135 id=135 data-nosnippet>135</a>    </a><span class="kw">fn </span><a href="#136">deserialize&lt;D: <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserializer.html">Deserializer</a>&lt;</a><span class="lifetime">'de</span><a href="#136">&gt;&gt;(deserializer: D) -&gt; </a><a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span><a href="#136">, D::Error&gt; {
-<a href=#136 id=136 data-nosnippet>136</a>        </a><span class="kw">let </span><a href="#136">x = <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html#tymethod.deserialize">deserialize</a>(<a href="#135">deserializer</a>)</a><span class="question-mark">?</span>;
+<a href=#134 id=134 data-nosnippet>134</a><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#126">NonNegative</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
+<a href=#135 id=135 data-nosnippet>135</a>    <span class="kw">fn </span>deserialize&lt;D: <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, D::Error&gt; {
+<a href=#136 id=136 data-nosnippet>136</a>        <span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html#tymethod.deserialize">deserialize</a>(<a href="#135">deserializer</a>)<span class="question-mark">?</span>;
 <a href=#137 id=137 data-nosnippet>137</a>
-<a href=#138 id=138 data-nosnippet>138</a>        <span class="kw">if </span><a href="#136"><a href="#136">x</a> &gt;= </a><span class="number">0.0 </span>{
-<a href=#139 id=139 data-nosnippet>139</a>            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="self">Self</span><a href="#136">(<a href="#136">x</a>))
-<a href=#140 id=140 data-nosnippet>140</a>        } </a><span class="kw">else </span>{
-<a href=#141 id=141 data-nosnippet>141</a>            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a><a href="#136">(serde::de::Error::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Error.html#tymethod.invalid_value">invalid_value</a>(
+<a href=#138 id=138 data-nosnippet>138</a>        <span class="kw">if </span><a href="#136">x</a> &gt;= <span class="number">0.0 </span>{
+<a href=#139 id=139 data-nosnippet>139</a>            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="self">Self</span>(<a href="#136">x</a>))
+<a href=#140 id=140 data-nosnippet>140</a>        } <span class="kw">else </span>{
+<a href=#141 id=141 data-nosnippet>141</a>            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(serde::de::Error::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Error.html#tymethod.invalid_value">invalid_value</a>(
 <a href=#142 id=142 data-nosnippet>142</a>                serde::de::Unexpected::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/enum.Unexpected.html#variant.Float">Float</a>(<a href="#136">x</a>),
-<a href=#143 id=143 data-nosnippet>143</a>                </a><span class="kw-2">&amp;</span><span class="string">"a non-negative value"</span>,
+<a href=#143 id=143 data-nosnippet>143</a>                <span class="kw-2">&amp;</span><span class="string">"a non-negative value"</span>,
 <a href=#144 id=144 data-nosnippet>144</a>            ))
 <a href=#145 id=145 data-nosnippet>145</a>        }
 <a href=#146 id=146 data-nosnippet>146</a>    }
 <a href=#147 id=147 data-nosnippet>147</a>}
 <a href=#148 id=148 data-nosnippet>148</a>
-<a href=#149 id=149 data-nosnippet>149</a><span class="kw">impl </span><a href="#136">JsonSchema </a><span class="kw">for </span><a href="#136"><a href="#126">NonNegative</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
-<a href=#150 id=150 data-nosnippet>150</a>    </a><span class="kw">fn </span><a href="#136">schema_name() -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;</a><span class="lifetime">'static</span><a href="#136">, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
-<a href=#151 id=151 data-nosnippet>151</a>        Cow::<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Borrowed</a>(</a><span class="string">"NonNegativeF64"</span>)
+<a href=#149 id=149 data-nosnippet>149</a><span class="kw">impl </span>JsonSchema <span class="kw">for </span><a href="#126">NonNegative</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
+<a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">fn </span>schema_name() -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'static</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
+<a href=#151 id=151 data-nosnippet>151</a>        Cow::<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Borrowed</a>(<span class="string">"NonNegativeF64"</span>)
 <a href=#152 id=152 data-nosnippet>152</a>    }
 <a href=#153 id=153 data-nosnippet>153</a>
-<a href=#154 id=154 data-nosnippet>154</a>    <span class="kw">fn </span><a href="#136">schema_id() -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;</a><span class="lifetime">'static</span><a href="#136">, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
-<a href=#155 id=155 data-nosnippet>155</a>        Cow::<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Borrowed</a>(</a><a class="macro" href="https://doc.rust-lang.org/nightly/core/macro.concat.html">concat!</a>(<span class="macro">module_path!</span>(), <span class="string">"::"</span>, <span class="string">"NonNegative&lt;f64&gt;"</span>))
+<a href=#154 id=154 data-nosnippet>154</a>    <span class="kw">fn </span>schema_id() -&gt; <a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html">Cow</a>&lt;<span class="lifetime">'static</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
+<a href=#155 id=155 data-nosnippet>155</a>        Cow::<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Borrowed</a>(<a href="https://doc.rust-lang.org/nightly/core/macro.concat.html">concat!</a>(<span class="macro">module_path!</span>(), <span class="string">"::"</span>, <span class="string">"NonNegative&lt;f64&gt;"</span>))
 <a href=#156 id=156 data-nosnippet>156</a>    }
 <a href=#157 id=157 data-nosnippet>157</a>
-<a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">fn </span><a href="#136">json_schema(_gen: </a><span class="kw-2">&amp;mut </span><a href="#136">SchemaGenerator) -&gt; Schema {
-<a href=#159 id=159 data-nosnippet>159</a>        </a><span class="macro">json_schema!</span>({
+<a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">fn </span>json_schema(_gen: <span class="kw-2">&amp;mut </span>SchemaGenerator) -&gt; Schema {
+<a href=#159 id=159 data-nosnippet>159</a>        <span class="macro">json_schema!</span>({
 <a href=#160 id=160 data-nosnippet>160</a>            <span class="string">"type"</span>: <span class="string">"number"</span>,
 <a href=#161 id=161 data-nosnippet>161</a>            <span class="string">"minimum"</span>: <span class="number">0.0
 <a href=#162 id=162 data-nosnippet>162</a>        </span>})
 <a href=#163 id=163 data-nosnippet>163</a>    }
 <a href=#164 id=164 data-nosnippet>164</a>}
 <a href=#165 id=165 data-nosnippet>165</a>
-<a href=#166 id=166 data-nosnippet>166</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html">Debug</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html">Error</a>)]
+<a href=#166 id=166 data-nosnippet>166</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, Error)]
 <a href=#167 id=167 data-nosnippet>167</a></span><span class="doccomment">/// Errors that may occur when applying the [`StochasticRoundingCodec`].
-<a href=#168 id=168 data-nosnippet>168</a></span><span class="kw">pub enum </span><a href="#136"><a href="#168-179">StochasticRoundingCodecError</a> {
-<a href=#169 id=169 data-nosnippet>169</a>    </a><span class="doccomment">/// [`StochasticRoundingCodec`] does not support the dtype
-<a href=#170 id=170 data-nosnippet>170</a>    </span><span class="attr"><a href="#136">#[error(</a><span class="string">"StochasticRounding does not support the dtype {0}"</span>)]
-<a href=#171 id=171 data-nosnippet>171</a>    </span><a href="#136">UnsupportedDtype(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>),
-<a href=#172 id=172 data-nosnippet>172</a>    </a><span class="doccomment">/// [`StochasticRoundingCodec`] cannot decode into the provided array
-<a href=#173 id=173 data-nosnippet>173</a>    </span><span class="attr"><a href="#136">#[error(</a><span class="string">"StochasticRounding cannot decode into the provided array"</span>)]
-<a href=#174 id=174 data-nosnippet>174</a>    </span><a href="#136">MismatchedDecodeIntoArray {
-<a href=#175 id=175 data-nosnippet>175</a>        </a><span class="doccomment">/// The source of the error
+<a href=#168 id=168 data-nosnippet>168</a></span><span class="kw">pub enum </span><a href="#168-179">StochasticRoundingCodecError</a> {
+<a href=#169 id=169 data-nosnippet>169</a>    <span class="doccomment">/// [`StochasticRoundingCodec`] does not support the dtype
+<a href=#170 id=170 data-nosnippet>170</a>    </span><span class="attr">#[error(<span class="string">"StochasticRounding does not support the dtype {0}"</span>)]
+<a href=#171 id=171 data-nosnippet>171</a>    </span>UnsupportedDtype(<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayDType.html">AnyArrayDType</a>),
+<a href=#172 id=172 data-nosnippet>172</a>    <span class="doccomment">/// [`StochasticRoundingCodec`] cannot decode into the provided array
+<a href=#173 id=173 data-nosnippet>173</a>    </span><span class="attr">#[error(<span class="string">"StochasticRounding cannot decode into the provided array"</span>)]
+<a href=#174 id=174 data-nosnippet>174</a>    </span>MismatchedDecodeIntoArray {
+<a href=#175 id=175 data-nosnippet>175</a>        <span class="doccomment">/// The source of the error
 <a href=#176 id=176 data-nosnippet>176</a>        </span><span class="attr">#[from]
-<a href=#177 id=177 data-nosnippet>177</a>        </span><a href="#136">source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
+<a href=#177 id=177 data-nosnippet>177</a>        </span>source: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html">AnyArrayAssignError</a>,
 <a href=#178 id=178 data-nosnippet>178</a>    },
 <a href=#179 id=179 data-nosnippet>179</a>}
 <a href=#180 id=180 data-nosnippet>180</a>
-<a href=#181 id=181 data-nosnippet>181</a></a><span class="doccomment">/// Stochastically rounds the `data` to the nearest multiple of the `precision`.
+<a href=#181 id=181 data-nosnippet>181</a><span class="doccomment">/// Stochastically rounds the `data` to the nearest multiple of the `precision`.
 <a href=#182 id=182 data-nosnippet>182</a>///
 <a href=#183 id=183 data-nosnippet>183</a>/// The nearest representable multiple is chosen such that the absolute
 <a href=#184 id=184 data-nosnippet>184</a>/// difference between the original value and the rounded value do not exceed
@@ -227,197 +227,197 @@
 <a href=#189 id=189 data-nosnippet>189</a>/// rounding. Therefore, passing in the same input with the same `seed` will
 <a href=#190 id=190 data-nosnippet>190</a>/// produce the same stochasticity and thus the same encoded output.
 <a href=#191 id=191 data-nosnippet>191</a></span><span class="attr">#[must_use]
-<a href=#192 id=192 data-nosnippet>192</a></span><span class="kw">pub fn </span><a href="#136"><a href="../../numcodecs_stochastic_rounding/fn.stochastic_rounding.html">stochastic_rounding</a>&lt;T: <a href="#251-269">FloatExt</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
+<a href=#192 id=192 data-nosnippet>192</a></span><span class="kw">pub fn </span><a href="../../numcodecs_stochastic_rounding/fn.stochastic_rounding.html">stochastic_rounding</a>&lt;T: <a href="#251-269">FloatExt</a>, S: <a href="https://docs.rs/ndarray/0.15/ndarray/data_traits/trait.Data.html">Data</a>&lt;Elem = T&gt;, D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(
 <a href=#193 id=193 data-nosnippet>193</a>    data: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
 <a href=#194 id=194 data-nosnippet>194</a>    precision: <a href="#126">NonNegative</a>&lt;T&gt;,
 <a href=#195 id=195 data-nosnippet>195</a>    seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
 <a href=#196 id=196 data-nosnippet>196</a>) -&gt; <a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;T, D&gt;
-<a href=#197 id=197 data-nosnippet>197</a></a><span class="kw">where
-<a href=#198 id=198 data-nosnippet>198</a>    </span><a href="#136"><a href="https://rust-random.github.io/rand/rand/distr/float/struct.Open01.html">Open01</a>: <a href="https://rust-random.github.io/rand/rand/distr/distribution/trait.Distribution.html">Distribution</a>&lt;T&gt;,
+<a href=#197 id=197 data-nosnippet>197</a><span class="kw">where
+<a href=#198 id=198 data-nosnippet>198</a>    </span><a href="https://rust-random.github.io/rand/rand/distr/float/struct.Open01.html">Open01</a>: <a href="https://rust-random.github.io/rand/rand/distr/distribution/trait.Distribution.html">Distribution</a>&lt;T&gt;,
 <a href=#199 id=199 data-nosnippet>199</a>{
-<a href=#200 id=200 data-nosnippet>200</a>    </a><span class="kw">let </span><span class="kw-2">mut </span><a href="#136">encoded = <a href="#193">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
+<a href=#200 id=200 data-nosnippet>200</a>    <span class="kw">let </span><span class="kw-2">mut </span>encoded = <a href="#193">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_owned">into_owned</a>();
 <a href=#201 id=201 data-nosnippet>201</a>
-<a href=#202 id=202 data-nosnippet>202</a>    </a><span class="kw">if </span><a href="#136"><a href="#194">precision</a>.</a><span class="number">0</span><a href="#136">.<a href="https://docs.rs/num-traits/0.2/num_traits/identities/trait.Zero.html#tymethod.is_zero">is_zero</a>() {
-<a href=#203 id=203 data-nosnippet>203</a>        </a><span class="kw">return </span><a href="#136"><a href="#200">encoded</a>;
+<a href=#202 id=202 data-nosnippet>202</a>    <span class="kw">if </span><a href="#194">precision</a>.<span class="number">0</span>.<a href="https://docs.rs/num-traits/0.2/num_traits/identities/trait.Zero.html#tymethod.is_zero">is_zero</a>() {
+<a href=#203 id=203 data-nosnippet>203</a>        <span class="kw">return </span><a href="#200">encoded</a>;
 <a href=#204 id=204 data-nosnippet>204</a>    }
 <a href=#205 id=205 data-nosnippet>205</a>
-<a href=#206 id=206 data-nosnippet>206</a>    </a><span class="kw">let </span><span class="kw-2">mut </span><a href="#136">hasher = <a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyHash.html">WyHash</a>::<a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyHash.html#method.with_seed">with_seed</a>(<a href="#195">seed</a>);
-<a href=#207 id=207 data-nosnippet>207</a>    </a><span class="comment">// hashing the shape provides a prefix for the flattened data
-<a href=#208 id=208 data-nosnippet>208</a>    </span><a href="#136"><a href="#200">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash">hash</a>(</a><span class="kw-2">&amp;mut </span><a href="#136"><a href="#206">hasher</a>);
-<a href=#209 id=209 data-nosnippet>209</a>    </a><span class="comment">// the data must be visited in a defined order
-<a href=#210 id=210 data-nosnippet>210</a>    </span><a href="#136"><a href="#200">encoded</a>
+<a href=#206 id=206 data-nosnippet>206</a>    <span class="kw">let </span><span class="kw-2">mut </span>hasher = <a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyHash.html">WyHash</a>::<a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyHash.html#method.with_seed">with_seed</a>(<a href="#195">seed</a>);
+<a href=#207 id=207 data-nosnippet>207</a>    <span class="comment">// hashing the shape provides a prefix for the flattened data
+<a href=#208 id=208 data-nosnippet>208</a>    </span><a href="#200">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash">hash</a>(<span class="kw-2">&amp;mut </span><a href="#206">hasher</a>);
+<a href=#209 id=209 data-nosnippet>209</a>    <span class="comment">// the data must be visited in a defined order
+<a href=#210 id=210 data-nosnippet>210</a>    </span><a href="#200">encoded</a>
 <a href=#211 id=211 data-nosnippet>211</a>        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.iter">iter</a>()
 <a href=#212 id=212 data-nosnippet>212</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.copied">copied</a>()
-<a href=#213 id=213 data-nosnippet>213</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.for_each">for_each</a>(|x| <a href="#213">x</a>.<a href="#256">hash_bits</a>(</a><span class="kw-2">&amp;mut </span><a href="#136"><a href="#206">hasher</a>));
-<a href=#214 id=214 data-nosnippet>214</a>    </a><span class="kw">let </span><a href="#136">seed = <a href="#206">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#tymethod.finish">finish</a>();
+<a href=#213 id=213 data-nosnippet>213</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#tymethod.for_each">for_each</a>(|x| <a href="#213">x</a>.<a href="#256">hash_bits</a>(<span class="kw-2">&amp;mut </span><a href="#206">hasher</a>));
+<a href=#214 id=214 data-nosnippet>214</a>    <span class="kw">let </span>seed = <a href="#206">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#tymethod.finish">finish</a>();
 <a href=#215 id=215 data-nosnippet>215</a>
-<a href=#216 id=216 data-nosnippet>216</a>    </a><span class="kw">let </span><span class="kw-2">mut </span><a href="#136">rng: <a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyRng.html">WyRng</a> = <a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyRng.html">WyRng</a>::<a href="https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html#tymethod.seed_from_u64">seed_from_u64</a>(<a href="#214">seed</a>);
+<a href=#216 id=216 data-nosnippet>216</a>    <span class="kw">let </span><span class="kw-2">mut </span>rng: <a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyRng.html">WyRng</a> = <a href="https://docs.rs/wyhash/0.5.0/wyhash/v1/traits/struct.WyRng.html">WyRng</a>::<a href="https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html#tymethod.seed_from_u64">seed_from_u64</a>(<a href="#214">seed</a>);
 <a href=#217 id=217 data-nosnippet>217</a>
-<a href=#218 id=218 data-nosnippet>218</a>    </a><span class="comment">// the data must be visited in a defined order
-<a href=#219 id=219 data-nosnippet>219</a>    </span><span class="kw">for </span><a href="#136">x </a><span class="kw">in </span><span class="kw-2">&amp;mut </span><a href="#136">encoded {
-<a href=#220 id=220 data-nosnippet>220</a>        </a><span class="kw">if </span><a href="#136">!x.is_finite() {
-<a href=#221 id=221 data-nosnippet>221</a>            </a><span class="kw">continue</span>;
+<a href=#218 id=218 data-nosnippet>218</a>    <span class="comment">// the data must be visited in a defined order
+<a href=#219 id=219 data-nosnippet>219</a>    </span><span class="kw">for </span>x <span class="kw">in </span><span class="kw-2">&amp;mut </span>encoded {
+<a href=#220 id=220 data-nosnippet>220</a>        <span class="macro">if !</span>x.is_finite() {
+<a href=#221 id=221 data-nosnippet>221</a>            <span class="kw">continue</span>;
 <a href=#222 id=222 data-nosnippet>222</a>        }
 <a href=#223 id=223 data-nosnippet>223</a>
-<a href=#224 id=224 data-nosnippet>224</a>        <span class="kw">let </span><a href="#136">remainder = x.rem_euclid(precision.</a><span class="number">0</span>);
+<a href=#224 id=224 data-nosnippet>224</a>        <span class="kw">let </span>remainder = x.rem_euclid(precision.<span class="number">0</span>);
 <a href=#225 id=225 data-nosnippet>225</a>
 <a href=#226 id=226 data-nosnippet>226</a>        <span class="comment">// compute the nearest multiples of precision based on the remainder
 <a href=#227 id=227 data-nosnippet>227</a>        // correct max 1 ULP rounding errors to ensure that the nearest
 <a href=#228 id=228 data-nosnippet>228</a>        //  multiples are at most precision away from the original value
-<a href=#229 id=229 data-nosnippet>229</a>        </span><span class="kw">let </span><span class="kw-2">mut </span><a href="#136">lower = </a><span class="kw-2">*</span><a href="#136">x - remainder;
-<a href=#230 id=230 data-nosnippet>230</a>        </a><span class="kw">if </span>(<span class="kw-2">*</span><a href="#136">x - lower) &gt; precision.</a><span class="number">0 </span><a href="#136">{
+<a href=#229 id=229 data-nosnippet>229</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>lower = <span class="kw-2">*</span>x - remainder;
+<a href=#230 id=230 data-nosnippet>230</a>        <span class="kw">if </span>(<span class="kw-2">*</span>x - lower) &gt; precision.<span class="number">0 </span>{
 <a href=#231 id=231 data-nosnippet>231</a>            lower = lower.next_up();
 <a href=#232 id=232 data-nosnippet>232</a>        }
-<a href=#233 id=233 data-nosnippet>233</a>        </a><span class="kw">let </span><span class="kw-2">mut </span><a href="#136">upper = </a><span class="kw-2">*</span><a href="#136">x + (precision.</a><span class="number">0 </span><a href="#136">- remainder);
-<a href=#234 id=234 data-nosnippet>234</a>        </a><span class="kw">if </span><a href="#136">(upper - </a><span class="kw-2">*</span><a href="#136">x) &gt; precision.</a><span class="number">0 </span><a href="#136">{
+<a href=#233 id=233 data-nosnippet>233</a>        <span class="kw">let </span><span class="kw-2">mut </span>upper = <span class="kw-2">*</span>x + (precision.<span class="number">0 </span>- remainder);
+<a href=#234 id=234 data-nosnippet>234</a>        <span class="kw">if </span>(upper - <span class="kw-2">*</span>x) &gt; precision.<span class="number">0 </span>{
 <a href=#235 id=235 data-nosnippet>235</a>            upper = upper.next_down();
 <a href=#236 id=236 data-nosnippet>236</a>        }
 <a href=#237 id=237 data-nosnippet>237</a>
-<a href=#238 id=238 data-nosnippet>238</a>        </a><span class="kw">let </span><a href="#136">threshold = remainder / precision.</a><span class="number">0</span>;
+<a href=#238 id=238 data-nosnippet>238</a>        <span class="kw">let </span>threshold = remainder / precision.<span class="number">0</span>;
 <a href=#239 id=239 data-nosnippet>239</a>
-<a href=#240 id=240 data-nosnippet>240</a>        <span class="kw">let </span><a href="#136">u01: T = Open01.sample(</a><span class="kw-2">&amp;mut </span><a href="#136">rng);
+<a href=#240 id=240 data-nosnippet>240</a>        <span class="kw">let </span>u01: T = Open01.sample(<span class="kw-2">&amp;mut </span>rng);
 <a href=#241 id=241 data-nosnippet>241</a>
-<a href=#242 id=242 data-nosnippet>242</a>        </a><span class="comment">// if remainder = 0, U(0, 1) &gt;= 0, so lower (i.e. a) is always picked
+<a href=#242 id=242 data-nosnippet>242</a>        <span class="comment">// if remainder = 0, U(0, 1) &gt;= 0, so lower (i.e. a) is always picked
 <a href=#243 id=243 data-nosnippet>243</a>        // if threshold = 1/2, U(0, 1) picks lower and upper with equal chance
-<a href=#244 id=244 data-nosnippet>244</a>        </span><span class="kw-2">*</span><a href="#136">x = </a><span class="kw">if </span><a href="#136">u01 &gt;= threshold { lower } </a><span class="kw">else </span><a href="#136">{ upper };
+<a href=#244 id=244 data-nosnippet>244</a>        </span><span class="kw-2">*</span>x = <span class="kw">if </span>u01 &gt;= threshold { lower } <span class="kw">else </span>{ upper };
 <a href=#245 id=245 data-nosnippet>245</a>    }
 <a href=#246 id=246 data-nosnippet>246</a>
 <a href=#247 id=247 data-nosnippet>247</a>    <a href="#200">encoded</a>
 <a href=#248 id=248 data-nosnippet>248</a>}
 <a href=#249 id=249 data-nosnippet>249</a>
-<a href=#250 id=250 data-nosnippet>250</a></a><span class="doccomment">/// Floating point types
-<a href=#251 id=251 data-nosnippet>251</a></span><span class="kw">pub trait </span><a href="#136"><a href="../../numcodecs_stochastic_rounding/trait.FloatExt.html">FloatExt</a>: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a> {
-<a href=#252 id=252 data-nosnippet>252</a>    </a><span class="doccomment">/// -0.5
-<a href=#253 id=253 data-nosnippet>253</a>    </span><span class="kw">const </span><a href="#136">NEG_HALF: </a><span class="self">Self</span>;
+<a href=#250 id=250 data-nosnippet>250</a><span class="doccomment">/// Floating point types
+<a href=#251 id=251 data-nosnippet>251</a></span><span class="kw">pub trait </span><a href="../../numcodecs_stochastic_rounding/trait.FloatExt.html">FloatExt</a>: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a> {
+<a href=#252 id=252 data-nosnippet>252</a>    <span class="doccomment">/// -0.5
+<a href=#253 id=253 data-nosnippet>253</a>    </span><span class="kw">const </span>NEG_HALF: <span class="self">Self</span>;
 <a href=#254 id=254 data-nosnippet>254</a>
 <a href=#255 id=255 data-nosnippet>255</a>    <span class="doccomment">/// Hash the binary representation of the floating point value
-<a href=#256 id=256 data-nosnippet>256</a>    </span><span class="kw">fn </span><a href="#136">hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(</a><span class="self">self</span><a href="#136">, hasher: </a><span class="kw-2">&amp;mut </span><a href="#136">H);
+<a href=#256 id=256 data-nosnippet>256</a>    </span><span class="kw">fn </span>hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H);
 <a href=#257 id=257 data-nosnippet>257</a>
-<a href=#258 id=258 data-nosnippet>258</a>    </a><span class="doccomment">/// Calculates the least nonnegative remainder of self (mod rhs).
+<a href=#258 id=258 data-nosnippet>258</a>    <span class="doccomment">/// Calculates the least nonnegative remainder of self (mod rhs).
 <a href=#259 id=259 data-nosnippet>259</a>    </span><span class="attr">#[must_use]
-<a href=#260 id=260 data-nosnippet>260</a>    </span><span class="kw">fn </span><a href="#136">rem_euclid(</a><span class="self">self</span><a href="#136">, rhs: </a><span class="self">Self</span>) -&gt; <span class="self">Self</span>;
+<a href=#260 id=260 data-nosnippet>260</a>    </span><span class="kw">fn </span>rem_euclid(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
 <a href=#261 id=261 data-nosnippet>261</a>
 <a href=#262 id=262 data-nosnippet>262</a>    <span class="doccomment">/// Returns the least number greater than `self`.
 <a href=#263 id=263 data-nosnippet>263</a>    </span><span class="attr">#[must_use]
-<a href=#264 id=264 data-nosnippet>264</a>    </span><span class="kw">fn </span><a href="#136">next_up(</a><span class="self">self</span>) -&gt; <span class="self">Self</span>;
+<a href=#264 id=264 data-nosnippet>264</a>    </span><span class="kw">fn </span>next_up(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
 <a href=#265 id=265 data-nosnippet>265</a>
 <a href=#266 id=266 data-nosnippet>266</a>    <span class="doccomment">/// Returns the greatest number less than `self`.
 <a href=#267 id=267 data-nosnippet>267</a>    </span><span class="attr">#[must_use]
-<a href=#268 id=268 data-nosnippet>268</a>    </span><span class="kw">fn </span><a href="#136">next_down(</a><span class="self">self</span>) -&gt; <span class="self">Self</span>;
+<a href=#268 id=268 data-nosnippet>268</a>    </span><span class="kw">fn </span>next_down(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
 <a href=#269 id=269 data-nosnippet>269</a>}
 <a href=#270 id=270 data-nosnippet>270</a>
-<a href=#271 id=271 data-nosnippet>271</a><span class="kw">impl </span><a href="#136"><a href="#251-269">FloatExt</a> </a><span class="kw">for </span><a href="#136"><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
-<a href=#272 id=272 data-nosnippet>272</a>    </a><span class="kw">const </span><a href="#136">NEG_HALF: </a><a class="self" href="#136">Self </a>= -<span class="number">0.5</span>;
+<a href=#271 id=271 data-nosnippet>271</a><span class="kw">impl </span><a href="#251-269">FloatExt</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a> {
+<a href=#272 id=272 data-nosnippet>272</a>    <span class="kw">const </span>NEG_HALF: <span class="self">Self </span>= -<span class="number">0.5</span>;
 <a href=#273 id=273 data-nosnippet>273</a>
-<a href=#274 id=274 data-nosnippet>274</a>    <span class="kw">fn </span><a href="#136">hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(</a><span class="self">self</span><a href="#136">, hasher: </a><span class="kw-2">&amp;mut </span><a href="#136">H) {
-<a href=#275 id=275 data-nosnippet>275</a>        <a href="#274">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#tymethod.write_u32">write_u32</a>(</a><a class="self" href="#274">self</a><a href="#136">.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.to_bits">to_bits</a>());
+<a href=#274 id=274 data-nosnippet>274</a>    <span class="kw">fn </span>hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H) {
+<a href=#275 id=275 data-nosnippet>275</a>        <a href="#274">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#tymethod.write_u32">write_u32</a>(<a class="self" href="#274">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.to_bits">to_bits</a>());
 <a href=#276 id=276 data-nosnippet>276</a>    }
 <a href=#277 id=277 data-nosnippet>277</a>
-<a href=#278 id=278 data-nosnippet>278</a>    </a><span class="kw">fn </span><a href="#136">rem_euclid(</a><span class="self">self</span><a href="#136">, rhs: </a><span class="self">Self</span>) -&gt; <a class="self" href="#136">Self </a><a href="#136">{
-<a href=#279 id=279 data-nosnippet>279</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.rem_euclid">rem_euclid</a>(</a><a class="self" href="#278">self</a><a href="#136">, <a href="#278">rhs</a>)
+<a href=#278 id=278 data-nosnippet>278</a>    <span class="kw">fn </span>rem_euclid(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+<a href=#279 id=279 data-nosnippet>279</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.rem_euclid">rem_euclid</a>(<a class="self" href="#278">self</a>, <a href="#278">rhs</a>)
 <a href=#280 id=280 data-nosnippet>280</a>    }
 <a href=#281 id=281 data-nosnippet>281</a>
-<a href=#282 id=282 data-nosnippet>282</a>    </a><span class="kw">fn </span><a href="#136">next_up(</a><span class="self">self</span>) -&gt; <a class="self" href="#136">Self </a><a href="#136">{
-<a href=#283 id=283 data-nosnippet>283</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.next_up">next_up</a>(</a><a class="self" href="#282">self</a>)
+<a href=#282 id=282 data-nosnippet>282</a>    <span class="kw">fn </span>next_up(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+<a href=#283 id=283 data-nosnippet>283</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.next_up">next_up</a>(<a class="self" href="#282">self</a>)
 <a href=#284 id=284 data-nosnippet>284</a>    }
 <a href=#285 id=285 data-nosnippet>285</a>
-<a href=#286 id=286 data-nosnippet>286</a>    <span class="kw">fn </span><a href="#136">next_down(</a><span class="self">self</span>) -&gt; <a class="self" href="#136">Self </a><a href="#136">{
-<a href=#287 id=287 data-nosnippet>287</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.next_down">next_down</a>(</a><a class="self" href="#286">self</a>)
+<a href=#286 id=286 data-nosnippet>286</a>    <span class="kw">fn </span>next_down(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+<a href=#287 id=287 data-nosnippet>287</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.next_down">next_down</a>(<a class="self" href="#286">self</a>)
 <a href=#288 id=288 data-nosnippet>288</a>    }
 <a href=#289 id=289 data-nosnippet>289</a>}
 <a href=#290 id=290 data-nosnippet>290</a>
-<a href=#291 id=291 data-nosnippet>291</a><span class="kw">impl </span><a href="#136"><a href="#251-269">FloatExt</a> </a><span class="kw">for </span><a href="#136"><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
-<a href=#292 id=292 data-nosnippet>292</a>    </a><span class="kw">const </span><a href="#136">NEG_HALF: </a><a class="self" href="#136">Self </a>= -<span class="number">0.5</span>;
+<a href=#291 id=291 data-nosnippet>291</a><span class="kw">impl </span><a href="#251-269">FloatExt</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> {
+<a href=#292 id=292 data-nosnippet>292</a>    <span class="kw">const </span>NEG_HALF: <span class="self">Self </span>= -<span class="number">0.5</span>;
 <a href=#293 id=293 data-nosnippet>293</a>
-<a href=#294 id=294 data-nosnippet>294</a>    <span class="kw">fn </span><a href="#136">hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(</a><span class="self">self</span><a href="#136">, hasher: </a><span class="kw-2">&amp;mut </span><a href="#136">H) {
-<a href=#295 id=295 data-nosnippet>295</a>        <a href="#294">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#tymethod.write_u64">write_u64</a>(</a><a class="self" href="#294">self</a><a href="#136">.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_bits">to_bits</a>());
+<a href=#294 id=294 data-nosnippet>294</a>    <span class="kw">fn </span>hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H) {
+<a href=#295 id=295 data-nosnippet>295</a>        <a href="#294">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#tymethod.write_u64">write_u64</a>(<a class="self" href="#294">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_bits">to_bits</a>());
 <a href=#296 id=296 data-nosnippet>296</a>    }
 <a href=#297 id=297 data-nosnippet>297</a>
-<a href=#298 id=298 data-nosnippet>298</a>    </a><span class="kw">fn </span><a href="#136">rem_euclid(</a><span class="self">self</span><a href="#136">, rhs: </a><span class="self">Self</span>) -&gt; <a class="self" href="#136">Self </a><a href="#136">{
-<a href=#299 id=299 data-nosnippet>299</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.rem_euclid">rem_euclid</a>(</a><a class="self" href="#298">self</a><a href="#136">, <a href="#298">rhs</a>)
+<a href=#298 id=298 data-nosnippet>298</a>    <span class="kw">fn </span>rem_euclid(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+<a href=#299 id=299 data-nosnippet>299</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.rem_euclid">rem_euclid</a>(<a class="self" href="#298">self</a>, <a href="#298">rhs</a>)
 <a href=#300 id=300 data-nosnippet>300</a>    }
 <a href=#301 id=301 data-nosnippet>301</a>
-<a href=#302 id=302 data-nosnippet>302</a>    </a><span class="kw">fn </span><a href="#136">next_up(</a><span class="self">self</span>) -&gt; <a class="self" href="#136">Self </a><a href="#136">{
-<a href=#303 id=303 data-nosnippet>303</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.next_up">next_up</a>(</a><a class="self" href="#302">self</a>)
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">fn </span>next_up(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+<a href=#303 id=303 data-nosnippet>303</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.next_up">next_up</a>(<a class="self" href="#302">self</a>)
 <a href=#304 id=304 data-nosnippet>304</a>    }
 <a href=#305 id=305 data-nosnippet>305</a>
-<a href=#306 id=306 data-nosnippet>306</a>    <span class="kw">fn </span><a href="#136">next_down(</a><span class="self">self</span>) -&gt; <a class="self" href="#136">Self </a><a href="#136">{
-<a href=#307 id=307 data-nosnippet>307</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.next_down">next_down</a>(</a><a class="self" href="#306">self</a>)
+<a href=#306 id=306 data-nosnippet>306</a>    <span class="kw">fn </span>next_down(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+<a href=#307 id=307 data-nosnippet>307</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.next_down">next_down</a>(<a class="self" href="#306">self</a>)
 <a href=#308 id=308 data-nosnippet>308</a>    }
 <a href=#309 id=309 data-nosnippet>309</a>}
 <a href=#310 id=310 data-nosnippet>310</a>
 <a href=#311 id=311 data-nosnippet>311</a><span class="attr">#[cfg(test)]
-<a href=#312 id=312 data-nosnippet>312</a></span><span class="kw">mod </span><a href="#136">tests {
-<a href=#313 id=313 data-nosnippet>313</a>    </a><span class="kw">use </span><a href="#136">ndarray::{array, linspace};
+<a href=#312 id=312 data-nosnippet>312</a></span><span class="kw">mod </span>tests {
+<a href=#313 id=313 data-nosnippet>313</a>    <span class="kw">use </span>ndarray::{array, linspace};
 <a href=#314 id=314 data-nosnippet>314</a>
-<a href=#315 id=315 data-nosnippet>315</a>    </a><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#315 id=315 data-nosnippet>315</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#316 id=316 data-nosnippet>316</a>
 <a href=#317 id=317 data-nosnippet>317</a>    <span class="attr">#[test]
-<a href=#318 id=318 data-nosnippet>318</a>    </span><span class="kw">fn </span><a href="#136">round_zero_precision() {
-<a href=#319 id=319 data-nosnippet>319</a>        </a><span class="kw">let </span><a href="#136">data = </a><span class="macro">array!</span>[<span class="number">1.1</span>, <span class="number">2.1</span>];
+<a href=#318 id=318 data-nosnippet>318</a>    </span><span class="kw">fn </span>round_zero_precision() {
+<a href=#319 id=319 data-nosnippet>319</a>        <span class="kw">let </span>data = <span class="macro">array!</span>[<span class="number">1.1</span>, <span class="number">2.1</span>];
 <a href=#320 id=320 data-nosnippet>320</a>
-<a href=#321 id=321 data-nosnippet>321</a>        <span class="kw">let </span><a href="#136">rounded = stochastic_rounding(data.view(), NonNegative(</a><span class="number">0.0</span>), <span class="number">42</span>);
+<a href=#321 id=321 data-nosnippet>321</a>        <span class="kw">let </span>rounded = stochastic_rounding(data.view(), NonNegative(<span class="number">0.0</span>), <span class="number">42</span>);
 <a href=#322 id=322 data-nosnippet>322</a>
-<a href=#323 id=323 data-nosnippet>323</a>        <span class="macro">assert_eq!</span><a href="#136">(data, rounded);
+<a href=#323 id=323 data-nosnippet>323</a>        <span class="macro">assert_eq!</span>(data, rounded);
 <a href=#324 id=324 data-nosnippet>324</a>    }
 <a href=#325 id=325 data-nosnippet>325</a>
-<a href=#326 id=326 data-nosnippet>326</a>    </a><span class="attr">#[test]
-<a href=#327 id=327 data-nosnippet>327</a>    </span><span class="kw">fn </span><a href="#136">round_infinite_precision() {
-<a href=#328 id=328 data-nosnippet>328</a>        </a><span class="kw">let </span><a href="#136">data = </a><span class="macro">array!</span>[<span class="number">1.1</span>, <span class="number">2.1</span>];
+<a href=#326 id=326 data-nosnippet>326</a>    <span class="attr">#[test]
+<a href=#327 id=327 data-nosnippet>327</a>    </span><span class="kw">fn </span>round_infinite_precision() {
+<a href=#328 id=328 data-nosnippet>328</a>        <span class="kw">let </span>data = <span class="macro">array!</span>[<span class="number">1.1</span>, <span class="number">2.1</span>];
 <a href=#329 id=329 data-nosnippet>329</a>
-<a href=#330 id=330 data-nosnippet>330</a>        <span class="kw">let </span><a href="#136">rounded = stochastic_rounding(data.view(), NonNegative(f64::INFINITY), </a><span class="number">42</span>);
+<a href=#330 id=330 data-nosnippet>330</a>        <span class="kw">let </span>rounded = stochastic_rounding(data.view(), NonNegative(f64::INFINITY), <span class="number">42</span>);
 <a href=#331 id=331 data-nosnippet>331</a>
-<a href=#332 id=332 data-nosnippet>332</a>        <span class="macro">assert_eq!</span><a href="#136">(rounded, </a><span class="macro">array!</span>[<span class="number">0.0</span>, <span class="number">0.0</span>]);
+<a href=#332 id=332 data-nosnippet>332</a>        <span class="macro">assert_eq!</span>(rounded, <span class="macro">array!</span>[<span class="number">0.0</span>, <span class="number">0.0</span>]);
 <a href=#333 id=333 data-nosnippet>333</a>    }
 <a href=#334 id=334 data-nosnippet>334</a>
 <a href=#335 id=335 data-nosnippet>335</a>    <span class="attr">#[test]
-<a href=#336 id=336 data-nosnippet>336</a>    </span><span class="kw">fn </span><a href="#136">round_minimal_precision() {
-<a href=#337 id=337 data-nosnippet>337</a>        </a><span class="kw">let </span><a href="#136">data = </a><span class="macro">array!</span>[<span class="number">0.1</span>, <span class="number">1.0</span>, <span class="number">11.0</span>, <span class="number">21.0</span>];
+<a href=#336 id=336 data-nosnippet>336</a>    </span><span class="kw">fn </span>round_minimal_precision() {
+<a href=#337 id=337 data-nosnippet>337</a>        <span class="kw">let </span>data = <span class="macro">array!</span>[<span class="number">0.1</span>, <span class="number">1.0</span>, <span class="number">11.0</span>, <span class="number">21.0</span>];
 <a href=#338 id=338 data-nosnippet>338</a>
-<a href=#339 id=339 data-nosnippet>339</a>        <span class="macro">assert_eq!</span>(<span class="number">11.0 </span><a href="#136">/ f64::MIN_POSITIVE, f64::INFINITY);
-<a href=#340 id=340 data-nosnippet>340</a>        </a><span class="kw">let </span><a href="#136">rounded = stochastic_rounding(data.view(), NonNegative(f64::MIN_POSITIVE), </a><span class="number">42</span>);
+<a href=#339 id=339 data-nosnippet>339</a>        <span class="macro">assert_eq!</span>(<span class="number">11.0 </span>/ f64::MIN_POSITIVE, f64::INFINITY);
+<a href=#340 id=340 data-nosnippet>340</a>        <span class="kw">let </span>rounded = stochastic_rounding(data.view(), NonNegative(f64::MIN_POSITIVE), <span class="number">42</span>);
 <a href=#341 id=341 data-nosnippet>341</a>
-<a href=#342 id=342 data-nosnippet>342</a>        <span class="macro">assert_eq!</span><a href="#136">(data, rounded);
+<a href=#342 id=342 data-nosnippet>342</a>        <span class="macro">assert_eq!</span>(data, rounded);
 <a href=#343 id=343 data-nosnippet>343</a>    }
 <a href=#344 id=344 data-nosnippet>344</a>
-<a href=#345 id=345 data-nosnippet>345</a>    </a><span class="attr">#[test]
-<a href=#346 id=346 data-nosnippet>346</a>    </span><span class="kw">fn </span><a href="#136">round_edge_cases() {
-<a href=#347 id=347 data-nosnippet>347</a>        </a><span class="kw">let </span><a href="#136">data = </a><span class="macro">array!</span><a href="#136">[
+<a href=#345 id=345 data-nosnippet>345</a>    <span class="attr">#[test]
+<a href=#346 id=346 data-nosnippet>346</a>    </span><span class="kw">fn </span>round_edge_cases() {
+<a href=#347 id=347 data-nosnippet>347</a>        <span class="kw">let </span>data = <span class="macro">array!</span>[
 <a href=#348 id=348 data-nosnippet>348</a>            -f64::NAN,
 <a href=#349 id=349 data-nosnippet>349</a>            -f64::INFINITY,
-<a href=#350 id=350 data-nosnippet>350</a>            -</a><span class="number">42.0</span>,
+<a href=#350 id=350 data-nosnippet>350</a>            -<span class="number">42.0</span>,
 <a href=#351 id=351 data-nosnippet>351</a>            -<span class="number">4.2</span>,
 <a href=#352 id=352 data-nosnippet>352</a>            -<span class="number">0.0</span>,
 <a href=#353 id=353 data-nosnippet>353</a>            <span class="number">0.0</span>,
 <a href=#354 id=354 data-nosnippet>354</a>            <span class="number">4.2</span>,
-<a href=#355 id=355 data-nosnippet>355</a>            <span class="number">42.0</span><a href="#136">,
+<a href=#355 id=355 data-nosnippet>355</a>            <span class="number">42.0</span>,
 <a href=#356 id=356 data-nosnippet>356</a>            f64::INFINITY,
 <a href=#357 id=357 data-nosnippet>357</a>            f64::NAN
 <a href=#358 id=358 data-nosnippet>358</a>        ];
-<a href=#359 id=359 data-nosnippet>359</a>        </a><span class="kw">let </span><a href="#136">precision = </a><span class="number">1.0</span>;
+<a href=#359 id=359 data-nosnippet>359</a>        <span class="kw">let </span>precision = <span class="number">1.0</span>;
 <a href=#360 id=360 data-nosnippet>360</a>
-<a href=#361 id=361 data-nosnippet>361</a>        <span class="kw">let </span><a href="#136">rounded = stochastic_rounding(data.view(), NonNegative(precision), </a><span class="number">42</span>);
+<a href=#361 id=361 data-nosnippet>361</a>        <span class="kw">let </span>rounded = stochastic_rounding(data.view(), NonNegative(precision), <span class="number">42</span>);
 <a href=#362 id=362 data-nosnippet>362</a>
-<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">for </span><a href="#136">(d, r) </a><span class="kw">in </span><a href="#136">data.into_iter().zip(rounded) {
-<a href=#364 id=364 data-nosnippet>364</a>            </a><span class="macro">assert!</span><a href="#136">((r - d).abs() &lt;= precision || d.to_bits() == r.to_bits());
+<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">for </span>(d, r) <span class="kw">in </span>data.into_iter().zip(rounded) {
+<a href=#364 id=364 data-nosnippet>364</a>            <span class="macro">assert!</span>((r - d).abs() &lt;= precision || d.to_bits() == r.to_bits());
 <a href=#365 id=365 data-nosnippet>365</a>        }
 <a href=#366 id=366 data-nosnippet>366</a>    }
 <a href=#367 id=367 data-nosnippet>367</a>
-<a href=#368 id=368 data-nosnippet>368</a>    </a><span class="attr">#[test]
-<a href=#369 id=369 data-nosnippet>369</a>    </span><span class="kw">fn </span><a href="#136">round_rounding_errors() {
-<a href=#370 id=370 data-nosnippet>370</a>        </a><span class="kw">let </span><a href="#136">data = Array::from_iter(linspace(-</a><span class="number">100.0</span>, <span class="number">100.0</span>, <span class="number">3741</span>));
-<a href=#371 id=371 data-nosnippet>371</a>        <span class="kw">let </span><a href="#136">precision = </a><span class="number">0.1</span>;
+<a href=#368 id=368 data-nosnippet>368</a>    <span class="attr">#[test]
+<a href=#369 id=369 data-nosnippet>369</a>    </span><span class="kw">fn </span>round_rounding_errors() {
+<a href=#370 id=370 data-nosnippet>370</a>        <span class="kw">let </span>data = Array::from_iter(linspace(-<span class="number">100.0</span>, <span class="number">100.0</span>, <span class="number">3741</span>));
+<a href=#371 id=371 data-nosnippet>371</a>        <span class="kw">let </span>precision = <span class="number">0.1</span>;
 <a href=#372 id=372 data-nosnippet>372</a>
-<a href=#373 id=373 data-nosnippet>373</a>        <span class="kw">let </span><a href="#136">rounded = stochastic_rounding(data.view(), NonNegative(precision), </a><span class="number">42</span>);
+<a href=#373 id=373 data-nosnippet>373</a>        <span class="kw">let </span>rounded = stochastic_rounding(data.view(), NonNegative(precision), <span class="number">42</span>);
 <a href=#374 id=374 data-nosnippet>374</a>
-<a href=#375 id=375 data-nosnippet>375</a>        <span class="kw">for </span><a href="#136">(d, r) </a><span class="kw">in </span><a href="#136">data.into_iter().zip(rounded) {
-<a href=#376 id=376 data-nosnippet>376</a>            </a><span class="macro">assert!</span><a href="#136">((r - d).abs() &lt;= precision);
+<a href=#375 id=375 data-nosnippet>375</a>        <span class="kw">for </span>(d, r) <span class="kw">in </span>data.into_iter().zip(rounded) {
+<a href=#376 id=376 data-nosnippet>376</a>            <span class="macro">assert!</span>((r - d).abs() &lt;= precision);
 <a href=#377 id=377 data-nosnippet>377</a>        }
 <a href=#378 id=378 data-nosnippet>378</a>    }
 <a href=#379 id=379 data-nosnippet>379</a>
-<a href=#380 id=380 data-nosnippet>380</a>    </a><span class="attr">#[test]
-<a href=#381 id=381 data-nosnippet>381</a>    </span><span class="kw">fn </span><a href="#136">test_rounding_bug() {
-<a href=#382 id=382 data-nosnippet>382</a>        </a><span class="kw">let </span><a href="#136">data = </a><span class="macro">array!</span>[
+<a href=#380 id=380 data-nosnippet>380</a>    <span class="attr">#[test]
+<a href=#381 id=381 data-nosnippet>381</a>    </span><span class="kw">fn </span>test_rounding_bug() {
+<a href=#382 id=382 data-nosnippet>382</a>        <span class="kw">let </span>data = <span class="macro">array!</span>[
 <a href=#383 id=383 data-nosnippet>383</a>            -<span class="number">1.23540_f32</span>,
 <a href=#384 id=384 data-nosnippet>384</a>            -<span class="number">1.23539_f32</span>,
 <a href=#385 id=385 data-nosnippet>385</a>            -<span class="number">1.23538_f32</span>,
@@ -441,12 +441,13 @@
 <a href=#403 id=403 data-nosnippet>403</a>            <span class="number">1.23531_f32</span>,
 <a href=#404 id=404 data-nosnippet>404</a>            <span class="number">1.23530_f32</span>,
 <a href=#405 id=405 data-nosnippet>405</a>        ];
-<a href=#406 id=406 data-nosnippet>406</a>        <span class="kw">let </span><a href="#136">precision = </a><span class="number">0.00018_f32</span>;
+<a href=#406 id=406 data-nosnippet>406</a>        <span class="kw">let </span>precision = <span class="number">0.00018_f32</span>;
 <a href=#407 id=407 data-nosnippet>407</a>
-<a href=#408 id=408 data-nosnippet>408</a>        <span class="kw">let </span><a href="#136">rounded = stochastic_rounding(data.view(), NonNegative(precision), </a><span class="number">42</span>);
+<a href=#408 id=408 data-nosnippet>408</a>        <span class="kw">let </span>rounded = stochastic_rounding(data.view(), NonNegative(precision), <span class="number">42</span>);
 <a href=#409 id=409 data-nosnippet>409</a>
-<a href=#410 id=410 data-nosnippet>410</a>        <span class="kw">for </span><a href="#136">(d, r) </a><span class="kw">in </span><a href="#136">data.into_iter().zip(rounded) {
-<a href=#411 id=411 data-nosnippet>411</a>            </a><span class="macro">assert!</span><a href="#136">((r - d).abs() &lt;= precision);
+<a href=#410 id=410 data-nosnippet>410</a>        <span class="kw">for </span>(d, r) <span class="kw">in </span>data.into_iter().zip(rounded) {
+<a href=#411 id=411 data-nosnippet>411</a>            <span class="macro">assert!</span>((r - d).abs() &lt;= precision);
 <a href=#412 id=412 data-nosnippet>412</a>        }
 <a href=#413 id=413 data-nosnippet>413</a>    }
-<a href=#414 id=414 data-nosnippet>414</a>}</a></code></pre></div></section></main></body></html>
+<a href=#414 id=414 data-nosnippet>414</a>}
+</code></pre></div></section></main></body></html>

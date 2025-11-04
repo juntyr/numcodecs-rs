@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["QpetSperrCodecError","QpetSperrCompressionMode","QpetSperrDType"],"fn":["compress","decompress"],"struct":["Positive","QpetSperrCodec","QpetSperrCodingError","QpetSperrHeaderError","QpetSperrSliceError"],"trait":["QpetSperrElement"]};
