@@ -296,7 +296,7 @@ jobs:
           rm .python-version
           uv python install ${{ matrix.python }}
           uv sync && uv pip install .
-          uv run python3 -m numcodecs_wasm_materialize zfp
+          uv run python3 -m numcodecs_wasm_materialize zfp --local
 
       - name: Test importing the ZFP WASM codec
         run: |

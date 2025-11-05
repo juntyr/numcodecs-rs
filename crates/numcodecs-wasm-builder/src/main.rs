@@ -3,7 +3,7 @@
 
 use std::{
     collections::HashMap,
-    fs, io,
+    env, fs, io,
     path::{Path, PathBuf},
     process::Command,
     str::FromStr,
@@ -30,6 +30,10 @@ struct Args {
     /// Path to which the wasm file is output
     #[arg(long, short)]
     output: PathBuf,
+
+    /// Compile the local crate instead of the published one
+    #[arg(long)]
+    local: bool,
 }
 
 fn main() -> io::Result<()> {
@@ -47,8 +51,13 @@ fn main() -> io::Result<()> {
     eprintln!("creating {}", target_dir.display());
     fs::create_dir_all(&target_dir)?;
 
-    let crate_dir =
-        create_codec_wasm_component_crate(&scratch_dir, &args.crate_, &args.version, &args.codec)?;
+    let crate_dir = create_codec_wasm_component_crate(
+        &scratch_dir,
+        &args.crate_,
+        &args.version,
+        &args.codec,
+        args.local,
+    )?;
     copy_buildenv_to_crate(&crate_dir)?;
 
     let nix_env = NixEnv::new(&crate_dir)?;
@@ -72,6 +81,7 @@ fn create_codec_wasm_component_crate(
     crate_: &str,
     version: &Version,
     codec: &str,
+    local: bool,
 ) -> io::Result<PathBuf> {
     let crate_dir = scratch_dir.join(format!("{crate_}-wasm-{version}"));
     eprintln!("crate_dir={}", crate_dir.display());
@@ -80,6 +90,25 @@ fn create_codec_wasm_component_crate(
         fs::remove_dir_all(&crate_dir)?;
     }
     fs::create_dir_all(&crate_dir)?;
+
+    let (numcodecs_wasm_logging_path, numcodecs_wasm_guest_path, numcodecs_my_codec_path) = if local
+    {
+        let numcodecs = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join("..");
+        eprintln!("looking for local workspace in {}", numcodecs.display());
+        let numcodecs = numcodecs.canonicalize()?;
+        let numcodecs_wasm_logging = numcodecs.join("crates").join("numcodecs-wasm-logging");
+        let numcodecs_wasm_guest = numcodecs.join("crates").join("numcodecs-wasm-guest");
+        let numcodecs_my_codec = numcodecs
+            .join("codecs")
+            .join(crate_.strip_prefix("numcodecs-").unwrap_or(crate_));
+        (
+            format!(r#" path = "{}","#, numcodecs_wasm_logging.display()),
+            format!(r#" path = "{}","#, numcodecs_wasm_guest.display()),
+            format!(r#" path = "{}","#, numcodecs_my_codec.display()),
+        )
+    } else {
+        (String::new(), String::new(), String::new())
+    };
 
     fs::write(
         crate_dir.join("Cargo.toml"),
@@ -95,9 +124,9 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-numcodecs-wasm-logging = {{ version = "0.2", default-features = false }}
-numcodecs-wasm-guest = {{ version = "0.3", default-features = false }}
-numcodecs-my-codec = {{ package = "{crate_}", version = "{version}", default-features = false }}
+numcodecs-wasm-logging = {{ version = "0.2",{numcodecs_wasm_logging_path} default-features = false }}
+numcodecs-wasm-guest = {{ version = "0.3",{numcodecs_wasm_guest_path} default-features = false }}
+numcodecs-my-codec = {{ package = "{crate_}", version = "{version}",{numcodecs_my_codec_path} default-features = false }}
     "#
         ),
     )?;

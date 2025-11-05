@@ -1,8 +1,8 @@
+import argparse
 import re
 import shlex
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 
 import toml
@@ -13,12 +13,23 @@ repo_path = Path(__file__).parent.parent.parent.parent.parent
 template_path = repo_path / "py" / "numcodecs-wasm-template"
 dist_path = repo_path / "py" / "numcodecs-wasm-materialize" / "dist"
 
-codec_pattern = sys.argv[1]
+parser = argparse.ArgumentParser(prog="numcodecs_wasm_materialize")
+parser.add_argument(
+    "codec",
+    type=re.compile,
+    help="regex pattern for the codecs to materialize",
+)
+parser.add_argument(
+    "--local",
+    action="store_true",
+    help="compile the local codec instead of the published one",
+)
+args = parser.parse_args()
 
 for c in (repo_path / "codecs").iterdir():
     codec = c.name
 
-    if not codec_pattern or re.match(codec_pattern, codec) is None:
+    if not args.codec or re.match(args.codec, codec) is None:
         continue
 
     codec_crate_path = repo_path / "codecs" / codec
@@ -77,10 +88,11 @@ for c in (repo_path / "codecs").iterdir():
     subprocess.run(
         shlex.split(
             "cargo run -p numcodecs-wasm-builder --"
-            f" --crate numcodecs-{templates['crate-suffix']}"
-            f" --version {templates['crate-version']}"
-            f" --codec {templates['codec-path']}"
-            f" --output {staging_path / 'src' / ('numcodecs_wasm_' + templates['package_suffix']) / 'codec.wasm'}"
+            + f" --crate numcodecs-{templates['crate-suffix']}"
+            + f" --version {templates['crate-version']}"
+            + f" --codec {templates['codec-path']}"
+            + f" --output {staging_path / 'src' / ('numcodecs_wasm_' + templates['package_suffix']) / 'codec.wasm'}"
+            + (" --local" if args.local else "")
         ),
         check=True,
     )
@@ -98,7 +110,7 @@ for c in (repo_path / "codecs").iterdir():
     subprocess.run(
         shlex.split(
             f"uv run python3 {Path(__file__).parent / 'stub.py'} "
-            f"{'numcodecs_wasm_' + templates['package_suffix']} src"
+            + f"{'numcodecs_wasm_' + templates['package_suffix']} src"
         ),
         check=True,
         cwd=staging_path,
@@ -106,8 +118,8 @@ for c in (repo_path / "codecs").iterdir():
     subprocess.run(
         shlex.split(
             f'uv run python3 -c "from {"numcodecs_wasm_" + templates["package_suffix"]} '
-            f'import {templates["CodecName"]} as Codec; '
-            f'assert Codec.codec_id == {templates["codec-id"]!r}, Codec.codec_id"'
+            + f"import {templates['CodecName']} as Codec; "
+            + f'assert Codec.codec_id == {templates["codec-id"]!r}, Codec.codec_id"'
         ),
         check=True,
         cwd=staging_path,
