@@ -10,12 +10,32 @@
           "description": "quantity of interest expression"
         },
         "qoi_block_size": {
-          "type": "integer",
-          "format": "uint16",
-          "minimum": 1,
-          "maximum": 65535,
-          "description": "block size over which the quantity of interest errors are averaged,\n1 for pointwise",
-          "default": 1
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 1
+            },
+            {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 1
+            },
+            {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 1
+            }
+          ],
+          "minItems": 3,
+          "maxItems": 3,
+          "description": "3D block size (z,y,x) over which the quantity of interest errors\nare averaged, 1x1x1 for pointwise",
+          "default": [
+            1,
+            1,
+            1
+          ]
         },
         "qoi_pwe": {
           "type": "number",
@@ -43,7 +63,7 @@
           ],
           "minItems": 3,
           "maxItems": 3,
-          "description": "3D size of the chunks (z, y, x) that SPERR uses internally",
+          "description": "3D size of the chunks (z,y,x) that SPERR uses internally",
           "default": [
             256,
             256,
@@ -89,7 +109,7 @@
       "type": "string",
       "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
       "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
-      "default": "0.1.0"
+      "default": "0.2.0"
     }
   },
   "title": "QpetSperrCodec",

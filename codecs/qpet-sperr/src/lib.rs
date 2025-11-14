@@ -26,11 +26,7 @@ use ::zstd_sys as _;
 #[cfg(test)]
 use ::serde_json as _;
 
-use std::{
-    borrow::Cow,
-    fmt,
-    num::{NonZeroU16, NonZeroUsize},
-};
+use std::{borrow::Cow, fmt, num::NonZeroUsize};
 
 use ndarray::{Array, Array1, ArrayBase, Axis, Data, Dimension, IxDyn, ShapeError};
 use num_traits::{Float, identities::Zero};
@@ -42,7 +38,7 @@ use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-type QpetSperrCodecVersion = StaticCodecVersion<0, 1, 0>;
+type QpetSperrCodecVersion = StaticCodecVersion<0, 2, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // serde cannot deny unknown fields because of the flatten
@@ -72,14 +68,14 @@ pub enum QpetSperrCompressionMode {
     SymbolicQuantityOfInterest {
         /// quantity of interest expression
         qoi: String,
-        /// block size over which the quantity of interest errors are averaged,
-        /// 1 for pointwise
+        /// 3D block size (z,y,x) over which the quantity of interest errors
+        /// are averaged, 1x1x1 for pointwise
         #[serde(default = "default_qoi_block_size")]
-        qoi_block_size: NonZeroU16,
+        qoi_block_size: (NonZeroUsize, NonZeroUsize, NonZeroUsize),
         /// positive (pointwise) absolute error bound over the quantity of
         /// interest
         qoi_pwe: Positive<f64>,
-        /// 3D size of the chunks (z, y, x) that SPERR uses internally
+        /// 3D size of the chunks (z,y,x) that SPERR uses internally
         #[serde(default = "default_sperr_chunks")]
         sperr_chunks: (NonZeroUsize, NonZeroUsize, NonZeroUsize),
         /// optional positive pointwise absolute error bound over the data
@@ -94,10 +90,10 @@ pub enum QpetSperrCompressionMode {
     },
 }
 
-const fn default_qoi_block_size() -> NonZeroU16 {
-    const NON_ZERO_ONE: NonZeroU16 = NonZeroU16::MIN;
+const fn default_qoi_block_size() -> (NonZeroUsize, NonZeroUsize, NonZeroUsize) {
+    const NON_ZERO_ONE: NonZeroUsize = NonZeroUsize::MIN;
     // 1: pointwise
-    NON_ZERO_ONE
+    (NON_ZERO_ONE, NON_ZERO_ONE, NON_ZERO_ONE)
 }
 
 const fn default_sperr_chunks() -> (NonZeroUsize, NonZeroUsize, NonZeroUsize) {
