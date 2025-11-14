@@ -119,7 +119,7 @@ thiserror = { version = "2.0.12", default-features = false }
 tthresh = { version = "0.1", default-features = false }
 twofloat = { version = "0.8", default-features = false }
 vecmap-rs = { version = "0.2", default-features = false }
-wac-graph = { version = "0.8", default-features = false }
+wac-graph = { version = "0.8.1", default-features = false }
 wasi-sandboxed-component-provider = { version = "=0.2.6", default-features = false }
 wasi-logger = { version = "0.1", default-features = false }
 wasi-preview1-component-adapter-provider = { version = "37.0", default-features = false }
