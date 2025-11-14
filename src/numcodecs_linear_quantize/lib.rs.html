@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/linear-quantize/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_linear_quantize" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.0-nightly (f15a7f385 2025-11-04)" data-channel="nightly" data-search-js="search-5c29b3b5.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/linear-quantize/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_linear_quantize" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.0-nightly (2286e5d22 2025-11-13)" data-channel="nightly" data-search-js="search-680b2199.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -73,7 +73,7 @@
 <a href=#35 id=35 data-nosnippet>35</a>
 <a href=#36 id=36 data-nosnippet>36</a><span class="kw">type </span>LinearQuantizeCodecVersion = <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecVersion.html">StaticCodecVersion</a>&lt;<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>&gt;;
 <a href=#37 id=37 data-nosnippet>37</a>
-<a href=#38 id=38 data-nosnippet>38</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
+<a href=#38 id=38 data-nosnippet>38</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
 <a href=#39 id=39 data-nosnippet>39</a>#[serde(deny_unknown_fields)]
 <a href=#40 id=40 data-nosnippet>40</a></span><span class="doccomment">/// Lossy codec to reduce the precision of floating point data.
 <a href=#41 id=41 data-nosnippet>41</a>///
@@ -90,7 +90,7 @@
 <a href=#52 id=52 data-nosnippet>52</a>}
 <a href=#53 id=53 data-nosnippet>53</a>
 <a href=#54 id=54 data-nosnippet>54</a><span class="doccomment">/// Data types which the [`LinearQuantizeCodec`] can quantize
-<a href=#55 id=55 data-nosnippet>55</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/macro.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
+<a href=#55 id=55 data-nosnippet>55</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/derive.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
 <a href=#56 id=56 data-nosnippet>56</a>#[schemars(extend(<span class="string">"enum" </span>= [<span class="string">"f32"</span>, <span class="string">"float32"</span>, <span class="string">"f64"</span>, <span class="string">"float64"</span>]</span>))]
 <a href=#57 id=57 data-nosnippet>57</a><span class="attr">#[expect(missing_docs)]
 <a href=#58 id=58 data-nosnippet>58</a></span><span class="kw">pub enum </span><a href="../../numcodecs_linear_quantize/enum.LinearQuantizeDType.html">LinearQuantizeDType</a> {
@@ -114,7 +114,7 @@
 <a href=#76 id=76 data-nosnippet>76</a>/// The binary `#[repr(u8)]` value of each variant is equivalent to the binary
 <a href=#77 id=77 data-nosnippet>77</a>/// logarithm of the number of bins, i.e. the binary precision or the number of
 <a href=#78 id=78 data-nosnippet>78</a>/// bits used.
-<a href=#79 id=79 data-nosnippet>79</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/macro.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://docs.rs/serde_repr/0.1.20/serde_repr/derive.Serialize_repr.html">Serialize_repr</a>, <a href="https://docs.rs/serde_repr/0.1.20/serde_repr/derive.Deserialize_repr.html">Deserialize_repr</a>, JsonSchema_repr)]
+<a href=#79 id=79 data-nosnippet>79</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/derive.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://docs.rs/serde_repr/0.1.20/serde_repr/derive.Serialize_repr.html">Serialize_repr</a>, <a href="https://docs.rs/serde_repr/0.1.20/serde_repr/derive.Deserialize_repr.html">Deserialize_repr</a>, JsonSchema_repr)]
 <a href=#80 id=80 data-nosnippet>80</a>#[repr(u8)]
 <a href=#81 id=81 data-nosnippet>81</a>#[rustfmt::skip]
 <a href=#82 id=82 data-nosnippet>82</a>#[expect(missing_docs)]
@@ -269,7 +269,7 @@
 <a href=#231 id=231 data-nosnippet>231</a>            }
 <a href=#232 id=232 data-nosnippet>232</a>        }
 <a href=#233 id=233 data-nosnippet>233</a>
-<a href=#234 id=234 data-nosnippet>234</a>        <span class="macro">if !matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
+<a href=#234 id=234 data-nosnippet>234</a>        <span class="kw">if </span>!<a href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(encoded.shape(), [<span class="kw">_</span>]) {
 <a href=#235 id=235 data-nosnippet>235</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(LinearQuantizeCodecError::<a href="#443-446">EncodedDataNotOneDimensional</a> {
 <a href=#236 id=236 data-nosnippet>236</a>                shape: <a href="#222">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
 <a href=#237 id=237 data-nosnippet>237</a>            });
@@ -350,7 +350,7 @@
 <a href=#312 id=312 data-nosnippet>312</a>            }
 <a href=#313 id=313 data-nosnippet>313</a>        }
 <a href=#314 id=314 data-nosnippet>314</a>
-<a href=#315 id=315 data-nosnippet>315</a>        <span class="macro">if !matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
+<a href=#315 id=315 data-nosnippet>315</a>        <span class="kw">if </span>!<a href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(encoded.shape(), [<span class="kw">_</span>]) {
 <a href=#316 id=316 data-nosnippet>316</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(LinearQuantizeCodecError::<a href="#443-446">EncodedDataNotOneDimensional</a> {
 <a href=#317 id=317 data-nosnippet>317</a>                shape: <a href="#301">encoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
 <a href=#318 id=318 data-nosnippet>318</a>            });
@@ -449,7 +449,7 @@
 <a href=#411 id=411 data-nosnippet>411</a>    }
 <a href=#412 id=412 data-nosnippet>412</a>}
 <a href=#413 id=413 data-nosnippet>413</a>
-<a href=#414 id=414 data-nosnippet>414</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, Error)]
+<a href=#414 id=414 data-nosnippet>414</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, Error)]
 <a href=#415 id=415 data-nosnippet>415</a></span><span class="doccomment">/// Errors that may occur when applying the [`LinearQuantizeCodec`].
 <a href=#416 id=416 data-nosnippet>416</a></span><span class="kw">pub enum </span><a href="#416-491">LinearQuantizeCodecError</a> {
 <a href=#417 id=417 data-nosnippet>417</a>    <span class="doccomment">/// [`LinearQuantizeCodec`] cannot encode the provided dtype which differs
@@ -528,7 +528,7 @@
 <a href=#490 id=490 data-nosnippet>490</a>    },
 <a href=#491 id=491 data-nosnippet>491</a>}
 <a href=#492 id=492 data-nosnippet>492</a>
-<a href=#493 id=493 data-nosnippet>493</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, Error)]
+<a href=#493 id=493 data-nosnippet>493</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, Error)]
 <a href=#494 id=494 data-nosnippet>494</a>#[error(transparent)]
 <a href=#495 id=495 data-nosnippet>495</a></span><span class="doccomment">/// Opaque error for when encoding or decoding the header fails
 <a href=#496 id=496 data-nosnippet>496</a></span><span class="kw">pub struct </span><a href="#496">LinearQuantizeHeaderError</a>(postcard::Error);
@@ -552,7 +552,7 @@
 <a href=#514 id=514 data-nosnippet>514</a>    data: <span class="kw-2">&amp;</span><a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
 <a href=#515 id=515 data-nosnippet>515</a>    quantize: <span class="kw">impl </span><a href="https://doc.rust-lang.org/nightly/core/ops/function/trait.Fn.html">Fn</a>(T) -&gt; Q,
 <a href=#516 id=516 data-nosnippet>516</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;Q&gt;, <a href="#416-491">LinearQuantizeCodecError</a>&gt; {
-<a href=#517 id=517 data-nosnippet>517</a>    <span class="macro">if !</span><a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html">Zip</a>::<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.from">from</a>(<a href="#514">data</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.all">all</a>(|x| <a href="#517">x</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.is_finite">is_finite</a>()) {
+<a href=#517 id=517 data-nosnippet>517</a>    <span class="kw">if </span>!<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html">Zip</a>::<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.from">from</a>(<a href="#514">data</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.all">all</a>(|x| <a href="#517">x</a>.<a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html#tymethod.is_finite">is_finite</a>()) {
 <a href=#518 id=518 data-nosnippet>518</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(LinearQuantizeCodecError::<a href="#431">NonFiniteData</a>);
 <a href=#519 id=519 data-nosnippet>519</a>    }
 <a href=#520 id=520 data-nosnippet>520</a>

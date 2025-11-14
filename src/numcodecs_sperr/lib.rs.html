@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/sperr/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_sperr" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.0-nightly (f15a7f385 2025-11-04)" data-channel="nightly" data-search-js="search-5c29b3b5.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/sperr/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_sperr" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.0-nightly (2286e5d22 2025-11-13)" data-channel="nightly" data-search-js="search-680b2199.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -75,7 +75,7 @@
 <a href=#37 id=37 data-nosnippet>37</a>
 <a href=#38 id=38 data-nosnippet>38</a><span class="kw">type </span>SperrCodecVersion = <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecVersion.html">StaticCodecVersion</a>&lt;<span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>&gt;;
 <a href=#39 id=39 data-nosnippet>39</a>
-<a href=#40 id=40 data-nosnippet>40</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
+<a href=#40 id=40 data-nosnippet>40</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
 <a href=#41 id=41 data-nosnippet>41</a></span><span class="comment">// serde cannot deny unknown fields because of the flatten
 <a href=#42 id=42 data-nosnippet>42</a></span><span class="attr">#[schemars(deny_unknown_fields)]
 <a href=#43 id=43 data-nosnippet>43</a></span><span class="doccomment">/// Codec providing compression using SPERR.
@@ -94,7 +94,7 @@
 <a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">pub </span>version: <a href="#38">SperrCodecVersion</a>,
 <a href=#57 id=57 data-nosnippet>57</a>}
 <a href=#58 id=58 data-nosnippet>58</a>
-<a href=#59 id=59 data-nosnippet>59</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
+<a href=#59 id=59 data-nosnippet>59</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
 <a href=#60 id=60 data-nosnippet>60</a></span><span class="doccomment">/// SPERR compression mode
 <a href=#61 id=61 data-nosnippet>61</a></span><span class="attr">#[serde(tag = <span class="string">"mode"</span>)]
 <a href=#62 id=62 data-nosnippet>62</a></span><span class="kw">pub enum </span><a href="../../numcodecs_sperr/enum.SperrCompressionMode.html">SperrCompressionMode</a> {
@@ -146,7 +146,7 @@
 <a href=#108 id=108 data-nosnippet>108</a>            });
 <a href=#109 id=109 data-nosnippet>109</a>        };
 <a href=#110 id=110 data-nosnippet>110</a>
-<a href=#111 id=111 data-nosnippet>111</a>        <span class="macro">if !matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
+<a href=#111 id=111 data-nosnippet>111</a>        <span class="kw">if </span>!<a href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(encoded.shape(), [<span class="kw">_</span>]) {
 <a href=#112 id=112 data-nosnippet>112</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(SperrCodecError::<a href="#183-186">EncodedDataNotOneDimensional</a> {
 <a href=#113 id=113 data-nosnippet>113</a>                shape: <a href="#105">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
 <a href=#114 id=114 data-nosnippet>114</a>            });
@@ -180,7 +180,7 @@
 <a href=#142 id=142 data-nosnippet>142</a>    }
 <a href=#143 id=143 data-nosnippet>143</a>}
 <a href=#144 id=144 data-nosnippet>144</a>
-<a href=#145 id=145 data-nosnippet>145</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, Error)]
+<a href=#145 id=145 data-nosnippet>145</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, Error)]
 <a href=#146 id=146 data-nosnippet>146</a></span><span class="doccomment">/// Errors that may occur when applying the [`SperrCodec`].
 <a href=#147 id=147 data-nosnippet>147</a></span><span class="kw">pub enum </span><a href="#147-221">SperrCodecError</a> {
 <a href=#148 id=148 data-nosnippet>148</a>    <span class="doccomment">/// [`SperrCodec`] does not support the dtype
@@ -258,17 +258,17 @@
 <a href=#220 id=220 data-nosnippet>220</a>    },
 <a href=#221 id=221 data-nosnippet>221</a>}
 <a href=#222 id=222 data-nosnippet>222</a>
-<a href=#223 id=223 data-nosnippet>223</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, Error)]
+<a href=#223 id=223 data-nosnippet>223</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, Error)]
 <a href=#224 id=224 data-nosnippet>224</a>#[error(transparent)]
 <a href=#225 id=225 data-nosnippet>225</a></span><span class="doccomment">/// Opaque error for when encoding or decoding the header fails
 <a href=#226 id=226 data-nosnippet>226</a></span><span class="kw">pub struct </span><a href="#226">SperrHeaderError</a>(postcard::Error);
 <a href=#227 id=227 data-nosnippet>227</a>
-<a href=#228 id=228 data-nosnippet>228</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, Error)]
+<a href=#228 id=228 data-nosnippet>228</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, Error)]
 <a href=#229 id=229 data-nosnippet>229</a>#[error(transparent)]
 <a href=#230 id=230 data-nosnippet>230</a></span><span class="doccomment">/// Opaque error for when encoding or decoding a slice fails
 <a href=#231 id=231 data-nosnippet>231</a></span><span class="kw">pub struct </span><a href="#231">SperrSliceError</a>(postcard::Error);
 <a href=#232 id=232 data-nosnippet>232</a>
-<a href=#233 id=233 data-nosnippet>233</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, Error)]
+<a href=#233 id=233 data-nosnippet>233</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, Error)]
 <a href=#234 id=234 data-nosnippet>234</a>#[error(transparent)]
 <a href=#235 id=235 data-nosnippet>235</a></span><span class="doccomment">/// Opaque error for when encoding or decoding with SPERR fails
 <a href=#236 id=236 data-nosnippet>236</a></span><span class="kw">pub struct </span><a href="#236">SperrCodingError</a>(sperr::Error);
@@ -413,7 +413,7 @@
 <a href=#375 id=375 data-nosnippet>375</a>            })<span class="question-mark">?</span>;
 <a href=#376 id=376 data-nosnippet>376</a>        }
 <a href=#377 id=377 data-nosnippet>377</a>
-<a href=#378 id=378 data-nosnippet>378</a>        <span class="macro">if !</span><a href="#336">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.is_empty">is_empty</a>() {
+<a href=#378 id=378 data-nosnippet>378</a>        <span class="kw">if </span>!<a href="#336">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.is_empty">is_empty</a>() {
 <a href=#379 id=379 data-nosnippet>379</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(SperrCodecError::<a href="#201">DecodeTooManySlices</a>);
 <a href=#380 id=380 data-nosnippet>380</a>        }
 <a href=#381 id=381 data-nosnippet>381</a>
@@ -455,7 +455,7 @@
 <a href=#417 id=417 data-nosnippet>417</a>}
 <a href=#418 id=418 data-nosnippet>418</a>
 <a href=#419 id=419 data-nosnippet>419</a><span class="attr">#[expect(clippy::derive_partial_eq_without_eq)] </span><span class="comment">// floats are not Eq
-<a href=#420 id=420 data-nosnippet>420</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/macro.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/cmp/macro.PartialEq.html">PartialEq</a>, <a href="https://doc.rust-lang.org/nightly/core/cmp/macro.PartialOrd.html">PartialOrd</a>, <a href="https://doc.rust-lang.org/nightly/core/hash/macros/macro.Hash.html">Hash</a>)]
+<a href=#420 id=420 data-nosnippet>420</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/derive.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/cmp/derive.PartialEq.html">PartialEq</a>, <a href="https://doc.rust-lang.org/nightly/core/cmp/derive.PartialOrd.html">PartialOrd</a>, <a href="https://doc.rust-lang.org/nightly/core/hash/macros/derive.Hash.html">Hash</a>)]
 <a href=#421 id=421 data-nosnippet>421</a></span><span class="doccomment">/// Positive floating point number
 <a href=#422 id=422 data-nosnippet>422</a></span><span class="kw">pub struct </span><a href="../../numcodecs_sperr/struct.Positive.html">Positive</a>&lt;T: <a href="https://docs.rs/num-traits/0.2/num_traits/float/trait.Float.html">Float</a>&gt;(T);
 <a href=#423 id=423 data-nosnippet>423</a>
@@ -514,7 +514,7 @@
 <a href=#476 id=476 data-nosnippet>476</a>}
 <a href=#477 id=477 data-nosnippet>477</a>
 <a href=#478 id=478 data-nosnippet>478</a><span class="doccomment">/// Dtypes that SPERR can compress and decompress
-<a href=#479 id=479 data-nosnippet>479</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/macro.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>)]
+<a href=#479 id=479 data-nosnippet>479</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/derive.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>)]
 <a href=#480 id=480 data-nosnippet>480</a>#[expect(missing_docs)]
 <a href=#481 id=481 data-nosnippet>481</a></span><span class="kw">pub enum </span><a href="../../numcodecs_sperr/enum.SperrDType.html">SperrDType</a> {
 <a href=#482 id=482 data-nosnippet>482</a>    <span class="attr">#[serde(rename = <span class="string">"f32"</span>, alias = <span class="string">"float32"</span>)]

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.0-nightly (f15a7f385 2025-11-04)" data-channel="nightly" data-search-js="search-5c29b3b5.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.0-nightly (2286e5d22 2025-11-13)" data-channel="nightly" data-search-js="search-680b2199.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -89,7 +89,7 @@
 <a href=#51 id=51 data-nosnippet>51</a>
 <a href=#52 id=52 data-nosnippet>52</a><span class="kw">type </span>ZfpCodecVersion = <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecVersion.html">StaticCodecVersion</a>&lt;<span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>&gt;;
 <a href=#53 id=53 data-nosnippet>53</a>
-<a href=#54 id=54 data-nosnippet>54</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
+<a href=#54 id=54 data-nosnippet>54</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
 <a href=#55 id=55 data-nosnippet>55</a></span><span class="comment">// serde cannot deny unknown fields because of the flatten
 <a href=#56 id=56 data-nosnippet>56</a></span><span class="attr">#[schemars(deny_unknown_fields)]
 <a href=#57 id=57 data-nosnippet>57</a></span><span class="doccomment">/// Codec providing compression using ZFP
@@ -105,7 +105,7 @@
 <a href=#67 id=67 data-nosnippet>67</a>    </span><span class="kw">pub </span>version: <a href="#52">ZfpCodecVersion</a>,
 <a href=#68 id=68 data-nosnippet>68</a>}
 <a href=#69 id=69 data-nosnippet>69</a>
-<a href=#70 id=70 data-nosnippet>70</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
+<a href=#70 id=70 data-nosnippet>70</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
 <a href=#71 id=71 data-nosnippet>71</a>#[serde(tag = <span class="string">"mode"</span>)]
 <a href=#72 id=72 data-nosnippet>72</a>#[serde(deny_unknown_fields)]
 <a href=#73 id=73 data-nosnippet>73</a></span><span class="doccomment">/// ZFP compression mode
@@ -157,7 +157,7 @@
 <a href=#119 id=119 data-nosnippet>119</a>    </span>Reversible,
 <a href=#120 id=120 data-nosnippet>120</a>}
 <a href=#121 id=121 data-nosnippet>121</a>
-<a href=#122 id=122 data-nosnippet>122</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/macro.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, <a href="https://doc.rust-lang.org/nightly/core/default/macro.Default.html">Default</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
+<a href=#122 id=122 data-nosnippet>122</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/derive.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, <a href="https://doc.rust-lang.org/nightly/core/default/derive.Default.html">Default</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
 <a href=#123 id=123 data-nosnippet>123</a></span><span class="doccomment">/// ZFP non-finite values mode
 <a href=#124 id=124 data-nosnippet>124</a></span><span class="kw">pub enum </span><a href="../../numcodecs_zfp/enum.ZfpNonFiniteValuesMode.html">ZfpNonFiniteValuesMode</a> {
 <a href=#125 id=125 data-nosnippet>125</a>    <span class="doccomment">/// Deny compressing non-finite values, i.e. return an error.
@@ -208,7 +208,7 @@
 <a href=#170 id=170 data-nosnippet>170</a>            });
 <a href=#171 id=171 data-nosnippet>171</a>        };
 <a href=#172 id=172 data-nosnippet>172</a>
-<a href=#173 id=173 data-nosnippet>173</a>        <span class="macro">if !matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
+<a href=#173 id=173 data-nosnippet>173</a>        <span class="kw">if </span>!<a href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(encoded.shape(), [<span class="kw">_</span>]) {
 <a href=#174 id=174 data-nosnippet>174</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(ZfpCodecError::<a href="#270-273">EncodedDataNotOneDimensional</a> {
 <a href=#175 id=175 data-nosnippet>175</a>                shape: <a href="#167">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
 <a href=#176 id=176 data-nosnippet>176</a>            });
@@ -228,7 +228,7 @@
 <a href=#190 id=190 data-nosnippet>190</a>            });
 <a href=#191 id=191 data-nosnippet>191</a>        };
 <a href=#192 id=192 data-nosnippet>192</a>
-<a href=#193 id=193 data-nosnippet>193</a>        <span class="macro">if !matches!</span>(encoded.shape(), [<span class="kw">_</span>]) {
+<a href=#193 id=193 data-nosnippet>193</a>        <span class="kw">if </span>!<a href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(encoded.shape(), [<span class="kw">_</span>]) {
 <a href=#194 id=194 data-nosnippet>194</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(ZfpCodecError::<a href="#270-273">EncodedDataNotOneDimensional</a> {
 <a href=#195 id=195 data-nosnippet>195</a>                shape: <a href="#187">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
 <a href=#196 id=196 data-nosnippet>196</a>            });
@@ -252,7 +252,7 @@
 <a href=#214 id=214 data-nosnippet>214</a>    }
 <a href=#215 id=215 data-nosnippet>215</a>}
 <a href=#216 id=216 data-nosnippet>216</a>
-<a href=#217 id=217 data-nosnippet>217</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, Error)]
+<a href=#217 id=217 data-nosnippet>217</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, Error)]
 <a href=#218 id=218 data-nosnippet>218</a></span><span class="doccomment">/// Errors that may occur when applying the [`ZfpCodec`].
 <a href=#219 id=219 data-nosnippet>219</a></span><span class="kw">pub enum </span><a href="#219-293">ZfpCodecError</a> {
 <a href=#220 id=220 data-nosnippet>220</a>    <span class="doccomment">/// [`ZfpCodec`] does not support the dtype
@@ -330,7 +330,7 @@
 <a href=#292 id=292 data-nosnippet>292</a>    </span>ZfpDecodeFailed,
 <a href=#293 id=293 data-nosnippet>293</a>}
 <a href=#294 id=294 data-nosnippet>294</a>
-<a href=#295 id=295 data-nosnippet>295</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, Error)]
+<a href=#295 id=295 data-nosnippet>295</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, Error)]
 <a href=#296 id=296 data-nosnippet>296</a>#[error(transparent)]
 <a href=#297 id=297 data-nosnippet>297</a></span><span class="doccomment">/// Opaque error for when encoding or decoding the header fails
 <a href=#298 id=298 data-nosnippet>298</a></span><span class="kw">pub struct </span><a href="#298">ZfpHeaderError</a>(postcard::Error);
@@ -356,7 +356,7 @@
 <a href=#318 id=318 data-nosnippet>318</a>    mode: <span class="kw-2">&amp;</span><a href="#74-120">ZfpCompressionMode</a>,
 <a href=#319 id=319 data-nosnippet>319</a>    non_finite: <a href="#124-134">ZfpNonFiniteValuesMode</a>,
 <a href=#320 id=320 data-nosnippet>320</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#219-293">ZfpCodecError</a>&gt; {
-<a href=#321 id=321 data-nosnippet>321</a>    <span class="macro">if !matches!</span>(mode, ZfpCompressionMode::Reversible)
+<a href=#321 id=321 data-nosnippet>321</a>    <span class="kw">if </span>!<a href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(mode, ZfpCompressionMode::Reversible)
 <a href=#322 id=322 data-nosnippet>322</a>        &amp;&amp; !<a href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(non_finite, ZfpNonFiniteValuesMode::AllowUnsafe)
 <a href=#323 id=323 data-nosnippet>323</a>        &amp;&amp; !<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html">Zip</a>::<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.from">from</a>(<span class="kw-2">&amp;</span><a href="#317">data</a>).<a href="https://docs.rs/ndarray/0.15/ndarray/zip/struct.Zip.html#method.all">all</a>(|x| <a href="#323">x</a>.<a href="ffi.rs.html#346">is_finite</a>())
 <a href=#324 id=324 data-nosnippet>324</a>    {
@@ -520,7 +520,7 @@
 <a href=#482 id=482 data-nosnippet>482</a>}
 <a href=#483 id=483 data-nosnippet>483</a>
 <a href=#484 id=484 data-nosnippet>484</a><span class="doccomment">/// Dtypes that Zfp can compress and decompress
-<a href=#485 id=485 data-nosnippet>485</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/macro.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/macro.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/macro.Debug.html">Debug</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>)]
+<a href=#485 id=485 data-nosnippet>485</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/derive.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>)]
 <a href=#486 id=486 data-nosnippet>486</a>#[expect(missing_docs)]
 <a href=#487 id=487 data-nosnippet>487</a></span><span class="kw">pub enum </span><a href="../../numcodecs_zfp/enum.ZfpDType.html">ZfpDType</a> {
 <a href=#488 id=488 data-nosnippet>488</a>    <span class="attr">#[serde(rename = <span class="string">"i32"</span>, alias = <span class="string">"int32"</span>)]
