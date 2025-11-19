@@ -421,7 +421,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, QpetSperrCodecError> {
         })?;
 
     // Return empty data for zero-size arrays
-    if header.shape.iter().copied().product::<usize>() == 0 {
+    if header.shape.iter().copied().any(|s| s == 0) {
         return match header.dtype {
             QpetSperrDType::F32 => Ok(AnyArray::F32(Array::zeros(&*header.shape))),
             QpetSperrDType::F64 => Ok(AnyArray::F64(Array::zeros(&*header.shape))),

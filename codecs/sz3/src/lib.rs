@@ -605,7 +605,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Sz3CodecError> {
             }
         })?;
 
-    let decoded = if header.shape.iter().copied().product::<usize>() == 0 {
+    let decoded = if header.shape.iter().copied().any(|s| s == 0) {
         match header.dtype {
             Sz3DType::I32 => {
                 AnyArray::I32(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())

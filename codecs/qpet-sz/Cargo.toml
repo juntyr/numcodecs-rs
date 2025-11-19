@@ -1,0 +1,33 @@
+[package]
+name = "numcodecs-qpet-sz"
+version = "0.1.0"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "QPET-SZ codec implementation for the numcodecs API"
+readme = "README.md"
+categories = ["compression", "encoding"]
+keywords = ["QPET-SZ", "numcodecs", "compression", "encoding"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ndarray = { workspace = true, features = ["std"] }
+numcodecs = { workspace = true }
+num-traits = { workspace = true, features = ["std"] }
+postcard = { workspace = true }
+qpet-sz = { workspace = true }
+schemars = { workspace = true, features = ["derive", "preserve_order"] }
+serde = { workspace = true, features = ["std", "derive"] }
+thiserror = { workspace = true }
+# Explicitly enable the `no_wasm_shim` feature for qpet-sz-sys/zstd-sys
+zstd-sys = { workspace = true, features = ["no_wasm_shim"] }
+
+[dev-dependencies]
+serde_json = { workspace = true, features = ["std"] }
+
+[lints]
+workspace = true

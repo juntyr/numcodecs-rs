@@ -390,7 +390,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Jpeg2000CodecError> {
         })?;
 
     // Return empty data for zero-size arrays
-    if header.shape.iter().copied().product::<usize>() == 0 {
+    if header.shape.iter().copied().any(|s| s == 0) {
         return match header.dtype {
             Jpeg2000DType::I8 => Ok(AnyArray::I8(Array::zeros(&*header.shape))),
             Jpeg2000DType::U8 => Ok(AnyArray::U8(Array::zeros(&*header.shape))),

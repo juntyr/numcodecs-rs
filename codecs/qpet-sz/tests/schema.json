@@ -1,0 +1,88 @@
+{
+  "type": "object",
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "qoi": {
+          "type": "string",
+          "description": "quantity of interest expression"
+        },
+        "qoi_region_size": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 1,
+          "description": "side length of the region of the quantity of interest,\n1 for pointwise",
+          "default": 1
+        },
+        "qoi_c": {
+          "type": "number",
+          "exclusiveMinimum": 0.0,
+          "description": "positive quantity of interest c parameter (2.0 is a good default)",
+          "default": 2.0
+        },
+        "mode": {
+          "type": "string",
+          "const": "qoi-symbolic"
+        }
+      },
+      "required": [
+        "mode",
+        "qoi"
+      ],
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Absolute error bound",
+          "properties": {
+            "qoi_eb_abs": {
+              "type": "number",
+              "exclusiveMinimum": 0.0,
+              "description": "Absolute error bound"
+            },
+            "qoi_eb_mode": {
+              "type": "string",
+              "const": "abs"
+            }
+          },
+          "required": [
+            "qoi_eb_mode",
+            "qoi_eb_abs"
+          ]
+        },
+        {
+          "type": "object",
+          "description": "Range-relative error bound",
+          "properties": {
+            "qoi_eb_rel": {
+              "type": "number",
+              "exclusiveMinimum": 0.0,
+              "description": "Range-relative error bound"
+            },
+            "qoi_eb_mode": {
+              "type": "string",
+              "const": "rel"
+            }
+          },
+          "required": [
+            "qoi_eb_mode",
+            "qoi_eb_rel"
+          ]
+        }
+      ],
+      "description": "Symbolic Quantity of Interest"
+    }
+  ],
+  "description": "Codec providing compression using QPET-SZ.",
+  "properties": {
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "0.1.0"
+    }
+  },
+  "title": "QpetSzCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
