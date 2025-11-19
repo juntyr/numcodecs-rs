@@ -72,7 +72,7 @@ numcodecs-round = { version = "0.5", path = "codecs/round", default-features = f
 numcodecs-sperr = { version = "0.2", path = "codecs/sperr", default-features = false }
 numcodecs-stochastic-rounding = { version = "0.2", path = "codecs/stochastic-rounding", default-features = false }
 numcodecs-swizzle-reshape = { version = "0.4", path = "codecs/swizzle-reshape", default-features = false }
-numcodecs-sz3 = { version = "0.7", path = "codecs/sz3", default-features = false }
+numcodecs-sz3 = { version = "0.8", path = "codecs/sz3", default-features = false }
 numcodecs-tthresh = { version = "0.3", path = "codecs/tthresh", default-features = false }
 numcodecs-uniform-noise = { version = "0.4", path = "codecs/uniform-noise", default-features = false }
 numcodecs-zfp = { version = "0.6", path = "codecs/zfp", default-features = false }
@@ -114,7 +114,7 @@ serde_json = { version = "1.0.140", default-features = false }
 serde_repr = { version = "0.1.3", default-features = false }
 simple_logger = { version = "5.0", default-features = false }
 sperr = { version = "0.2", default-features = false }
-sz3 = { version = "0.3", default-features = false }
+sz3 = { version = "0.4", default-features = false }
 thiserror = { version = "2.0.12", default-features = false }
 tthresh = { version = "0.1", default-features = false }
 twofloat = { version = "0.8", default-features = false }

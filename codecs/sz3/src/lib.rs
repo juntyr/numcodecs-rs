@@ -21,7 +21,7 @@
 
 use std::{borrow::Cow, fmt};
 
-use ndarray::{Array, Array1, ArrayBase, Data, Dimension, ShapeError};
+use ndarray::{Array, Array1, ArrayBase, Data, Dimension, IxDyn, ShapeError};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
@@ -37,7 +37,7 @@ use ::zstd_sys as _;
 #[cfg(test)]
 use ::serde_json as _;
 
-type Sz3CodecVersion = StaticCodecVersion<0, 1, 0>;
+type Sz3CodecVersion = StaticCodecVersion<0, 2, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 // serde cannot deny unknown fields because of the flatten
@@ -116,68 +116,38 @@ pub enum Sz3ErrorBound {
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub enum Sz3Predictor {
-    /// Linear interpolation
-    #[serde(rename = "linear-interpolation")]
-    LinearInterpolation,
-    /// Cubic interpolation
-    #[serde(rename = "cubic-interpolation")]
-    CubicInterpolation,
-    /// Linear interpolation + Lorenzo predictor
-    #[serde(rename = "linear-interpolation-lorenzo")]
-    LinearInterpolationLorenzo,
-    /// Cubic interpolation + Lorenzo predictor
-    #[serde(rename = "cubic-interpolation-lorenzo")]
-    CubicInterpolationLorenzo,
+    /// Interpolation
+    #[serde(rename = "interpolation")]
+    Interpolation,
+    /// Interpolation + Lorenzo predictor
+    #[serde(rename = "interpolation-lorenzo")]
+    InterpolationLorenzo,
     /// 1st order regression
     #[serde(rename = "regression")]
     Regression,
-    /// 2nd order regression
-    #[serde(rename = "regression2")]
-    RegressionSecondOrder,
-    /// 1st+2nd order regression
-    #[serde(rename = "regression-regression2")]
-    RegressionFirstSecondOrder,
     /// 2nd order Lorenzo predictor
     #[serde(rename = "lorenzo2")]
     LorenzoSecondOrder,
-    /// 2nd order Lorenzo predictor + 2nd order regression
-    #[serde(rename = "lorenzo2-regression2")]
-    LorenzoSecondOrderRegressionSecondOrder,
     /// 2nd order Lorenzo predictor + 1st order regression
     #[serde(rename = "lorenzo2-regression")]
     LorenzoSecondOrderRegression,
-    /// 2nd order Lorenzo predictor + 1st order regression
-    #[serde(rename = "lorenzo2-regression-regression2")]
-    LorenzoSecondOrderRegressionFirstSecondOrder,
     /// 1st order Lorenzo predictor
     #[serde(rename = "lorenzo")]
     Lorenzo,
-    /// 1st order Lorenzo predictor + 2nd order regression
-    #[serde(rename = "lorenzo-regression2")]
-    LorenzoRegressionSecondOrder,
     /// 1st order Lorenzo predictor + 1st order regression
     #[serde(rename = "lorenzo-regression")]
     LorenzoRegression,
-    /// 1st order Lorenzo predictor + 1st and 2nd order regression
-    #[serde(rename = "lorenzo-regression-regression2")]
-    LorenzoRegressionFirstSecondOrder,
     /// 1st+2nd order Lorenzo predictor
     #[serde(rename = "lorenzo-lorenzo2")]
     LorenzoFirstSecondOrder,
-    /// 1st+2nd order Lorenzo predictor + 2nd order regression
-    #[serde(rename = "lorenzo-lorenzo2-regression2")]
-    LorenzoFirstSecondOrderRegressionSecondOrder,
     /// 1st+2nd order Lorenzo predictor + 1st order regression
     #[serde(rename = "lorenzo-lorenzo2-regression")]
     LorenzoFirstSecondOrderRegression,
-    /// 1st+2nd order Lorenzo predictor + 1st+2nd order regression
-    #[serde(rename = "lorenzo-lorenzo2-regression-regression2")]
-    LorenzoFirstSecondOrderRegressionFirstSecondOrder,
 }
 
 #[expect(clippy::unnecessary_wraps)]
 const fn default_predictor() -> Option<Sz3Predictor> {
-    Some(Sz3Predictor::CubicInterpolationLorenzo)
+    Some(Sz3Predictor::InterpolationLorenzo)
 }
 
 impl Codec for Sz3Codec {
@@ -296,6 +266,12 @@ pub enum Sz3CodecError {
         /// Opaque source error
         source: Sz3HeaderError,
     },
+    /// [`Sz3Codec`] failed to decode the data
+    #[error("Sz3 failed to decode the data")]
+    Sz3DecodeFailed {
+        /// Opaque source error
+        source: Sz3CodingError,
+    },
     /// [`Sz3Codec`] decoded an invalid array shape header which does not fit
     /// the decoded data
     #[error("Sz3 decoded an invalid array shape header which does not fit the decoded data")]
@@ -412,150 +388,42 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
     };
     let mut config = sz3::Config::new(error_bound);
 
-    // configure the interpolation mode, if necessary
-    let interpolation = match predictor {
-        Some(Sz3Predictor::LinearInterpolation | Sz3Predictor::LinearInterpolationLorenzo) => {
-            Some(sz3::InterpolationAlgorithm::Linear)
-        }
-        Some(Sz3Predictor::CubicInterpolation | Sz3Predictor::CubicInterpolationLorenzo) => {
-            Some(sz3::InterpolationAlgorithm::Cubic)
-        }
-        Some(
-            Sz3Predictor::Regression
-            | Sz3Predictor::RegressionSecondOrder
-            | Sz3Predictor::RegressionFirstSecondOrder
-            | Sz3Predictor::LorenzoSecondOrder
-            | Sz3Predictor::LorenzoSecondOrderRegressionSecondOrder
-            | Sz3Predictor::LorenzoSecondOrderRegression
-            | Sz3Predictor::LorenzoSecondOrderRegressionFirstSecondOrder
-            | Sz3Predictor::Lorenzo
-            | Sz3Predictor::LorenzoRegressionSecondOrder
-            | Sz3Predictor::LorenzoRegression
-            | Sz3Predictor::LorenzoRegressionFirstSecondOrder
-            | Sz3Predictor::LorenzoFirstSecondOrder
-            | Sz3Predictor::LorenzoFirstSecondOrderRegressionSecondOrder
-            | Sz3Predictor::LorenzoFirstSecondOrderRegression
-            | Sz3Predictor::LorenzoFirstSecondOrderRegressionFirstSecondOrder,
-        )
-        | None => None,
-    };
-    if let Some(interpolation) = interpolation {
-        config = config.interpolation_algorithm(interpolation);
-    }
-
     // configure the predictor (compression algorithm)
     let predictor = match predictor {
-        Some(Sz3Predictor::LinearInterpolation | Sz3Predictor::CubicInterpolation) => {
-            sz3::CompressionAlgorithm::Interpolation
-        }
-        Some(
-            Sz3Predictor::LinearInterpolationLorenzo | Sz3Predictor::CubicInterpolationLorenzo,
-        ) => sz3::CompressionAlgorithm::InterpolationLorenzo,
-        Some(Sz3Predictor::RegressionSecondOrder) => sz3::CompressionAlgorithm::LorenzoRegression {
-            lorenzo: false,
-            lorenzo_second_order: false,
-            regression: false,
-            regression_second_order: true,
-            prediction_dimension: None,
-        },
+        Some(Sz3Predictor::Interpolation) => sz3::CompressionAlgorithm::Interpolation,
+        Some(Sz3Predictor::InterpolationLorenzo) => sz3::CompressionAlgorithm::InterpolationLorenzo,
         Some(Sz3Predictor::Regression) => sz3::CompressionAlgorithm::LorenzoRegression {
             lorenzo: false,
             lorenzo_second_order: false,
             regression: true,
-            regression_second_order: false,
-            prediction_dimension: None,
         },
-        Some(Sz3Predictor::RegressionFirstSecondOrder) => {
-            sz3::CompressionAlgorithm::LorenzoRegression {
-                lorenzo: false,
-                lorenzo_second_order: false,
-                regression: true,
-                regression_second_order: true,
-                prediction_dimension: None,
-            }
-        }
         Some(Sz3Predictor::LorenzoSecondOrder) => sz3::CompressionAlgorithm::LorenzoRegression {
             lorenzo: false,
             lorenzo_second_order: true,
             regression: false,
-            regression_second_order: false,
-            prediction_dimension: None,
         },
-        Some(Sz3Predictor::LorenzoSecondOrderRegressionSecondOrder) => {
-            sz3::CompressionAlgorithm::LorenzoRegression {
-                lorenzo: false,
-                lorenzo_second_order: true,
-                regression: false,
-                regression_second_order: true,
-                prediction_dimension: None,
-            }
-        }
         Some(Sz3Predictor::LorenzoSecondOrderRegression) => {
             sz3::CompressionAlgorithm::LorenzoRegression {
                 lorenzo: false,
                 lorenzo_second_order: true,
                 regression: true,
-                regression_second_order: false,
-                prediction_dimension: None,
-            }
-        }
-        Some(Sz3Predictor::LorenzoSecondOrderRegressionFirstSecondOrder) => {
-            sz3::CompressionAlgorithm::LorenzoRegression {
-                lorenzo: false,
-                lorenzo_second_order: true,
-                regression: true,
-                regression_second_order: true,
-                prediction_dimension: None,
             }
         }
         Some(Sz3Predictor::Lorenzo) => sz3::CompressionAlgorithm::LorenzoRegression {
             lorenzo: true,
             lorenzo_second_order: false,
             regression: false,
-            regression_second_order: false,
-            prediction_dimension: None,
         },
-        Some(Sz3Predictor::LorenzoRegressionSecondOrder) => {
-            sz3::CompressionAlgorithm::LorenzoRegression {
-                lorenzo: true,
-                lorenzo_second_order: false,
-                regression: false,
-                regression_second_order: true,
-                prediction_dimension: None,
-            }
-        }
         Some(Sz3Predictor::LorenzoRegression) => sz3::CompressionAlgorithm::LorenzoRegression {
             lorenzo: true,
             lorenzo_second_order: false,
             regression: true,
-            regression_second_order: false,
-            prediction_dimension: None,
         },
-        Some(Sz3Predictor::LorenzoRegressionFirstSecondOrder) => {
-            sz3::CompressionAlgorithm::LorenzoRegression {
-                lorenzo: true,
-                lorenzo_second_order: false,
-                regression: true,
-                regression_second_order: true,
-                prediction_dimension: None,
-            }
-        }
         Some(Sz3Predictor::LorenzoFirstSecondOrder) => {
             sz3::CompressionAlgorithm::LorenzoRegression {
                 lorenzo: true,
                 lorenzo_second_order: true,
                 regression: false,
-                regression_second_order: false,
-                prediction_dimension: None,
-            }
-        }
-        Some(Sz3Predictor::LorenzoFirstSecondOrderRegressionSecondOrder) => {
-            sz3::CompressionAlgorithm::LorenzoRegression {
-                lorenzo: true,
-                lorenzo_second_order: true,
-                regression: false,
-                regression_second_order: true,
-                prediction_dimension: None,
             }
         }
         Some(Sz3Predictor::LorenzoFirstSecondOrderRegression) => {
@@ -563,30 +431,17 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
                 lorenzo: true,
                 lorenzo_second_order: true,
                 regression: true,
-                regression_second_order: false,
-                prediction_dimension: None,
-            }
-        }
-        Some(Sz3Predictor::LorenzoFirstSecondOrderRegressionFirstSecondOrder) => {
-            sz3::CompressionAlgorithm::LorenzoRegression {
-                lorenzo: true,
-                lorenzo_second_order: true,
-                regression: true,
-                regression_second_order: true,
-                prediction_dimension: None,
             }
         }
         None => sz3::CompressionAlgorithm::NoPrediction,
     };
     config = config.compression_algorithm(predictor);
 
-    // TODO: avoid extra allocation here
-    let compressed = sz3::compress_with_config(&data, &config).map_err(|err| {
+    sz3::compress_into_with_config(&data, &config, &mut encoded_bytes).map_err(|err| {
         Sz3CodecError::Sz3EncodeFailed {
             source: Sz3CodingError(err),
         }
     })?;
-    encoded_bytes.extend_from_slice(&compressed);
 
     Ok(encoded_bytes)
 }
@@ -597,7 +452,24 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
 ///
 /// Errors with
 /// - [`Sz3CodecError::HeaderDecodeFailed`] if decoding the header failed
+/// - [`Sz3CodecError::Sz3DecodeFailed`] if decoding failed with an opaque error
 pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Sz3CodecError> {
+    fn decompress_typed<T: Sz3Element>(
+        encoded: &[u8],
+        shape: &[usize],
+    ) -> Result<Array<T, IxDyn>, Sz3CodecError> {
+        if shape.iter().copied().any(|s| s == 0) {
+            return Ok(Array::from_shape_vec(shape, Vec::new())?);
+        }
+
+        let (_config, decompressed) =
+            sz3::decompress(encoded).map_err(|err| Sz3CodecError::Sz3DecodeFailed {
+                source: Sz3CodingError(err),
+            })?;
+
+        Ok(Array::from_shape_vec(shape, decompressed.into_data())?)
+    }
+
     let (header, data) =
         postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
             Sz3CodecError::HeaderDecodeFailed {
@@ -605,41 +477,17 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Sz3CodecError> {
             }
         })?;
 
-    let decoded = if header.shape.iter().copied().product::<usize>() == 0 {
-        match header.dtype {
-            Sz3DType::I32 => {
-                AnyArray::I32(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
-            }
-            Sz3DType::I64 => {
-                AnyArray::I64(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
-            }
-            Sz3DType::F32 => {
-                AnyArray::F32(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
-            }
-            Sz3DType::F64 => {
-                AnyArray::F64(Array::from_shape_vec(&*header.shape, Vec::new())?.into_dyn())
-            }
-        }
-    } else {
-        // TODO: avoid extra allocation here
-        match header.dtype {
-            Sz3DType::I32 => AnyArray::I32(Array::from_shape_vec(
-                &*header.shape,
-                Vec::from(sz3::decompress(data).1.data()),
-            )?),
-            Sz3DType::I64 => AnyArray::I64(Array::from_shape_vec(
-                &*header.shape,
-                Vec::from(sz3::decompress(data).1.data()),
-            )?),
-            Sz3DType::F32 => AnyArray::F32(Array::from_shape_vec(
-                &*header.shape,
-                Vec::from(sz3::decompress(data).1.data()),
-            )?),
-            Sz3DType::F64 => AnyArray::F64(Array::from_shape_vec(
-                &*header.shape,
-                Vec::from(sz3::decompress(data).1.data()),
-            )?),
-        }
+    let decoded = match header.dtype {
+        Sz3DType::U8 => AnyArray::U8(decompress_typed(data, &header.shape)?),
+        Sz3DType::I8 => AnyArray::I8(decompress_typed(data, &header.shape)?),
+        Sz3DType::U16 => AnyArray::U16(decompress_typed(data, &header.shape)?),
+        Sz3DType::I16 => AnyArray::I16(decompress_typed(data, &header.shape)?),
+        Sz3DType::U32 => AnyArray::U32(decompress_typed(data, &header.shape)?),
+        Sz3DType::I32 => AnyArray::I32(decompress_typed(data, &header.shape)?),
+        Sz3DType::U64 => AnyArray::U64(decompress_typed(data, &header.shape)?),
+        Sz3DType::I64 => AnyArray::I64(decompress_typed(data, &header.shape)?),
+        Sz3DType::F32 => AnyArray::F32(decompress_typed(data, &header.shape)?),
+        Sz3DType::F64 => AnyArray::F64(decompress_typed(data, &header.shape)?),
     };
 
     Ok(decoded)
@@ -651,8 +499,32 @@ pub trait Sz3Element: Copy + sz3::SZ3Compressible {
     const DTYPE: Sz3DType;
 }
 
+impl Sz3Element for u8 {
+    const DTYPE: Sz3DType = Sz3DType::U8;
+}
+
+impl Sz3Element for i8 {
+    const DTYPE: Sz3DType = Sz3DType::I8;
+}
+
+impl Sz3Element for u16 {
+    const DTYPE: Sz3DType = Sz3DType::U16;
+}
+
+impl Sz3Element for i16 {
+    const DTYPE: Sz3DType = Sz3DType::I16;
+}
+
+impl Sz3Element for u32 {
+    const DTYPE: Sz3DType = Sz3DType::U32;
+}
+
 impl Sz3Element for i32 {
     const DTYPE: Sz3DType = Sz3DType::I32;
+}
+
+impl Sz3Element for u64 {
+    const DTYPE: Sz3DType = Sz3DType::U64;
 }
 
 impl Sz3Element for i64 {
@@ -679,6 +551,18 @@ struct CompressionHeader<'a> {
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 #[expect(missing_docs)]
 pub enum Sz3DType {
+    #[serde(rename = "u8", alias = "uint8")]
+    U8,
+    #[serde(rename = "u16", alias = "uint16")]
+    U16,
+    #[serde(rename = "u32", alias = "uint32")]
+    U32,
+    #[serde(rename = "u64", alias = "uint64")]
+    U64,
+    #[serde(rename = "i8", alias = "int8")]
+    I8,
+    #[serde(rename = "i16", alias = "int16")]
+    I16,
     #[serde(rename = "i32", alias = "int32")]
     I32,
     #[serde(rename = "i64", alias = "int64")]
@@ -692,6 +576,12 @@ pub enum Sz3DType {
 impl fmt::Display for Sz3DType {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.write_str(match self {
+            Self::U8 => "u8",
+            Self::U16 => "u16",
+            Self::U32 => "u32",
+            Self::U64 => "u64",
+            Self::I8 => "i8",
+            Self::I16 => "i16",
             Self::I32 => "i32",
             Self::I64 => "i64",
             Self::F32 => "f32",
@@ -769,22 +659,17 @@ mod tests {
 
         for predictor in [
             None,
+            Some(Sz3Predictor::Interpolation),
+            Some(Sz3Predictor::InterpolationLorenzo),
             Some(Sz3Predictor::Regression),
-            Some(Sz3Predictor::RegressionSecondOrder),
-            Some(Sz3Predictor::RegressionFirstSecondOrder),
             Some(Sz3Predictor::LorenzoSecondOrder),
-            Some(Sz3Predictor::LorenzoSecondOrderRegressionSecondOrder),
             Some(Sz3Predictor::LorenzoSecondOrderRegression),
-            Some(Sz3Predictor::LorenzoSecondOrderRegressionFirstSecondOrder),
             Some(Sz3Predictor::Lorenzo),
-            Some(Sz3Predictor::LorenzoRegressionSecondOrder),
             Some(Sz3Predictor::LorenzoRegression),
-            Some(Sz3Predictor::LorenzoRegressionFirstSecondOrder),
             Some(Sz3Predictor::LorenzoFirstSecondOrder),
-            Some(Sz3Predictor::LorenzoFirstSecondOrderRegressionSecondOrder),
             Some(Sz3Predictor::LorenzoFirstSecondOrderRegression),
-            Some(Sz3Predictor::LorenzoFirstSecondOrderRegressionFirstSecondOrder),
         ] {
+            eprintln!("{predictor:?}");
             let encoded = compress(
                 data.view(),
                 predictor.as_ref(),
@@ -792,6 +677,34 @@ mod tests {
             )?;
             let _decoded = decompress(&encoded)?;
         }
+
+        Ok(())
+    }
+
+    #[test]
+    fn all_dtypes() -> Result<(), Sz3CodecError> {
+        fn compress_decompress<T: Sz3Element>(
+            iter: impl IntoIterator<Item = T>,
+        ) -> Result<(), Sz3CodecError> {
+            let encoded = compress(
+                Array::from_iter(iter).view(),
+                None,
+                &Sz3ErrorBound::Absolute { abs: 2.0 },
+            )?;
+            let _decoded = decompress(&encoded)?;
+            Ok(())
+        }
+
+        compress_decompress(0_u8..42)?;
+        compress_decompress(-42_i8..42)?;
+        compress_decompress(0_u16..42)?;
+        compress_decompress(-42_i16..42)?;
+        compress_decompress(0_u32..42)?;
+        compress_decompress(-42_i32..42)?;
+        compress_decompress(0_u64..42)?;
+        compress_decompress(-42_i64..42)?;
+        compress_decompress((-42_i16..42).map(f32::from))?;
+        compress_decompress((-42_i16..42).map(f64::from))?;
 
         Ok(())
     }

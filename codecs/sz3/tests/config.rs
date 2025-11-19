@@ -59,7 +59,7 @@ fn config_predictor() {
         Deserialize::deserialize(json!({
             "eb_mode": "rel",
             "eb_rel": 1.0,
-            "predictor": "linear-interpolation",
+            "predictor": "interpolation",
         }))
         .unwrap(),
     );
@@ -68,7 +68,7 @@ fn config_predictor() {
         Deserialize::deserialize(json!({
             "eb_mode": "rel",
             "eb_rel": 1.0,
-            "predictor": "cubic-interpolation-lorenzo",
+            "predictor": "interpolation-lorenzo",
         }))
         .unwrap(),
     );

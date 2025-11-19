@@ -5,9 +5,6 @@ use ::{
     zstd_sys as _,
 };
 
-#[cfg(target_arch = "wasm32")]
-use ::gmp_mpfr_sys as _;
-
 use numcodecs::StaticCodec;
 use numcodecs_qpet_sperr::{QpetSperrCodec, QpetSperrCompressionMode};
 use serde::Deserialize;

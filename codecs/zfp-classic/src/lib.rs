@@ -378,7 +378,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, ZfpClassicCodecError> {
         })?;
 
     // Return empty data for zero-size arrays
-    if header.shape.iter().copied().product::<usize>() == 0 {
+    if header.shape.iter().copied().any(|s| s == 0) {
         let decoded = match header.dtype {
             ZfpDType::I32 => AnyArray::I32(Array::zeros(&*header.shape)),
             ZfpDType::I64 => AnyArray::I64(Array::zeros(&*header.shape)),

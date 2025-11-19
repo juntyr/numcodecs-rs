@@ -7,23 +7,13 @@
           "oneOf": [
             {
               "type": "string",
-              "const": "linear-interpolation",
-              "description": "Linear interpolation"
+              "const": "interpolation",
+              "description": "Interpolation"
             },
             {
               "type": "string",
-              "const": "cubic-interpolation",
-              "description": "Cubic interpolation"
-            },
-            {
-              "type": "string",
-              "const": "linear-interpolation-lorenzo",
-              "description": "Linear interpolation + Lorenzo predictor"
-            },
-            {
-              "type": "string",
-              "const": "cubic-interpolation-lorenzo",
-              "description": "Cubic interpolation + Lorenzo predictor"
+              "const": "interpolation-lorenzo",
+              "description": "Interpolation + Lorenzo predictor"
             },
             {
               "type": "string",
@@ -32,32 +22,12 @@
             },
             {
               "type": "string",
-              "const": "regression2",
-              "description": "2nd order regression"
-            },
-            {
-              "type": "string",
-              "const": "regression-regression2",
-              "description": "1st+2nd order regression"
-            },
-            {
-              "type": "string",
               "const": "lorenzo2",
               "description": "2nd order Lorenzo predictor"
             },
             {
               "type": "string",
-              "const": "lorenzo2-regression2",
-              "description": "2nd order Lorenzo predictor + 2nd order regression"
-            },
-            {
-              "type": "string",
               "const": "lorenzo2-regression",
-              "description": "2nd order Lorenzo predictor + 1st order regression"
-            },
-            {
-              "type": "string",
-              "const": "lorenzo2-regression-regression2",
               "description": "2nd order Lorenzo predictor + 1st order regression"
             },
             {
@@ -67,18 +37,8 @@
             },
             {
               "type": "string",
-              "const": "lorenzo-regression2",
-              "description": "1st order Lorenzo predictor + 2nd order regression"
-            },
-            {
-              "type": "string",
               "const": "lorenzo-regression",
               "description": "1st order Lorenzo predictor + 1st order regression"
-            },
-            {
-              "type": "string",
-              "const": "lorenzo-regression-regression2",
-              "description": "1st order Lorenzo predictor + 1st and 2nd order regression"
             },
             {
               "type": "string",
@@ -87,18 +47,8 @@
             },
             {
               "type": "string",
-              "const": "lorenzo-lorenzo2-regression2",
-              "description": "1st+2nd order Lorenzo predictor + 2nd order regression"
-            },
-            {
-              "type": "string",
               "const": "lorenzo-lorenzo2-regression",
               "description": "1st+2nd order Lorenzo predictor + 1st order regression"
-            },
-            {
-              "type": "string",
-              "const": "lorenzo-lorenzo2-regression-regression2",
-              "description": "1st+2nd order Lorenzo predictor + 1st+2nd order regression"
             }
           ],
           "description": "SZ3 predictor"
@@ -108,13 +58,13 @@
         }
       ],
       "description": "Predictor",
-      "default": "cubic-interpolation-lorenzo"
+      "default": "interpolation-lorenzo"
     },
     "_version": {
       "type": "string",
       "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
       "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
-      "default": "0.1.0"
+      "default": "0.2.0"
     }
   },
   "unevaluatedProperties": false,

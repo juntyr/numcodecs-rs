@@ -390,7 +390,7 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, SperrCodecError> {
         })?;
 
     // Return empty data for zero-size arrays
-    if header.shape.iter().copied().product::<usize>() == 0 {
+    if header.shape.iter().copied().any(|s| s == 0) {
         return match header.dtype {
             SperrDType::F32 => Ok(AnyArray::F32(Array::zeros(&*header.shape))),
             SperrDType::F64 => Ok(AnyArray::F64(Array::zeros(&*header.shape))),
