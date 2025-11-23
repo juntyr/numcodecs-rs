@@ -1,8 +1,8 @@
 #![expect(missing_docs)]
 
 use ::{
-    ndarray as _, postcard as _, schemars as _, serde as _, serde_json as _, sz3 as _,
-    thiserror as _, zstd_sys as _,
+    ndarray as _, num_traits as _, postcard as _, schemars as _, serde as _, serde_json as _,
+    sz3 as _, thiserror as _, zstd_sys as _,
 };
 
 use numcodecs::{DynCodecType, StaticCodecType};

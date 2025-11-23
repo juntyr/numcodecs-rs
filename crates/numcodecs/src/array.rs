@@ -320,38 +320,22 @@ where
     /// Otherwise, the data is cloned and put into standard order first, and
     /// later copied back into the array.
     pub fn with_bytes_mut<O>(&mut self, with: impl FnOnce(&mut [u8]) -> O) -> O {
-        fn array_with_bytes_mut<T: Copy, S: DataMut<Elem = T>, O>(
+        fn array_with_bytes_mut<T: ArrayDType, S: DataMut<Elem = T>, O>(
             x: &mut ArrayBase<S, IxDyn>,
             with: impl FnOnce(&mut [u8]) -> O,
         ) -> O {
-            if let Some(x) = x.as_slice_mut() {
-                #[expect(unsafe_code)]
-                // Safety: casting to a byte slice is only safe since this
-                //         private helper function is only called for plain-
-                //         old-data types and the slice's length is adjusted
+            #[expect(unsafe_code)]
+            // Safety: casting to a byte slice is only safe since this
+            //         private helper function is only called for plain-
+            //         old-data types and the slice's length is adjusted
+            x.with_slice_mut(|x| {
                 with(unsafe {
                     std::slice::from_raw_parts_mut(
                         x.as_mut_ptr().cast::<u8>(),
                         std::mem::size_of_val(x),
                     )
                 })
-            } else {
-                let mut x_vec: Vec<T> = x.into_iter().map(|x| *x).collect::<Vec<T>>();
-
-                #[expect(unsafe_code)]
-                // Safety: casting to a byte slice is only safe since this
-                //         private helper function is only called for plain-
-                //         old-data types and the slice's length is adjusted
-                let result = with(unsafe {
-                    std::slice::from_raw_parts_mut(
-                        x_vec.as_mut_ptr().cast::<u8>(),
-                        std::mem::size_of_val(x_vec.as_slice()),
-                    )
-                });
-
-                x.iter_mut().zip(x_vec).for_each(|(x, x_new)| *x = x_new);
-                result
-            }
+            })
         }
 
         match self {
@@ -601,6 +585,44 @@ where
     }
 }
 
+/// Extension trait for [`ArrayBase`] where the data provides mutable access
+/// and implements [`DataMut`].
+///
+/// This trait is sealed and cannot be implemented in your code, but is
+/// provided for all arrays over element types implementing [`ArrayDType`].
+pub trait ArrayDataMutExt<T: ArrayDType>: sealed::SealedArrayDataMutExt {
+    #[must_use]
+    /// Provides access to the array's data as a mutable slice.
+    ///
+    /// If the array is contiguous and in standard order, i.e. if the element
+    /// order in memory corresponds to the logical order of the array's
+    /// elements, a mutable view of the data is returned without cloning.
+    ///
+    /// Otherwise, the data is cloned and put into standard order first, and
+    /// later copied back into the array.
+    fn with_slice_mut<O>(&mut self, with: impl FnOnce(&mut [T]) -> O) -> O;
+}
+
+impl<T: ArrayDType, S: DataMut<Elem = T>, D: Dimension> ArrayDataMutExt<T> for ArrayBase<S, D> {
+    fn with_slice_mut<O>(&mut self, with: impl FnOnce(&mut [T]) -> O) -> O {
+        if let Some(slice) = self.as_slice_mut() {
+            with(slice)
+        } else {
+            let mut vec: Vec<T> = self.into_iter().map(|x| *x).collect::<Vec<T>>();
+
+            let result = with(vec.as_mut_slice());
+
+            self.iter_mut().zip(vec).for_each(|(x, x_new)| *x = x_new);
+            result
+        }
+    }
+}
+
+impl<T: ArrayDType, S: DataMut<Elem = T>, D: Dimension> sealed::SealedArrayDataMutExt
+    for ArrayBase<S, D>
+{
+}
+
 /// Array-representation support for all dtypes included in [`AnyArrayBase`].
 #[expect(missing_docs)]
 pub trait AnyRawData {
@@ -740,7 +762,7 @@ impl fmt::Display for AnyArrayDType {
 }
 
 /// Types which are included in [`AnyArrayDType`]
-pub trait ArrayDType: crate::sealed::Sealed {
+pub trait ArrayDType: sealed::SealedArrayDType {
     /// [`AnyArrayDType`] representation of this type
     const DTYPE: AnyArrayDType;
 
@@ -751,7 +773,7 @@ pub trait ArrayDType: crate::sealed::Sealed {
 macro_rules! array_dtype {
     ($($dtype:ident($ty:ty)),*) => {
         $(
-            impl crate::sealed::Sealed for $ty {}
+            impl sealed::SealedArrayDType for $ty {}
 
             impl ArrayDType for $ty {
                 const DTYPE: AnyArrayDType = AnyArrayDType::$dtype;
@@ -787,4 +809,10 @@ pub enum AnyArrayAssignError {
         /// Shape of the `dst` array into which the data is copied
         dst: Vec<usize>,
     },
+}
+
+mod sealed {
+    pub trait SealedArrayDType: Copy {}
+
+    pub trait SealedArrayDataMutExt {}
 }

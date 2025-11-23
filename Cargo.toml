@@ -45,7 +45,7 @@ rust-version = "1.87"
 
 [workspace.dependencies]
 # workspace-internal numcodecs crates
-numcodecs = { version = "0.3", path = "crates/numcodecs", default-features = false }
+numcodecs = { version = "0.3.1", path = "crates/numcodecs", default-features = false }
 numcodecs-python = { version = "0.7.1", path = "crates/numcodecs-python", default-features = false }
 numcodecs-wasm-builder = { version = "0.2", path = "crates/numcodecs-wasm-builder", default-features = false }
 numcodecs-wasm-guest = { version = "0.3", path = "crates/numcodecs-wasm-guest", default-features = false }
@@ -114,8 +114,8 @@ serde_json = { version = "1.0.140", default-features = false }
 serde_repr = { version = "0.1.3", default-features = false }
 simple_logger = { version = "5.0", default-features = false }
 sperr = { version = "0.2", default-features = false }
-sz3 = { version = "0.4", default-features = false }
-thiserror = { version = "2.0.12", default-features = false }
+sz3 = { version = "0.4.1", git = "https://github.com/juntyr/sz3-rs.git", rev = "6853d2d", default-features = false }
+thiserror = { version = "2.0.17", default-features = false }
 tthresh = { version = "0.1", default-features = false }
 twofloat = { version = "0.8", default-features = false }
 vecmap-rs = { version = "0.2", default-features = false }
@@ -134,7 +134,7 @@ wit-parser = { version = "0.240", default-features = false }
 wyhash = { version = "0.6", default-features = false }
 zfp-sys = { version = "0.4.2", default-features = false }
 zstd = { version = "0.13", default-features = false }
-zstd-sys = { version = "2.0.12", default-features = false }
+zstd-sys = { version = "2.0.16", default-features = false }
 
 # git third-party dependencies with non-upstream fixes
 wasm_component_layer = { git = "https://github.com/juntyr/wasm_component_layer.git", rev = "ad80189", version = "0.1", default-features = false }

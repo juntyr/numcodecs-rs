@@ -21,10 +21,10 @@
 
 use std::{borrow::Cow, fmt};
 
-use ndarray::{Array, Array1, ArrayBase, Data, Dimension, IxDyn, ShapeError};
+use ndarray::{Array, Array1, ArrayBase, ArrayViewMut, Data, Dimension, IxDyn, ShapeError};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
+    ArrayDType, ArrayDataMutExt, Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -194,11 +194,21 @@ impl Codec for Sz3Codec {
     fn decode_into(
         &self,
         encoded: AnyArrayView,
-        mut decoded: AnyArrayViewMut,
+        decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        let decoded_in = self.decode(encoded.cow())?;
+        let AnyArrayView::U8(encoded) = encoded else {
+            return Err(Sz3CodecError::EncodedDataNotBytes {
+                dtype: encoded.dtype(),
+            });
+        };
 
-        Ok(decoded.assign(&decoded_in)?)
+        if !matches!(encoded.shape(), [_]) {
+            return Err(Sz3CodecError::EncodedDataNotOneDimensional {
+                shape: encoded.shape().to_vec(),
+            });
+        }
+
+        decompress_into(&AnyArrayView::U8(encoded).as_bytes(), decoded)
     }
 }
 
@@ -446,7 +456,7 @@ pub fn compress<T: Sz3Element, S: Data<Elem = T>, D: Dimension>(
     Ok(encoded_bytes)
 }
 
-/// Decompresses the `encoded` data into an array.
+/// Decompresses the `encoded` data into an array using SZ3.
 ///
 /// # Errors
 ///
@@ -493,8 +503,114 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, Sz3CodecError> {
     Ok(decoded)
 }
 
+/// Decompresses the `encoded` data into a `decoded` array using SZ3.
+///
+/// # Errors
+///
+/// Errors with
+/// - [`Sz3CodecError::HeaderDecodeFailed`] if decoding the header failed
+/// - [`Sz3CodecError::MismatchedDecodeIntoArray`] if the `decoded` array is of
+///   the wrong dtype or shape
+/// - [`Sz3CodecError::Sz3DecodeFailed`] if decoding failed with an opaque error
+pub fn decompress_into(encoded: &[u8], decoded: AnyArrayViewMut) -> Result<(), Sz3CodecError> {
+    fn decompress_into_typed<T: Sz3Element>(
+        encoded: &[u8],
+        mut decoded: ArrayViewMut<T, IxDyn>,
+    ) -> Result<(), Sz3CodecError> {
+        if decoded.is_empty() {
+            return Ok(());
+        }
+
+        let decoded_shape = decoded.shape().to_vec();
+
+        decoded.with_slice_mut(|mut decoded| {
+            let decoded_len = decoded.len();
+
+            let mut builder = sz3::DimensionedData::build_mut(&mut decoded);
+
+            for length in &decoded_shape {
+                // Sz3 ignores dimensions of length 1 and panics on length zero
+                // Since they carry no information for Sz3 and we already encode them
+                //  in our custom header, we just skip them here
+                if *length > 1 {
+                    builder = builder
+                        .dim(*length)
+                        // FIXME: different error code
+                        .map_err(|err| Sz3CodecError::InvalidEncodeShape {
+                            source: Sz3CodingError(err),
+                            shape: decoded_shape.clone(),
+                        })?;
+                }
+            }
+
+            if decoded_len == 1 {
+                // If there is only one element, all dimensions will have been skipped,
+                //  so we explicitly encode one dimension of size 1 here
+                builder = builder
+                    .dim(1)
+                    // FIXME: different error code
+                    .map_err(|err| Sz3CodecError::InvalidEncodeShape {
+                        source: Sz3CodingError(err),
+                        shape: decoded_shape.clone(),
+                    })?;
+            }
+
+            let mut decoded = builder
+                .finish()
+                // FIXME: different error code
+                .map_err(|err| Sz3CodecError::InvalidEncodeShape {
+                    source: Sz3CodingError(err),
+                    shape: decoded_shape,
+                })?;
+
+            sz3::decompress_into_dimensioned(encoded, &mut decoded).map_err(|err| {
+                Sz3CodecError::Sz3DecodeFailed {
+                    source: Sz3CodingError(err),
+                }
+            })
+        })?;
+
+        Ok(())
+    }
+
+    let (header, data) =
+        postcard::take_from_bytes::<CompressionHeader>(encoded).map_err(|err| {
+            Sz3CodecError::HeaderDecodeFailed {
+                source: Sz3HeaderError(err),
+            }
+        })?;
+
+    if decoded.shape() != &*header.shape {
+        return Err(Sz3CodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::ShapeMismatch {
+                src: header.shape.into_owned(),
+                dst: decoded.shape().to_vec(),
+            },
+        });
+    }
+
+    match (decoded, header.dtype) {
+        (AnyArrayViewMut::U8(decoded), Sz3DType::U8) => decompress_into_typed(data, decoded),
+        (AnyArrayViewMut::I8(decoded), Sz3DType::I8) => decompress_into_typed(data, decoded),
+        (AnyArrayViewMut::U16(decoded), Sz3DType::U16) => decompress_into_typed(data, decoded),
+        (AnyArrayViewMut::I16(decoded), Sz3DType::I16) => decompress_into_typed(data, decoded),
+        (AnyArrayViewMut::U32(decoded), Sz3DType::U32) => decompress_into_typed(data, decoded),
+        (AnyArrayViewMut::I32(decoded), Sz3DType::I32) => decompress_into_typed(data, decoded),
+        (AnyArrayViewMut::U64(decoded), Sz3DType::U64) => decompress_into_typed(data, decoded),
+        (AnyArrayViewMut::I64(decoded), Sz3DType::I64) => decompress_into_typed(data, decoded),
+        (AnyArrayViewMut::F32(decoded), Sz3DType::F32) => decompress_into_typed(data, decoded),
+        (AnyArrayViewMut::F64(decoded), Sz3DType::F64) => decompress_into_typed(data, decoded),
+        (decoded, dtype) => Err(Sz3CodecError::MismatchedDecodeIntoArray {
+            source: AnyArrayAssignError::DTypeMismatch {
+                src: dtype.into_dtype(),
+                dst: decoded.dtype(),
+            },
+        }),
+    }
+}
+
 /// Array element types which can be compressed with SZ3.
-pub trait Sz3Element: Copy + sz3::SZ3Compressible {
+pub trait Sz3Element: Copy + sz3::SZ3Compressible + ArrayDType {
     /// The dtype representation of the type
     const DTYPE: Sz3DType;
 }
@@ -573,6 +689,25 @@ pub enum Sz3DType {
     F64,
 }
 
+impl Sz3DType {
+    /// Get the corresponding [`AnyArrayDType`]
+    #[must_use]
+    pub const fn into_dtype(self) -> AnyArrayDType {
+        match self {
+            Self::U8 => AnyArrayDType::U8,
+            Self::U16 => AnyArrayDType::U16,
+            Self::U32 => AnyArrayDType::U32,
+            Self::U64 => AnyArrayDType::U64,
+            Self::I8 => AnyArrayDType::I8,
+            Self::I16 => AnyArrayDType::I16,
+            Self::I32 => AnyArrayDType::I32,
+            Self::I64 => AnyArrayDType::I64,
+            Self::F32 => AnyArrayDType::F32,
+            Self::F64 => AnyArrayDType::F64,
+        }
+    }
+}
+
 impl fmt::Display for Sz3DType {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.write_str(match self {
@@ -623,7 +758,12 @@ mod tests {
         )?;
         let decoded = decompress(&encoded)?;
 
-        assert_eq!(decoded, AnyArray::I32(data));
+        assert_eq!(decoded, AnyArray::I32(data.clone()));
+
+        let mut decoded = Array::zeros(data.dim());
+        decompress_into(&encoded, AnyArrayViewMut::I32(decoded.view_mut()))?;
+
+        assert_eq!(decoded, data);
 
         Ok(())
     }
@@ -648,6 +788,14 @@ mod tests {
                 decoded,
                 AnyArray::F64(Array1::from_vec(data.to_vec()).into_dyn())
             );
+
+            let mut decoded = Array::zeros([data.len()]);
+            decompress_into(
+                &encoded,
+                AnyArrayViewMut::F64(decoded.view_mut().into_dyn()),
+            )?;
+
+            assert_eq!(decoded, Array1::from_vec(data.to_vec()));
         }
 
         Ok(())
@@ -669,13 +817,18 @@ mod tests {
             Some(Sz3Predictor::LorenzoFirstSecondOrder),
             Some(Sz3Predictor::LorenzoFirstSecondOrderRegression),
         ] {
-            eprintln!("{predictor:?}");
             let encoded = compress(
                 data.view(),
                 predictor.as_ref(),
                 &Sz3ErrorBound::Absolute { abs: 0.1 },
             )?;
             let _decoded = decompress(&encoded)?;
+
+            let mut decoded = Array::zeros(data.dim());
+            decompress_into(
+                &encoded,
+                AnyArrayViewMut::F64(decoded.view_mut().into_dyn()),
+            )?;
         }
 
         Ok(())
@@ -683,28 +836,33 @@ mod tests {
 
     #[test]
     fn all_dtypes() -> Result<(), Sz3CodecError> {
-        fn compress_decompress<T: Sz3Element>(
-            iter: impl IntoIterator<Item = T>,
+        fn compress_decompress<T: Sz3Element + num_traits::identities::Zero>(
+            iter: impl Clone + IntoIterator<Item = T>,
+            view_mut: impl for<'a> Fn(ArrayViewMut<'a, T, IxDyn>) -> AnyArrayViewMut<'a>,
         ) -> Result<(), Sz3CodecError> {
             let encoded = compress(
-                Array::from_iter(iter).view(),
+                Array::from_iter(iter.clone()).view(),
                 None,
                 &Sz3ErrorBound::Absolute { abs: 2.0 },
             )?;
             let _decoded = decompress(&encoded)?;
+
+            let mut decoded = Array::<T, _>::zeros([iter.into_iter().count()]).into_dyn();
+            decompress_into(&encoded, view_mut(decoded.view_mut().into_dyn()))?;
+
             Ok(())
         }
 
-        compress_decompress(0_u8..42)?;
-        compress_decompress(-42_i8..42)?;
-        compress_decompress(0_u16..42)?;
-        compress_decompress(-42_i16..42)?;
-        compress_decompress(0_u32..42)?;
-        compress_decompress(-42_i32..42)?;
-        compress_decompress(0_u64..42)?;
-        compress_decompress(-42_i64..42)?;
-        compress_decompress((-42_i16..42).map(f32::from))?;
-        compress_decompress((-42_i16..42).map(f64::from))?;
+        compress_decompress(0_u8..42, |x| AnyArrayViewMut::U8(x))?;
+        compress_decompress(-42_i8..42, |x| AnyArrayViewMut::I8(x))?;
+        compress_decompress(0_u16..42, |x| AnyArrayViewMut::U16(x))?;
+        compress_decompress(-42_i16..42, |x| AnyArrayViewMut::I16(x))?;
+        compress_decompress(0_u32..42, |x| AnyArrayViewMut::U32(x))?;
+        compress_decompress(-42_i32..42, |x| AnyArrayViewMut::I32(x))?;
+        compress_decompress(0_u64..42, |x| AnyArrayViewMut::U64(x))?;
+        compress_decompress(-42_i64..42, |x| AnyArrayViewMut::I64(x))?;
+        compress_decompress((-42_i16..42).map(f32::from), |x| AnyArrayViewMut::F32(x))?;
+        compress_decompress((-42_i16..42).map(f64::from), |x| AnyArrayViewMut::F64(x))?;
 
         Ok(())
     }
