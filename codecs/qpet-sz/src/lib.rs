@@ -28,7 +28,7 @@ use ::serde_json as _;
 
 use std::{borrow::Cow, fmt, num::NonZeroUsize};
 
-use ndarray::{Array, Array1, ArrayBase, Data, Dimension, ShapeError};
+use ndarray::{Array, Array1, ArrayBase, CowArray, Data, Dimension, ShapeError};
 use num_traits::{Float, identities::Zero};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
@@ -314,6 +314,14 @@ pub fn compress<T: QpetSzElement, S: Data<Elem = T>, D: Dimension>(
     //  in our custom header, we just skip them here
     let data = data.into_dyn().squeeze();
 
+    // QPET-SZ does not support 0-dimensional (scalar) arrays, so force them to
+    //  be one dimensional
+    let data = if data.ndim() == 0 {
+        data.flatten().into_dyn()
+    } else {
+        CowArray::from(&data)
+    };
+
     // configure the compression mode
     let QpetSzCompressionMode::SymbolicQuantityOfInterest {
         qoi,
@@ -390,10 +398,16 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, QpetSzCodecError> {
         // TODO: avoid extra allocation here
         match header.dtype {
             QpetSzDType::F32 => {
-                AnyArray::F32(qpet_sz::decompress(data).into_shape_clone(&*header.shape)?)
+                // FIXME: remove debug print
+                let dc = qpet_sz::decompress(data);
+                eprintln!("{:?} {:?}", dc.shape(), &*header.shape);
+                AnyArray::F32(dc.into_shape_clone(&*header.shape)?)
             }
             QpetSzDType::F64 => {
-                AnyArray::F64(qpet_sz::decompress(data).into_shape_clone(&*header.shape)?)
+                // FIXME: remove debug print
+                let dc = qpet_sz::decompress(data);
+                eprintln!("{:?} {:?}", dc.shape(), &*header.shape);
+                AnyArray::F64(dc.into_shape_clone(&*header.shape)?)
             }
         }
     };
@@ -675,5 +689,31 @@ mod tests {
         assert_eq!(decoded.dtype(), AnyArrayDType::F64);
         assert_eq!(decoded.len(), 64 * 64 * 1);
         assert_eq!(decoded.shape(), &[64, 64, 1]);
+    }
+
+    #[test]
+    fn log10_decode() {
+        let encoded = compress(
+            Array::<f32, _>::logspace(2.0, 0.0, 100.0, 721 * 1440)
+                .into_shape_clone((721, 1440))
+                .unwrap(),
+            &QpetSzCompressionMode::SymbolicQuantityOfInterest {
+                qoi: String::from("log(x, 10)"),
+                qoi_region_size: default_qoi_region_size(),
+                qoi_error_bound: QpetSzQoIErrorBound::Absolute {
+                    abs: Positive(0.25),
+                },
+                // data_error_bound: QpetSzDataErrorBound::Absolute {
+                //     abs: Positive(f64::MAX),
+                // },
+                qoi_c: default_qoi_c(),
+            },
+        )
+        .unwrap();
+        let decoded = decompress(&encoded).unwrap();
+
+        assert_eq!(decoded.dtype(), AnyArrayDType::F32);
+        assert_eq!(decoded.len(), 721 * 1440);
+        assert_eq!(decoded.shape(), &[721, 1440]);
     }
 }
