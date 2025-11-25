@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Sz3CodecError","Sz3DType","Sz3ErrorBound","Sz3Predictor"],"fn":["compress","decompress"],"struct":["Sz3Codec","Sz3CodingError","Sz3HeaderError"],"trait":["Sz3Element"]};
+window.SIDEBAR_ITEMS = {"enum":["Sz3CodecError","Sz3DType","Sz3ErrorBound","Sz3Predictor"],"fn":["compress","decompress","decompress_into"],"struct":["Sz3Codec","Sz3CodingError","Sz3HeaderError"],"trait":["Sz3Element"]};
