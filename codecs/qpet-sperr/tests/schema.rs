@@ -5,9 +5,6 @@ use ::{
     serde_json as _, thiserror as _, zstd_sys as _,
 };
 
-#[cfg(target_arch = "wasm32")]
-use ::gmp_mpfr_sys as _;
-
 use numcodecs::{DynCodecType, StaticCodecType};
 use numcodecs_qpet_sperr::QpetSperrCodec;
 

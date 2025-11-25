@@ -24,13 +24,9 @@ mod codec;
 
 pub use array::{
     AnyArcArray, AnyArray, AnyArrayAssignError, AnyArrayBase, AnyArrayDType, AnyArrayView,
-    AnyArrayViewMut, AnyCowArray, AnyRawData, ArrayDType,
+    AnyArrayViewMut, AnyCowArray, AnyRawData, ArrayDType, ArrayDataMutExt,
 };
 pub use codec::{
     Codec, DynCodec, DynCodecType, StaticCodec, StaticCodecConfig, StaticCodecType,
     StaticCodecVersion, codec_from_config_with_id, serialize_codec_config_with_id,
 };
-
-mod sealed {
-    pub trait Sealed {}
-}

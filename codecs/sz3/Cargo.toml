@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs-sz3"
-version = "0.7.0"
+version = "0.8.0"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
@@ -26,6 +26,7 @@ thiserror = { workspace = true }
 zstd-sys = { workspace = true, features = ["no_wasm_shim"] }
 
 [dev-dependencies]
+num-traits = { workspace = true, features = ["std"] }
 serde_json = { workspace = true, features = ["std"] }
 
 [lints]
