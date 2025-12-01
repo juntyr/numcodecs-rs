@@ -34,6 +34,10 @@ struct Args {
     /// Compile the local crate instead of the published one
     #[arg(long)]
     local: bool,
+
+    /// Compile the crate with debug information enabled
+    #[arg(long)]
+    debug: bool,
 }
 
 fn main() -> io::Result<()> {
@@ -67,8 +71,9 @@ fn main() -> io::Result<()> {
         &target_dir,
         &crate_dir,
         &format!("{}-wasm", args.crate_),
+        args.debug,
     )?;
-    let wasm = optimize_wasm_codec(&wasm, &nix_env)?;
+    let wasm = optimize_wasm_codec(&wasm, &nix_env, args.debug)?;
     let wasm = adapt_wasi_snapshot_to_preview2(&wasm)?;
 
     fs::copy(wasm, args.output)?;
@@ -260,7 +265,12 @@ impl NixEnv {
 }
 
 #[expect(clippy::too_many_lines)]
-fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) -> Command {
+fn configure_cargo_cmd(
+    nix_env: &NixEnv,
+    target_dir: &Path,
+    crate_dir: &Path,
+    debug: bool,
+) -> Command {
     let NixEnv {
         llvm_version,
         ar,
@@ -309,7 +319,7 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
         "CFLAGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir {resource_dir} \
          --sysroot={wasi_sysroot} -isystem {clang_include} -isystem {wasi32_wasi_include} \
          -isystem {include} -B {lld} -D_WASI_EMULATED_PROCESS_CLOCKS -D_WASI_EMULATED_SIGNAL \
-         -include {c_include_path} -O3 \
+         -include {c_include_path} -O3 {debug} \
          -DHAVE_STRNLEN=1 -DHAVE_MEMSET=1 -DHAVE_RAISE=1",
         resource_dir = libclang.join("clang").join(llvm_version).display(),
         wasi_sysroot = wasi_sysroot.display(),
@@ -322,12 +332,13 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
         include = wasi_sysroot.join("include").display(),
         lld = lld.display(),
         c_include_path = crate_dir.join("include.h").display(),
+        debug = if debug { "-g" } else { "" },
     ));
     cmd.arg(format!(
         "CXXFLAGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir {resource_dir} \
          --sysroot={wasi_sysroot} -isystem {wasm32_wasi_cxx_include} -isystem {cxx_include} \
          -isystem {clang_include} -isystem {wasi32_wasi_include} -isystem {include} -B {lld} \
-         -D_WASI_EMULATED_PROCESS_CLOCKS -include {cpp_include_path} -O3",
+         -D_WASI_EMULATED_PROCESS_CLOCKS -include {cpp_include_path} -O3 {debug}",
         resource_dir = libclang.join("clang").join(llvm_version).display(),
         wasi_sysroot = wasi_sysroot.display(),
         wasm32_wasi_cxx_include = wasi_sysroot
@@ -350,6 +361,7 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
         include = wasi_sysroot.join("include").display(),
         lld = lld.display(),
         cpp_include_path = crate_dir.join("include.hpp").display(),
+        debug = if debug { "-g" } else { "" },
     ));
     cmd.arg(format!(
         "BINDGEN_EXTRA_CLANG_ARGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir \
@@ -387,9 +399,10 @@ fn configure_cargo_cmd(nix_env: &NixEnv, target_dir: &Path, crate_dir: &Path) ->
         libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
     ));
     cmd.arg(format!(
-        "RUSTFLAGS=-C panic=abort -C strip=symbols \
+        "RUSTFLAGS=-C panic=abort {debug} \
         -C link-arg=-L{wasm32_wasi_lib} \
         -C link-arg=-L{libclang_rt} -C link-arg=-lclang_rt.builtins",
+        debug = if debug { "-g" } else { "-C strip=symbols" },
         wasm32_wasi_lib = wasi_sysroot.join("lib").join("wasm32-wasip1").display(),
         libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
     ));
@@ -413,8 +426,9 @@ fn build_wasm_codec(
     target_dir: &Path,
     crate_dir: &Path,
     crate_name: &str,
+    debug: bool,
 ) -> io::Result<PathBuf> {
-    let mut cmd = configure_cargo_cmd(nix_env, target_dir, crate_dir);
+    let mut cmd = configure_cargo_cmd(nix_env, target_dir, crate_dir, debug);
     cmd.arg("rustc")
         .arg("--crate-type=cdylib")
         .arg("-Z")
@@ -438,7 +452,7 @@ fn build_wasm_codec(
         .with_extension("wasm"))
 }
 
-fn optimize_wasm_codec(wasm: &Path, nix_env: &NixEnv) -> io::Result<PathBuf> {
+fn optimize_wasm_codec(wasm: &Path, nix_env: &NixEnv, debug: bool) -> io::Result<PathBuf> {
     let NixEnv { wasm_opt, .. } = nix_env;
 
     let opt_out = wasm.with_extension("opt.wasm");
@@ -460,7 +474,8 @@ fn optimize_wasm_codec(wasm: &Path, nix_env: &NixEnv) -> io::Result<PathBuf> {
         .arg("--disable-relaxed-simd")
         .arg("--disable-extended-const")
         .arg("--disable-strings")
-        .arg("--disable-multimemory");
+        .arg("--disable-multimemory")
+        .arg(if debug { "-g" } else { "--strip-debug" });
 
     cmd.arg("-O4").arg("-o").arg(&opt_out).arg(wasm);
 

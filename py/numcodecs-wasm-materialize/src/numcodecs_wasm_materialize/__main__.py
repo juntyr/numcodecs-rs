@@ -24,6 +24,11 @@ parser.add_argument(
     action="store_true",
     help="compile the local codec instead of the published one",
 )
+parser.add_argument(
+    "--debug",
+    action="store_true",
+    help="compile the codec with debug information enabled",
+)
 args = parser.parse_args()
 
 for c in (repo_path / "codecs").iterdir():
@@ -93,6 +98,7 @@ for c in (repo_path / "codecs").iterdir():
             + f" --codec {templates['codec-path']}"
             + f" --output {staging_path / 'src' / ('numcodecs_wasm_' + templates['package_suffix']) / 'codec.wasm'}"
             + (" --local" if args.local else "")
+            + (" --debug" if args.debug else "")
         ),
         check=True,
     )
