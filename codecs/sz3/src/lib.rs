@@ -842,7 +842,7 @@ mod tests {
         ) -> Result<(), Sz3CodecError> {
             let encoded = compress(
                 Array::from_iter(iter.clone()).view(),
-                None,
+                default_predictor().as_ref(),
                 &Sz3ErrorBound::Absolute { abs: 2.0 },
             )?;
             let _decoded = decompress(&encoded)?;
