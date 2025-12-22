@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp-classic/src/ffi.rs`."><title>ffi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp_classic" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0-nightly (c61a3a44d 2025-12-09)" data-channel="nightly" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zfp-classic/src/ffi.rs`."><title>ffi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-80aa586b.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zfp_classic" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0-nightly (a6525d526 2025-12-21)" data-channel="nightly" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-3e30299d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -43,7 +43,7 @@
 <a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>ndarray::{<a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayViewMut.html">ArrayViewMut</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/fn.IxDyn.html">IxDyn</a>};
 <a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/trait.ArrayDType.html">numcodecs::ArrayDType</a>;
 <a href=#7 id=7 data-nosnippet>7</a>
-<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use crate</span>::{<a href="lib.rs.html#214-289">ZfpClassicCodecError</a>, <a href="lib.rs.html#69-115">ZfpCompressionMode</a>, <a href="lib.rs.html#492-501">ZfpDType</a>};
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>crate::{<a href="lib.rs.html#214-289">ZfpClassicCodecError</a>, <a href="lib.rs.html#69-115">ZfpCompressionMode</a>, <a href="lib.rs.html#492-501">ZfpDType</a>};
 <a href=#9 id=9 data-nosnippet>9</a>
 <a href=#10 id=10 data-nosnippet>10</a><span class="kw">const </span>ZFP_HEADER_NO_META: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> = zfp_sys::ZFP_HEADER_FULL &amp; !zfp_sys::ZFP_HEADER_META;
 <a href=#11 id=11 data-nosnippet>11</a>
@@ -56,7 +56,7 @@
 <a href=#18 id=18 data-nosnippet>18</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="#345-350">ZfpCompressible</a>&gt; <a href="#12-16">ZfpField</a>&lt;<span class="lifetime">'a</span>, T&gt; {
 <a href=#19 id=19 data-nosnippet>19</a>    <span class="attr">#[expect(clippy::needless_pass_by_value)]
 <a href=#20 id=20 data-nosnippet>20</a>    </span><span class="kw">pub fn </span>new&lt;D: <a href="https://docs.rs/ndarray/0.15/ndarray/dimension/dimension_trait/trait.Dimension.html">Dimension</a>&gt;(data: <a href="https://docs.rs/ndarray/0.15/ndarray/type.ArrayView.html">ArrayView</a>&lt;<span class="lifetime">'a</span>, T, D&gt;) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="lib.rs.html#214-289">ZfpClassicCodecError</a>&gt; {
-<a href=#21 id=21 data-nosnippet>21</a>        <span class="kw">let </span>pointer: <span class="kw-2">*mut </span>std::ffi::<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">c_void</a> = <a href="#20">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_ptr">as_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast">cast</a>::&lt;std::ffi::<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">c_void</a>&gt;().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast_mut">cast_mut</a>();
+<a href=#21 id=21 data-nosnippet>21</a>        <span class="kw">let </span>pointer: <span class="kw-2">*mut </span>std::ffi::<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">c_void</a> = <a href="#20">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_ptr">as_ptr</a>().cast::&lt;std::ffi::<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">c_void</a>&gt;().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast_mut">cast_mut</a>();
 <a href=#22 id=22 data-nosnippet>22</a>
 <a href=#23 id=23 data-nosnippet>23</a>        <span class="kw">let </span>(field, dims) = <span class="kw">match </span>(<a href="#20">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>(), <a href="#20">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.strides">strides</a>()) {
 <a href=#24 id=24 data-nosnippet>24</a>            ([nx], [sx]) =&gt; <span class="kw">unsafe </span>{
@@ -89,7 +89,7 @@
 <a href=#51 id=51 data-nosnippet>51</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="self">Self </span>{
 <a href=#52 id=52 data-nosnippet>52</a>            <a href="#23">field</a>,
 <a href=#53 id=53 data-nosnippet>53</a>            <a href="#23">dims</a>,
-<a href=#54 id=54 data-nosnippet>54</a>            _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
+<a href=#54 id=54 data-nosnippet>54</a>            _marker: PhantomData::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
 <a href=#55 id=55 data-nosnippet>55</a>        })
 <a href=#56 id=56 data-nosnippet>56</a>    }
 <a href=#57 id=57 data-nosnippet>57</a>}
@@ -113,7 +113,7 @@
 <a href=#75 id=75 data-nosnippet>75</a>        <span class="kw">let </span>stream = <span class="kw">unsafe </span>{ zfp_sys::zfp_stream_open(std::ptr::<a href="https://doc.rust-lang.org/nightly/core/ptr/fn.null_mut.html">null_mut</a>()) };
 <a href=#76 id=76 data-nosnippet>76</a>        <span class="kw">let </span>stream = <span class="self">Self </span>{
 <a href=#77 id=77 data-nosnippet>77</a>            <a href="#75">stream</a>,
-<a href=#78 id=78 data-nosnippet>78</a>            _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>::&lt;T&gt;,
+<a href=#78 id=78 data-nosnippet>78</a>            _marker: PhantomData::&lt;T&gt;,
 <a href=#79 id=79 data-nosnippet>79</a>        };
 <a href=#80 id=80 data-nosnippet>80</a>
 <a href=#81 id=81 data-nosnippet>81</a>        <span class="kw">match </span><a href="#73">mode</a> {
@@ -184,7 +184,7 @@
 <a href=#146 id=146 data-nosnippet>146</a>            <a href="#137">bitstream</a>,
 <a href=#147 id=147 data-nosnippet>147</a>            field: <a href="#132">field</a>.field,
 <a href=#148 id=148 data-nosnippet>148</a>            <a href="#129">buffer</a>,
-<a href=#149 id=149 data-nosnippet>149</a>            _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
+<a href=#149 id=149 data-nosnippet>149</a>            _marker: PhantomData::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
 <a href=#150 id=150 data-nosnippet>150</a>        }
 <a href=#151 id=151 data-nosnippet>151</a>    }
 <a href=#152 id=152 data-nosnippet>152</a>}
@@ -220,7 +220,7 @@
 <a href=#182 id=182 data-nosnippet>182</a>            <span class="comment">// Safety: self is consumed, buffer is not read inside drop,
 <a href=#183 id=183 data-nosnippet>183</a>            //         the lifetime is carried on
 <a href=#184 id=184 data-nosnippet>184</a>            </span>buffer: <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>std::ptr::<a href="https://doc.rust-lang.org/nightly/core/ptr/fn.from_mut.html">from_mut</a>(<a href="#176">this</a>.buffer) },
-<a href=#185 id=185 data-nosnippet>185</a>            _marker: <a href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html">PhantomData</a>::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
+<a href=#185 id=185 data-nosnippet>185</a>            _marker: PhantomData::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
 <a href=#186 id=186 data-nosnippet>186</a>        })
 <a href=#187 id=187 data-nosnippet>187</a>    }
 <a href=#188 id=188 data-nosnippet>188</a>}
@@ -278,7 +278,7 @@
 <a href=#240 id=240 data-nosnippet>240</a>    </span><span class="kw">pub fn </span>new(data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <span class="self">Self </span>{
 <a href=#241 id=241 data-nosnippet>241</a>        <span class="kw">let </span>bitstream = <span class="kw">unsafe </span>{
 <a href=#242 id=242 data-nosnippet>242</a>            zfp_sys::stream_open(
-<a href=#243 id=243 data-nosnippet>243</a>                <a href="#240">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast">cast</a>::&lt;std::ffi::<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">c_void</a>&gt;().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast_mut">cast_mut</a>(),
+<a href=#243 id=243 data-nosnippet>243</a>                <a href="#240">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>().cast::&lt;std::ffi::<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">c_void</a>&gt;().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.const_ptr.html#method.cast_mut">cast_mut</a>(),
 <a href=#244 id=244 data-nosnippet>244</a>                <a href="#240">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>(),
 <a href=#245 id=245 data-nosnippet>245</a>            )
 <a href=#246 id=246 data-nosnippet>246</a>        };
@@ -360,7 +360,7 @@
 <a href=#322 id=322 data-nosnippet>322</a>        <span class="kw">unsafe </span>{
 <a href=#323 id=323 data-nosnippet>323</a>            zfp_sys::zfp_field_set_pointer(
 <a href=#324 id=324 data-nosnippet>324</a>                <a class="self" href="#293">self</a>.field,
-<a href=#325 id=325 data-nosnippet>325</a>                <a href="#294">decompressed</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_mut_ptr">as_mut_ptr</a>().<a href="https://doc.rust-lang.org/nightly/core/ptr/foreigntype.mut_ptr.html#method.cast">cast</a>::&lt;std::ffi::<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">c_void</a>&gt;(),
+<a href=#325 id=325 data-nosnippet>325</a>                <a href="#294">decompressed</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.as_mut_ptr">as_mut_ptr</a>().cast::&lt;std::ffi::<a href="https://doc.rust-lang.org/nightly/core/ffi/enum.c_void.html">c_void</a>&gt;(),
 <a href=#326 id=326 data-nosnippet>326</a>            );
 <a href=#327 id=327 data-nosnippet>327</a>        }
 <a href=#328 id=328 data-nosnippet>328</a>
