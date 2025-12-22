@@ -15,7 +15,7 @@ pub struct RuntimeError(#[from] anyhow::Error);
 /// erased.
 pub struct CodecError {
     msg: Arc<str>,
-    source: Option<Box<CodecError>>,
+    source: Option<Box<Self>>,
 }
 
 impl CodecError {
