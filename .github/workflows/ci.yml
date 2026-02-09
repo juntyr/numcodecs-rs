@@ -90,6 +90,7 @@ jobs:
         run: |
           cargo hack check --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
@@ -224,6 +225,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
@@ -241,6 +243,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \

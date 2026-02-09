@@ -1,0 +1,76 @@
+{
+  "type": "object",
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "residual": {
+          "type": "string",
+          "const": "jpeg2000-only"
+        }
+      },
+      "required": [
+        "residual"
+      ],
+      "description": "No residual compression - base JPEG2000 only"
+    },
+    {
+      "type": "object",
+      "description": "Residual compression with absolute maximum error bound",
+      "properties": {
+        "error": {
+          "type": "number",
+          "exclusiveMinimum": 0.0,
+          "description": "The positive maximum absolute error bound"
+        },
+        "residual": {
+          "type": "string",
+          "const": "absolute"
+        }
+      },
+      "required": [
+        "residual",
+        "error"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Residual compression with relative error bound",
+      "properties": {
+        "error": {
+          "type": "number",
+          "exclusiveMinimum": 0.0,
+          "description": "The positive maximum relative error bound"
+        },
+        "residual": {
+          "type": "string",
+          "const": "relative"
+        }
+      },
+      "required": [
+        "residual",
+        "error"
+      ]
+    }
+  ],
+  "description": "EBCC codec implementation for the numcodecs ecosystem.\n\nThis struct holds the configuration for EBCC compression and implements\nthe numcodecs codec traits.",
+  "properties": {
+    "base_cr": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "description": "JPEG2000 positive base compression ratio"
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "0.1.0"
+    }
+  },
+  "required": [
+    "base_cr"
+  ],
+  "title": "EbccCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
