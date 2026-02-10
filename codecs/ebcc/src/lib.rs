@@ -352,7 +352,7 @@ pub fn compress<S: Data<Elem = f32>, D: Dimension>(
         while slice.ndim() < 3 {
             slice = slice.insert_axis(Axis(0));
         }
-        #[allow(clippy::unwrap_used)]
+        #[expect(clippy::unwrap_used)]
         // slice must now have at least three axes, and all but the last three
         //  must be of size 1
         let slice = slice.into_shape_with_order((depth, height, width)).unwrap();
@@ -500,7 +500,7 @@ fn decompress_into_typed(
         while slice.ndim() < 3 {
             slice = slice.insert_axis(Axis(0));
         }
-        #[allow(clippy::unwrap_used)]
+        #[expect(clippy::unwrap_used)]
         // slice must now have at least three axes, and all but the last
         //  three must be of size 1
         let slice = slice.into_shape_with_order((depth, height, width)).unwrap();
@@ -593,13 +593,13 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::suboptimal_flops)]
     fn test_large_array() -> Result<(), EbccCodecError> {
         // Test with a larger array (similar to small climate dataset)
         let height = 721; // Quarter degree resolution
         let width = 1440;
         let frames = 1;
 
+        #[expect(clippy::suboptimal_flops, clippy::cast_precision_loss)]
         let data = Array::from_shape_fn((frames, height, width), |(_k, i, j)| {
             let lat = -90.0 + (i as f32 / height as f32) * 180.0;
             let lon = -180.0 + (j as f32 / width as f32) * 360.0;
@@ -632,6 +632,7 @@ mod tests {
 
         // Check compression ratio
         let original_size = data.len() * std::mem::size_of::<f32>();
+        #[allow(clippy::cast_precision_loss)]
         let compression_ratio = original_size as f64 / encoded.len() as f64;
 
         assert!(
