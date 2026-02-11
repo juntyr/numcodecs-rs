@@ -256,16 +256,27 @@ jobs:
             --target wasm32-wasip1 \
             -- -D warnings -A unknown-lints -A clippy::multiple-crate-versions
 
-  wasm-codecs:
-    name: Test the WASM codecs
+  codecs-ls:
+    name: List the codecs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v2
+
+      - name: List the codecs
+        run: echo "codecs=$(ls codecs | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
+
+  wasm-codec-build:
+    name: Build the ${{ matrix.codec }} WASM codec
     strategy:
       matrix:
         os: [ubuntu-latest]
         rust: [stable]
         lock: ["Cargo.lock", "Cargo.lock.min"]
-        python: ["3.10", "3.11", "3.12", "3.13"]
+        codec: ${{ fromJSON(needs.codecs-ls.outputs.codecs) }}
     runs-on: ${{ matrix.os }}
-    needs: lock
+    needs: ["lock", "codecs-ls"]
 
     steps:
       - name: Checkout the Repository
@@ -293,19 +304,43 @@ jobs:
         run: mv ${{ matrix.lock }} Cargo.lock
         if: ${{ matrix.lock != 'Cargo.lock' }}
 
-      - name: Build the ZFP WASM codec
+      - name: Build the ${{ matrix.codec }} WASM codec
         run: |
           cd py/numcodecs-wasm-materialize
           rm .python-version
           uv python install ${{ matrix.python }}
           uv sync && uv pip install .
-          uv run python3 -m numcodecs_wasm_materialize zfp --local
+          uv run python3 -m numcodecs_wasm_materialize "^${{ matrix.codec }}$" --local
+
+      - name: Upload the ${{ matrix.codec }} WASM codec
+        uses: actions/upload-artifact@v5
+        with:
+          name: wasm-${{ matrix.codec }}-codec
+          path: py/numcodecs-wasm-materialize/dist
+
+  wasm-codec-test:
+    name: Test the ${{ matrix.codec }} WASM codec
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        codec: ${{ fromJSON(needs.codecs-ls.outputs.codecs) }}
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    needs: ["codecs-ls", "wasm-codec-build"]
+
+    steps:
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Download the ${{ matrix.codec }} WASM codec
+        uses: actions/download-artifact@v5
+        with:
+          name: wasm-${{ matrix.codec }}-codec
+          path: dist
 
       - name: Test importing the ZFP WASM codec
         run: |
-          mkdir -p py/test
-          cd py/test
           uv venv
           uv python install ${{ matrix.python }}
-          uv pip install ../numcodecs-wasm-materialize/dist/*.whl
-          uv run python3 -c "from numcodecs_wasm_zfp import Zfp"
+          uv pip install dist/*.whl
+          uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
