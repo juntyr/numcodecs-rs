@@ -259,12 +259,15 @@ jobs:
   codecs-ls:
     name: List the codecs
     runs-on: ubuntu-latest
+    outputs:
+      codecs: ${{ steps.codecs.outputs.codecs }}
 
     steps:
       - name: Checkout the Repository
         uses: actions/checkout@v2
 
       - name: List the codecs
+        id: codecs
         run: echo "codecs=$(ls codecs | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
 
   wasm-codec-build:
