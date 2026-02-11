@@ -90,6 +90,7 @@ jobs:
         run: |
           cargo hack check --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
@@ -224,6 +225,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
@@ -241,6 +243,7 @@ jobs:
         run: |
           cargo hack clippy --all \
             --exclude numcodecs-python \
+            --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
@@ -253,16 +256,31 @@ jobs:
             --target wasm32-wasip1 \
             -- -D warnings -A unknown-lints -A clippy::multiple-crate-versions
 
-  wasm-codecs:
-    name: Test the WASM codecs
+  codecs-ls:
+    name: List the codecs
+    runs-on: ubuntu-latest
+    outputs:
+      codecs: ${{ steps.codecs.outputs.codecs }}
+
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v2
+
+      - name: List the codecs
+        id: codecs
+        run: echo "codecs=$(ls codecs | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
+
+  wasm-codec-build:
+    name: Build the ${{ matrix.codec }} WASM codec
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         rust: [stable]
         lock: ["Cargo.lock", "Cargo.lock.min"]
-        python: ["3.10", "3.11", "3.12", "3.13"]
+        codec: ${{ fromJSON(needs.codecs-ls.outputs.codecs) }}
     runs-on: ${{ matrix.os }}
-    needs: lock
+    needs: ["lock", "codecs-ls"]
 
     steps:
       - name: Checkout the Repository
@@ -290,19 +308,46 @@ jobs:
         run: mv ${{ matrix.lock }} Cargo.lock
         if: ${{ matrix.lock != 'Cargo.lock' }}
 
-      - name: Build the ZFP WASM codec
+      - name: Build the ${{ matrix.codec }} WASM codec
         run: |
           cd py/numcodecs-wasm-materialize
           rm .python-version
           uv python install ${{ matrix.python }}
           uv sync && uv pip install .
-          uv run python3 -m numcodecs_wasm_materialize zfp --local
+          uv run python3 -m numcodecs_wasm_materialize "^${{ matrix.codec }}$" --local
 
-      - name: Test importing the ZFP WASM codec
+      - name: Upload the ${{ matrix.codec }} WASM codec
+        if: ${{ matrix.lock == 'Cargo.lock' }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: wasm-${{ matrix.codec }}-codec
+          path: py/numcodecs-wasm-materialize/dist
+
+  wasm-codecs-test:
+    name: Test the WASM codecs
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    needs: wasm-codec-build
+    if: always()
+
+    steps:
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Download the WASM codecs
+        uses: actions/download-artifact@v5
+        with:
+          pattern: wasm-*-codec
+          path: dist
+          merge-multiple: true
+
+      - name: Test importing the WASM codecs
         run: |
-          mkdir -p py/test
-          cd py/test
           uv venv
           uv python install ${{ matrix.python }}
-          uv pip install ../numcodecs-wasm-materialize/dist/*.whl
-          uv run python3 -c "from numcodecs_wasm_zfp import Zfp"
+          uv pip install dist/*.whl
+          uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"

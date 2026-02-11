@@ -13,6 +13,7 @@ members = [
 
     "codecs/asinh",
     "codecs/bit-round",
+    "codecs/ebcc",
     "codecs/fixed-offset-scale",
     "codecs/fourier-network",
     "codecs/identity",
@@ -58,6 +59,7 @@ numcodecs-wasm = { version = "0.2.2", path = "py/numcodecs-wasm", default-featur
 # workspace-internal codecs crates
 numcodecs-asinh = { version = "0.4", path = "codecs/asinh", default-features = false }
 numcodecs-bit-round = { version = "0.4", path = "codecs/bit-round", default-features = false }
+numcodecs-ebcc = { version = "0.1", path = "codecs/ebcc", default-features = false }
 numcodecs-fixed-offset-scale = { version = "0.4", path = "codecs/fixed-offset-scale", default-features = false }
 numcodecs-fourier-network = { version = "0.3", path = "codecs/fourier-network", default-features = false }
 numcodecs-identity = { version = "0.4", path = "codecs/identity", default-features = false }
@@ -85,6 +87,7 @@ anyhow = { version = "1.0.93", default-features = false }
 burn = { version = "0.18", default-features = false }
 clap = { version = "4.5", default-features = false }
 convert_case = { version = "0.8", default-features = false }
+ebcc = { version = "0.1", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
 indexmap = { version = "2.10", default-features = false }
 itertools = { version = "0.14", default-features = false }
