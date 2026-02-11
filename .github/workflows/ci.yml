@@ -290,7 +290,7 @@ jobs:
         uses: cachix/install-nix-action@v27
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Install the Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -336,7 +336,7 @@ jobs:
 
     steps:
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Download the WASM codecs
         uses: actions/download-artifact@v5
