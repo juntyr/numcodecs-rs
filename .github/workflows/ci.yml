@@ -73,7 +73,7 @@ jobs:
         uses: taiki-e/install-action@cargo-hack
 
       - name: Download the Cargo lockfiles
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: Cargo.lock
 
@@ -138,7 +138,7 @@ jobs:
         run: pip install numcodecs
 
       - name: Download the Cargo lockfiles
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: Cargo.lock
 
@@ -198,7 +198,7 @@ jobs:
         uses: taiki-e/install-action@cargo-hack
 
       - name: Download the Cargo lockfiles
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: Cargo.lock
 
@@ -300,7 +300,7 @@ jobs:
           override: true
 
       - name: Download the Cargo lockfiles
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: Cargo.lock
 
@@ -339,7 +339,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Download the WASM codecs
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           pattern: wasm-*-codec
           path: dist
