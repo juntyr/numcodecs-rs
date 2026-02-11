@@ -47,7 +47,7 @@ jobs:
           uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted((Path('..') / 'numcodecs-wasm-materialize' / 'dist').glob('*.whl'))]"
 
       - name: Upload the WASM codec artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wasm-codecs
           path: py/numcodecs-wasm-materialize/dist

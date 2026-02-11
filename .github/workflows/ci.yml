@@ -40,7 +40,7 @@ jobs:
         run: cargo update
 
       - name: Upload the Cargo lockfiles
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Cargo.lock
           path: |
@@ -318,7 +318,7 @@ jobs:
 
       - name: Upload the ${{ matrix.codec }} WASM codec
         if: ${{ matrix.lock == 'Cargo.lock' }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wasm-${{ matrix.codec }}-codec
           path: py/numcodecs-wasm-materialize/dist
