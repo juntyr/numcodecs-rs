@@ -54,7 +54,7 @@
       ]
     }
   ],
-  "description": "EBCC codec implementation for the numcodecs ecosystem.\n\nThis struct holds the configuration for EBCC compression and implements\nthe numcodecs codec traits.",
+  "description": "EBCC codec implementation for the [`numcodecs`] API.\n\nEBCC combines JPEG2000 compression with error-bounded residual compression.",
   "properties": {
     "base_cr": {
       "type": "number",

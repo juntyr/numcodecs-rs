@@ -17,11 +17,6 @@
 //!
 //! EBCC codec implementation for the [`numcodecs`] API.
 
-//! Implementation of numcodecs traits for EBCC.
-//!
-//! This module provides integration with the `numcodecs` crate, allowing EBCC
-//! to be used as a compression codec in the numcodecs ecosystem.
-
 #![allow(clippy::multiple_crate_versions)] // embedded-io
 
 #[cfg(test)]
@@ -41,10 +36,9 @@ use thiserror::Error;
 
 type EbccCodecVersion = StaticCodecVersion<0, 1, 0>;
 
-/// EBCC codec implementation for the numcodecs ecosystem.
+/// EBCC codec implementation for the [`numcodecs`] API.
 ///
-/// This struct holds the configuration for EBCC compression and implements
-/// the numcodecs codec traits.
+/// EBCC combines JPEG2000 compression with error-bounded residual compression.
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct EbccCodec {
@@ -161,8 +155,10 @@ pub enum EbccCodecError {
         source: EbccHeaderError,
     },
     /// [`EbccCodec`] can only encode >2D data where the last two dimensions
-    /// must be at least 32x32
-    #[error("Ebcc can only encode >2D data where the last two dimensions must be at least 32x32")]
+    /// must be at least 32x32 but received an array with an insufficient shape
+    #[error(
+        "Ebcc can only encode >2D data where the last two dimensions must be at least 32x32 but received an array of shape {shape:?}"
+    )]
     InsufficientDimensions {
         /// The unexpected shape of the array
         shape: Vec<usize>,
@@ -394,8 +390,6 @@ pub fn compress<S: Data<Elem = f32>, D: Dimension>(
 /// - [`EbccCodecError::HeaderDecodeFailed`] if decoding the header failed
 /// - [`EbccCodecError::SliceDecodeFailed`] if decoding a 3D slice failed
 /// - [`EbccCodecError::EbccDecodeFailed`] if decoding with EBCC failed
-/// - [`EbccCodecError::DecodeInvalidShape`] if the encoded data decodes to
-///   an unexpected shape
 /// - [`EbccCodecError::DecodeTooManySlices`] if the encoded data contains
 ///   too many slices
 pub fn decompress(encoded: &[u8]) -> Result<AnyArray, EbccCodecError> {
@@ -437,8 +431,6 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, EbccCodecError> {
 ///   does not match the shape of the decoded data
 /// - [`EbccCodecError::SliceDecodeFailed`] if decoding a 3D slice failed
 /// - [`EbccCodecError::EbccDecodeFailed`] if decoding with EBCC failed
-/// - [`EbccCodecError::DecodeInvalidShape`] if the encoded data decodes to
-///   an unexpected shape
 /// - [`EbccCodecError::DecodeTooManySlices`] if the encoded data contains
 ///   too many slices
 pub fn decompress_into<S: DataMut<Elem = f32>, D: Dimension>(
