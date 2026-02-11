@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Install the Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Install the Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -115,7 +115,7 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           lfs: true
 
@@ -158,7 +158,7 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Install the Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -183,7 +183,7 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Install the Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -264,7 +264,7 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: List the codecs
         id: codecs
@@ -284,7 +284,7 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Install nix
         uses: cachix/install-nix-action@v27
