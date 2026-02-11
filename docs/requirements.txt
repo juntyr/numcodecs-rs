@@ -1,5 +1,6 @@
 numcodecs_wasm_asinh
 numcodecs_wasm_bit_round
+numcodecs_wasm_ebcc
 numcodecs_wasm_fixed_offset_scale
 numcodecs_wasm_fourier_network
 numcodecs_wasm_identity
