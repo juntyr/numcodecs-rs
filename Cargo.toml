@@ -59,7 +59,7 @@ numcodecs-wasm = { version = "0.2.2", path = "py/numcodecs-wasm", default-featur
 # workspace-internal codecs crates
 numcodecs-asinh = { version = "0.4", path = "codecs/asinh", default-features = false }
 numcodecs-bit-round = { version = "0.4", path = "codecs/bit-round", default-features = false }
-numcodecs-ebcc = { version = "0.1", path = "codecs/ebcc", default-features = false }
+numcodecs-ebcc = { version = "0.1.1", path = "codecs/ebcc", default-features = false }
 numcodecs-fixed-offset-scale = { version = "0.4", path = "codecs/fixed-offset-scale", default-features = false }
 numcodecs-fourier-network = { version = "0.3", path = "codecs/fourier-network", default-features = false }
 numcodecs-identity = { version = "0.4", path = "codecs/identity", default-features = false }

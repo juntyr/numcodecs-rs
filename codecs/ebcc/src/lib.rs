@@ -36,9 +36,15 @@ use thiserror::Error;
 
 type EbccCodecVersion = StaticCodecVersion<0, 1, 0>;
 
-/// EBCC codec implementation for the [`numcodecs`] API.
+/// Codec providing compression using EBCC.
 ///
 /// EBCC combines JPEG2000 compression with error-bounded residual compression.
+///
+/// Arrays that are higher-dimensional than 3D are encoded by compressing each
+/// 3D slice with EBCC independently. Specifically, the array's shape is
+/// interpreted as `[.., depth, height, width]`. If you want to compress 3D
+/// slices along three different axes, you can swizzle the array axes
+/// beforehand.
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct EbccCodec {

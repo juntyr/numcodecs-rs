@@ -16,6 +16,7 @@ The following Python packages, all published independently on PyPi, use [`numcod
 
 - [`numcodecs_wasm_asinh`][numcodecs_wasm_asinh]: $\text{asinh}(x)$ codec
 - [`numcodecs_wasm_bit_round`][numcodecs_wasm_bit_round]: bit rounding codec
+- [`numcodecs_wasm_ebcc`][numcodecs_wasm_ebcc]: EBCC codec
 - [`numcodecs_wasm_fixed_offset_scale`][numcodecs_wasm_fixed_offset_scale]: $\frac{x - o}{s}$ codec
 - [`numcodecs_wasm_fourier_network`][numcodecs_wasm_fourier_network]: fourier feature neural network codec
 - [`numcodecs_wasm_identity`][numcodecs_wasm_identity]: identity codec
