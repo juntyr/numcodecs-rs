@@ -273,6 +273,7 @@ jobs:
   wasm-codec-build:
     name: Build the ${{ matrix.codec }} WASM codec
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         rust: [stable]
@@ -316,6 +317,7 @@ jobs:
           uv run python3 -m numcodecs_wasm_materialize "^${{ matrix.codec }}$" --local
 
       - name: Upload the ${{ matrix.codec }} WASM codec
+        if: ${{ matrix.lock == 'Cargo.lock' }}
         uses: actions/upload-artifact@v5
         with:
           name: wasm-${{ matrix.codec }}-codec
@@ -324,6 +326,7 @@ jobs:
   wasm-codec-test:
     name: Test the ${{ matrix.codec }} WASM codec
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         codec: ${{ fromJSON(needs.codecs-ls.outputs.codecs) }}
