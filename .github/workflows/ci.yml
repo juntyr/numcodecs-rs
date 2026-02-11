@@ -323,28 +323,29 @@ jobs:
           name: wasm-${{ matrix.codec }}-codec
           path: py/numcodecs-wasm-materialize/dist
 
-  wasm-codec-test:
-    name: Test the ${{ matrix.codec }} WASM codec
+  wasm-codecs-test:
+    name: Test the WASM codecs
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        codec: ${{ fromJSON(needs.codecs-ls.outputs.codecs) }}
         python: ["3.10", "3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
-    needs: ["codecs-ls", "wasm-codec-build"]
+    needs: wasm-codec-build
+    if: always()
 
     steps:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Download the ${{ matrix.codec }} WASM codec
+      - name: Download the WASM codecs
         uses: actions/download-artifact@v5
         with:
-          name: wasm-${{ matrix.codec }}-codec
+          pattern: wasm-*-codec
           path: dist
+          merge-multiple: true
 
-      - name: Test importing the ZFP WASM codec
+      - name: Test importing the WASM codecs
         run: |
           uv venv
           uv python install ${{ matrix.python }}
