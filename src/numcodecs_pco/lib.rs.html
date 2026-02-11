@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/pco/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-80aa586b.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_pco" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0-nightly (a6525d526 2025-12-21)" data-channel="nightly" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-3e30299d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/pco/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-b7b9f40b.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_pco" data-themes="" data-resource-suffix="" data-rustdoc-version="1.95.0-nightly (9e79395f9 2026-02-10)" data-channel="nightly" data-search-js="search-fb33671b.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-f9617a14.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-12f88f4f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -36,7 +36,7 @@
     });
 </script>
 
-</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">numcodecs_pco/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">numcodecs_pco/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! [![CI Status]][workflow] [![MSRV]][repo] [![Latest Version]][crates.io] [![Rust Doc Crate]][docs.rs] [![Rust Doc Main]][docs]
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 <a href=#4 id=4 data-nosnippet>4</a>//! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
@@ -77,7 +77,7 @@
 <a href=#39 id=39 data-nosnippet>39</a><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>, JsonSchema)]
 <a href=#40 id=40 data-nosnippet>40</a>#[schemars(deny_unknown_fields)] </span><span class="comment">// serde cannot deny unknown fields because of the flatten
 <a href=#41 id=41 data-nosnippet>41</a></span><span class="doccomment">/// Codec providing compression using pco
-<a href=#42 id=42 data-nosnippet>42</a></span><span class="kw">pub struct </span><a href="../../numcodecs_pco/struct.Pcodec.html">Pcodec</a> {
+<a href=#42 id=42 data-nosnippet>42</a></span><span class="kw">pub struct </span><a href="#42-58">Pcodec</a> {
 <a href=#43 id=43 data-nosnippet>43</a>    <span class="doccomment">/// Compression level, ranging from 0 (weak) over 8 (very good) to 12
 <a href=#44 id=44 data-nosnippet>44</a>    /// (expensive)
 <a href=#45 id=45 data-nosnippet>45</a>    </span><span class="kw">pub </span>level: <a href="#71-86">PcoCompressionLevel</a>,
@@ -127,7 +127,7 @@
 <a href=#89 id=89 data-nosnippet>89</a>#[schemars(deny_unknown_fields)] </span><span class="comment">// serde cannot deny unknown fields because of the flatten
 <a href=#90 id=90 data-nosnippet>90</a></span><span class="attr">#[serde(tag = <span class="string">"mode"</span>, rename_all = <span class="string">"kebab-case"</span>)]
 <a href=#91 id=91 data-nosnippet>91</a></span><span class="doccomment">/// Pco compression mode
-<a href=#92 id=92 data-nosnippet>92</a></span><span class="kw">pub enum </span><a href="../../numcodecs_pco/enum.PcoModeSpec.html">PcoModeSpec</a> {
+<a href=#92 id=92 data-nosnippet>92</a></span><span class="kw">pub enum </span><a href="#92-123">PcoModeSpec</a> {
 <a href=#93 id=93 data-nosnippet>93</a>    <span class="attr">#[default]
 <a href=#94 id=94 data-nosnippet>94</a>    </span><span class="doccomment">/// Automatically detects a good mode.
 <a href=#95 id=95 data-nosnippet>95</a>    ///
@@ -164,7 +164,7 @@
 <a href=#126 id=126 data-nosnippet>126</a>#[schemars(deny_unknown_fields)] </span><span class="comment">// serde cannot deny unknown fields because of the flatten
 <a href=#127 id=127 data-nosnippet>127</a></span><span class="attr">#[serde(tag = <span class="string">"delta"</span>, rename_all = <span class="string">"kebab-case"</span>)]
 <a href=#128 id=128 data-nosnippet>128</a></span><span class="doccomment">/// Pco delta encoding
-<a href=#129 id=129 data-nosnippet>129</a></span><span class="kw">pub enum </span><a href="../../numcodecs_pco/enum.PcoDeltaSpec.html">PcoDeltaSpec</a> {
+<a href=#129 id=129 data-nosnippet>129</a></span><span class="kw">pub enum </span><a href="#129-156">PcoDeltaSpec</a> {
 <a href=#130 id=130 data-nosnippet>130</a>    <span class="attr">#[default]
 <a href=#131 id=131 data-nosnippet>131</a>    </span><span class="doccomment">/// Automatically detects a detects a good delta encoding.
 <a href=#132 id=132 data-nosnippet>132</a>    ///
@@ -214,7 +214,7 @@
 <a href=#176 id=176 data-nosnippet>176</a>#[schemars(deny_unknown_fields)] </span><span class="comment">// serde cannot deny unknown fields because of the flatten
 <a href=#177 id=177 data-nosnippet>177</a></span><span class="attr">#[serde(tag = <span class="string">"paging"</span>, rename_all = <span class="string">"kebab-case"</span>)]
 <a href=#178 id=178 data-nosnippet>178</a></span><span class="doccomment">/// Pco paging mode
-<a href=#179 id=179 data-nosnippet>179</a></span><span class="kw">pub enum </span><a href="../../numcodecs_pco/enum.PcoPagingSpec.html">PcoPagingSpec</a> {
+<a href=#179 id=179 data-nosnippet>179</a></span><span class="kw">pub enum </span><a href="#179-189">PcoPagingSpec</a> {
 <a href=#180 id=180 data-nosnippet>180</a>    <span class="doccomment">/// Divide the chunk into equal pages of up to this many numbers.
 <a href=#181 id=181 data-nosnippet>181</a>    ///
 <a href=#182 id=182 data-nosnippet>182</a>    /// For example, with equal pages up to 100,000, a chunk of 150,000 numbers
@@ -739,7 +739,7 @@
 <a href=#701 id=701 data-nosnippet>701</a><span class="doccomment">/// Dtypes that pco can compress and decompress
 <a href=#702 id=702 data-nosnippet>702</a></span><span class="attr">#[derive(<a href="https://doc.rust-lang.org/nightly/core/marker/derive.Copy.html">Copy</a>, <a href="https://doc.rust-lang.org/nightly/core/clone/derive.Clone.html">Clone</a>, <a href="https://doc.rust-lang.org/nightly/core/fmt/macros/derive.Debug.html">Debug</a>, <a href="https://doc.rust-lang.org/nightly/core/cmp/derive.PartialEq.html">PartialEq</a>, <a href="https://doc.rust-lang.org/nightly/core/cmp/derive.Eq.html">Eq</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Serialize.html">Serialize</a>, <a href="https://docs.rs/serde_derive/1.0.228/serde_derive/derive.Deserialize.html">Deserialize</a>)]
 <a href=#703 id=703 data-nosnippet>703</a>#[expect(missing_docs)]
-<a href=#704 id=704 data-nosnippet>704</a></span><span class="kw">pub enum </span><a href="../../numcodecs_pco/enum.PcoDType.html">PcoDType</a> {
+<a href=#704 id=704 data-nosnippet>704</a></span><span class="kw">pub enum </span><a href="#704-721">PcoDType</a> {
 <a href=#705 id=705 data-nosnippet>705</a>    <span class="attr">#[serde(rename = <span class="string">"u16"</span>, alias = <span class="string">"uint16"</span>)]
 <a href=#706 id=706 data-nosnippet>706</a>    </span>U16,
 <a href=#707 id=707 data-nosnippet>707</a>    <span class="attr">#[serde(rename = <span class="string">"u32"</span>, alias = <span class="string">"uint32"</span>)]
