@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -52,7 +52,7 @@ jobs:
       #     manylinux: auto
 
       - name: Upload the wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-linux-${{ matrix.platform.target }}
           path: py/numcodecs-wasm/dist
@@ -73,7 +73,7 @@ jobs:
 
   #   steps:
   #     - name: Checkout the Repository
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
 
   #     - name: Set up Python
   #       uses: actions/setup-python@v5
@@ -98,7 +98,7 @@ jobs:
   #     #     manylinux: musllinux_1_2
 
   #     - name: Upload the wheels
-  #       uses: actions/upload-artifact@v4
+  #       uses: actions/upload-artifact@v6
   #       with:
   #         name: wheels-musllinux-${{ matrix.platform.target }}
   #         path: py/numcodecs-wasm/dist
@@ -115,7 +115,7 @@ jobs:
 
   #   steps:
   #     - name: Checkout the Repository
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
 
   #     - name: Set up Python
   #       uses: actions/setup-python@v5
@@ -138,7 +138,7 @@ jobs:
   #     #     sccache: "true"
 
   #     - name: Upload the wheels
-  #       uses: actions/upload-artifact@v4
+  #       uses: actions/upload-artifact@v6
   #       with:
   #         name: wheels-windows-${{ matrix.platform.target }}
   #         path: py/numcodecs-wasm/dist
@@ -155,7 +155,7 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -178,7 +178,7 @@ jobs:
       #     sccache: "true"
 
       - name: Upload the wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-macos-${{ matrix.platform.target }}
           path: py/numcodecs-wasm/dist
@@ -187,7 +187,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build the sdist
         uses: PyO3/maturin-action@v1
@@ -197,7 +197,7 @@ jobs:
           args: --out dist
 
       - name: Upload the sdist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-sdist
           path: py/numcodecs-wasm/dist
@@ -224,7 +224,7 @@ jobs:
         run: ls -lh dist/
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v3
         with:
           subject-path: dist/*
 
