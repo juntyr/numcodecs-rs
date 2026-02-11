@@ -17,13 +17,13 @@ jobs:
 
     steps:
       - name: Checkout the Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Install nix
-        uses: cachix/install-nix-action@v27
+        uses: cachix/install-nix-action@v31
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Install the Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -47,7 +47,7 @@ jobs:
           uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted((Path('..') / 'numcodecs-wasm-materialize' / 'dist').glob('*.whl'))]"
 
       - name: Upload the WASM codec artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wasm-codecs
           path: py/numcodecs-wasm-materialize/dist
