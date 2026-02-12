@@ -226,3 +226,8 @@ pub enum PressioCodecError {
     #[error("Pressio does not yet implement this functionality")]
     Unimplemented,
 }
+
+// FIXME: don't stub
+#[expect(unsafe_code)]
+#[unsafe(no_mangle)]
+const extern "C" fn pressio_register_all() {}
