@@ -17,7 +17,7 @@
 //!
 //! Fourier feature neural network codec implementation for the [`numcodecs`] API.
 
-#![expect(clippy::multiple_crate_versions)]
+#![allow(clippy::multiple_crate_versions)]
 
 use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 

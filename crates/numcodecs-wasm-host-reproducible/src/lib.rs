@@ -19,7 +19,7 @@
 //! from a WASM component inside a reproducible and fully sandboxed WebAssembly
 //! runtime.
 
-#![expect(clippy::multiple_crate_versions)] // FIXME
+#![allow(clippy::multiple_crate_versions)] // FIXME
 
 #[macro_use]
 extern crate log;

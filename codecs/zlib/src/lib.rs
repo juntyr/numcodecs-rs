@@ -17,7 +17,7 @@
 //!
 //! Zlib codec implementation for the [`numcodecs`] API.
 
-#![expect(clippy::multiple_crate_versions)] // embedded-io
+#![allow(clippy::multiple_crate_versions)] // embedded-io
 
 use std::borrow::Cow;
 

@@ -17,7 +17,7 @@
 //!
 //! Linear Quantization codec implementation for the [`numcodecs`] API.
 
-#![expect(clippy::multiple_crate_versions)] // FIXME: twofloat -> hexf -> syn 1.0
+#![allow(clippy::multiple_crate_versions)] // FIXME: twofloat -> hexf -> syn 1.0
 
 use std::{borrow::Cow, fmt};
 
