@@ -395,14 +395,14 @@ fn configure_cargo_cmd(
     cmd.arg("CRATE_CC_NO_DEFAULTS=1");
     cmd.arg(format!(
         "LDFLAGS=-lc -lwasi-emulated-process-clocks -lwasi-emulated-signal \
-        -L{libclang_rt} -lclang_rt.builtins -lc++abi",
+        -L{libclang_rt} -lclang_rt.builtins -lc++ -lc++abi",
         libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
     ));
     cmd.arg(format!(
         "RUSTFLAGS=-C panic=abort {debug} \
         -C link-arg=-L{wasm32_wasi_lib} \
         -C link-arg=-L{libclang_rt} -C link-arg=-lclang_rt.builtins \
-        -C link-arg=-lc++abi",
+        -C link-arg=-lc++ -C link-arg=-lc++abi",
         debug = if debug { "-g" } else { "-C strip=symbols" },
         wasm32_wasi_lib = wasi_sysroot.join("lib").join("wasm32-wasip1").display(),
         libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
