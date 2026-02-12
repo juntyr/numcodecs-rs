@@ -33,6 +33,7 @@ jobs:
       - name: Generate the minimum version lockfile
         run: |
           cargo update -Z minimal-versions -Z direct-minimal-versions
+          cargo update -p ndarray@0.15.0
           mv Cargo.lock Cargo.lock.min
 
       - name: Generate the current version lockfile
