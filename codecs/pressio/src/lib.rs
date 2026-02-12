@@ -28,16 +28,16 @@ use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-/// Identity codec which applies the identity function, i.e. passes through the
+/// Pressio codec which applies the identity function, i.e. passes through the
 /// input unchanged during encoding and decoding.
-pub struct IdentityCodec {
+pub struct PressioCodec {
     /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: StaticCodecVersion<1, 0, 0>,
 }
 
-impl Codec for IdentityCodec {
-    type Error = IdentityCodecError;
+impl Codec for PressioCodec {
+    type Error = PressioCodecError;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         Ok(data.into_owned())
@@ -56,8 +56,8 @@ impl Codec for IdentityCodec {
     }
 }
 
-impl StaticCodec for IdentityCodec {
-    const CODEC_ID: &'static str = "identity.rs";
+impl StaticCodec for PressioCodec {
+    const CODEC_ID: &'static str = "pressio.rs";
 
     type Config<'de> = Self;
 
@@ -65,16 +65,16 @@ impl StaticCodec for IdentityCodec {
         config
     }
 
-    fn get_config(&self) -> StaticCodecConfig<Self> {
+    fn get_config(&self) -> StaticCodecConfig<'_, Self> {
         StaticCodecConfig::from(self)
     }
 }
 
 #[derive(Debug, Error)]
-/// Errors that may occur when applying the [`IdentityCodec`].
-pub enum IdentityCodecError {
-    /// [`IdentityCodec`] cannot decode into the provided array
-    #[error("Identity cannot decode into the provided array")]
+/// Errors that may occur when applying the [`PressioCodec`].
+pub enum PressioCodecError {
+    /// [`PressioCodec`] cannot decode into the provided array
+    #[error("Pressio cannot decode into the provided array")]
     MismatchedDecodeIntoArray {
         /// The source of the error
         #[from]

@@ -15,13 +15,11 @@ keywords = ["libpressio", "numcodecs", "compression", "encoding"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+libpressio = { workspace = true }
 numcodecs = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
-
-# FIXME: move into workspace dependencies
-libpressio = { git = "https://github.com/juntyr/libpressio-rs.git", rev = "6d25c06", default-features = false }
 
 [lints]
 workspace = true
