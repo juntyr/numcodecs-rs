@@ -32,8 +32,7 @@ jobs:
 
       - name: Generate the minimum version lockfile
         run: |
-          cargo update -Z minimal-versions
-          cargo update -Z direct-minimal-versions
+          cargo update -Z minimal-versions -Z direct-minimal-versions
           mv Cargo.lock Cargo.lock.min
 
       - name: Generate the current version lockfile
