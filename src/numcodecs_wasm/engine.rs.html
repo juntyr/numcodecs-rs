@@ -42,7 +42,7 @@
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="kw">pub type </span>Engine = wasmtime_runtime_layer::Engine;
 <a href=#5 id=5 data-nosnippet>5</a>
 <a href=#6 id=6 data-nosnippet>6</a><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
-<a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">pub fn </span>default_engine(py: <a href="https://docs.rs/pyo3/0.23/pyo3/marker/struct.Python.html">Python</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="#4">Engine</a>, <a href="https://docs.rs/pyo3/0.23/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">pub fn </span>default_engine(py: <a href="https://docs.rs/pyo3/0.26/pyo3/marker/struct.Python.html">Python</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="#4">Engine</a>, <a href="https://docs.rs/pyo3/0.26/pyo3/err/struct.PyErr.html">PyErr</a>&gt; {
 <a href=#8 id=8 data-nosnippet>8</a>    <span class="kw">use </span>pyo3_error::PyErrChain;
 <a href=#9 id=9 data-nosnippet>9</a>
 <a href=#10 id=10 data-nosnippet>10</a>    <span class="comment">// codecs don't need to preallocate the full 4GB wasm32 memory space, but
