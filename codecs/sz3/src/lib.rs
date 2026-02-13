@@ -155,7 +155,31 @@ impl Codec for Sz3Codec {
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
+            AnyCowArray::U8(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, self.predictor.as_ref(), &self.error_bound)?)
+                    .into_dyn(),
+            )),
+            AnyCowArray::I8(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, self.predictor.as_ref(), &self.error_bound)?)
+                    .into_dyn(),
+            )),
+            AnyCowArray::U16(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, self.predictor.as_ref(), &self.error_bound)?)
+                    .into_dyn(),
+            )),
+            AnyCowArray::I16(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, self.predictor.as_ref(), &self.error_bound)?)
+                    .into_dyn(),
+            )),
+            AnyCowArray::U32(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, self.predictor.as_ref(), &self.error_bound)?)
+                    .into_dyn(),
+            )),
             AnyCowArray::I32(data) => Ok(AnyArray::U8(
+                Array1::from(compress(data, self.predictor.as_ref(), &self.error_bound)?)
+                    .into_dyn(),
+            )),
+            AnyCowArray::U64(data) => Ok(AnyArray::U8(
                 Array1::from(compress(data, self.predictor.as_ref(), &self.error_bound)?)
                     .into_dyn(),
             )),
