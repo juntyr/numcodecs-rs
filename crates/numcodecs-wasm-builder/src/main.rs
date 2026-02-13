@@ -469,7 +469,7 @@ fn optimize_wasm_codec(wasm: &Path, nix_env: &NixEnv, debug: bool) -> io::Result
         .arg("--enable-bulk-memory")
         .arg("--enable-exception-handling")
         .arg("--disable-tail-call")
-        .arg("--disable-reference-types")
+        .arg("--enable-reference-types")
         .arg("--enable-multivalue")
         .arg("--disable-gc")
         .arg("--disable-memory64")
