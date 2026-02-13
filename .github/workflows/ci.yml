@@ -373,20 +373,29 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Test importing the WASM codecs
+      - name: Install the WASM codecs
         run: |
           uv venv
           uv python install ${{ matrix.python }}
           uv pip install dist/*.whl
+
+      - name: Test the WASM codecs (PyPi numcodecs-wasm)
+        run: |
           uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
 
       - name: Download numcodecs-wasm
+        if: always()
         uses: actions/download-artifact@v7
         with:
           pattern: numcodecs-wasm
           path: dist
 
-      - name: Test importing the WASM codecs with numcodecs-wasm
+      - name: Install numcodecs-wasm
+        if: always()
         run: |
           uv pip install dist/numcodecs_wasm-*.whl
+
+      - name: Test importing the WASM codecs (local numcodecs-wasm)
+        if: always()
+        run: |
           uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
