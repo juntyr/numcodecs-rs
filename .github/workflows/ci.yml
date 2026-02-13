@@ -323,6 +323,34 @@ jobs:
           name: wasm-${{ matrix.codec }}-codec
           path: py/numcodecs-wasm-materialize/dist
 
+  numcodecs-wasm:
+    name: Build numcodecs-wasm
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+
+      - name: Build the numcodecs-wasm wheel
+        uses: PyO3/maturin-action@v1
+        with:
+          working-directory: py/numcodecs-wasm
+          target: x86_64
+          args: --release --out dist
+          sccache: "true"
+          manylinux: auto
+
+      - name: Upload the numcodecs-wasm wheel
+        uses: actions/upload-artifact@v6
+        with:
+          name: numcodecs-wasm
+          path: dist
+
   wasm-codecs-test:
     name: Test the WASM codecs
     strategy:
@@ -331,7 +359,7 @@ jobs:
         os: [ubuntu-latest]
         python: ["3.10", "3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
-    needs: wasm-codec-build
+    needs: ["wasm-codec-build", "numcodecs-wasm"]
     if: always()
 
     steps:
@@ -350,4 +378,15 @@ jobs:
           uv venv
           uv python install ${{ matrix.python }}
           uv pip install dist/*.whl
+          uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
+
+      - name: Download numcodecs-wasm
+        uses: actions/download-artifact@v7
+        with:
+          pattern: numcodecs-wasm
+          path: dist
+
+      - name: Test importing the WASM codecs with numcodecs-wasm
+        run: |
+          uv pip install dist/numcodecs_wasm-*.whl
           uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"

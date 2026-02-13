@@ -51,10 +51,10 @@ numcodecs-python = { version = "0.7.1", path = "crates/numcodecs-python", defaul
 numcodecs-wasm-builder = { version = "0.2", path = "crates/numcodecs-wasm-builder", default-features = false }
 numcodecs-wasm-guest = { version = "0.3", path = "crates/numcodecs-wasm-guest", default-features = false }
 numcodecs-wasm-host = { version = "0.2", path = "crates/numcodecs-wasm-host", default-features = false }
-numcodecs-wasm-host-reproducible = { version = "0.2.1", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
+numcodecs-wasm-host-reproducible = { version = "0.2.2", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
 numcodecs-wasm-logging = { version = "0.2", path = "crates/numcodecs-wasm-logging", default-features = false }
 
-numcodecs-wasm = { version = "0.2.2", path = "py/numcodecs-wasm", default-features = false }
+numcodecs-wasm = { version = "0.2.3", path = "py/numcodecs-wasm", default-features = false }
 
 # workspace-internal codecs crates
 numcodecs-asinh = { version = "0.4", path = "codecs/asinh", default-features = false }
@@ -140,7 +140,7 @@ zstd = { version = "0.13", default-features = false }
 zstd-sys = { version = "2.0.16", default-features = false }
 
 # git third-party dependencies with non-upstream fixes
-wasm_component_layer = { git = "https://github.com/juntyr/wasm_component_layer.git", rev = "ad80189", version = "0.1", default-features = false }
+wasm_component_layer = { git = "https://github.com/juntyr/wasm_component_layer.git", rev = "e923536", version = "0.1", default-features = false }
 
 [workspace.lints.rust]
 unsafe_code = "deny"
