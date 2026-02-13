@@ -108,13 +108,13 @@ pub fn schema_from_codec_class(
             schema.insert(String::from("additionalProperties"), Value::Bool(true));
         }
 
-        if let Ok(doc) = class.getattr(intern!(py, "__doc__"))
-            && !doc.is_none()
-        {
-            let doc: String = doc
-                .extract()
-                .map_err(|err| SchemaError::InvalidClassDocs { source: err })?;
-            schema.insert(String::from("description"), Value::String(doc));
+        if let Ok(doc) = class.getattr(intern!(py, "__doc__")) {
+            if !doc.is_none() {
+                let doc: String = doc
+                    .extract()
+                    .map_err(|err| SchemaError::InvalidClassDocs { source: err })?;
+                schema.insert(String::from("description"), Value::String(doc));
+            }
         }
 
         let name = class

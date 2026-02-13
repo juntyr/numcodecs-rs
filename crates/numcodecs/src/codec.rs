@@ -283,15 +283,15 @@ pub fn codec_from_config_with_id<'de, T: DynCodecType, D: Deserializer<'de>>(
 ) -> Result<T::Codec, D::Error> {
     let mut config = Value::deserialize(config)?;
 
-    if let Some(config) = config.as_object_mut()
-        && let Some(id) = config.remove("id")
-    {
-        let codec_id = ty.codec_id();
+    if let Some(config) = config.as_object_mut() {
+        if let Some(id) = config.remove("id") {
+            let codec_id = ty.codec_id();
 
-        if !matches!(id, Value::String(ref id) if id == codec_id) {
-            return Err(serde::de::Error::custom(format!(
-                "expected codec id {codec_id:?} but found {id}"
-            )));
+            if !matches!(id, Value::String(ref id) if id == codec_id) {
+                return Err(serde::de::Error::custom(format!(
+                    "expected codec id {codec_id:?} but found {id}"
+                )));
+            }
         }
     }
 
