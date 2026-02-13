@@ -479,7 +479,8 @@ fn optimize_wasm_codec(wasm: &Path, nix_env: &NixEnv, debug: bool) -> io::Result
         .arg("--disable-multimemory")
         .arg(if debug { "-g" } else { "--strip-debug" });
 
-    cmd.arg("-O4").arg("-o").arg(&opt_out).arg(wasm);
+    // FIXME: https://github.com/WebAssembly/binaryen/issues/8325
+    cmd.arg("-O3").arg("-o").arg(&opt_out).arg(wasm);
 
     eprintln!("executing {cmd:?}");
 
