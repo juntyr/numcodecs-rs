@@ -21,19 +21,26 @@ pub fn default_engine(py: Python) -> Result<Engine, PyErr> {
         .memory_reservation(u64::from(MEMORY_RESERVATION))
         .memory_guard_size(u64::from(MEMORY_GUARD_SIZE))
         .memory_reservation_for_growth(u64::from(MEMORY_RESERVATION_FOR_GROWTH))
+        .wasm_backtrace_details(wasmtime::WasmBacktraceDetails::Enable)
         // WASM feature restrictions, follows the feature validation in
         //  numcodecs_wasm_host_reproducible::engine::ValidatedModule::new
         .wasm_bulk_memory(true)
+        // wasmtime is compiled without the `component-model` feature
+        // .wasm_component_model(false) and friends
         .wasm_custom_page_sizes(false)
+        .wasm_exceptions(true)
         .wasm_extended_const(false)
         .wasm_function_references(false)
         .wasm_gc(false)
         .wasm_memory64(false)
         .wasm_multi_memory(true)
         .wasm_multi_value(true)
-        .wasm_reference_types(false)
+        .wasm_reference_types(true)
         .wasm_relaxed_simd(false)
+        .relaxed_simd_deterministic(true)
         .wasm_simd(true)
+        .wasm_shared_everything_threads(false)
+        .wasm_stack_switching(false)
         .wasm_tail_call(false)
         // wasmtime is compiled without the `threads` feature
         // .wasm_threads(false)

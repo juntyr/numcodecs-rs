@@ -296,8 +296,10 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
         saturating_float_to_int: true,
         // MUST: arithmetic sign extension operators are deterministic
         sign_extension: true,
-        // (unsure): disabled for now, needs further research
-        reference_types: false,
+        // OK: references types themselves are fully determinstic (since they
+        //     are opaque), and the new instructions for growing a table and
+        //     checking its size would only be non-deterministic if the host is
+        reference_types: true,
         // OK: returning multiple values does not interact with determinism
         multi_value: true,
         // MUST: operations like memcpy and memset are deterministic
@@ -318,8 +320,8 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
         floats: false,
         // MUST: using multiple memories does not interact with determinism
         multi_memory: true,
-        // (unsure): disabled for now, needs further research
-        exceptions: false,
+        // OK: exception handling is fully deterministic
+        exceptions: true,
         // (nope): using a 64bit memory space does not interact with
         //         determinism but encourages large memory usage
         memory64: false,
@@ -376,9 +378,9 @@ pub const DETERMINISTIC_WASM_MODULE_FEATURES: wasmparser::WasmFeaturesInflated =
         // NO-CORE: components must have been translated into core WASM
         //          modules by now
         cm_gc: false,
-        // (unsure): part of reference types, disabled for now, needs further
-        //           research
-        call_indirect_overlong: false,
+        // OK: part of the reference types proposal, only enables leb-encoding
+        //     of the table immediate
+        call_indirect_overlong: true,
         // MUST: part of bulk memory, operations like memcpy and memset are
         //       deterministic
         bulk_memory_opt: true,
