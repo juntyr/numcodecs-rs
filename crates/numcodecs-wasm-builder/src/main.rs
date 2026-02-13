@@ -338,7 +338,8 @@ fn configure_cargo_cmd(
         "CXXFLAGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir {resource_dir} \
          --sysroot={wasi_sysroot} -isystem {wasm32_wasi_cxx_include} -isystem {cxx_include} \
          -isystem {clang_include} -isystem {wasi32_wasi_include} -isystem {include} -B {lld} \
-         -D_WASI_EMULATED_PROCESS_CLOCKS -include {cpp_include_path} -O3 {debug}",
+         -D_WASI_EMULATED_PROCESS_CLOCKS -include {cpp_include_path} -O3 {debug} \
+         -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false",
         resource_dir = libclang.join("clang").join(llvm_version).display(),
         wasi_sysroot = wasi_sysroot.display(),
         wasm32_wasi_cxx_include = wasi_sysroot
@@ -395,14 +396,14 @@ fn configure_cargo_cmd(
     cmd.arg("CRATE_CC_NO_DEFAULTS=1");
     cmd.arg(format!(
         "LDFLAGS=-lc -lwasi-emulated-process-clocks -lwasi-emulated-signal \
-        -L{libclang_rt} -lclang_rt.builtins -lc++ -lc++abi",
+        -L{libclang_rt} -lclang_rt.builtins -lunwind -lc++ -lc++abi",
         libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
     ));
     cmd.arg(format!(
         "RUSTFLAGS=-C panic=abort {debug} \
         -C link-arg=-L{wasm32_wasi_lib} \
         -C link-arg=-L{libclang_rt} -C link-arg=-lclang_rt.builtins \
-        -C link-arg=-lc++ -C link-arg=-lc++abi",
+        -C link-arg=-lunwind -C link-arg=-lc++ -C link-arg=-lc++abi",
         debug = if debug { "-g" } else { "-C strip=symbols" },
         wasm32_wasi_lib = wasi_sysroot.join("lib").join("wasm32-wasip1").display(),
         libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
@@ -466,7 +467,7 @@ fn optimize_wasm_codec(wasm: &Path, nix_env: &NixEnv, debug: bool) -> io::Result
         .arg("--enable-nontrapping-float-to-int")
         .arg("--enable-simd")
         .arg("--enable-bulk-memory")
-        .arg("--disable-exception-handling")
+        .arg("--enable-exception-handling")
         .arg("--disable-tail-call")
         .arg("--disable-reference-types")
         .arg("--enable-multivalue")

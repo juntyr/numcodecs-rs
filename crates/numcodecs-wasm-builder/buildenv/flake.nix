@@ -8,7 +8,7 @@
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" "x86_64-darwin" ];
       # keep in sync with rust-toolchain and wasi-sysroot
-      llvmVersion = "20";
+      llvmVersion = "21";
 
       forEachSystem = f:
         nixpkgs.lib.genAttrs allSystems (system:
@@ -24,12 +24,12 @@
         let
           wasi-sysroot = pkgs.stdenv.mkDerivation {
             pname = "wasi-sysroot";
-            version = "27.0";
+            version = "30.0";
             src = pkgs.fetchurl {
               url =
-                "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sysroot-27.0.tar.gz";
+                "https://github.com/alexcrichton/wasi-sdk/releases/download/wasi-sdk-30.0-cpp-exn/wasi-sysroot-30.1g-exns+m.tar.gz";
               sha256 =
-                "7110ac48f5d0b1f6ab67d57aecf52450540dddd790cafdc45f0fdfb429bdab84";
+                "8eae8433e403c4d7062348ba615f770089b468a4c21f117e003e7d07e0d2a27e";
             };
 
             phases = "installPhase";
@@ -41,12 +41,12 @@
           };
           libclang_rt = pkgs.stdenv.mkDerivation {
             pname = "libclang_rt";
-            version = "27.0";
+            version = "30.0";
             src = pkgs.fetchurl {
               url =
-                "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/libclang_rt-27.0.tar.gz";
+                "https://github.com/alexcrichton/wasi-sdk/releases/download/wasi-sdk-30.0-cpp-exn/libclang_rt-30.1g-exns+m.tar.gz";
               sha256 =
-                "9e0f382110a3cf9196f02432c8f2e54d151515de36f9311c8c16073f6e6b16d3";
+                "33a908cbd169e629a314a3ff5a03bb259ca2e1b4e7627a8aa73e2080e4dbcfaa";
             };
 
             phases = "installPhase";

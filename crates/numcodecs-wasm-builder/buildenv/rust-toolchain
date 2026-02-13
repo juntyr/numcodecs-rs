@@ -1,5 +1,5 @@
 [toolchain]
-channel = "1.87"  # MSRV
+channel = "1.91"  # MSRV
 components = [ "cargo", "rustfmt", "clippy", "rust-src" ]
 targets = [ "wasm32-wasip1" ]
 profile = "minimal"

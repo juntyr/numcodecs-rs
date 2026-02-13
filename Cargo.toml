@@ -42,7 +42,7 @@ edition = "2024"
 authors = ["Juniper Tyree <juniper.tyree@helsinki.fi>"]
 repository = "https://github.com/juntyr/numcodecs-rs"
 license = "MPL-2.0"
-rust-version = "1.87"
+rust-version = "1.91"
 
 [workspace.dependencies]
 # workspace-internal numcodecs crates
