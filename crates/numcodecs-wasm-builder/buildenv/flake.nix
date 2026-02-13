@@ -8,7 +8,7 @@
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" "x86_64-darwin" ];
       # keep in sync with rust-toolchain and wasi-sysroot
-      llvmVersion = "21";
+      llvmVersion = "20";
 
       forEachSystem = f:
         nixpkgs.lib.genAttrs allSystems (system:
