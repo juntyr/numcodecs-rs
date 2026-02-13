@@ -21,6 +21,7 @@ members = [
     "codecs/linear-quantize",
     "codecs/log",
     "codecs/pco",
+    "codecs/pressio",
     "codecs/qpet-sperr",
     "codecs/random-projection",
     "codecs/reinterpret",
@@ -67,6 +68,7 @@ numcodecs-jpeg2000 = { version = "0.3", path = "codecs/jpeg2000", default-featur
 numcodecs-linear-quantize = { version = "0.5", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.5", path = "codecs/log", default-features = false }
 numcodecs-pco = { version = "0.3", path = "codecs/pco", default-features = false }
+numcodecs-pressio = { version = "0.1", path = "codecs/pressio", default-features = false }
 numcodecs-qpet-sperr = { version = "0.2.1", path = "codecs/qpet-sperr", default-features = false }
 numcodecs-random-projection = { version = "0.4", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.4", path = "codecs/reinterpret", default-features = false }
@@ -91,6 +93,7 @@ ebcc = { version = "0.1", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
 indexmap = { version = "2.10", default-features = false }
 itertools = { version = "0.14", default-features = false }
+libpressio = { version = "0.1", git = "https://github.com/juntyr/libpressio-rs.git", rev = "a1f99af", default-features = false }
 log = { version = "0.4.27", default-features = false }
 miniz_oxide = { version = "0.8.5", default-features = false }
 ndarray = { version = "0.16.1", default-features = false } # keep in sync with numpy
