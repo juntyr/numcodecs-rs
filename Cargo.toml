@@ -54,7 +54,7 @@ numcodecs-wasm-host = { version = "0.2", path = "crates/numcodecs-wasm-host", de
 numcodecs-wasm-host-reproducible = { version = "0.2.2", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
 numcodecs-wasm-logging = { version = "0.2", path = "crates/numcodecs-wasm-logging", default-features = false }
 
-numcodecs-wasm = { version = "0.2.3", path = "py/numcodecs-wasm", default-features = false }
+numcodecs-wasm = { version = "0.2.4", path = "py/numcodecs-wasm", default-features = false }
 
 # workspace-internal codecs crates
 numcodecs-asinh = { version = "0.4", path = "codecs/asinh", default-features = false }
@@ -67,15 +67,15 @@ numcodecs-jpeg2000 = { version = "0.3", path = "codecs/jpeg2000", default-featur
 numcodecs-linear-quantize = { version = "0.5", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.5", path = "codecs/log", default-features = false }
 numcodecs-pco = { version = "0.3", path = "codecs/pco", default-features = false }
-numcodecs-qpet-sperr = { version = "0.2.1", path = "codecs/qpet-sperr", default-features = false }
+numcodecs-qpet-sperr = { version = "0.2.2", path = "codecs/qpet-sperr", default-features = false }
 numcodecs-random-projection = { version = "0.4", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.4", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.5", path = "codecs/round", default-features = false }
-numcodecs-sperr = { version = "0.2.1", path = "codecs/sperr", default-features = false }
+numcodecs-sperr = { version = "0.2.2", path = "codecs/sperr", default-features = false }
 numcodecs-stochastic-rounding = { version = "0.2", path = "codecs/stochastic-rounding", default-features = false }
 numcodecs-swizzle-reshape = { version = "0.4", path = "codecs/swizzle-reshape", default-features = false }
-numcodecs-sz3 = { version = "0.8.3", path = "codecs/sz3", default-features = false }
-numcodecs-tthresh = { version = "0.3.1", path = "codecs/tthresh", default-features = false }
+numcodecs-sz3 = { version = "0.8.4", path = "codecs/sz3", default-features = false }
+numcodecs-tthresh = { version = "0.3.2", path = "codecs/tthresh", default-features = false }
 numcodecs-uniform-noise = { version = "0.4", path = "codecs/uniform-noise", default-features = false }
 numcodecs-zfp = { version = "0.6", path = "codecs/zfp", default-features = false }
 numcodecs-zfp-classic = { version = "0.4", path = "codecs/zfp-classic", default-features = false }
@@ -101,7 +101,7 @@ openjpeg-sys = { version = "1.0", default-features = false }
 pco = { version = "0.4.5", default-features = false }
 polonius-the-crab = { version = "0.4", default-features = false }
 postcard = { version = "1.0.8", default-features = false }
-pyodide-webassembly-runtime-layer = { version = "0.10", default-features = false }
+pyodide-webassembly-runtime-layer = { version = "0.10.1", default-features = false }
 pyo3 = { version = "0.26", default-features = false }
 pyo3-error = { version = "0.6", default-features = false }
 pyo3-log = { version = "0.13.0", default-features = false }
