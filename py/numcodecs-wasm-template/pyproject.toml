@@ -16,7 +16,7 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 
 dependencies = [
-    "numcodecs-wasm~=0.2.3", # wasi 0.2.6
+    "numcodecs-wasm~=0.2.4", # wasi 0.2.6
 ]
 
 [project.entry-points."numcodecs.codecs"]
