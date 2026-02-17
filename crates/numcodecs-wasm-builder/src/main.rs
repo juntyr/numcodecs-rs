@@ -38,6 +38,10 @@ struct Args {
     /// Compile the crate with debug information enabled
     #[arg(long)]
     debug: bool,
+
+    /// Enable verbose logging while compiling the crate
+    #[arg(long)]
+    verbose: bool,
 }
 
 fn main() -> io::Result<()> {
@@ -72,6 +76,7 @@ fn main() -> io::Result<()> {
         &crate_dir,
         &format!("{}-wasm", args.crate_),
         args.debug,
+        args.verbose,
     )?;
     let wasm = optimize_wasm_codec(&wasm, &nix_env, args.debug)?;
     let wasm = adapt_wasi_snapshot_to_preview2(&wasm)?;
@@ -429,6 +434,7 @@ fn build_wasm_codec(
     crate_dir: &Path,
     crate_name: &str,
     debug: bool,
+    verbose: bool,
 ) -> io::Result<PathBuf> {
     let mut cmd = configure_cargo_cmd(nix_env, target_dir, crate_dir, debug);
     cmd.arg("rustc")
@@ -439,6 +445,10 @@ fn build_wasm_codec(
         .arg("build-std-features=panic_immediate_abort")
         .arg("--release")
         .arg("--target=wasm32-wasip1");
+
+    if verbose {
+        cmd.arg("--verbose");
+    }
 
     eprintln!("executing {cmd:?}");
 
