@@ -30,7 +30,7 @@ use thiserror::Error;
 static PRESSIO: LazyLock<Pressio> = LazyLock::new(Pressio::new);
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+#[schemars(deny_unknown_fields)]
 /// Pressio codec which applies the identity function, i.e. passes through the
 /// input unchanged during encoding and decoding.
 pub struct PressioCodec {
@@ -58,7 +58,9 @@ impl Clone for PressioCompressor {
     #[expect(clippy::unwrap_used)]
     fn clone(&self) -> Self {
         let pressio = PRESSIO.get_or_unwrap();
-        let compressor = pressio.get_compressor(self.format.id.as_str()).unwrap();
+        let compressor = pressio
+            .get_compressor(self.format.compressor.as_str())
+            .unwrap();
         let options = self.compressor.get_options().unwrap();
         compressor.set_options(&options).unwrap();
 
@@ -80,13 +82,26 @@ impl<'de> Deserialize<'de> for PressioCompressor {
         let pressio = PRESSIO
             .get()
             .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
-
         // TODO: better error handling
         let format = PressioCompressorFormat::deserialize(deserializer)?;
-
         let compressor = pressio
-            .get_compressor(format.id.as_str())
-            .map_err(|err| serde::de::Error::custom(err.message))?;
+            .get_compressor(format.compressor.as_str())
+            .map_err(|err| {
+                let supported_compressors =
+                    pressio
+                        .supported_compressors()
+                        .map_or(String::from("<unknown>"), |x| {
+                            x.iter()
+                                .map(|x| format!("`{x}`"))
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        });
+
+                serde::de::Error::custom(format_args!(
+                    "{}, choose one of: {}",
+                    err.message, supported_compressors
+                ))
+            })?;
         let mut options = compressor
             .get_options()
             .map_err(|err| serde::de::Error::custom(err.message))?;
@@ -96,6 +111,7 @@ impl<'de> Deserialize<'de> for PressioCompressor {
                 .set(
                     key,
                     match value {
+                        PressioOption::Bool(x) => libpressio::PressioOption::bool(Some(*x)),
                         PressioOption::U8(x) => libpressio::PressioOption::uint8(Some(*x)),
                         PressioOption::I8(x) => libpressio::PressioOption::int8(Some(*x)),
                         PressioOption::U16(x) => libpressio::PressioOption::uint16(Some(*x)),
@@ -117,6 +133,35 @@ impl<'de> Deserialize<'de> for PressioCompressor {
                 .map_err(|err| serde::de::Error::custom(err.message))?;
         }
 
+        let mut format = format;
+        if let Ok(format_options) = options.get_options() {
+            format.options = format_options
+                .into_iter()
+                .filter_map(|(k, v)| match v {
+                    libpressio::PressioOption::bool(Some(x)) => Some((k, PressioOption::Bool(x))),
+                    libpressio::PressioOption::int8(Some(x)) => Some((k, PressioOption::I8(x))),
+                    libpressio::PressioOption::int16(Some(x)) => Some((k, PressioOption::I16(x))),
+                    libpressio::PressioOption::int32(Some(x)) => Some((k, PressioOption::I32(x))),
+                    libpressio::PressioOption::int64(Some(x)) => Some((k, PressioOption::I64(x))),
+                    libpressio::PressioOption::uint8(Some(x)) => Some((k, PressioOption::U8(x))),
+                    libpressio::PressioOption::uint16(Some(x)) => Some((k, PressioOption::U16(x))),
+                    libpressio::PressioOption::uint32(Some(x)) => Some((k, PressioOption::U32(x))),
+                    libpressio::PressioOption::uint64(Some(x)) => Some((k, PressioOption::U64(x))),
+                    libpressio::PressioOption::float32(Some(x)) => Some((k, PressioOption::F32(x))),
+                    libpressio::PressioOption::float64(Some(x)) => Some((k, PressioOption::F64(x))),
+                    libpressio::PressioOption::string(Some(x)) => {
+                        Some((k, PressioOption::String(x)))
+                    }
+                    // FIXME: seems to return strings as a single joined string
+                    libpressio::PressioOption::vec_string(Some(x)) => {
+                        Some((k, PressioOption::VecString(x)))
+                    }
+                    _ => None,
+                })
+                .collect();
+        }
+        let format = format;
+
         Ok(Self { format, compressor })
     }
 }
@@ -131,19 +176,21 @@ impl JsonSchema for PressioCompressor {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "PressioCompressor")]
 struct PressioCompressorFormat {
-    id: String,
-    #[serde(flatten)]
+    compressor: String,
+    // TODO: flatten
+    #[serde(default)]
     options: BTreeMap<String, PressioOption>,
 }
 
 #[expect(missing_docs)]
-#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 /// Pressio option value
 pub enum PressioOption {
+    Bool(bool),
     U8(u8),
     I8(i8),
     U16(u16),
