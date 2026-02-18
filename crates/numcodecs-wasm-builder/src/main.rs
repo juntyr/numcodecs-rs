@@ -408,7 +408,8 @@ fn configure_cargo_cmd(
         "RUSTFLAGS=-C panic=abort {debug} \
         -C link-arg=-L{wasm32_wasi_lib} \
         -C link-arg=-L{libclang_rt} -C link-arg=-lclang_rt.builtins \
-        -C link-arg=-lunwind -C link-arg=-lc++ -C link-arg=-lc++abi",
+        -C link-arg=-lunwind -C link-arg=-lc++ -C link-arg=-lc++abi \
+        -C llvm-args=-wasm-use-legacy-eh=false",
         debug = if debug { "-g" } else { "-C strip=symbols" },
         wasm32_wasi_lib = wasi_sysroot.join("lib").join("wasm32-wasip1").display(),
         libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
@@ -447,7 +448,7 @@ fn build_wasm_codec(
         .arg("--target=wasm32-wasip1");
 
     if verbose {
-        cmd.arg("--verbose");
+        cmd.arg("-vv");
     }
 
     eprintln!("executing {cmd:?}");
