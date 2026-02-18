@@ -96,7 +96,7 @@ format_serde_error = { version = "0.3", default-features = false }
 indexmap = { version = "2.10", default-features = false }
 itertools = { version = "0.14", default-features = false }
 lc-framework = { version = "0.1", default-features = false }
-libpressio = { version = "0.1", git = "https://github.com/juntyr/libpressio-rs.git", rev = "435c82a", default-features = false }
+libpressio = { version = "0.1", git = "https://github.com/juntyr/libpressio-rs.git", rev = "e562964", default-features = false }
 log = { version = "0.4.27", default-features = false }
 miniz_oxide = { version = "0.8.5", default-features = false }
 ndarray = { version = "0.16.1", default-features = false } # keep in sync with numpy
