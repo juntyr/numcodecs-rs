@@ -19,9 +19,10 @@
 
 use std::{borrow::Cow, collections::BTreeMap, sync::LazyLock};
 
+use ndarray::{CowArray, IxDyn};
 use numcodecs::{
-    AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, StaticCodec, StaticCodecConfig,
-    StaticCodecVersion,
+    AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
+    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use schemars::{JsonSchema, Schema, SchemaGenerator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -235,20 +236,126 @@ unsafe impl Sync for Pressio {}
 impl Codec for PressioCodec {
     type Error = PressioCodecError;
 
-    fn encode(&self, _data: AnyCowArray) -> Result<AnyArray, Self::Error> {
-        Err(PressioCodecError::Unimplemented)
+    fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
+        fn encode_typed<T: libpressio::PressioElement>(
+            compressor: &libpressio::PressioCompressor,
+            data: CowArray<T, IxDyn>,
+        ) -> Result<AnyArray, PressioCodecError> {
+            let data = match data.try_into_owned_nocopy() {
+                Ok(data) => libpressio::PressioData::new(data),
+                Err(data) => libpressio::PressioData::new_copied(data.view()),
+            };
+
+            let compressed_data =
+                libpressio::PressioData::new_empty(libpressio::PressioDtype::Byte, []);
+
+            let compressed_data = compressor.compress(&data, compressed_data).map_err(|err| {
+                PressioCodecError::PressioEncodeFailed {
+                    source: PressioCodingError(err),
+                }
+            })?;
+
+            let Some(compressed_data) = compressed_data.clone_into_array() else {
+                return Err(PressioCodecError::EncodeToUnknownDtype);
+            };
+
+            match compressed_data {
+                libpressio::PressioArray::Bool(_) => Err(PressioCodecError::EncodeToBoolArray),
+                libpressio::PressioArray::U8(a) | libpressio::PressioArray::Byte(a) => {
+                    Ok(AnyArray::U8(a))
+                }
+                libpressio::PressioArray::U16(a) => Ok(AnyArray::U16(a)),
+                libpressio::PressioArray::U32(a) => Ok(AnyArray::U32(a)),
+                libpressio::PressioArray::U64(a) => Ok(AnyArray::U64(a)),
+                libpressio::PressioArray::I8(a) => Ok(AnyArray::I8(a)),
+                libpressio::PressioArray::I16(a) => Ok(AnyArray::I16(a)),
+                libpressio::PressioArray::I32(a) => Ok(AnyArray::I32(a)),
+                libpressio::PressioArray::I64(a) => Ok(AnyArray::I64(a)),
+                libpressio::PressioArray::F32(a) => Ok(AnyArray::F32(a)),
+                libpressio::PressioArray::F64(a) => Ok(AnyArray::F64(a)),
+            }
+        }
+
+        match data {
+            AnyCowArray::U8(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::U16(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::U32(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::U64(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::I8(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::I16(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::I32(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::I64(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::F32(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::F64(data) => encode_typed(&self.compressor.compressor, data),
+            data => Err(PressioCodecError::UnsupportedDtype(data.dtype())),
+        }
     }
 
-    fn decode(&self, _encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
-        Err(PressioCodecError::Unimplemented)
+    fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
+        fn decode_typed<T: libpressio::PressioElement>(
+            compressor: &libpressio::PressioCompressor,
+            encoded: CowArray<T, IxDyn>,
+        ) -> Result<AnyArray, PressioCodecError> {
+            let encoded = match encoded.try_into_owned_nocopy() {
+                Ok(encoded) => libpressio::PressioData::new(encoded),
+                Err(encoded) => libpressio::PressioData::new_copied(encoded.view()),
+            };
+
+            let decompressed_data =
+                libpressio::PressioData::new_empty(libpressio::PressioDtype::Byte, []);
+
+            let decompressed_data =
+                compressor
+                    .compress(&encoded, decompressed_data)
+                    .map_err(|err| PressioCodecError::PressioDecodeFailed {
+                        source: PressioCodingError(err),
+                    })?;
+
+            let Some(decompressed_data) = decompressed_data.clone_into_array() else {
+                return Err(PressioCodecError::DecodeToUnknownDtype);
+            };
+
+            match decompressed_data {
+                libpressio::PressioArray::Bool(_) => Err(PressioCodecError::DecodeToBoolArray),
+                libpressio::PressioArray::U8(a) | libpressio::PressioArray::Byte(a) => {
+                    Ok(AnyArray::U8(a))
+                }
+                libpressio::PressioArray::U16(a) => Ok(AnyArray::U16(a)),
+                libpressio::PressioArray::U32(a) => Ok(AnyArray::U32(a)),
+                libpressio::PressioArray::U64(a) => Ok(AnyArray::U64(a)),
+                libpressio::PressioArray::I8(a) => Ok(AnyArray::I8(a)),
+                libpressio::PressioArray::I16(a) => Ok(AnyArray::I16(a)),
+                libpressio::PressioArray::I32(a) => Ok(AnyArray::I32(a)),
+                libpressio::PressioArray::I64(a) => Ok(AnyArray::I64(a)),
+                libpressio::PressioArray::F32(a) => Ok(AnyArray::F32(a)),
+                libpressio::PressioArray::F64(a) => Ok(AnyArray::F64(a)),
+            }
+        }
+
+        match encoded {
+            AnyCowArray::U8(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::U16(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::U32(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::U64(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::I8(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::I16(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::I32(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::I64(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::F32(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::F64(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            encoded => Err(PressioCodecError::UnsupportedDtype(encoded.dtype())),
+        }
     }
 
     fn decode_into(
         &self,
-        _encoded: AnyArrayView,
-        _decoded: AnyArrayViewMut,
+        encoded: AnyArrayView,
+        mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        Err(PressioCodecError::Unimplemented)
+        // TODO: optimize
+        let decoded_in = self.decode(encoded.cow())?;
+
+        Ok(decoded.assign(&decoded_in)?)
     }
 }
 
@@ -269,7 +376,43 @@ impl StaticCodec for PressioCodec {
 #[derive(Debug, Error)]
 /// Errors that may occur when applying the [`PressioCodec`].
 pub enum PressioCodecError {
-    /// [`PressioCodec`] does not yet implement this functionality
-    #[error("Pressio does not yet implement this functionality")]
-    Unimplemented,
+    /// [`PressioCodec`] does not support the dtype
+    #[error("Pressio does not support the dtype {0}")]
+    UnsupportedDtype(AnyArrayDType),
+    /// [`PressioCodec`] failed to encode the data
+    #[error("Pressio failed to encode the data")]
+    PressioEncodeFailed {
+        /// Opaque source error
+        source: PressioCodingError,
+    },
+    /// [`PressioCodec`] encoded to an unknown unsupported dtype
+    #[error("Pressio encoded to an unknown unsupported dtype")]
+    EncodeToUnknownDtype,
+    /// [`PressioCodec`] encoded to a bool array, which is unsupported
+    #[error("Pressio encoded to a bool array, which is unsupported")]
+    EncodeToBoolArray,
+    /// [`PressioCodec`] failed to decode the data
+    #[error("Pressio failed to decode the data")]
+    PressioDecodeFailed {
+        /// Opaque source error
+        source: PressioCodingError,
+    },
+    /// [`PressioCodec`] decoded to an unknown unsupported dtype
+    #[error("Pressio decoded to an unknown unsupported dtype")]
+    DecodeToUnknownDtype,
+    /// [`PressioCodec`] decoded to a bool array, which is unsupported
+    #[error("Pressio decoded to a bool array, which is unsupported")]
+    DecodeToBoolArray,
+    /// [`PressioCodec`] cannot decode into the provided array
+    #[error("Pressio cannot decode into the provided array")]
+    MismatchedDecodeIntoArray {
+        /// The source of the error
+        #[from]
+        source: AnyArrayAssignError,
+    },
 }
+
+#[derive(Debug, Error)]
+#[error(transparent)]
+/// Opaque error for when encoding or decoding with libpressio fails
+pub struct PressioCodingError(libpressio::PressioError);
