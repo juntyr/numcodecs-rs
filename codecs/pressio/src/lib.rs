@@ -88,15 +88,15 @@ impl<'de> Deserialize<'de> for PressioCompressor {
         let compressor = pressio
             .get_compressor(format.compressor.as_str())
             .map_err(|err| {
-                let supported_compressors =
-                    pressio
-                        .supported_compressors()
-                        .map_or(String::from("<unknown>"), |x| {
-                            x.iter()
-                                .map(|x| format!("`{x}`"))
-                                .collect::<Vec<_>>()
-                                .join(", ")
-                        });
+                let supported_compressors = pressio.supported_compressors().map_or_else(
+                    |_| String::from("<unknown>"),
+                    |x| {
+                        x.iter()
+                            .map(|x| format!("`{x}`"))
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    },
+                );
 
                 serde::de::Error::custom(format_args!(
                     "{}, choose one of: {}",
