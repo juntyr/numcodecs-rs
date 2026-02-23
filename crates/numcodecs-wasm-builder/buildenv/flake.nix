@@ -61,6 +61,7 @@
             packages = [
               (pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain)
               pkgs."llvmPackages_${llvmVersion}".libclang
+              pkgs."llvmPackages_${llvmVersion}".libcxx
               wasi-sysroot
               libclang_rt
               pkgs.cmake
@@ -84,6 +85,7 @@
               MY_WASM_OPT = "${pkgs.binaryen}/bin/wasm-opt";
               MY_PKG_CONFIG = "${pkgs.pkg-config}/bin/pkg-config";
               MY_PYTHON3 = "${pkgs.python3}/bin/python3";
+              MY_HOST_LIBCXX = "${pkgs."llvmPackages_${llvmVersion}".libcxx}";
             };
           };
         });
