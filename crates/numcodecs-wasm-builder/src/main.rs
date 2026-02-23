@@ -200,6 +200,8 @@ struct NixEnv {
     wasi_sysroot: PathBuf,
     libclang_rt: PathBuf,
     wasm_opt: PathBuf,
+    host_libcxx: PathBuf,
+    host_sysroot: PathBuf,
 }
 
 impl NixEnv {
@@ -265,6 +267,11 @@ impl NixEnv {
             wasi_sysroot: try_read_env(&env, "MY_WASI_SYSROOT")?,
             libclang_rt: try_read_env(&env, "MY_LIBCLANG_RT")?,
             wasm_opt: try_read_env(&env, "MY_WASM_OPT")?,
+            host_libcxx: try_read_env(&env, "MY_HOST_LIBCXX")?,
+            // FIXME
+            host_sysroot: PathBuf::from(
+                "/nix/store/5gfsv5n8zhpnl9yhggjpxrxg0jyflwja-apple-sdk-11.3/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            ),
         })
     }
 }
@@ -289,6 +296,8 @@ fn configure_cargo_cmd(
         dlltool,
         wasi_sysroot,
         libclang_rt,
+        host_libcxx,
+        host_sysroot,
         ..
     } = nix_env;
 
@@ -368,6 +377,17 @@ fn configure_cargo_cmd(
         lld = lld.display(),
         cpp_include_path = crate_dir.join("include.hpp").display(),
         debug = if debug { "-g" } else { "" },
+    ));
+    cmd.arg(format!(
+        "CXXFLAGSHOST=-isysroot {host_sysroot} -isystem {host_libcxx_include} \
+        -isystem {clang_include}",
+        host_sysroot = host_sysroot.display(),
+        host_libcxx_include = host_libcxx.join("include").join("c++").join("v1").display(),
+        clang_include = libclang
+            .join("clang")
+            .join(llvm_version)
+            .join("include")
+            .display(),
     ));
     cmd.arg(format!(
         "BINDGEN_EXTRA_CLANG_ARGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir \
