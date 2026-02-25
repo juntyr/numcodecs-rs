@@ -25,6 +25,7 @@ theme:
 
 nav:
   - Home: index.md
+  - Try the codecs: try.md
   - Documentation: api/
   - Links:
       - GitHub: https://github.com/juntyr/numcodecs-rs
