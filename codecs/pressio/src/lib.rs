@@ -17,7 +17,11 @@
 //!
 //! libpressio codec wrapper for the [`numcodecs`] API.
 
-use std::{borrow::Cow, collections::BTreeMap, sync::LazyLock};
+use std::{
+    borrow::Cow,
+    collections::BTreeMap,
+    sync::{LazyLock, Mutex},
+};
 
 use ndarray::{CowArray, IxDyn};
 use numcodecs::{
@@ -46,28 +50,24 @@ pub struct PressioCodec {
 /// Pressio compressor
 pub struct PressioCompressor {
     format: PressioCompressorFormat,
-    compressor: libpressio::PressioCompressor,
+    compressor: Mutex<libpressio::PressioCompressor>,
 }
-
-// FIXME: UNSOUND
-#[expect(unsafe_code, clippy::non_send_fields_in_send_ty)]
-unsafe impl Send for PressioCompressor {}
-#[expect(unsafe_code)]
-unsafe impl Sync for PressioCompressor {}
 
 impl Clone for PressioCompressor {
     #[expect(clippy::unwrap_used)]
     fn clone(&self) -> Self {
-        let pressio = PRESSIO.get_or_unwrap();
-        let compressor = pressio
-            .get_compressor(self.format.compressor.as_str())
-            .unwrap();
-        let options = self.compressor.get_options().unwrap();
+        let mut compressor = {
+            let mut pressio = PRESSIO.get_or_unwrap().lock().unwrap();
+            pressio
+                .get_compressor(self.format.compressor.as_str())
+                .unwrap()
+        };
+        let options = self.compressor.lock().unwrap().get_options().unwrap();
         compressor.set_options(&options).unwrap();
 
         Self {
             format: self.format.clone(),
-            compressor,
+            compressor: Mutex::new(compressor),
         }
     }
 }
@@ -80,29 +80,32 @@ impl Serialize for PressioCompressor {
 
 impl<'de> Deserialize<'de> for PressioCompressor {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let pressio = PRESSIO
-            .get()
-            .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
         // TODO: better error handling
         let format = PressioCompressorFormat::deserialize(deserializer)?;
-        let compressor = pressio
-            .get_compressor(format.compressor.as_str())
-            .map_err(|err| {
-                let supported_compressors = pressio.supported_compressors().map_or_else(
-                    |_| String::from("<unknown>"),
-                    |x| {
-                        x.iter()
-                            .map(|x| format!("`{x}`"))
-                            .collect::<Vec<_>>()
-                            .join(", ")
-                    },
-                );
+        let compressor = {
+            let pressio = PRESSIO
+                .get()
+                .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
+            let mut pressio = pressio.lock().map_err(serde::de::Error::custom)?;
+            pressio
+                .get_compressor(format.compressor.as_str())
+                .map_err(|err| {
+                    let supported_compressors = pressio.supported_compressors().map_or_else(
+                        |_| String::from("<unknown>"),
+                        |x| {
+                            x.iter()
+                                .map(|x| format!("`{x}`"))
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        },
+                    );
 
-                serde::de::Error::custom(format_args!(
-                    "{}, choose one of: {}",
-                    err.message, supported_compressors
-                ))
-            })?;
+                    serde::de::Error::custom(format_args!(
+                        "{}, choose one of: {}",
+                        err.message, supported_compressors
+                    ))
+                })?
+        };
         let mut options = compressor
             .get_options()
             .map_err(|err| serde::de::Error::custom(err.message))?;
@@ -161,9 +164,11 @@ impl<'de> Deserialize<'de> for PressioCompressor {
                 })
                 .collect();
         }
-        let format = format;
 
-        Ok(Self { format, compressor })
+        Ok(Self {
+            format,
+            compressor: Mutex::new(compressor),
+        })
     }
 }
 
@@ -207,38 +212,32 @@ pub enum PressioOption {
 }
 
 struct Pressio {
-    pressio: Result<libpressio::Pressio, libpressio::PressioError>,
+    pressio: Result<Mutex<libpressio::Pressio>, libpressio::PressioError>,
 }
 
 impl Pressio {
     fn new() -> Self {
         Self {
-            pressio: libpressio::Pressio::new(),
+            pressio: libpressio::Pressio::new().map(Mutex::new),
         }
     }
 
-    const fn get(&self) -> Result<&libpressio::Pressio, &libpressio::PressioError> {
+    const fn get(&self) -> Result<&Mutex<libpressio::Pressio>, &libpressio::PressioError> {
         self.pressio.as_ref()
     }
 
     #[expect(clippy::unwrap_used)]
-    fn get_or_unwrap(&self) -> &libpressio::Pressio {
+    fn get_or_unwrap(&self) -> &Mutex<libpressio::Pressio> {
         self.pressio.as_ref().unwrap()
     }
 }
-
-// FIXME: UNSOUND
-#[expect(unsafe_code, clippy::non_send_fields_in_send_ty)]
-unsafe impl Send for Pressio {}
-#[expect(unsafe_code)]
-unsafe impl Sync for Pressio {}
 
 impl Codec for PressioCodec {
     type Error = PressioCodecError;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         fn encode_typed<T: libpressio::PressioElement>(
-            compressor: &libpressio::PressioCompressor,
+            compressor: &mut libpressio::PressioCompressor,
             data: CowArray<T, IxDyn>,
         ) -> Result<AnyArray, PressioCodecError> {
             let data = match data.try_into_owned_nocopy() {
@@ -276,24 +275,28 @@ impl Codec for PressioCodec {
             }
         }
 
+        let Ok(mut compressor) = self.compressor.compressor.lock() else {
+            return Err(PressioCodecError::PressioPoisonedMutex);
+        };
+
         match data {
-            AnyCowArray::U8(data) => encode_typed(&self.compressor.compressor, data),
-            AnyCowArray::U16(data) => encode_typed(&self.compressor.compressor, data),
-            AnyCowArray::U32(data) => encode_typed(&self.compressor.compressor, data),
-            AnyCowArray::U64(data) => encode_typed(&self.compressor.compressor, data),
-            AnyCowArray::I8(data) => encode_typed(&self.compressor.compressor, data),
-            AnyCowArray::I16(data) => encode_typed(&self.compressor.compressor, data),
-            AnyCowArray::I32(data) => encode_typed(&self.compressor.compressor, data),
-            AnyCowArray::I64(data) => encode_typed(&self.compressor.compressor, data),
-            AnyCowArray::F32(data) => encode_typed(&self.compressor.compressor, data),
-            AnyCowArray::F64(data) => encode_typed(&self.compressor.compressor, data),
+            AnyCowArray::U8(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::U16(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::U32(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::U64(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::I8(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::I16(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::I32(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::I64(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::F32(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::F64(data) => encode_typed(&mut compressor, data),
             data => Err(PressioCodecError::UnsupportedDtype(data.dtype())),
         }
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
         fn decode_typed<T: libpressio::PressioElement>(
-            compressor: &libpressio::PressioCompressor,
+            compressor: &mut libpressio::PressioCompressor,
             encoded: CowArray<T, IxDyn>,
         ) -> Result<AnyArray, PressioCodecError> {
             let encoded = match encoded.try_into_owned_nocopy() {
@@ -332,17 +335,21 @@ impl Codec for PressioCodec {
             }
         }
 
+        let Ok(mut compressor) = self.compressor.compressor.lock() else {
+            return Err(PressioCodecError::PressioPoisonedMutex);
+        };
+
         match encoded {
-            AnyCowArray::U8(encoded) => decode_typed(&self.compressor.compressor, encoded),
-            AnyCowArray::U16(encoded) => decode_typed(&self.compressor.compressor, encoded),
-            AnyCowArray::U32(encoded) => decode_typed(&self.compressor.compressor, encoded),
-            AnyCowArray::U64(encoded) => decode_typed(&self.compressor.compressor, encoded),
-            AnyCowArray::I8(encoded) => decode_typed(&self.compressor.compressor, encoded),
-            AnyCowArray::I16(encoded) => decode_typed(&self.compressor.compressor, encoded),
-            AnyCowArray::I32(encoded) => decode_typed(&self.compressor.compressor, encoded),
-            AnyCowArray::I64(encoded) => decode_typed(&self.compressor.compressor, encoded),
-            AnyCowArray::F32(encoded) => decode_typed(&self.compressor.compressor, encoded),
-            AnyCowArray::F64(encoded) => decode_typed(&self.compressor.compressor, encoded),
+            AnyCowArray::U8(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::U16(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::U32(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::U64(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::I8(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::I16(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::I32(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::I64(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::F32(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::F64(encoded) => decode_typed(&mut compressor, encoded),
             encoded => Err(PressioCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
@@ -379,6 +386,9 @@ pub enum PressioCodecError {
     /// [`PressioCodec`] does not support the dtype
     #[error("Pressio does not support the dtype {0}")]
     UnsupportedDtype(AnyArrayDType),
+    /// [`PressioCodec`] lock was poisoned
+    #[error("Pressio lock was poisoned")]
+    PressioPoisonedMutex,
     /// [`PressioCodec`] failed to encode the data
     #[error("Pressio failed to encode the data")]
     PressioEncodeFailed {
