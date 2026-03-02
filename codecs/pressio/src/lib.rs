@@ -244,18 +244,43 @@ impl Codec for PressioCodec {
                 Ok(data) => libpressio::PressioData::new(data),
                 Err(data) => libpressio::PressioData::new_copied(data.view()),
             };
+            eprintln!(
+                "data: {} {} {} {:?}",
+                data.has_data(),
+                data.len(),
+                data.ndim(),
+                data.dtype()
+            );
 
             let compressed_data =
                 libpressio::PressioData::new_empty(libpressio::PressioDtype::Byte, []);
+            eprintln!(
+                "compressed: {} {} {} {:?}",
+                compressed_data.has_data(),
+                compressed_data.len(),
+                compressed_data.ndim(),
+                compressed_data.dtype()
+            );
 
             let compressed_data = compressor.compress(&data, compressed_data).map_err(|err| {
                 PressioCodecError::PressioEncodeFailed {
                     source: PressioCodingError(err),
                 }
             })?;
+            eprintln!(
+                "compressed: {} {} {} {:?}",
+                compressed_data.has_data(),
+                compressed_data.len(),
+                compressed_data.ndim(),
+                compressed_data.dtype()
+            );
 
             let Some(compressed_data) = compressed_data.clone_into_array() else {
-                return Err(PressioCodecError::EncodeToUnknownDtype);
+                if compressed_data.has_data() {
+                    return Err(PressioCodecError::EncodeToUnknownDtype);
+                }
+
+                return Err(PressioCodecError::EncodeToArrayWithoutData);
             };
 
             match compressed_data {
@@ -315,7 +340,11 @@ impl Codec for PressioCodec {
                     })?;
 
             let Some(decompressed_data) = decompressed_data.clone_into_array() else {
-                return Err(PressioCodecError::DecodeToUnknownDtype);
+                if decompressed_data.has_data() {
+                    return Err(PressioCodecError::DecodeToUnknownDtype);
+                }
+
+                return Err(PressioCodecError::DecodeToArrayWithoutData);
             };
 
             match decompressed_data {
@@ -398,6 +427,9 @@ pub enum PressioCodecError {
     /// [`PressioCodec`] encoded to an unknown unsupported dtype
     #[error("Pressio encoded to an unknown unsupported dtype")]
     EncodeToUnknownDtype,
+    /// [`PressioCodec`] encoded to an array without data
+    #[error("Pressio encoded to an array without data")]
+    EncodeToArrayWithoutData,
     /// [`PressioCodec`] encoded to a bool array, which is unsupported
     #[error("Pressio encoded to a bool array, which is unsupported")]
     EncodeToBoolArray,
@@ -410,6 +442,9 @@ pub enum PressioCodecError {
     /// [`PressioCodec`] decoded to an unknown unsupported dtype
     #[error("Pressio decoded to an unknown unsupported dtype")]
     DecodeToUnknownDtype,
+    /// [`PressioCodec`] decoded to an array without data
+    #[error("Pressio decoded to an array without data")]
+    DecodeToArrayWithoutData,
     /// [`PressioCodec`] decoded to a bool array, which is unsupported
     #[error("Pressio decoded to a bool array, which is unsupported")]
     DecodeToBoolArray,
