@@ -39,7 +39,7 @@ jobs:
         with:
           working-directory: py/numcodecs-wasm
           target: ${{ matrix.platform.target }}
-          args: --release --out dist
+          args: --release --out dist --interpreter /opt/python/cp310-cp310/bin/python3
           sccache: "true"
           manylinux: auto
 
@@ -167,7 +167,7 @@ jobs:
         with:
           working-directory: py/numcodecs-wasm
           target: ${{ matrix.platform.target }}
-          args: --release --out dist
+          args: --release --out dist --interpreter python3.10
           sccache: "true"
 
       # - name: Build the free-threaded wheels
