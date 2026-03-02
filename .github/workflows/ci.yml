@@ -341,7 +341,7 @@ jobs:
         with:
           working-directory: py/numcodecs-wasm
           target: x86_64
-          args: --release --out dist
+          args: --release --out dist --interpreter /opt/python/cp310-cp310/bin/python3
           sccache: "true"
           manylinux: auto
 
