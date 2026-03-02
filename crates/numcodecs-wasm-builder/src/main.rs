@@ -304,30 +304,42 @@ fn find_clang_host_sysroot(nix_env: &NixEnv, flake_parent_dir: &Path) -> io::Res
     eprintln!("executing {cmd:?}");
 
     let output = cmd.output()?;
-    eprintln!("output={:?}", String::from_utf8_lossy(&output.stderr));
-    let Some(include) = output
+    let Some(full_include) = output
         .stderr
         .split(|x| *x == b'\n')
         .skip_while(|x| x.trim_ascii() != b"#include <...> search starts here:")
         .nth(1)
     else {
-        return Err(io::Error::other(
-            "failed to find #include <...> search path for clang",
-        ));
+        return Err(io::Error::other(format!(
+            "failed to find #include <...> search path for clang in {:?}",
+            String::from_utf8_lossy(&output.stderr)
+        )));
     };
-    eprintln!("include={:?}", String::from_utf8_lossy(include));
-    let include = Path::new(OsStr::from_bytes(include.trim_ascii()));
-    eprintln!("include={}", include.display());
-    let include = if include.ends_with("include")
-        && let Some(include) = include.parent()
-        && include.ends_with("usr")
+    let full_include = Path::new(OsStr::from_bytes(full_include.trim_ascii()));
+    let mut include = if full_include.ends_with("include")
+        && let Some(include) = full_include.parent()
+    {
+        include
+    } else {
+        return Err(io::Error::other(format!(
+            "clang #include <...> search path {} should end in /usr/.../include",
+            full_include.display()
+        )));
+    };
+    while !include.ends_with("usr")
+        && let Some(include_parent) = include.parent()
+    {
+        include = include_parent;
+    }
+    let include = if include.ends_with("usr")
         && let Some(include) = include.parent()
     {
         include
     } else {
-        return Err(io::Error::other(
-            "clang #include <...> search path should end in /usr/include",
-        ));
+        return Err(io::Error::other(format!(
+            "clang #include <...> search path {} should end in /usr/.../include",
+            full_include.display()
+        )));
     };
 
     Ok(PathBuf::from(include))
