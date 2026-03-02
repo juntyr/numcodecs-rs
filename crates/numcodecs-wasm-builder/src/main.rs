@@ -299,6 +299,7 @@ fn find_clang_host_sysroot(nix_env: &NixEnv, flake_parent_dir: &Path) -> io::Res
     eprintln!("executing {cmd:?}");
 
     let output = cmd.output()?;
+    eprintln!("output={:?}", String::from_utf8_lossy(&output.stderr));
     let Some(include) = output
         .stderr
         .split(|x| *x == b'\n')
@@ -309,7 +310,9 @@ fn find_clang_host_sysroot(nix_env: &NixEnv, flake_parent_dir: &Path) -> io::Res
             "failed to find #include <...> search path for clang",
         ));
     };
+    eprintln!("include={:?}", String::from_utf8_lossy(include));
     let include = Path::new(OsStr::from_bytes(include.trim_ascii()));
+    eprintln!("include={}", include.display());
     let include = if include.ends_with("include")
         && let Some(include) = include.parent()
         && include.ends_with("usr")
