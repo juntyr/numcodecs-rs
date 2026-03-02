@@ -81,7 +81,7 @@
               MY_WASI_SYSROOT = "${wasi-sysroot}";
               MY_LIBCLANG_RT = "${libclang_rt}";
               MY_WASM_OPT = "${pkgs.binaryen}/bin/wasm-opt";
-              MY_HOST_LIBCXX = "${pkgs."llvmPackages_${llvmVersion}".libcxx}";
+              MY_HOST_LIBCXX = "${pkgs."llvmPackages_${llvmVersion}".libcxx.dev}";
             };
           };
         });

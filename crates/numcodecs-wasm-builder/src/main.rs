@@ -3,9 +3,12 @@
 
 use std::{
     collections::HashMap,
-    env, fs, io,
+    env,
+    ffi::OsStr,
+    fs, io,
+    os::unix::ffi::OsStrExt,
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, Stdio},
     str::FromStr,
 };
 
@@ -69,9 +72,11 @@ fn main() -> io::Result<()> {
     copy_buildenv_to_crate(&crate_dir)?;
 
     let nix_env = NixEnv::new(&crate_dir)?;
+    let host_sysroot = find_clang_host_sysroot(&nix_env, &crate_dir)?;
 
     let wasm = build_wasm_codec(
         &nix_env,
+        &host_sysroot,
         &target_dir,
         &crate_dir,
         &format!("{}-wasm", args.crate_),
@@ -201,7 +206,6 @@ struct NixEnv {
     libclang_rt: PathBuf,
     wasm_opt: PathBuf,
     host_libcxx: PathBuf,
-    host_sysroot: PathBuf,
 }
 
 impl NixEnv {
@@ -268,17 +272,63 @@ impl NixEnv {
             libclang_rt: try_read_env(&env, "MY_LIBCLANG_RT")?,
             wasm_opt: try_read_env(&env, "MY_WASM_OPT")?,
             host_libcxx: try_read_env(&env, "MY_HOST_LIBCXX")?,
-            // FIXME
-            host_sysroot: PathBuf::from(
-                "/nix/store/5gfsv5n8zhpnl9yhggjpxrxg0jyflwja-apple-sdk-11.3/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
-            ),
         })
     }
+}
+
+fn find_clang_host_sysroot(nix_env: &NixEnv, flake_parent_dir: &Path) -> io::Result<PathBuf> {
+    let NixEnv { clang, .. } = nix_env;
+
+    let mut cmd = Command::new("nix");
+    cmd.current_dir(flake_parent_dir);
+    cmd.arg("develop");
+    // cmd.arg("--store");
+    // cmd.arg(nix_store_path);
+    cmd.arg("--no-update-lock-file");
+    cmd.arg("--ignore-environment");
+    cmd.arg("path:.");
+    cmd.arg("--command");
+    cmd.arg(clang.join("clang"));
+    cmd.arg("-v");
+    cmd.arg("-x");
+    cmd.arg("c");
+    cmd.arg("-c");
+    cmd.arg("-");
+    cmd.stdin(Stdio::null());
+
+    eprintln!("executing {cmd:?}");
+
+    let output = cmd.output()?;
+    let Some(include) = output
+        .stderr
+        .split(|x| *x == b'\n')
+        .skip_while(|x| x.trim_ascii() != b"#include <...> search starts here:")
+        .nth(1)
+    else {
+        return Err(io::Error::other(
+            "failed to find #include <...> search path for clang",
+        ));
+    };
+    let include = Path::new(OsStr::from_bytes(include.trim_ascii()));
+    let include = if include.ends_with("include")
+        && let Some(include) = include.parent()
+        && include.ends_with("usr")
+        && let Some(include) = include.parent()
+    {
+        include
+    } else {
+        return Err(io::Error::other(
+            "clang #include <...> search path should end in /usr/include",
+        ));
+    };
+
+    Ok(PathBuf::from(include))
 }
 
 #[expect(clippy::too_many_lines)]
 fn configure_cargo_cmd(
     nix_env: &NixEnv,
+    host_sysroot: &Path,
     target_dir: &Path,
     crate_dir: &Path,
     debug: bool,
@@ -297,7 +347,6 @@ fn configure_cargo_cmd(
         wasi_sysroot,
         libclang_rt,
         host_libcxx,
-        host_sysroot,
         ..
     } = nix_env;
 
@@ -451,13 +500,14 @@ fn configure_cargo_cmd(
 
 fn build_wasm_codec(
     nix_env: &NixEnv,
+    host_sysroot: &Path,
     target_dir: &Path,
     crate_dir: &Path,
     crate_name: &str,
     debug: bool,
     verbose: bool,
 ) -> io::Result<PathBuf> {
-    let mut cmd = configure_cargo_cmd(nix_env, target_dir, crate_dir, debug);
+    let mut cmd = configure_cargo_cmd(nix_env, host_sysroot, target_dir, crate_dir, debug);
     cmd.arg("rustc")
         .arg("--crate-type=cdylib")
         .arg("-Z")
