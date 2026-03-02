@@ -3,12 +3,9 @@
 
 use std::{
     collections::HashMap,
-    env,
-    ffi::OsStr,
-    fs, io,
-    os::unix::ffi::OsStrExt,
+    env, fs, io,
     path::{Path, PathBuf},
-    process::{Command, Stdio},
+    process::Command,
     str::FromStr,
 };
 
@@ -72,11 +69,9 @@ fn main() -> io::Result<()> {
     copy_buildenv_to_crate(&crate_dir)?;
 
     let nix_env = NixEnv::new(&crate_dir)?;
-    let host_sysroot = find_clang_host_sysroot(&nix_env, &crate_dir)?;
 
     let wasm = build_wasm_codec(
         &nix_env,
-        &host_sysroot,
         &target_dir,
         &crate_dir,
         &format!("{}-wasm", args.crate_),
@@ -276,74 +271,9 @@ impl NixEnv {
     }
 }
 
-fn find_clang_host_sysroot(nix_env: &NixEnv, flake_parent_dir: &Path) -> io::Result<PathBuf> {
-    let NixEnv { clang, .. } = nix_env;
-
-    let mut cmd = Command::new("nix");
-    cmd.current_dir(flake_parent_dir);
-    cmd.arg("develop");
-    // cmd.arg("--store");
-    // cmd.arg(nix_store_path);
-    cmd.arg("--no-update-lock-file");
-    cmd.arg("--ignore-environment");
-    cmd.arg("path:.");
-    cmd.arg("--command");
-    cmd.arg(clang.join("clang"));
-    cmd.arg("-v");
-    cmd.arg("-x");
-    cmd.arg("c");
-    cmd.arg("-c");
-    cmd.arg("-");
-    cmd.stdin(Stdio::null());
-
-    eprintln!("executing {cmd:?}");
-
-    let output = cmd.output()?;
-    let Some(full_include) = output
-        .stderr
-        .split(|x| *x == b'\n')
-        .skip_while(|x| x.trim_ascii() != b"#include <...> search starts here:")
-        .nth(1)
-    else {
-        return Err(io::Error::other(format!(
-            "failed to find #include <...> search path for clang in {:?}",
-            String::from_utf8_lossy(&output.stderr)
-        )));
-    };
-    let full_include = Path::new(OsStr::from_bytes(full_include.trim_ascii()));
-    let mut include = if full_include.ends_with("include")
-        && let Some(include) = full_include.parent()
-    {
-        include
-    } else {
-        return Err(io::Error::other(format!(
-            "clang #include <...> search path {} should end in /usr/.../include",
-            full_include.display()
-        )));
-    };
-    while !include.ends_with("usr")
-        && let Some(include_parent) = include.parent()
-    {
-        include = include_parent;
-    }
-    let include = if include.ends_with("usr")
-        && let Some(include) = include.parent()
-    {
-        include
-    } else {
-        return Err(io::Error::other(format!(
-            "clang #include <...> search path {} should end in /usr/.../include",
-            full_include.display()
-        )));
-    };
-
-    Ok(PathBuf::from(include))
-}
-
 #[expect(clippy::too_many_lines)]
 fn configure_cargo_cmd(
     nix_env: &NixEnv,
-    host_sysroot: &Path,
     target_dir: &Path,
     crate_dir: &Path,
     debug: bool,
@@ -445,7 +375,7 @@ fn configure_cargo_cmd(
     cmd.arg(format!(
         "CXXFLAGSHOST=-isysroot {host_sysroot} -isystem {host_libcxx_include} \
         -isystem {clang_include}",
-        host_sysroot = host_sysroot.display(),
+        host_sysroot = wasi_sysroot.display(), // I mean, what could go wrong?
         host_libcxx_include = host_libcxx.join("include").join("c++").join("v1").display(),
         clang_include = libclang
             .join("clang")
@@ -515,14 +445,13 @@ fn configure_cargo_cmd(
 
 fn build_wasm_codec(
     nix_env: &NixEnv,
-    host_sysroot: &Path,
     target_dir: &Path,
     crate_dir: &Path,
     crate_name: &str,
     debug: bool,
     verbose: bool,
 ) -> io::Result<PathBuf> {
-    let mut cmd = configure_cargo_cmd(nix_env, host_sysroot, target_dir, crate_dir, debug);
+    let mut cmd = configure_cargo_cmd(nix_env, target_dir, crate_dir, debug);
     cmd.arg("rustc")
         .arg("--crate-type=cdylib")
         .arg("-Z")
