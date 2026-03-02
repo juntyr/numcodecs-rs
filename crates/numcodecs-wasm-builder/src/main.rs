@@ -385,7 +385,7 @@ fn configure_cargo_cmd(
     cmd.arg(format!(
         "CXXFLAGSHOST=-isysroot {host_sysroot} -isystem {host_libcxx_include} \
         -isystem {clang_include}",
-        host_sysroot = wasi_sysroot.display(), // I mean, what could go wrong?
+        host_sysroot = wasi_sysroot.join("include").join("wasm32-wasi").display(), // I mean, what could go wrong?
         host_libcxx_include = host_libcxx.join("include").join("c++").join("v1").display(),
         clang_include = libclang
             .join("clang")
