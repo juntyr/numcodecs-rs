@@ -61,6 +61,7 @@
             packages = [
               (pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain)
               pkgs."llvmPackages_${llvmVersion}".libclang
+              pkgs."llvmPackages_${llvmVersion}".libcxx
               wasi-sysroot
               libclang_rt
               pkgs.cmake
@@ -80,6 +81,7 @@
               MY_WASI_SYSROOT = "${wasi-sysroot}";
               MY_LIBCLANG_RT = "${libclang_rt}";
               MY_WASM_OPT = "${pkgs.binaryen}/bin/wasm-opt";
+              MY_HOST_LIBCXX = "${pkgs."llvmPackages_${llvmVersion}".libcxx.dev}";
             };
           };
         });
