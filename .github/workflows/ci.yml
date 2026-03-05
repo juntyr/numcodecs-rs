@@ -40,7 +40,7 @@ jobs:
         run: cargo update
 
       - name: Upload the Cargo lockfiles
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Cargo.lock
           path: |
@@ -73,7 +73,7 @@ jobs:
         uses: taiki-e/install-action@cargo-hack
 
       - name: Download the Cargo lockfiles
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: Cargo.lock
 
@@ -138,7 +138,7 @@ jobs:
         run: pip install numcodecs
 
       - name: Download the Cargo lockfiles
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: Cargo.lock
 
@@ -198,7 +198,7 @@ jobs:
         uses: taiki-e/install-action@cargo-hack
 
       - name: Download the Cargo lockfiles
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: Cargo.lock
 
@@ -300,7 +300,7 @@ jobs:
           override: true
 
       - name: Download the Cargo lockfiles
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: Cargo.lock
 
@@ -318,7 +318,7 @@ jobs:
 
       - name: Upload the ${{ matrix.codec }} WASM codec
         if: ${{ matrix.lock == 'Cargo.lock' }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wasm-${{ matrix.codec }}-codec
           path: py/numcodecs-wasm-materialize/dist
@@ -346,7 +346,7 @@ jobs:
           manylinux: auto
 
       - name: Upload the numcodecs-wasm wheel
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: numcodecs-wasm
           path: py/numcodecs-wasm/dist
@@ -367,7 +367,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Download the WASM codecs
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: wasm-*-codec
           path: dist
@@ -385,7 +385,7 @@ jobs:
 
       - name: Download numcodecs-wasm
         if: always()
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: numcodecs-wasm
           path: dist

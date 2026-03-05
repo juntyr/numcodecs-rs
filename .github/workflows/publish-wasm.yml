@@ -47,7 +47,7 @@ jobs:
           uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted((Path('..') / 'numcodecs-wasm-materialize' / 'dist').glob('*.whl'))]"
 
       - name: Upload the WASM codec artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wasm-codecs
           path: py/numcodecs-wasm-materialize/dist
@@ -63,13 +63,18 @@ jobs:
 
     steps:
       - name: Download the WASM codec artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: wasm-codecs
           path: dist
 
       - name: List the built dist files
         run: ls -lh dist/
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: dist/*
 
       - name: Publish the package
         uses: pypa/gh-action-pypi-publish@release/v1
