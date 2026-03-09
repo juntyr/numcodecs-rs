@@ -240,33 +240,17 @@ impl Codec for PressioCodec {
             compressor: &mut libpressio::PressioCompressor,
             data: CowArray<T, IxDyn>,
         ) -> Result<AnyArray, PressioCodecError> {
-            let data = match data.try_into_owned_nocopy() {
-                Ok(data) => libpressio::PressioData::new(data),
-                Err(data) => libpressio::PressioData::new_copied(data.view()),
-            };
-            eprintln!(
-                "data: {} {} {} {:?}",
-                data.has_data(),
-                data.len(),
-                data.ndim(),
-                data.dtype()
-            );
+            let compressed_data = libpressio::PressioData::new_with_shared(data, |data| {
+                let compressed_data =
+                    libpressio::PressioData::new_empty(libpressio::PressioDtype::Byte, []);
 
-            let compressed_data =
-                libpressio::PressioData::new_empty(libpressio::PressioDtype::Byte, []);
-            eprintln!(
-                "compressed: {} {} {} {:?}",
-                compressed_data.has_data(),
-                compressed_data.len(),
-                compressed_data.ndim(),
-                compressed_data.dtype()
-            );
-
-            let compressed_data = compressor.compress(&data, compressed_data).map_err(|err| {
-                PressioCodecError::PressioEncodeFailed {
-                    source: PressioCodingError(err),
-                }
+                compressor.compress(data, compressed_data).map_err(|err| {
+                    PressioCodecError::PressioEncodeFailed {
+                        source: PressioCodingError(err),
+                    }
+                })
             })?;
+
             eprintln!(
                 "compressed: {} {} {} {:?}",
                 compressed_data.has_data(),
@@ -324,20 +308,24 @@ impl Codec for PressioCodec {
             compressor: &mut libpressio::PressioCompressor,
             encoded: CowArray<T, IxDyn>,
         ) -> Result<AnyArray, PressioCodecError> {
-            let encoded = match encoded.try_into_owned_nocopy() {
-                Ok(encoded) => libpressio::PressioData::new(encoded),
-                Err(encoded) => libpressio::PressioData::new_copied(encoded.view()),
-            };
+            let decompressed_data = libpressio::PressioData::new_with_shared(encoded, |encoded| {
+                let decompressed_data =
+                    libpressio::PressioData::new_empty(libpressio::PressioDtype::Byte, []);
 
-            let decompressed_data =
-                libpressio::PressioData::new_empty(libpressio::PressioDtype::Byte, []);
-
-            let decompressed_data =
                 compressor
-                    .compress(&encoded, decompressed_data)
+                    .compress(encoded, decompressed_data)
                     .map_err(|err| PressioCodecError::PressioDecodeFailed {
                         source: PressioCodingError(err),
-                    })?;
+                    })
+            })?;
+
+            eprintln!(
+                "decompressed: {} {} {} {:?}",
+                decompressed_data.has_data(),
+                decompressed_data.len(),
+                decompressed_data.ndim(),
+                decompressed_data.dtype()
+            );
 
             let Some(decompressed_data) = decompressed_data.clone_into_array() else {
                 if decompressed_data.has_data() {
