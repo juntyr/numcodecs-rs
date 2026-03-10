@@ -203,7 +203,6 @@ struct NixEnv {
     pkg_config: PathBuf,
     #[expect(dead_code)]
     python3: PathBuf,
-    host_libcxx: PathBuf,
 }
 
 impl NixEnv {
@@ -271,7 +270,6 @@ impl NixEnv {
             wasm_opt: try_read_env(&env, "MY_WASM_OPT")?,
             pkg_config: try_read_env(&env, "MY_PKG_CONFIG")?,
             python3: try_read_env(&env, "MY_PYTHON3")?,
-            host_libcxx: try_read_env(&env, "MY_HOST_LIBCXX")?,
         })
     }
 }
@@ -297,7 +295,6 @@ fn configure_cargo_cmd(
         wasi_sysroot,
         libclang_rt,
         pkg_config,
-        host_libcxx,
         ..
     } = nix_env;
 
@@ -381,17 +378,6 @@ fn configure_cargo_cmd(
         lld = lld.display(),
         cpp_include_path = crate_dir.join("include.hpp").display(),
         debug = if debug { "-g" } else { "" },
-    ));
-    cmd.arg(format!(
-        "CXXFLAGSHOST=-isysroot {host_sysroot} -isystem {host_libcxx_include} \
-        -isystem {clang_include}",
-        host_sysroot = wasi_sysroot.join("include").join("wasm32-wasi").display(), // I mean, what could go wrong?
-        host_libcxx_include = host_libcxx.join("include").join("c++").join("v1").display(),
-        clang_include = libclang
-            .join("clang")
-            .join(llvm_version)
-            .join("include")
-            .display(),
     ));
     cmd.arg(format!(
         "BINDGEN_EXTRA_CLANG_ARGS=--target=wasm32-wasip1 -nodefaultlibs -resource-dir \
