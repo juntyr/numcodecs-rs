@@ -222,7 +222,7 @@ pub enum PressioOption {
     F64(f64),
     String(String),
     VecString(Vec<String>),
-    Nested(BTreeMap<String, PressioOption>),
+    Nested(BTreeMap<String, Self>),
 }
 
 #[derive(Copy, Clone, Debug)]
