@@ -17,22 +17,16 @@
 //!
 //! libpressio codec wrapper for the [`numcodecs`] API.
 
-use std::{
-    borrow::Cow,
-    collections::BTreeMap,
-    sync::{LazyLock, Mutex},
-};
+use std::{borrow::Cow, collections::BTreeMap, sync::Mutex};
 
-use ndarray::{CowArray, IxDyn};
+use ndarray::{ArrayView, ArrayViewMut, CowArray, IxDyn};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
-use schemars::{JsonSchema, Schema, SchemaGenerator};
+use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
-
-static PRESSIO: LazyLock<Pressio> = LazyLock::new(Pressio::new);
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[schemars(deny_unknown_fields)]
@@ -56,12 +50,10 @@ pub struct PressioCompressor {
 impl Clone for PressioCompressor {
     #[expect(clippy::unwrap_used)]
     fn clone(&self) -> Self {
-        let mut compressor = {
-            let mut pressio = PRESSIO.get_or_unwrap().lock().unwrap();
-            pressio
-                .get_compressor(self.format.compressor.as_str())
-                .unwrap()
-        };
+        let mut pressio = libpressio::Pressio::new().unwrap();
+        let mut compressor = pressio
+            .get_compressor(self.format.compressor_id.as_str())
+            .unwrap();
         let options = self.compressor.lock().unwrap().get_options().unwrap();
         compressor.set_options(&options).unwrap();
 
@@ -80,89 +72,102 @@ impl Serialize for PressioCompressor {
 
 impl<'de> Deserialize<'de> for PressioCompressor {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        fn convert_to_pressio_options(
+            config: &BTreeMap<String, PressioOption>,
+        ) -> Result<libpressio::PressioOptions, libpressio::PressioError> {
+            let mut options = libpressio::PressioOptions::new()?;
+
+            let mut entries = vec![(vec![], config)];
+
+            while let Some((path, entry)) = entries.pop() {
+                for (key, value) in entry {
+                    let option = match value {
+                        PressioOption::None(None) => Option::None,
+                        PressioOption::Bool(x) => Some(libpressio::PressioOption::bool(Some(*x))),
+                        PressioOption::U8(x) => Some(libpressio::PressioOption::uint8(Some(*x))),
+                        PressioOption::I8(x) => Some(libpressio::PressioOption::int8(Some(*x))),
+                        PressioOption::U16(x) => Some(libpressio::PressioOption::uint16(Some(*x))),
+                        PressioOption::I16(x) => Some(libpressio::PressioOption::int16(Some(*x))),
+                        PressioOption::U32(x) => Some(libpressio::PressioOption::uint32(Some(*x))),
+                        PressioOption::I32(x) => Some(libpressio::PressioOption::int32(Some(*x))),
+                        PressioOption::U64(x) => Some(libpressio::PressioOption::uint64(Some(*x))),
+                        PressioOption::I64(x) => Some(libpressio::PressioOption::int64(Some(*x))),
+                        PressioOption::F32(x) => Some(libpressio::PressioOption::float32(Some(*x))),
+                        PressioOption::F64(x) => Some(libpressio::PressioOption::float64(Some(*x))),
+                        PressioOption::String(x) => {
+                            Some(libpressio::PressioOption::string(Some(x.clone())))
+                        }
+                        PressioOption::VecString(x) => {
+                            Some(libpressio::PressioOption::vec_string(Some(x.clone())))
+                        }
+                        PressioOption::Nested(entry) => {
+                            let mut nested_path = path.clone();
+                            nested_path.push(key.clone());
+                            entries.push((nested_path, entry));
+                            continue;
+                        }
+                    };
+
+                    let name = if path.is_empty() {
+                        key.clone()
+                    } else {
+                        format!("{path}:{key}", path = path.join("/"))
+                    };
+
+                    if let Some(option) = option {
+                        options = options.set(name, option)?;
+                    }
+                }
+            }
+
+            Ok(options)
+        }
+
         // TODO: better error handling
         let format = PressioCompressorFormat::deserialize(deserializer)?;
-        let compressor = {
-            let pressio = PRESSIO
-                .get()
-                .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
-            let mut pressio = pressio.lock().map_err(serde::de::Error::custom)?;
-            pressio
-                .get_compressor(format.compressor.as_str())
-                .map_err(|err| {
-                    let supported_compressors = pressio.supported_compressors().map_or_else(
-                        |_| String::from("<unknown>"),
-                        |x| {
-                            x.iter()
-                                .map(|x| format!("`{x}`"))
-                                .collect::<Vec<_>>()
-                                .join(", ")
-                        },
-                    );
 
-                    serde::de::Error::custom(format_args!(
-                        "{}, choose one of: {}",
-                        err.message, supported_compressors
-                    ))
-                })?
-        };
-        let mut options = compressor
+        let mut pressio = libpressio::Pressio::new()
+            .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
+        let mut compressor = pressio
+            .get_compressor(format.compressor_id.as_str())
+            .map_err(|err| {
+                let supported_compressors = pressio.supported_compressors().map_or_else(
+                    |_| String::from("<unknown>"),
+                    |x| {
+                        x.iter()
+                            .map(|x| format!("`{x}`"))
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    },
+                );
+
+                serde::de::Error::custom(format_args!(
+                    "{}, choose one of: {}",
+                    err.message, supported_compressors
+                ))
+            })?;
+
+        if let Some(name) = &format.name {
+            compressor
+                .set_name(name)
+                .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
+        }
+
+        let early_options = convert_to_pressio_options(&format.early_config)
+            .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
+        compressor
+            .set_options(&early_options)
+            .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
+
+        let _options_template = compressor
             .get_options()
             .map_err(|err| serde::de::Error::custom(err.message))?;
 
-        for (key, value) in &format.options {
-            options = options
-                .set(
-                    key,
-                    match value {
-                        PressioOption::Bool(x) => libpressio::PressioOption::bool(Some(*x)),
-                        PressioOption::U8(x) => libpressio::PressioOption::uint8(Some(*x)),
-                        PressioOption::I8(x) => libpressio::PressioOption::int8(Some(*x)),
-                        PressioOption::U16(x) => libpressio::PressioOption::uint16(Some(*x)),
-                        PressioOption::I16(x) => libpressio::PressioOption::int16(Some(*x)),
-                        PressioOption::U32(x) => libpressio::PressioOption::uint32(Some(*x)),
-                        PressioOption::I32(x) => libpressio::PressioOption::int32(Some(*x)),
-                        PressioOption::U64(x) => libpressio::PressioOption::uint64(Some(*x)),
-                        PressioOption::I64(x) => libpressio::PressioOption::int64(Some(*x)),
-                        PressioOption::F32(x) => libpressio::PressioOption::float32(Some(*x)),
-                        PressioOption::F64(x) => libpressio::PressioOption::float64(Some(*x)),
-                        PressioOption::String(x) => {
-                            libpressio::PressioOption::string(Some(x.clone()))
-                        }
-                        PressioOption::VecString(x) => {
-                            libpressio::PressioOption::vec_string(Some(x.clone()))
-                        }
-                    },
-                )
-                .map_err(|err| serde::de::Error::custom(err.message))?;
-        }
-
-        let mut format = format;
-        if let Ok(format_options) = options.get_options() {
-            format.options = format_options
-                .into_iter()
-                .filter_map(|(k, v)| match v {
-                    libpressio::PressioOption::bool(Some(x)) => Some((k, PressioOption::Bool(x))),
-                    libpressio::PressioOption::int8(Some(x)) => Some((k, PressioOption::I8(x))),
-                    libpressio::PressioOption::int16(Some(x)) => Some((k, PressioOption::I16(x))),
-                    libpressio::PressioOption::int32(Some(x)) => Some((k, PressioOption::I32(x))),
-                    libpressio::PressioOption::int64(Some(x)) => Some((k, PressioOption::I64(x))),
-                    libpressio::PressioOption::uint8(Some(x)) => Some((k, PressioOption::U8(x))),
-                    libpressio::PressioOption::uint16(Some(x)) => Some((k, PressioOption::U16(x))),
-                    libpressio::PressioOption::uint32(Some(x)) => Some((k, PressioOption::U32(x))),
-                    libpressio::PressioOption::uint64(Some(x)) => Some((k, PressioOption::U64(x))),
-                    libpressio::PressioOption::float32(Some(x)) => Some((k, PressioOption::F32(x))),
-                    libpressio::PressioOption::float64(Some(x)) => Some((k, PressioOption::F64(x))),
-                    libpressio::PressioOption::string(Some(x)) => {
-                        Some((k, PressioOption::String(x)))
-                    }
-                    // FIXME: seems to return strings as a single joined string
-                    libpressio::PressioOption::vec_string(Some(x)) => {
-                        Some((k, PressioOption::VecString(x)))
-                    }
-                    _ => None,
-                })
-                .collect();
+        if !format.compressor_config.is_empty() {
+            // TODO
+            return Err(serde::de::Error::custom(
+                "compressor_config is not yet supported",
+            ));
         }
 
         Ok(Self {
@@ -185,10 +190,17 @@ impl JsonSchema for PressioCompressor {
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "PressioCompressor")]
 struct PressioCompressorFormat {
-    compressor: String,
-    // TODO: flatten
+    /// The id of the compressor
+    compressor_id: String,
+    /// Configuration for the structure of the compressor
     #[serde(default)]
-    options: BTreeMap<String, PressioOption>,
+    early_config: BTreeMap<String, PressioOption>,
+    /// Configuration for the compressor
+    #[serde(default)]
+    compressor_config: BTreeMap<String, PressioOption>,
+    /// Optional name for the compressor when used in hierarchical mode
+    #[serde(default)]
+    name: Option<String>,
 }
 
 #[expect(missing_docs)]
@@ -196,6 +208,7 @@ struct PressioCompressorFormat {
 #[serde(untagged)]
 /// Pressio option value
 pub enum PressioOption {
+    None(None),
     Bool(bool),
     U8(u8),
     I8(i8),
@@ -209,26 +222,50 @@ pub enum PressioOption {
     F64(f64),
     String(String),
     VecString(Vec<String>),
+    Nested(BTreeMap<String, PressioOption>),
 }
 
-struct Pressio {
-    pressio: Result<Mutex<libpressio::Pressio>, libpressio::PressioError>,
+#[derive(Copy, Clone, Debug)]
+/// Equivalent of `Option<!>::None`
+pub struct None;
+
+impl Serialize for None {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_none()
+    }
 }
 
-impl Pressio {
-    fn new() -> Self {
-        Self {
-            pressio: libpressio::Pressio::new().map(Mutex::new),
+impl<'de> Deserialize<'de> for None {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        enum Never {}
+
+        impl<'de> Deserialize<'de> for Never {
+            fn deserialize<D: Deserializer<'de>>(_deserializer: D) -> Result<Self, D::Error> {
+                Err(serde::de::Error::custom("never"))
+            }
+        }
+
+        match Option::<Never>::deserialize(deserializer) {
+            Ok(Option::Some(x)) => match x {},
+            Ok(Option::None) => Ok(Self),
+            Err(err) => Err(err),
         }
     }
+}
 
-    const fn get(&self) -> Result<&Mutex<libpressio::Pressio>, &libpressio::PressioError> {
-        self.pressio.as_ref()
+impl JsonSchema for None {
+    fn schema_name() -> Cow<'static, str> {
+        Cow::Borrowed("null")
     }
 
-    #[expect(clippy::unwrap_used)]
-    fn get_or_unwrap(&self) -> &Mutex<libpressio::Pressio> {
-        self.pressio.as_ref().unwrap()
+    fn inline_schema() -> bool {
+        true
+    }
+
+    fn json_schema(_generator: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "null"
+        })
     }
 }
 
@@ -371,15 +408,172 @@ impl Codec for PressioCodec {
         }
     }
 
+    #[expect(clippy::too_many_lines)] // FIXME
     fn decode_into(
         &self,
         encoded: AnyArrayView,
-        mut decoded: AnyArrayViewMut,
+        decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
-        // TODO: optimize
-        let decoded_in = self.decode(encoded.cow())?;
+        fn decompress_typed<T: libpressio::PressioElement>(
+            compressor: &mut libpressio::PressioCompressor,
+            encoded: ArrayView<T, IxDyn>,
+            decoded_dtype: libpressio::PressioDtype,
+            decoded_shape: &[usize],
+        ) -> Result<libpressio::PressioData, PressioCodecError> {
+            libpressio::PressioData::new_with_shared(encoded, |encoded| {
+                let decompressed_data =
+                    libpressio::PressioData::new_empty(decoded_dtype, decoded_shape);
 
-        Ok(decoded.assign(&decoded_in)?)
+                compressor
+                    .compress(encoded, decompressed_data)
+                    .map_err(|err| PressioCodecError::PressioDecodeFailed {
+                        source: PressioCodingError(err),
+                    })
+            })
+        }
+
+        fn decode_into_typed<T: libpressio::PressioElement>(
+            decompressed_data: &libpressio::PressioData,
+            mut decoded: ArrayViewMut<T, IxDyn>,
+        ) -> Result<(), PressioCodecError> {
+            eprintln!(
+                "decompressed into: {} {} {} {:?}",
+                decompressed_data.has_data(),
+                decompressed_data.len(),
+                decompressed_data.ndim(),
+                decompressed_data.dtype()
+            );
+
+            if !decompressed_data.has_data() {
+                return Err(PressioCodecError::DecodeToArrayWithoutData);
+            }
+
+            let dtype = match <T as libpressio::PressioElement>::DTYPE {
+                libpressio::PressioDtype::Bool => {
+                    return Err(PressioCodecError::DecodeToBoolArray);
+                }
+                libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8 => AnyArrayDType::U8,
+                libpressio::PressioDtype::U16 => AnyArrayDType::U16,
+                libpressio::PressioDtype::U32 => AnyArrayDType::U32,
+                libpressio::PressioDtype::U64 => AnyArrayDType::U64,
+                libpressio::PressioDtype::I8 => AnyArrayDType::I8,
+                libpressio::PressioDtype::I16 => AnyArrayDType::I16,
+                libpressio::PressioDtype::I32 => AnyArrayDType::I32,
+                libpressio::PressioDtype::I64 => AnyArrayDType::I64,
+                libpressio::PressioDtype::F32 => AnyArrayDType::F32,
+                libpressio::PressioDtype::F64 => AnyArrayDType::F64,
+            };
+            let decompressed_dtype = match decompressed_data.dtype() {
+                Option::None => return Err(PressioCodecError::DecodeToUnknownDtype),
+                Some(libpressio::PressioDtype::Bool) => {
+                    return Err(PressioCodecError::DecodeToBoolArray);
+                }
+                Some(libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8) => {
+                    AnyArrayDType::U8
+                }
+                Some(libpressio::PressioDtype::U16) => AnyArrayDType::U16,
+                Some(libpressio::PressioDtype::U32) => AnyArrayDType::U32,
+                Some(libpressio::PressioDtype::U64) => AnyArrayDType::U64,
+                Some(libpressio::PressioDtype::I8) => AnyArrayDType::I8,
+                Some(libpressio::PressioDtype::I16) => AnyArrayDType::I16,
+                Some(libpressio::PressioDtype::I32) => AnyArrayDType::I32,
+                Some(libpressio::PressioDtype::I64) => AnyArrayDType::I64,
+                Some(libpressio::PressioDtype::F32) => AnyArrayDType::F32,
+                Some(libpressio::PressioDtype::F64) => AnyArrayDType::F64,
+            };
+
+            if dtype != decompressed_dtype {
+                return Err(PressioCodecError::MismatchedDecodeIntoArray {
+                    source: AnyArrayAssignError::DTypeMismatch {
+                        src: decompressed_dtype,
+                        dst: dtype,
+                    },
+                });
+            }
+
+            if decompressed_data
+                .with_shared::<T, IxDyn, ()>(decoded.dim(), |decompressed| {
+                    decoded.assign(&decompressed);
+                })
+                .is_none()
+            {
+                return Err(PressioCodecError::MismatchedDecodeIntoArray {
+                    source: AnyArrayAssignError::ShapeMismatch {
+                        src: decompressed_data.shape(),
+                        dst: decoded.shape().to_vec(),
+                    },
+                });
+            }
+
+            Ok(())
+        }
+
+        let Ok(mut compressor) = self.compressor.compressor.lock() else {
+            return Err(PressioCodecError::PressioPoisonedMutex);
+        };
+
+        let decoded_dtype = match decoded.dtype() {
+            AnyArrayDType::U8 => libpressio::PressioDtype::U8,
+            AnyArrayDType::U16 => libpressio::PressioDtype::U16,
+            AnyArrayDType::U32 => libpressio::PressioDtype::U32,
+            AnyArrayDType::U64 => libpressio::PressioDtype::U64,
+            AnyArrayDType::I8 => libpressio::PressioDtype::I8,
+            AnyArrayDType::I16 => libpressio::PressioDtype::I16,
+            AnyArrayDType::I32 => libpressio::PressioDtype::I32,
+            AnyArrayDType::I64 => libpressio::PressioDtype::I64,
+            AnyArrayDType::F32 => libpressio::PressioDtype::F32,
+            AnyArrayDType::F64 => libpressio::PressioDtype::F64,
+            decoded_dtype => return Err(PressioCodecError::UnsupportedDtype(decoded_dtype)),
+        };
+        let decoded_shape = decoded.shape();
+
+        let decompressed_data = match encoded {
+            AnyArrayView::U8(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            AnyArrayView::U16(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            AnyArrayView::U32(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            AnyArrayView::U64(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            AnyArrayView::I8(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            AnyArrayView::I16(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            AnyArrayView::I32(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            AnyArrayView::I64(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            AnyArrayView::F32(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            AnyArrayView::F64(encoded) => {
+                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+            }
+            encoded => return Err(PressioCodecError::UnsupportedDtype(encoded.dtype())),
+        }?;
+
+        match decoded {
+            AnyArrayViewMut::U8(decoded) => decode_into_typed(&decompressed_data, decoded),
+            AnyArrayViewMut::U16(decoded) => decode_into_typed(&decompressed_data, decoded),
+            AnyArrayViewMut::U32(decoded) => decode_into_typed(&decompressed_data, decoded),
+            AnyArrayViewMut::U64(decoded) => decode_into_typed(&decompressed_data, decoded),
+            AnyArrayViewMut::I8(decoded) => decode_into_typed(&decompressed_data, decoded),
+            AnyArrayViewMut::I16(decoded) => decode_into_typed(&decompressed_data, decoded),
+            AnyArrayViewMut::I32(decoded) => decode_into_typed(&decompressed_data, decoded),
+            AnyArrayViewMut::I64(decoded) => decode_into_typed(&decompressed_data, decoded),
+            AnyArrayViewMut::F32(decoded) => decode_into_typed(&decompressed_data, decoded),
+            AnyArrayViewMut::F64(decoded) => decode_into_typed(&decompressed_data, decoded),
+            decoded => Err(PressioCodecError::UnsupportedDtype(decoded.dtype())),
+        }
     }
 }
 
