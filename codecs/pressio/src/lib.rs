@@ -17,7 +17,11 @@
 //!
 //! libpressio codec wrapper for the [`numcodecs`] API.
 
-use std::{borrow::Cow, collections::BTreeMap, sync::Mutex};
+use std::{
+    borrow::Cow,
+    collections::{BTreeMap, btree_map::Entry},
+    sync::Mutex,
+};
 
 use ndarray::{ArrayView, ArrayViewMut, CowArray, IxDyn};
 use numcodecs::{
@@ -43,39 +47,137 @@ pub struct PressioCodec {
 
 /// Pressio compressor
 pub struct PressioCompressor {
-    format: PressioCompressorFormat,
     compressor: Mutex<libpressio::PressioCompressor>,
+    compressor_id: String,
+    early_config: BTreeMap<String, PressioOption>,
+    name: Option<String>,
 }
 
 impl Clone for PressioCompressor {
     #[expect(clippy::unwrap_used)]
     fn clone(&self) -> Self {
         let mut pressio = libpressio::Pressio::new().unwrap();
-        let mut compressor = pressio
-            .get_compressor(self.format.compressor_id.as_str())
-            .unwrap();
+        let mut compressor = pressio.get_compressor(self.compressor_id.as_str()).unwrap();
+        if let Some(name) = &self.name {
+            compressor.set_name(name).unwrap();
+        }
         let options = self.compressor.lock().unwrap().get_options().unwrap();
         compressor.set_options(&options).unwrap();
 
         Self {
-            format: self.format.clone(),
             compressor: Mutex::new(compressor),
+            compressor_id: self.compressor_id.clone(),
+            early_config: self.early_config.clone(),
+            name: self.name.clone(),
         }
     }
 }
 
 impl Serialize for PressioCompressor {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        self.format.serialize(serializer)
+        fn convert_from_pressio_options<E: serde::ser::Error>(
+            options: BTreeMap<String, libpressio::PressioOption>,
+        ) -> Result<BTreeMap<String, PressioOption>, E> {
+            let mut config = BTreeMap::new();
+
+            for (name, option) in options {
+                let value = match option {
+                    libpressio::PressioOption::bool(Some(x)) => PressioOption::Bool(x),
+                    libpressio::PressioOption::int8(Some(x)) => PressioOption::I8(x),
+                    libpressio::PressioOption::int16(Some(x)) => PressioOption::I16(x),
+                    libpressio::PressioOption::int32(Some(x)) => PressioOption::I32(x),
+                    libpressio::PressioOption::int64(Some(x)) => PressioOption::I64(x),
+                    libpressio::PressioOption::uint8(Some(x)) => PressioOption::U8(x),
+                    libpressio::PressioOption::uint16(Some(x)) => PressioOption::U16(x),
+                    libpressio::PressioOption::uint32(Some(x)) => PressioOption::U32(x),
+                    libpressio::PressioOption::uint64(Some(x)) => PressioOption::U64(x),
+                    libpressio::PressioOption::float32(Some(x)) => PressioOption::F32(x),
+                    libpressio::PressioOption::float64(Some(x)) => PressioOption::F64(x),
+                    libpressio::PressioOption::string(Some(x)) => PressioOption::String(x),
+                    // FIXME: seems to return strings as a single joined string
+                    libpressio::PressioOption::vec_string(Some(x)) => PressioOption::VecString(x),
+                    libpressio::PressioOption::data(_)
+                    | libpressio::PressioOption::user_ptr(_)
+                    | libpressio::PressioOption::unset
+                    | _ /* non-exhaustive */ => continue,
+                };
+
+                let Some(nested_name) = name.strip_prefix('/') else {
+                    // global option
+                    if config.insert(name.clone(), value).is_some() {
+                        return Err(serde::ser::Error::custom(format!(
+                            "duplicate option {name:?}"
+                        )));
+                    }
+                    continue;
+                };
+
+                // hierarchical option
+                let mut parts = nested_name.split(':').peekable();
+
+                let Some(first) = parts.next() else {
+                    return Err(serde::ser::Error::custom(format!(
+                        "invalid hierarchical config name {name:?}"
+                    )));
+                };
+                let paths = first.split('/');
+
+                if parts.peek().is_none() {
+                    return Err(serde::ser::Error::custom(format!(
+                        "invalid hierarchical config name {name:?}"
+                    )));
+                }
+                let option_name = parts.map(String::from).collect::<Vec<_>>().join(":");
+
+                let mut it = &mut config;
+                for path in paths {
+                    if let Entry::Vacant(entry) = it.entry(String::from(path)) {
+                        entry.insert(PressioOption::Nested(BTreeMap::new()));
+                    }
+
+                    let Some(PressioOption::Nested(entry)) = it.get_mut(path) else {
+                        return Err(serde::ser::Error::custom(format!(
+                            "duplicate option {path:?}"
+                        )));
+                    };
+                    it = entry;
+                }
+                if it.insert(option_name.clone(), value).is_some() {
+                    return Err(serde::ser::Error::custom(format!(
+                        "duplicate option {option_name:?}"
+                    )));
+                }
+            }
+
+            Ok(config)
+        }
+
+        let options = {
+            let compressor = self.compressor.lock().map_err(serde::ser::Error::custom)?;
+            compressor
+                .get_options()
+                .map_err(serde::ser::Error::custom)?
+        };
+        let options = options.get_options().map_err(serde::ser::Error::custom)?;
+
+        PressioCompressorBorrowedFormat {
+            compressor_id: self.compressor_id.as_str(),
+            early_config: &self.early_config,
+            compressor_config: &convert_from_pressio_options(options)?,
+            name: self.name.as_deref(),
+        }
+        .serialize(serializer)
     }
 }
 
 impl<'de> Deserialize<'de> for PressioCompressor {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        fn convert_to_pressio_options(
+        fn convert_to_pressio_options<E: serde::de::Error>(
             config: &BTreeMap<String, PressioOption>,
-        ) -> Result<libpressio::PressioOptions, libpressio::PressioError> {
-            let mut options = libpressio::PressioOptions::new()?;
+            template: Option<&libpressio::PressioOptions>,
+        ) -> Result<libpressio::PressioOptions, E> {
+            let mut options =
+                libpressio::PressioOptions::new().map_err(serde::de::Error::custom)?;
 
             let mut entries = vec![(vec![], config)];
 
@@ -114,8 +216,25 @@ impl<'de> Deserialize<'de> for PressioCompressor {
                         format!("{path}:{key}", path = path.join("/"))
                     };
 
+                    if let Some(template) = template {
+                        if !template
+                            .has_option(&name)
+                            .map_err(serde::de::Error::custom)?
+                        {
+                            return Err(serde::de::Error::custom(format!(
+                                "unknown compressor configuration option: {name:?}"
+                            )));
+                        }
+                    }
+
+                    // TODO: handle conversion and type errors
+                    // TODO: check if the options were actually set
+                    //       (e.g. compressor names are validated and fallback to noop)
+
                     if let Some(option) = option {
-                        options = options.set(name, option)?;
+                        options
+                            .set(name, option)
+                            .map_err(serde::de::Error::custom)?;
                     }
                 }
             }
@@ -124,10 +243,9 @@ impl<'de> Deserialize<'de> for PressioCompressor {
         }
 
         // TODO: better error handling
-        let format = PressioCompressorFormat::deserialize(deserializer)?;
+        let format = PressioCompressorOwnedFormat::deserialize(deserializer)?;
 
-        let mut pressio = libpressio::Pressio::new()
-            .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
+        let mut pressio = libpressio::Pressio::new().map_err(serde::de::Error::custom)?;
         let mut compressor = pressio
             .get_compressor(format.compressor_id.as_str())
             .map_err(|err| {
@@ -150,46 +268,43 @@ impl<'de> Deserialize<'de> for PressioCompressor {
         if let Some(name) = &format.name {
             compressor
                 .set_name(name)
-                .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
+                .map_err(serde::de::Error::custom)?;
         }
 
-        let early_options = convert_to_pressio_options(&format.early_config)
-            .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
+        let early_options = convert_to_pressio_options(&format.early_config, Option::None)?;
         compressor
             .set_options(&early_options)
-            .map_err(|err| serde::de::Error::custom(err.message.as_str()))?;
+            .map_err(serde::de::Error::custom)?;
+        let options_template = compressor.get_options().map_err(serde::de::Error::custom)?;
 
-        let _options_template = compressor
-            .get_options()
-            .map_err(|err| serde::de::Error::custom(err.message))?;
-
-        if !format.compressor_config.is_empty() {
-            // TODO
-            return Err(serde::de::Error::custom(
-                "compressor_config is not yet supported",
-            ));
-        }
+        let options =
+            convert_to_pressio_options(&format.compressor_config, Some(&options_template))?;
+        compressor
+            .set_options(&options)
+            .map_err(serde::de::Error::custom)?;
 
         Ok(Self {
-            format,
             compressor: Mutex::new(compressor),
+            compressor_id: format.compressor_id,
+            early_config: format.early_config,
+            name: format.name,
         })
     }
 }
 
 impl JsonSchema for PressioCompressor {
     fn schema_name() -> Cow<'static, str> {
-        PressioCompressorFormat::schema_name()
+        PressioCompressorOwnedFormat::schema_name()
     }
 
     fn json_schema(generator: &mut SchemaGenerator) -> Schema {
-        PressioCompressorFormat::json_schema(generator)
+        PressioCompressorOwnedFormat::json_schema(generator)
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(rename = "PressioCompressor")]
-struct PressioCompressorFormat {
+struct PressioCompressorOwnedFormat {
     /// The id of the compressor
     compressor_id: String,
     /// Configuration for the structure of the compressor
@@ -201,6 +316,22 @@ struct PressioCompressorFormat {
     /// Optional name for the compressor when used in hierarchical mode
     #[serde(default)]
     name: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename = "PressioCompressor")]
+struct PressioCompressorBorrowedFormat<'a> {
+    /// The id of the compressor
+    compressor_id: &'a str,
+    /// Configuration for the structure of the compressor
+    #[serde(default)]
+    early_config: &'a BTreeMap<String, PressioOption>,
+    /// Configuration for the compressor
+    #[serde(default)]
+    compressor_config: &'a BTreeMap<String, PressioOption>,
+    /// Optional name for the compressor when used in hierarchical mode
+    #[serde(default)]
+    name: Option<&'a str>,
 }
 
 #[expect(missing_docs)]
