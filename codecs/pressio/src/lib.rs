@@ -101,6 +101,8 @@ impl Serialize for PressioCompressor {
                     libpressio::PressioOption::string(Some(x)) => PressioOption::String(x),
                     // FIXME: seems to return strings as a single joined string
                     libpressio::PressioOption::vec_string(Some(x)) => PressioOption::VecString(x),
+                    libpressio::PressioOption::dtype(Some(x)) => PressioOption::String(format!("{x}")),
+                    libpressio::PressioOption::thread_safety(Some(x)) => PressioOption::String(format!("{x}")),
                     libpressio::PressioOption::data(_)
                     | libpressio::PressioOption::user_ptr(_)
                     | libpressio::PressioOption::unset
@@ -111,7 +113,7 @@ impl Serialize for PressioCompressor {
                     // global option
                     if config.insert(name.clone(), value).is_some() {
                         return Err(serde::ser::Error::custom(format!(
-                            "duplicate option {name:?}"
+                            "duplicate global option: {name:?}"
                         )));
                     }
                     continue;
@@ -142,14 +144,14 @@ impl Serialize for PressioCompressor {
 
                     let Some(PressioOption::Nested(entry)) = it.get_mut(path) else {
                         return Err(serde::ser::Error::custom(format!(
-                            "duplicate option {path:?}"
+                            "duplicate option nesting: {path:?} in {name:?}"
                         )));
                     };
                     it = entry;
                 }
                 if it.insert(option_name.clone(), value).is_some() {
                     return Err(serde::ser::Error::custom(format!(
-                        "duplicate option {option_name:?}"
+                        "duplicate nested option: {option_name:?} in {name:?}"
                     )));
                 }
             }
@@ -175,6 +177,7 @@ impl Serialize for PressioCompressor {
 }
 
 impl<'de> Deserialize<'de> for PressioCompressor {
+    #[expect(clippy::too_many_lines)] // FIXME
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         fn convert_to_pressio_options<E: serde::de::Error>(
             config: &BTreeMap<String, PressioOption>,
@@ -217,25 +220,32 @@ impl<'de> Deserialize<'de> for PressioCompressor {
                     let name = if path.is_empty() {
                         key.clone()
                     } else {
-                        format!("{path}:{key}", path = path.join("/"))
+                        format!("/{path}:{key}", path = path.join("/"))
                     };
 
                     if let Some(template) = template {
-                        if !template
-                            .has_option(&name)
-                            .map_err(serde::de::Error::custom)?
-                        {
+                        let Some(option_template) =
+                            template.get(&name).map_err(serde::de::Error::custom)?
+                        else {
                             return Err(serde::de::Error::custom(format!(
                                 "unknown compressor configuration option: {name:?}"
                             )));
+                        };
+
+                        options
+                            .set(&name, option_template.copy_type_only())
+                            .map_err(serde::de::Error::custom)?;
+
+                        if let Some(option) = option {
+                            options
+                                .set_with_cast(
+                                    name,
+                                    option,
+                                    libpressio::PressioConversionSafety::Special,
+                                )
+                                .map_err(serde::de::Error::custom)?;
                         }
-                    }
-
-                    // TODO: handle conversion and type errors
-                    // TODO: check if the options were actually set
-                    //       (e.g. compressor names are validated and fallback to noop)
-
-                    if let Some(option) = option {
+                    } else if let Some(option) = option {
                         options
                             .set(name, option)
                             .map_err(serde::de::Error::custom)?;
@@ -423,14 +433,6 @@ impl Codec for PressioCodec {
                 })
             })?;
 
-            eprintln!(
-                "compressed: {} {} {} {:?}",
-                compressed_data.has_data(),
-                compressed_data.len(),
-                compressed_data.ndim(),
-                compressed_data.dtype()
-            );
-
             let Some(compressed_data) = compressed_data.clone_into_array() else {
                 if compressed_data.has_data() {
                     return Err(PressioCodecError::EncodeToUnknownDtype);
@@ -490,14 +492,6 @@ impl Codec for PressioCodec {
                         source: PressioCodingError(err),
                     })
             })?;
-
-            eprintln!(
-                "decompressed: {} {} {} {:?}",
-                decompressed_data.has_data(),
-                decompressed_data.len(),
-                decompressed_data.ndim(),
-                decompressed_data.dtype()
-            );
 
             let Some(decompressed_data) = decompressed_data.clone_into_array() else {
                 if decompressed_data.has_data() {
@@ -571,14 +565,6 @@ impl Codec for PressioCodec {
             decompressed_data: &libpressio::PressioData,
             mut decoded: ArrayViewMut<T, IxDyn>,
         ) -> Result<(), PressioCodecError> {
-            eprintln!(
-                "decompressed into: {} {} {} {:?}",
-                decompressed_data.has_data(),
-                decompressed_data.len(),
-                decompressed_data.ndim(),
-                decompressed_data.dtype()
-            );
-
             if !decompressed_data.has_data() {
                 return Err(PressioCodecError::DecodeToArrayWithoutData);
             }
