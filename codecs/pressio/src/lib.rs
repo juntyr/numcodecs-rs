@@ -76,11 +76,16 @@ impl Clone for PressioCompressor {
 impl Serialize for PressioCompressor {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         fn convert_from_pressio_options<E: serde::ser::Error>(
-            options: BTreeMap<String, libpressio::PressioOption>,
+            options: impl Iterator<Item = (Option<String>, Option<libpressio::PressioOption>)>,
         ) -> Result<BTreeMap<String, PressioOption>, E> {
             let mut config = BTreeMap::new();
 
             for (name, option) in options {
+                // skip invalid option names and values
+                let (Some(name), Some(option)) = (name, option) else {
+                    continue;
+                };
+
                 let value = match option {
                     libpressio::PressioOption::bool(Some(x)) => PressioOption::Bool(x),
                     libpressio::PressioOption::int8(Some(x)) => PressioOption::I8(x),
@@ -158,12 +163,11 @@ impl Serialize for PressioCompressor {
                 .get_options()
                 .map_err(serde::ser::Error::custom)?
         };
-        let options = options.get_options().map_err(serde::ser::Error::custom)?;
 
         PressioCompressorBorrowedFormat {
             compressor_id: self.compressor_id.as_str(),
             early_config: &self.early_config,
-            compressor_config: &convert_from_pressio_options(options)?,
+            compressor_config: &convert_from_pressio_options(options.iter())?,
             name: self.name.as_deref(),
         }
         .serialize(serializer)
@@ -249,7 +253,7 @@ impl<'de> Deserialize<'de> for PressioCompressor {
         let mut compressor = pressio
             .get_compressor(format.compressor_id.as_str())
             .map_err(|err| {
-                let supported_compressors = pressio.supported_compressors().map_or_else(
+                let supported_compressors = libpressio::supported_compressors().map_or_else(
                     |_| String::from("<unknown>"),
                     |x| {
                         x.iter()
