@@ -23,7 +23,7 @@ use std::{
     sync::Mutex,
 };
 
-use ndarray::{ArrayView, ArrayViewMut, CowArray, IxDyn};
+use ndarray::{Array, ArrayView, ArrayViewMut, CowArray, IxDyn};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
@@ -74,6 +74,7 @@ impl Clone for PressioCompressor {
 }
 
 impl Serialize for PressioCompressor {
+    #[expect(clippy::too_many_lines)]
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         fn convert_from_pressio_options<E: serde::ser::Error>(
             options: impl Iterator<Item = (Option<String>, Option<libpressio::PressioOption>)>,
@@ -103,8 +104,21 @@ impl Serialize for PressioCompressor {
                     libpressio::PressioOption::vec_string(Some(x)) => PressioOption::VecString(x),
                     libpressio::PressioOption::dtype(Some(x)) => PressioOption::String(format!("{x}")),
                     libpressio::PressioOption::thread_safety(Some(x)) => PressioOption::String(format!("{x}")),
-                    libpressio::PressioOption::data(_)
-                    | libpressio::PressioOption::user_ptr(_)
+                    libpressio::PressioOption::data(Some(x)) => match x.clone_into_array() {
+                        Option::None => continue,
+                        Some(libpressio::PressioArray::Bool(x)) => PressioOption::DataBool(NdArray(x)),
+                        Some(libpressio::PressioArray::Byte(x) | libpressio::PressioArray::U8(x)) => PressioOption::DataU8(NdArray(x)),
+                        Some(libpressio::PressioArray::U16(x)) => PressioOption::DataU16(NdArray(x)),
+                        Some(libpressio::PressioArray::U32(x)) => PressioOption::DataU32(NdArray(x)),
+                        Some(libpressio::PressioArray::U64(x)) => PressioOption::DataU64(NdArray(x)),
+                        Some(libpressio::PressioArray::I8(x)) => PressioOption::DataI8(NdArray(x)),
+                        Some(libpressio::PressioArray::I16(x)) => PressioOption::DataI16(NdArray(x)),
+                        Some(libpressio::PressioArray::I32(x)) => PressioOption::DataI32(NdArray(x)),
+                        Some(libpressio::PressioArray::I64(x)) => PressioOption::DataI64(NdArray(x)),
+                        Some(libpressio::PressioArray::F32(x)) => PressioOption::DataF32(NdArray(x)),
+                        Some(libpressio::PressioArray::F64(x)) => PressioOption::DataF64(NdArray(x)),
+                    },
+                    libpressio::PressioOption::user_ptr(_)
                     | libpressio::PressioOption::unset
                     | _ /* non-exhaustive */ => continue,
                 };
@@ -217,6 +231,57 @@ impl<'de> Deserialize<'de> for PressioCompressor {
                         }
                         PressioOption::VecString(x) => {
                             Some(libpressio::PressioOption::vec_string(Some(x.clone())))
+                        }
+                        PressioOption::DataBool(NdArray(x)) => {
+                            Some(libpressio::PressioOption::data(Some(
+                                libpressio::PressioData::new_copied(x),
+                            )))
+                        }
+                        PressioOption::DataU8(NdArray(x)) => Some(libpressio::PressioOption::data(
+                            Some(libpressio::PressioData::new_copied(x)),
+                        )),
+                        PressioOption::DataU16(NdArray(x)) => {
+                            Some(libpressio::PressioOption::data(Some(
+                                libpressio::PressioData::new_copied(x),
+                            )))
+                        }
+                        PressioOption::DataU32(NdArray(x)) => {
+                            Some(libpressio::PressioOption::data(Some(
+                                libpressio::PressioData::new_copied(x),
+                            )))
+                        }
+                        PressioOption::DataU64(NdArray(x)) => {
+                            Some(libpressio::PressioOption::data(Some(
+                                libpressio::PressioData::new_copied(x),
+                            )))
+                        }
+                        PressioOption::DataI8(NdArray(x)) => Some(libpressio::PressioOption::data(
+                            Some(libpressio::PressioData::new_copied(x)),
+                        )),
+                        PressioOption::DataI16(NdArray(x)) => {
+                            Some(libpressio::PressioOption::data(Some(
+                                libpressio::PressioData::new_copied(x),
+                            )))
+                        }
+                        PressioOption::DataI32(NdArray(x)) => {
+                            Some(libpressio::PressioOption::data(Some(
+                                libpressio::PressioData::new_copied(x),
+                            )))
+                        }
+                        PressioOption::DataI64(NdArray(x)) => {
+                            Some(libpressio::PressioOption::data(Some(
+                                libpressio::PressioData::new_copied(x),
+                            )))
+                        }
+                        PressioOption::DataF32(NdArray(x)) => {
+                            Some(libpressio::PressioOption::data(Some(
+                                libpressio::PressioData::new_copied(x),
+                            )))
+                        }
+                        PressioOption::DataF64(NdArray(x)) => {
+                            Some(libpressio::PressioOption::data(Some(
+                                libpressio::PressioData::new_copied(x),
+                            )))
                         }
                         PressioOption::Nested(entry) => {
                             let mut nested_path = path.clone();
@@ -408,7 +473,76 @@ pub enum PressioOption {
     F64(f64),
     String(String),
     VecString(Vec<String>),
+    DataBool(NdArray<bool>),
+    DataU8(NdArray<u8>),
+    DataU16(NdArray<u16>),
+    DataU32(NdArray<u32>),
+    DataU64(NdArray<u64>),
+    DataI8(NdArray<i8>),
+    DataI16(NdArray<i16>),
+    DataI32(NdArray<i32>),
+    DataI64(NdArray<i64>),
+    DataF32(NdArray<f32>),
+    DataF64(NdArray<f64>),
     Nested(BTreeMap<String, Self>),
+}
+
+#[derive(Clone)]
+/// Pressio n-dimensional data array
+pub struct NdArray<T>(Array<T, IxDyn>);
+
+impl<T: std::fmt::Debug> std::fmt::Debug for NdArray<T> {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        self.0.fmt(fmt)
+    }
+}
+
+impl<T: Serialize> Serialize for NdArray<T> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serde_ndim::serialize(&self.0, serializer)
+    }
+}
+
+impl<'de, T: Deserialize<'de>> Deserialize<'de> for NdArray<T> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        serde_ndim::deserialize(deserializer).map(Self)
+    }
+}
+
+impl<T: JsonSchema> JsonSchema for NdArray<T> {
+    fn inline_schema() -> bool {
+        false
+    }
+
+    fn schema_name() -> Cow<'static, str> {
+        Cow::Owned(format!("{}NdArray", std::any::type_name::<T>()))
+    }
+
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Owned(format!(
+            "{}::NdArray<{}>",
+            module_path!(),
+            std::any::type_name::<T>()
+        ))
+    }
+
+    fn json_schema(generator: &mut SchemaGenerator) -> Schema {
+        let item = generator.subschema_for::<T>();
+        let nested = generator.subschema_for::<Self>();
+
+        json_schema!({
+            "anyOf": [
+                {
+                    "type": "array",
+                    "items": item,
+                },
+                {
+                    "type": "array",
+                    "items": nested,
+                }
+            ]
+        })
+    }
 }
 
 #[derive(Copy, Clone, Debug)]
