@@ -20,6 +20,7 @@ ndarray = { workspace = true }
 numcodecs = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
+serde-ndim = { workspace = true, features = ["ndarray"] }
 thiserror = { workspace = true }
 
 [lints]
