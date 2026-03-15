@@ -1,6 +1,9 @@
 #![expect(missing_docs)]
 
-use ::{libpressio as _, ndarray as _, schemars as _, serde as _, serde_ndim as _, thiserror as _};
+use ::{
+    libpressio as _, ndarray as _, schemars as _, serde as _, serde_json as _, serde_ndim as _,
+    thiserror as _,
+};
 
 use numcodecs::{DynCodecType, StaticCodecType};
 use numcodecs_pressio::PressioCodec;
