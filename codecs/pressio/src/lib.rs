@@ -100,7 +100,6 @@ impl Serialize for PressioCompressor {
                     libpressio::PressioOption::float32(Some(x)) => PressioOption::F32(x),
                     libpressio::PressioOption::float64(Some(x)) => PressioOption::F64(x),
                     libpressio::PressioOption::string(Some(x)) => PressioOption::String(x),
-                    // FIXME: seems to return strings as a single joined string
                     libpressio::PressioOption::vec_string(Some(x)) => PressioOption::VecString(x),
                     libpressio::PressioOption::dtype(Some(x)) => PressioOption::String(format!("{x}")),
                     libpressio::PressioOption::thread_safety(Some(x)) => PressioOption::String(format!("{x}")),
@@ -939,3 +938,51 @@ pub enum PressioCodecError {
 #[error(transparent)]
 /// Opaque error for when encoding or decoding with libpressio fails
 pub struct PressioCodingError(libpressio::PressioError);
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use super::*;
+
+    use ndarray::Array1;
+    use serde_json::json;
+
+    #[test]
+    fn linear_quantizer() {
+        let pressio = PressioCodec::deserialize(json!({
+            "compressor_id": "linear_quantizer",
+            "early_config": {
+                "pressio:metric": "composite",
+            },
+            "compressor_config": {
+                "pressio:abs": 10.0,
+                "pressio:metric": "composite",
+                "composite:plugins": ["printer", "size"],
+            }
+        }))
+        .unwrap();
+
+        let data = ndarray::linspace(0.0, 100.0, 50)
+            .collect::<Array1<f64>>()
+            .into_dyn();
+
+        let encoded = pressio
+            .encode(AnyCowArray::F64(CowArray::from(&data)))
+            .unwrap();
+
+        let decoded = pressio.decode(encoded.cow());
+        assert!(matches!(
+            decoded,
+            Err(PressioCodecError::DecodeToArrayWithoutData)
+        ));
+
+        let mut decoded = ndarray::Array::zeros(data.dim());
+        pressio
+            .decode_into(encoded.view(), AnyArrayViewMut::F64(decoded.view_mut()))
+            .unwrap();
+
+        for (i, o) in data.iter().zip(decoded.iter()) {
+            assert!(((*i) - (*o)).abs() <= 10.0);
+        }
+    }
+}
