@@ -20,7 +20,7 @@
 use std::{
     borrow::Cow,
     collections::{BTreeMap, btree_map::Entry},
-    sync::Mutex,
+    sync::{Arc, Mutex, RwLock},
 };
 
 use ndarray::{Array, ArrayView, ArrayViewMut, CowArray, IxDyn};
@@ -47,28 +47,51 @@ pub struct PressioCodec {
 
 /// Pressio compressor
 pub struct PressioCompressor {
-    compressor: Mutex<libpressio::PressioCompressor>,
-    compressor_id: String,
-    early_config: BTreeMap<String, PressioOption>,
-    name: Option<String>,
+    // get_config clones the compressor, but we want the config to include the
+    //  compressor metrics
+    // so we make cheap shallow clones whenever possible and then later make
+    //  the compressor unique with the clone-on-write `Arc::make_mut`
+    // we pinky-promise to only lock the inner `Mutex` for immutable access
+    //  when we have read-only access, otherwise we can go through
+    //  `Mutex::get_mut`
+    inner: RwLock<Arc<PressioCompressorInner>>,
 }
 
 impl Clone for PressioCompressor {
     #[expect(clippy::unwrap_used)]
     fn clone(&self) -> Self {
-        let mut pressio = libpressio::Pressio::new().unwrap();
-        let mut compressor = pressio.get_compressor(self.compressor_id.as_str()).unwrap();
-        if let Some(name) = &self.name {
-            compressor.set_name(name).unwrap();
+        Self {
+            inner: RwLock::new(self.inner.read().unwrap().clone()),
         }
-        let options = self.compressor.lock().unwrap().get_options().unwrap();
-        compressor.set_options(&options).unwrap();
+    }
+}
+
+struct PressioCompressorInner {
+    compressor: Mutex<libpressio::PressioCompressor>,
+    compressor_id: String,
+    early_config: BTreeMap<String, PressioOption>,
+}
+
+impl Clone for PressioCompressorInner {
+    #[expect(clippy::unwrap_used)]
+    fn clone(&self) -> Self {
+        let mut pressio = libpressio::Pressio::new().unwrap();
+        let compressor = self.compressor.lock().unwrap();
+
+        let mut compressor_clone = pressio.get_compressor(self.compressor_id.as_str()).unwrap();
+        compressor_clone
+            .set_name(compressor.get_name().unwrap())
+            .unwrap();
+        compressor_clone
+            .set_options(&compressor.get_options().unwrap())
+            .unwrap();
+
+        std::mem::drop(compressor);
 
         Self {
-            compressor: Mutex::new(compressor),
+            compressor: Mutex::new(compressor_clone),
             compressor_id: self.compressor_id.clone(),
             early_config: self.early_config.clone(),
-            name: self.name.clone(),
         }
     }
 }
@@ -172,7 +195,8 @@ impl Serialize for PressioCompressor {
             Ok(config)
         }
 
-        let compressor = self.compressor.lock().map_err(serde::ser::Error::custom)?;
+        let inner = self.inner.read().map_err(serde::ser::Error::custom)?;
+        let compressor = inner.compressor.lock().map_err(serde::ser::Error::custom)?;
         let options = compressor
             .get_options()
             .map_err(serde::ser::Error::custom)?;
@@ -182,8 +206,8 @@ impl Serialize for PressioCompressor {
         let name = compressor.get_name().map_err(serde::ser::Error::custom)?;
 
         let result = PressioCompressorBorrowedFormat {
-            compressor_id: self.compressor_id.as_str(),
-            early_config: &self.early_config,
+            compressor_id: inner.compressor_id.as_str(),
+            early_config: &inner.early_config,
             compressor_config: &convert_from_pressio_options(options.iter())?,
             metric_results: &convert_from_pressio_options(metric_results.iter())?,
             name: match name {
@@ -193,6 +217,7 @@ impl Serialize for PressioCompressor {
         }
         .serialize(serializer);
         std::mem::drop(compressor);
+        std::mem::drop(inner);
         result
     }
 }
@@ -399,10 +424,11 @@ impl<'de> Deserialize<'de> for PressioCompressor {
             .map_err(serde::de::Error::custom)?;
 
         Ok(Self {
-            compressor: Mutex::new(compressor),
-            compressor_id: format.compressor_id,
-            early_config: format.early_config,
-            name: format.name,
+            inner: RwLock::new(Arc::new(PressioCompressorInner {
+                compressor: Mutex::new(compressor),
+                compressor_id: format.compressor_id,
+                early_config: format.early_config,
+            })),
         })
     }
 }
@@ -632,21 +658,25 @@ impl Codec for PressioCodec {
             }
         }
 
-        let Ok(mut compressor) = self.compressor.compressor.lock() else {
-            return Err(PressioCodecError::PressioPoisonedMutex);
+        let Ok(mut inner) = self.compressor.inner.write() else {
+            return Err(PressioCodecError::PressioPoisonedLock);
+        };
+
+        let Ok(compressor) = Arc::make_mut(&mut inner).compressor.get_mut() else {
+            return Err(PressioCodecError::PressioPoisonedLock);
         };
 
         match data {
-            AnyCowArray::U8(data) => encode_typed(&mut compressor, data),
-            AnyCowArray::U16(data) => encode_typed(&mut compressor, data),
-            AnyCowArray::U32(data) => encode_typed(&mut compressor, data),
-            AnyCowArray::U64(data) => encode_typed(&mut compressor, data),
-            AnyCowArray::I8(data) => encode_typed(&mut compressor, data),
-            AnyCowArray::I16(data) => encode_typed(&mut compressor, data),
-            AnyCowArray::I32(data) => encode_typed(&mut compressor, data),
-            AnyCowArray::I64(data) => encode_typed(&mut compressor, data),
-            AnyCowArray::F32(data) => encode_typed(&mut compressor, data),
-            AnyCowArray::F64(data) => encode_typed(&mut compressor, data),
+            AnyCowArray::U8(data) => encode_typed(compressor, data),
+            AnyCowArray::U16(data) => encode_typed(compressor, data),
+            AnyCowArray::U32(data) => encode_typed(compressor, data),
+            AnyCowArray::U64(data) => encode_typed(compressor, data),
+            AnyCowArray::I8(data) => encode_typed(compressor, data),
+            AnyCowArray::I16(data) => encode_typed(compressor, data),
+            AnyCowArray::I32(data) => encode_typed(compressor, data),
+            AnyCowArray::I64(data) => encode_typed(compressor, data),
+            AnyCowArray::F32(data) => encode_typed(compressor, data),
+            AnyCowArray::F64(data) => encode_typed(compressor, data),
             data => Err(PressioCodecError::UnsupportedDtype(data.dtype())),
         }
     }
@@ -692,21 +722,25 @@ impl Codec for PressioCodec {
             }
         }
 
-        let Ok(mut compressor) = self.compressor.compressor.lock() else {
-            return Err(PressioCodecError::PressioPoisonedMutex);
+        let Ok(mut inner) = self.compressor.inner.write() else {
+            return Err(PressioCodecError::PressioPoisonedLock);
+        };
+
+        let Ok(compressor) = Arc::make_mut(&mut inner).compressor.get_mut() else {
+            return Err(PressioCodecError::PressioPoisonedLock);
         };
 
         match encoded {
-            AnyCowArray::U8(encoded) => decode_typed(&mut compressor, encoded),
-            AnyCowArray::U16(encoded) => decode_typed(&mut compressor, encoded),
-            AnyCowArray::U32(encoded) => decode_typed(&mut compressor, encoded),
-            AnyCowArray::U64(encoded) => decode_typed(&mut compressor, encoded),
-            AnyCowArray::I8(encoded) => decode_typed(&mut compressor, encoded),
-            AnyCowArray::I16(encoded) => decode_typed(&mut compressor, encoded),
-            AnyCowArray::I32(encoded) => decode_typed(&mut compressor, encoded),
-            AnyCowArray::I64(encoded) => decode_typed(&mut compressor, encoded),
-            AnyCowArray::F32(encoded) => decode_typed(&mut compressor, encoded),
-            AnyCowArray::F64(encoded) => decode_typed(&mut compressor, encoded),
+            AnyCowArray::U8(encoded) => decode_typed(compressor, encoded),
+            AnyCowArray::U16(encoded) => decode_typed(compressor, encoded),
+            AnyCowArray::U32(encoded) => decode_typed(compressor, encoded),
+            AnyCowArray::U64(encoded) => decode_typed(compressor, encoded),
+            AnyCowArray::I8(encoded) => decode_typed(compressor, encoded),
+            AnyCowArray::I16(encoded) => decode_typed(compressor, encoded),
+            AnyCowArray::I32(encoded) => decode_typed(compressor, encoded),
+            AnyCowArray::I64(encoded) => decode_typed(compressor, encoded),
+            AnyCowArray::F32(encoded) => decode_typed(compressor, encoded),
+            AnyCowArray::F64(encoded) => decode_typed(compressor, encoded),
             encoded => Err(PressioCodecError::UnsupportedDtype(encoded.dtype())),
         }
     }
@@ -803,8 +837,12 @@ impl Codec for PressioCodec {
             Ok(())
         }
 
-        let Ok(mut compressor) = self.compressor.compressor.lock() else {
-            return Err(PressioCodecError::PressioPoisonedMutex);
+        let Ok(mut inner) = self.compressor.inner.write() else {
+            return Err(PressioCodecError::PressioPoisonedLock);
+        };
+
+        let Ok(compressor) = Arc::make_mut(&mut inner).compressor.get_mut() else {
+            return Err(PressioCodecError::PressioPoisonedLock);
         };
 
         let decoded_dtype = match decoded.dtype() {
@@ -824,34 +862,34 @@ impl Codec for PressioCodec {
 
         let decompressed_data = match encoded {
             AnyArrayView::U8(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             AnyArrayView::U16(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             AnyArrayView::U32(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             AnyArrayView::U64(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             AnyArrayView::I8(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             AnyArrayView::I16(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             AnyArrayView::I32(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             AnyArrayView::I64(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             AnyArrayView::F32(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             AnyArrayView::F64(encoded) => {
-                decompress_typed(&mut compressor, encoded, decoded_dtype, decoded_shape)
+                decompress_typed(compressor, encoded, decoded_dtype, decoded_shape)
             }
             encoded => return Err(PressioCodecError::UnsupportedDtype(encoded.dtype())),
         }?;
@@ -894,7 +932,7 @@ pub enum PressioCodecError {
     UnsupportedDtype(AnyArrayDType),
     /// [`PressioCodec`] lock was poisoned
     #[error("Pressio lock was poisoned")]
-    PressioPoisonedMutex,
+    PressioPoisonedLock,
     /// [`PressioCodec`] failed to encode the data
     #[error("Pressio failed to encode the data")]
     PressioEncodeFailed {
@@ -957,7 +995,7 @@ mod tests {
             "compressor_config": {
                 "pressio:abs": 10.0,
                 "pressio:metric": "composite",
-                "composite:plugins": ["printer", "size"],
+                "composite:plugins": ["printer", "size", "time"],
             }
         }))
         .unwrap();
@@ -984,5 +1022,8 @@ mod tests {
         for (i, o) in data.iter().zip(decoded.iter()) {
             assert!(((*i) - (*o)).abs() <= 10.0);
         }
+
+        let config = serde_json::to_string(&pressio.get_config()).unwrap();
+        assert!(config.contains("\"size:compressed_size\":400"));
     }
 }
