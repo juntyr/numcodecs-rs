@@ -986,7 +986,7 @@ mod tests {
     use serde_json::json;
 
     #[test]
-    fn linear_quantizer() {
+    fn linear_quantizer_noop() {
         let pressio = PressioCodec::deserialize(json!({
             "compressor_id": "linear_quantizer",
             "early_config": {
@@ -1025,5 +1025,44 @@ mod tests {
 
         let config = serde_json::to_string(&pressio.get_config()).unwrap();
         assert!(config.contains("\"size:compressed_size\":400"));
+    }
+
+    #[test]
+    fn linear_quantizer_bzip2() {
+        let pressio = PressioCodec::deserialize(json!({
+            "compressor_id": "linear_quantizer",
+            "early_config": {
+                "linear_quantizer:compressor": "bzip2",
+            },
+            "compressor_config": {
+                "pressio:abs": 10.0,
+                "pressio:lossless": 9,
+                "pressio:metric": "size",
+            }
+        }))
+        .unwrap();
+
+        let data = ndarray::linspace(0.0, 100.0, 50)
+            .collect::<Array1<f64>>()
+            .into_dyn();
+
+        let encoded = pressio
+            .encode(AnyCowArray::F64(CowArray::from(&data)))
+            .unwrap();
+
+        let decoded = pressio.decode(encoded.cow());
+        assert!(decoded.is_err());
+
+        let mut decoded = ndarray::Array::zeros(data.dim());
+        pressio
+            .decode_into(encoded.view(), AnyArrayViewMut::F64(decoded.view_mut()))
+            .unwrap();
+
+        for (i, o) in data.iter().zip(decoded.iter()) {
+            assert!(((*i) - (*o)).abs() <= 10.0);
+        }
+
+        let config = serde_json::to_string(&pressio.get_config()).unwrap();
+        assert!(config.contains("\"size:compressed_size\":63"));
     }
 }
