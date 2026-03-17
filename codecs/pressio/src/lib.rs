@@ -1065,4 +1065,56 @@ mod tests {
         let config = serde_json::to_string(&pressio.get_config()).unwrap();
         assert!(config.contains("\"size:compressed_size\":63"));
     }
+
+    #[test]
+    fn lua_metrics() {
+        let pressio = PressioCodec::deserialize(json!({
+            "compressor_id": "noop",
+            "early_config": {
+                "pressio:metric": "composite",
+            },
+            "compressor_config": {
+                "pressio:metric": "composite",
+                "composite:plugins": ["size"],
+                "composite:scripts": [
+                    "return \"objective\", 1.2",
+                    "return \"objective2\", metrics[\"size:compression_ratio\"] * 4.2",
+                ]
+            }
+        }))
+        .unwrap();
+
+        let config = serde_json::to_string(&pressio.get_config()).unwrap();
+        assert!(!config.contains("\"size:compression_ratio\""));
+        assert!(config.contains("\"composite:objective\":1.2"));
+        assert!(!config.contains("\"composite:objective2\""));
+
+        let data = ndarray::linspace(0.0, 100.0, 50)
+            .collect::<Array1<f64>>()
+            .into_dyn();
+
+        let encoded = pressio
+            .encode(AnyCowArray::F64(CowArray::from(&data)))
+            .unwrap();
+
+        let decoded = pressio.decode(encoded.cow());
+        assert!(matches!(
+            decoded,
+            Err(PressioCodecError::DecodeToArrayWithoutData)
+        ));
+
+        let mut decoded = ndarray::Array::zeros(data.dim());
+        pressio
+            .decode_into(encoded.view(), AnyArrayViewMut::F64(decoded.view_mut()))
+            .unwrap();
+
+        for (i, o) in data.iter().zip(decoded.iter()) {
+            assert!(i.to_bits() == o.to_bits());
+        }
+
+        let config = serde_json::to_string(&pressio.get_config()).unwrap();
+        assert!(config.contains("\"size:compression_ratio\":1.0"));
+        assert!(config.contains("\"composite:objective\":1.2"));
+        assert!(config.contains("\"composite:objective2\":4.2"));
+    }
 }
