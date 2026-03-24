@@ -21,9 +21,11 @@ numcodecs = { workspace = true }
 postcard = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
+serde_repr = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
+serde_json = { workspace = true, features = ["std"] }
 ndarray = { workspace = true, features = ["std"] }
 
 [lints]
