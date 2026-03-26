@@ -23,6 +23,7 @@ use std::{
     sync::{Arc, Mutex, RwLock},
 };
 
+use fragile::Fragile;
 use ndarray::{Array, ArrayView, ArrayViewMut, CowArray, IxDyn};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
@@ -67,7 +68,7 @@ impl Clone for PressioCompressor {
 }
 
 struct PressioCompressorInner {
-    compressor: Mutex<libpressio::PressioCompressor>,
+    compressor: Mutex<PressioCompressorSendable>,
     compressor_id: String,
     early_config: BTreeMap<String, PressioOption>,
 }
@@ -76,7 +77,8 @@ impl Clone for PressioCompressorInner {
     #[expect(clippy::unwrap_used)]
     fn clone(&self) -> Self {
         let mut pressio = libpressio::Pressio::new().unwrap();
-        let compressor = self.compressor.lock().unwrap();
+        let compressor_guard = self.compressor.lock().unwrap();
+        let compressor = compressor_guard.try_get().unwrap();
 
         let mut compressor_clone = pressio.get_compressor(self.compressor_id.as_str()).unwrap();
         compressor_clone
@@ -86,12 +88,42 @@ impl Clone for PressioCompressorInner {
             .set_options(&compressor.get_options().unwrap())
             .unwrap();
 
-        std::mem::drop(compressor);
+        std::mem::drop(compressor_guard);
+
+        let compressor_clone = match compressor_clone.try_into_sendable() {
+            Ok(compressor) => PressioCompressorSendable::Sendable(compressor),
+            Err((compressor, _err)) => PressioCompressorSendable::Fragile(Fragile::new(compressor)),
+        };
 
         Self {
             compressor: Mutex::new(compressor_clone),
             compressor_id: self.compressor_id.clone(),
             early_config: self.early_config.clone(),
+        }
+    }
+}
+
+enum PressioCompressorSendable {
+    Sendable(libpressio::PressioSendableCompressor),
+    Fragile(Fragile<libpressio::PressioCompressor>),
+}
+
+impl PressioCompressorSendable {
+    fn try_get(&self) -> Result<&libpressio::PressioCompressor, PressioCodecError> {
+        match self {
+            Self::Sendable(compressor) => Ok(compressor),
+            Self::Fragile(compressor) => compressor
+                .try_get()
+                .map_err(|_| PressioCodecError::PressioNonThreadsafeSend),
+        }
+    }
+
+    fn try_get_mut(&mut self) -> Result<&mut libpressio::PressioCompressor, PressioCodecError> {
+        match self {
+            Self::Sendable(compressor) => Ok(compressor),
+            Self::Fragile(compressor) => compressor
+                .try_get_mut()
+                .map_err(|_| PressioCodecError::PressioNonThreadsafeSend),
         }
     }
 }
@@ -196,7 +228,10 @@ impl Serialize for PressioCompressor {
         }
 
         let inner = self.inner.read().map_err(serde::ser::Error::custom)?;
-        let compressor = inner.compressor.lock().map_err(serde::ser::Error::custom)?;
+        let compressor_guard = inner.compressor.lock().map_err(serde::ser::Error::custom)?;
+        let compressor = compressor_guard
+            .try_get()
+            .map_err(serde::ser::Error::custom)?;
         let options = compressor
             .get_options()
             .map_err(serde::ser::Error::custom)?;
@@ -216,7 +251,7 @@ impl Serialize for PressioCompressor {
             },
         }
         .serialize(serializer);
-        std::mem::drop(compressor);
+        std::mem::drop(compressor_guard);
         std::mem::drop(inner);
         result
     }
@@ -422,6 +457,11 @@ impl<'de> Deserialize<'de> for PressioCompressor {
         compressor
             .set_options(&options)
             .map_err(serde::de::Error::custom)?;
+
+        let compressor = match compressor.try_into_sendable() {
+            Ok(compressor) => PressioCompressorSendable::Sendable(compressor),
+            Err((compressor, _err)) => PressioCompressorSendable::Fragile(Fragile::new(compressor)),
+        };
 
         Ok(Self {
             inner: RwLock::new(Arc::new(PressioCompressorInner {
@@ -665,6 +705,7 @@ impl Codec for PressioCodec {
         let Ok(compressor) = Arc::make_mut(&mut inner).compressor.get_mut() else {
             return Err(PressioCodecError::PressioPoisonedLock);
         };
+        let compressor = compressor.try_get_mut()?;
 
         match data {
             AnyCowArray::U8(data) => encode_typed(compressor, data),
@@ -729,6 +770,7 @@ impl Codec for PressioCodec {
         let Ok(compressor) = Arc::make_mut(&mut inner).compressor.get_mut() else {
             return Err(PressioCodecError::PressioPoisonedLock);
         };
+        let compressor = compressor.try_get_mut()?;
 
         match encoded {
             AnyCowArray::U8(encoded) => decode_typed(compressor, encoded),
@@ -844,6 +886,7 @@ impl Codec for PressioCodec {
         let Ok(compressor) = Arc::make_mut(&mut inner).compressor.get_mut() else {
             return Err(PressioCodecError::PressioPoisonedLock);
         };
+        let compressor = compressor.try_get_mut()?;
 
         let decoded_dtype = match decoded.dtype() {
             AnyArrayDType::U8 => libpressio::PressioDtype::U8,
@@ -933,6 +976,9 @@ pub enum PressioCodecError {
     /// [`PressioCodec`] lock was poisoned
     #[error("Pressio lock was poisoned")]
     PressioPoisonedLock,
+    /// [`PressioCodec`] was used on a different thread with a non-threadsafe compressor
+    #[error("Pressio was used on a different thread with a non-threadsafe compressor")]
+    PressioNonThreadsafeSend,
     /// [`PressioCodec`] failed to encode the data
     #[error("Pressio failed to encode the data")]
     PressioEncodeFailed {
