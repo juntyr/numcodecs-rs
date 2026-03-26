@@ -15,6 +15,7 @@ keywords = ["libpressio", "numcodecs", "compression", "encoding"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+fragile = { workspace = true }
 libpressio = { workspace = true, features = ["bzip2", "lua"] }
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
