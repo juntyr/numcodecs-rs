@@ -29,6 +29,11 @@ parser.add_argument(
     action="store_true",
     help="compile the codec with debug information enabled",
 )
+parser.add_argument(
+    "--verbose",
+    action="store_true",
+    help="enable verbose logging while compiling the codec",
+)
 args = parser.parse_args()
 
 for c in (repo_path / "codecs").iterdir():
@@ -99,6 +104,7 @@ for c in (repo_path / "codecs").iterdir():
             + f" --output {staging_path / 'src' / ('numcodecs_wasm_' + templates['package_suffix']) / 'codec.wasm'}"
             + (" --local" if args.local else "")
             + (" --debug" if args.debug else "")
+            + (" --verbose" if args.verbose else "")
         ),
         check=True,
     )

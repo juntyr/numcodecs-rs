@@ -65,6 +65,7 @@
               libclang_rt
               pkgs.cmake
               pkgs.binaryen
+              pkgs.pkg-config
             ];
             env = {
               MY_LLVM_VERSION = "${llvmVersion}";
@@ -80,6 +81,7 @@
               MY_WASI_SYSROOT = "${wasi-sysroot}";
               MY_LIBCLANG_RT = "${libclang_rt}";
               MY_WASM_OPT = "${pkgs.binaryen}/bin/wasm-opt";
+              MY_PKG_CONFIG = "${pkgs.pkg-config}/bin/pkg-config";
             };
           };
         });
