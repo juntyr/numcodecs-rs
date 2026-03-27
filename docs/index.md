@@ -21,6 +21,7 @@ The following Python packages, all published independently on PyPi, use [`numcod
 - [`numcodecs_wasm_fourier_network`][numcodecs_wasm_fourier_network]: fourier feature neural network codec
 - [`numcodecs_wasm_identity`][numcodecs_wasm_identity]: identity codec
 - [`numcodecs_wasm_jpeg2000`][numcodecs_wasm_jpeg2000]: JPEG 2000 codec
+- [`numcodecs_wasm_lc`][numcodecs_wasm_lc]: LC codec
 - [`numcodecs_wasm_linear_quantize`][numcodecs_wasm_linear_quantize]: linear quantization codec
 - [`numcodecs_wasm_log`][numcodecs_wasm_log]: $\ln(x)$ codec
 - [`numcodecs_wasm_pco`][numcodecs_wasm_pco]: pcodec

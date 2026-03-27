@@ -5,6 +5,7 @@ numcodecs_wasm_fixed_offset_scale
 numcodecs_wasm_fourier_network
 numcodecs_wasm_identity
 numcodecs_wasm_jpeg2000
+numcodecs_wasm_lc
 numcodecs_wasm_linear_quantize
 numcodecs_wasm_log
 numcodecs_wasm_pco
