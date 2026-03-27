@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LcCodecError","LcComponent","LcDecorrelation","LcElemSize","LcErrorKind","LcFloatSize","LcLorenzoDtype","LcPreprocessor","LcQuantizeDType","LcTupleSize"],"fn":["compress","decompress","decompress_into"],"struct":["LcCodec","LcCodingError","LcHeaderError"]};
