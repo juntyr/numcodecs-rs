@@ -38,6 +38,10 @@ struct Args {
     /// Compile the crate with debug information enabled
     #[arg(long)]
     debug: bool,
+
+    /// Enable verbose logging while compiling the crate
+    #[arg(long)]
+    verbose: bool,
 }
 
 fn main() -> io::Result<()> {
@@ -72,6 +76,7 @@ fn main() -> io::Result<()> {
         &crate_dir,
         &format!("{}-wasm", args.crate_),
         args.debug,
+        args.verbose,
     )?;
     let wasm = optimize_wasm_codec(&wasm, &nix_env, args.debug)?;
     let wasm = adapt_wasi_snapshot_to_preview2(&wasm)?;
@@ -195,6 +200,7 @@ struct NixEnv {
     wasi_sysroot: PathBuf,
     libclang_rt: PathBuf,
     wasm_opt: PathBuf,
+    pkg_config: PathBuf,
 }
 
 impl NixEnv {
@@ -260,6 +266,7 @@ impl NixEnv {
             wasi_sysroot: try_read_env(&env, "MY_WASI_SYSROOT")?,
             libclang_rt: try_read_env(&env, "MY_LIBCLANG_RT")?,
             wasm_opt: try_read_env(&env, "MY_WASM_OPT")?,
+            pkg_config: try_read_env(&env, "MY_PKG_CONFIG")?,
         })
     }
 }
@@ -284,6 +291,7 @@ fn configure_cargo_cmd(
         dlltool,
         wasi_sysroot,
         libclang_rt,
+        pkg_config,
         ..
     } = nix_env;
 
@@ -311,6 +319,10 @@ fn configure_cargo_cmd(
     cmd.arg(format!("STRIP={strip}", strip = strip.display()));
     cmd.arg(format!("OBJDUMP={objdump}", objdump = objdump.display()));
     cmd.arg(format!("DLLTOOL={dlltool}", dlltool = dlltool.display()));
+    cmd.arg(format!(
+        "PKG_CONFIG={pkg_config}",
+        pkg_config = pkg_config.display()
+    ));
     cmd.arg(format!(
         "LIBCLANG_PATH={libclang}",
         libclang = libclang.display()
@@ -399,11 +411,22 @@ fn configure_cargo_cmd(
         -L{libclang_rt} -lclang_rt.builtins -lunwind -lc++ -lc++abi",
         libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
     ));
+    cmd.arg("PKG_CONFIG_PATH=\"\"");
+    cmd.arg(format!(
+        "PKG_CONFIG_LIBDIR={pkg_config_lib}:{pkg_config_share}",
+        pkg_config_lib = wasi_sysroot.join("lib").join("pkgconfig").display(),
+        pkg_config_share = wasi_sysroot.join("share").join("pkgconfig").display()
+    ));
+    cmd.arg(format!(
+        "PKG_CONFIG_SYSROOT_DIR={wasi_sysroot}",
+        wasi_sysroot = wasi_sysroot.display()
+    ));
     cmd.arg(format!(
         "RUSTFLAGS=-C panic=abort {debug} \
         -C link-arg=-L{wasm32_wasi_lib} \
         -C link-arg=-L{libclang_rt} -C link-arg=-lclang_rt.builtins \
-        -C link-arg=-lunwind -C link-arg=-lc++ -C link-arg=-lc++abi",
+        -C link-arg=-lunwind -C link-arg=-lc++ -C link-arg=-lc++abi \
+        -C llvm-args=-wasm-use-legacy-eh=false",
         debug = if debug { "-g" } else { "-C strip=symbols" },
         wasm32_wasi_lib = wasi_sysroot.join("lib").join("wasm32-wasip1").display(),
         libclang_rt = libclang_rt.join("wasm32-unknown-wasip1").display(),
@@ -429,6 +452,7 @@ fn build_wasm_codec(
     crate_dir: &Path,
     crate_name: &str,
     debug: bool,
+    verbose: bool,
 ) -> io::Result<PathBuf> {
     let mut cmd = configure_cargo_cmd(nix_env, target_dir, crate_dir, debug);
     cmd.arg("rustc")
@@ -439,6 +463,10 @@ fn build_wasm_codec(
         .arg("build-std-features=panic_immediate_abort")
         .arg("--release")
         .arg("--target=wasm32-wasip1");
+
+    if verbose {
+        cmd.arg("-vv");
+    }
 
     eprintln!("executing {cmd:?}");
 

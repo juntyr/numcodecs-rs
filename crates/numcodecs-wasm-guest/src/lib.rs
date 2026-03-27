@@ -44,6 +44,7 @@ use crate::{
 };
 
 #[doc(hidden)]
+#[expect(clippy::same_length_and_capacity)]
 pub mod bindings {
     wit_bindgen::generate!({
         world: "numcodecs:abc/exports@0.1.1",
