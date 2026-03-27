@@ -66,6 +66,7 @@
               pkgs.cmake
               pkgs.binaryen
               pkgs.pkg-config
+              pkgs.python3
             ];
             env = {
               MY_LLVM_VERSION = "${llvmVersion}";
@@ -82,6 +83,7 @@
               MY_LIBCLANG_RT = "${libclang_rt}";
               MY_WASM_OPT = "${pkgs.binaryen}/bin/wasm-opt";
               MY_PKG_CONFIG = "${pkgs.pkg-config}/bin/pkg-config";
+              MY_PYTHON3 = "${pkgs.python3}/bin/python3";
             };
           };
         });

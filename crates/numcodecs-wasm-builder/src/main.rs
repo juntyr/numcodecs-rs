@@ -201,6 +201,8 @@ struct NixEnv {
     libclang_rt: PathBuf,
     wasm_opt: PathBuf,
     pkg_config: PathBuf,
+    #[expect(dead_code)]
+    python3: PathBuf,
 }
 
 impl NixEnv {
@@ -267,6 +269,7 @@ impl NixEnv {
             libclang_rt: try_read_env(&env, "MY_LIBCLANG_RT")?,
             wasm_opt: try_read_env(&env, "MY_WASM_OPT")?,
             pkg_config: try_read_env(&env, "MY_PKG_CONFIG")?,
+            python3: try_read_env(&env, "MY_PYTHON3")?,
         })
     }
 }

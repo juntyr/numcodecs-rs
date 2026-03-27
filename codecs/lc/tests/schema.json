@@ -1,0 +1,540 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "preprocessors": {
+      "type": "array",
+      "items": {
+        "description": "LC preprocessor",
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "const": "NUL"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "dtype": {
+                "description": "LC Lorenzo preprocessor dtype",
+                "type": "string",
+                "enum": [
+                  "i32"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "LOR"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "dtype"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "dtype": {
+                "description": "LC quantization dtype",
+                "type": "string",
+                "enum": [
+                  "f32",
+                  "f64"
+                ]
+              },
+              "kind": {
+                "description": "LC error bound kind",
+                "oneOf": [
+                  {
+                    "description": "pointwise absolute error bound",
+                    "type": "string",
+                    "const": "ABS"
+                  },
+                  {
+                    "description": "pointwise normalised absolute / data-range-relative error bound",
+                    "type": "string",
+                    "const": "NOA"
+                  },
+                  {
+                    "description": "pointwise relative error bound",
+                    "type": "string",
+                    "const": "REL"
+                  }
+                ]
+              },
+              "error_bound": {
+                "type": "number",
+                "format": "double"
+              },
+              "threshold": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "format": "double"
+              },
+              "decorrelation": {
+                "description": "LC quantisation decorrelation mode",
+                "type": "string",
+                "enum": [
+                  "0",
+                  "R"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "QUANT"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "dtype",
+              "kind",
+              "error_bound",
+              "decorrelation"
+            ]
+          }
+        ]
+      },
+      "description": "LC preprocessors",
+      "default": []
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "description": "LC component",
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "const": "NUL"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "TCMS"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "TCNB"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component float element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "DBEFS"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component float element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "DBESF"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "BIT"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC tuple component element size, in tuple length _ bytes",
+                "type": "string",
+                "enum": [
+                  "2_1",
+                  "3_1",
+                  "4_1",
+                  "6_1",
+                  "8_1",
+                  "12_1",
+                  "2_2",
+                  "3_2",
+                  "4_2",
+                  "6_2",
+                  "2_4",
+                  "6_4",
+                  "3_8",
+                  "6_8"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "TUPL"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "DIFF"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "DIFFMS"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "DIFFNB"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "CLOG"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "HCLOG"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "RARE"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "RAZE"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "RLE"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "RRE"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "size": {
+                "description": "LC component element size, in bytes",
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "RZE"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "size"
+            ]
+          }
+        ]
+      },
+      "description": "LC components",
+      "minItems": 1,
+      "maxItems": 8
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "0.1.0"
+    }
+  },
+  "required": [
+    "components"
+  ],
+  "description": "Codec providing compression using LC",
+  "title": "LcCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
