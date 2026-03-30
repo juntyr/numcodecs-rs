@@ -1,7 +1,40 @@
 # Try the `numcodecs-wasm-*` codecs using JupyterLite
 
-<iframe
-    src="https://lab.climet.eu/main/repl/index.html?kernel=python&toolbar=1&code=import%20numpy%20as%20np%0Afrom%20matplotlib%20import%20pyplot%20as%20plt%0Afrom%20numcodecs_wasm_sz3%20import%20Sz3%0A%0Ax%20%3D%20np.linspace(-np.pi%2C%20np.pi)%0Ay%20%3D%20np.sin(x)%0A%0Asz3%20%3D%20Sz3(eb_mode%3D%22abs%22%2C%20eb_abs%3D0.1)%0Aenc%20%3D%20sz3.encode(y)%0Adec%20%3D%20sz3.decode(enc)%0A%0Aplt.plot(x%2C%20y%2C%20label%3D%22original%22)%0Aplt.plot(x%2C%20dec%2C%20label%3D%22decompressed%22)%0Aplt.legend()%0Aplt.show()"
-    width="100%"
-    height="750px"
-></iframe>
+<iframe id="try-jupyterlite" width="100%" height="750px"></iframe>
+
+<script>
+  window.addEventListener("load", () => {
+    document.getElementById("try-jupyterlite").src = "https://lab.climet.eu/main/repl/index.html?kernel=python&toolbar=1&code=" + encodeURIComponent(`\
+import numpy as np
+from matplotlib import pyplot as plt
+from numcodecs_wasm_sz3 import Sz3
+
+x = np.linspace(-np.pi, np.pi)
+y = np.sin(x)
+
+sz3 = Sz3(eb_mode="abs", eb_abs=0.1)
+enc = sz3.encode(y)
+dec = sz3.decode(enc)
+
+plt.plot(x, y, label="original")
+plt.plot(x, dec, label="decompressed")
+plt.legend()
+plt.show()\
+`) + "&pyodideKernelPackages=" + encodeURIComponent(JSON.stringify([
+  // standard kernel packages
+  "comm",
+  "packaging",
+  "ipython",
+  "micropip",
+  "pyodide-http",
+  "widgetsnbextension",
+  // example packages
+  "matplotlib",
+  "numcodecs-wasm",
+  "numpy",
+  // example package lazy dependencies
+  "crc32c",
+  "msgpack",
+]));
+  });
+</script>
