@@ -4,9 +4,10 @@ build:
   os: ubuntu-24.04
   tools:
     python: "3.10"
-
-mkdocs:
-  configuration: mkdocs.yml
+  jobs:
+    build:
+      html:
+        - python -m properdocs build --clean --site-dir "${READTHEDOCS_OUTPUT}/html"
 
 python:
    install:

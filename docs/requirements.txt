@@ -23,7 +23,9 @@ numcodecs_wasm_zfp
 numcodecs_wasm_zlib
 numcodecs_wasm_zstd
 
-mkdocs
+properdocs
+properdocs-theme-readthedocs
+
 mkdocstrings[python]
 mkdocs-include-markdown-plugin
 mkdocs-gen-files
