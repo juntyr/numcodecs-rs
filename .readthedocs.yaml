@@ -5,10 +5,11 @@ build:
   tools:
     python: "3.10"
   jobs:
+    create_environment:
+      - python -mvirtualenv $READTHEDOCS_VIRTUALENV_PATH
+    install:
+      - python -m pip install --upgrade --no-cache-dir pip setuptools
+      - python -m pip install --exists-action=w --no-cache-dir -r docs/requirements.txt
     build:
       html:
         - python -m properdocs build --clean --site-dir "${READTHEDOCS_OUTPUT}/html"
-
-python:
-   install:
-   - requirements: docs/requirements.txt
