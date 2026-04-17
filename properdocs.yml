@@ -1,7 +1,6 @@
 site_name: numcodecs-wasm
 site_author: Juniper Tyree
 site_url: !ENV READTHEDOCS_CANONICAL_URL
-repo_url: https://github.com/juntyr/numcodecs-rs/
 
 strict: true
 
