@@ -1,4 +1,6 @@
 site_name: numcodecs-wasm
+site_author: Juniper Tyree
+site_url: !ENV READTHEDOCS_CANONICAL_URL
 
 strict: true
 
@@ -10,6 +12,7 @@ markdown_extensions:
       noclasses: true
   - pymdownx.arithmatex:
       generic: true
+  - pymdownx.blocks.details
 
 extra_javascript:
   - js/katex.js
@@ -25,7 +28,7 @@ theme:
 
 nav:
   - Home: index.md
-  - Try the codecs: try.md
+  - Try the codecs: try-repl.md
   - Documentation: api/
   - Links:
       - GitHub: https://github.com/juntyr/numcodecs-rs
