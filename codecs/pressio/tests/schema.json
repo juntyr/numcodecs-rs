@@ -1,6 +1,9 @@
 {
   "type": "object",
   "additionalProperties": false,
+  "required": [
+    "compressor_id"
+  ],
   "properties": {
     "compressor_id": {
       "type": "string",
@@ -852,9 +855,6 @@
       "default": "1.0.0"
     }
   },
-  "required": [
-    "compressor_id"
-  ],
   "description": "Pressio codec which applies the identity function, i.e. passes through the\ninput unchanged during encoding and decoding.",
   "title": "PressioCodec",
   "$schema": "https://json-schema.org/draft/2020-12/schema",

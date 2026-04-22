@@ -7,7 +7,7 @@ use serde_json::json;
 
 use ::{
     burn as _, bytemuck as _, itertools as _, log as _, ndarray as _, num_traits as _,
-    schemars as _, simple_logger as _, thiserror as _,
+    schemars as _, simple_logger as _, thiserror as _, wasm_bindgen as _,
 };
 
 #[test]
