@@ -333,6 +333,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::float_cmp)]
     fn round_minimal_precision() {
         let data = array![0.1, 1.0, 11.0, 21.0];
 

@@ -13,6 +13,7 @@ const MEMORY_GUARD_SIZE: u32 = WASM_PAGE_SIZE * 16 * 64 /* 64MiB */;
 const MEMORY_RESERVATION_FOR_GROWTH: u32 = WASM_PAGE_SIZE * 16 * 64 /* 64MiB */;
 
 #[test]
+#[expect(clippy::unwrap_used, clippy::panic)]
 fn codec_roundtrip() {
     // keep in sync with numcodecs-wasm
     let mut config = wasmtime::Config::new();
@@ -71,7 +72,7 @@ fn codec_roundtrip() {
 
     let data = Array::random((256, 256), Normal::new(0.0, 1.0).unwrap());
 
-    let encoded = match codec.encode(numcodecs::AnyArray::F64(data.clone().into_dyn()).into_cow()) {
+    let encoded = match codec.encode(numcodecs::AnyArray::F64(data.into_dyn()).into_cow()) {
         Ok(encoded) => encoded,
         Err(err) => panic!(
             "ReproducibleWasmCodec::encode:\n===\n{err}\n===\n{err:?}\n===\n{err:#}\n===\n{err:#?}\n===\n"
@@ -85,7 +86,7 @@ fn codec_roundtrip() {
         Err(err) => panic!(
             "ReproducibleWasmCodec::decode_into:\n===\n{err}\n===\n{err:?}\n===\n{err:#}\n===\n{err:#?}\n===\n"
         ),
-    };
+    }
 
     let decoded = match codec.decode(encoded.into_cow()) {
         Ok(decoded) => decoded,

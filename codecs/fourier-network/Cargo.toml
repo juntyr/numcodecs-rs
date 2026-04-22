@@ -16,6 +16,8 @@ keywords = ["fourier", "network", "numcodecs", "compression", "encoding"]
 
 [dependencies]
 burn = { workspace = true, features = ["std", "autodiff", "ndarray"] }
+# FIXME: bytemuck 1.24 fails to compile on 1.88
+bytemuck = { version = "=1.23.2", default-features = false }
 itertools = { workspace = true, features = ["use_alloc"] }
 log = { workspace = true }
 ndarray = { workspace = true, features = ["std"] }

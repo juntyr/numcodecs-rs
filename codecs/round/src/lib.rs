@@ -198,6 +198,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::float_cmp)]
     fn round_minimal_precision() {
         let data = array![0.1, 1.0, 11.0, 21.0];
 
@@ -219,11 +220,11 @@ mod tests {
                 0.0,
                 0.1,
                 0.2,
-                0.30000000000000004,
+                0.300_000_000_000_000_04,
                 0.4,
                 0.5,
-                0.6000000000000001,
-                0.7000000000000001,
+                0.600_000_000_000_000_1,
+                0.700_000_000_000_000_1,
                 0.8,
                 0.9,
                 1.0
@@ -250,6 +251,7 @@ mod tests {
 
         let rounded = round(data.view(), NonNegative(1.0));
 
+        #[expect(clippy::float_cmp)]
         for (d, r) in data.into_iter().zip(rounded) {
             assert!(d == r || d.to_bits() == r.to_bits());
         }

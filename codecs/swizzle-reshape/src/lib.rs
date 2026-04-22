@@ -779,7 +779,10 @@ mod tests {
                 Axis::Index(2),
                 Axis::Index(1),
             ])],
-            &[1 * 3 * 1 * 721 * 1440],
+            #[expect(clippy::identity_op)]
+            {
+                &[1 * 3 * 1 * 721 * 1440]
+            },
         );
     }
 

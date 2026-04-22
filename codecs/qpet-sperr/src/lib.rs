@@ -602,6 +602,7 @@ mod tests {
 
     #[test]
     fn all_modes() {
+        #[expect(clippy::single_element_loop)]
         for mode in [QpetSperrCompressionMode::SymbolicQuantityOfInterest {
             qoi: String::from("x^2"),
             qoi_block_size: default_qoi_block_size(),
@@ -685,7 +686,10 @@ mod tests {
         let decoded = decompress(&encoded).unwrap();
 
         assert_eq!(decoded.dtype(), AnyArrayDType::F64);
-        assert_eq!(decoded.len(), 64 * 64 * 1);
+        #[expect(clippy::identity_op)]
+        {
+            assert_eq!(decoded.len(), 64 * 64 * 1);
+        }
         assert_eq!(decoded.shape(), &[64, 64, 1]);
     }
 }
