@@ -485,6 +485,7 @@ impl JsonSchema for PressioCompressor {
 
 #[derive(Debug, Deserialize, JsonSchema)]
 #[serde(rename = "PressioCompressor")]
+#[serde(deny_unknown_fields)]
 struct PressioCompressorOwnedFormat {
     /// The id of the compressor
     compressor_id: String,
@@ -504,6 +505,7 @@ struct PressioCompressorOwnedFormat {
 
 #[derive(Debug, Serialize)]
 #[serde(rename = "PressioCompressor")]
+#[serde(deny_unknown_fields)]
 struct PressioCompressorBorrowedFormat<'a> {
     /// The id of the compressor
     compressor_id: &'a str,
