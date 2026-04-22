@@ -24,9 +24,6 @@ num-traits = { workspace = true, features = ["std"] }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
-# FIXME: burn-common -> cubecl-common brings in wasm-bindgen
-#        wasm-bindgen v0.2.115 has an unresolved import in wasm32-wasi
-wasm-bindgen = { version = "=0.2.114", default-features = false }
 
 [dev-dependencies]
 serde_json = { workspace = true, features = ["std"] }
