@@ -46,9 +46,6 @@ use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-// FIXME: bytemuck 1.24 fails to compile on 1.88
-use ::bytemuck as _;
-
 // FIXME: burn-common -> cubecl-common brings in wasm-bindgen
 //        wasm-bindgen v0.2.115 has an unresolved import in wasm32-wasi
 use ::wasm_bindgen as _;
