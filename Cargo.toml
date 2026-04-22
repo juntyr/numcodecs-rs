@@ -44,7 +44,7 @@ edition = "2024"
 authors = ["Juniper Tyree <juniper.tyree@helsinki.fi>"]
 repository = "https://github.com/juntyr/numcodecs-rs"
 license = "MPL-2.0"
-rust-version = "1.87"
+rust-version = "1.88"
 
 [workspace.dependencies]
 # workspace-internal numcodecs crates
@@ -97,7 +97,7 @@ fragile = { version = "2.0", default-features = false }
 indexmap = { version = "2.10", default-features = false }
 itertools = { version = "0.14", default-features = false }
 lc-framework = { version = "0.1", default-features = false }
-libpressio = { version = "0.1", git = "https://github.com/juntyr/libpressio-rs.git", rev = "39d2fcb", default-features = false }
+libpressio = { version = "0.1", git = "https://github.com/juntyr/libpressio-rs.git", rev = "edf7511", default-features = false }
 log = { version = "0.4.27", default-features = false }
 miniz_oxide = { version = "0.8.5", default-features = false }
 ndarray = { version = "0.16.1", default-features = false } # keep in sync with numpy
