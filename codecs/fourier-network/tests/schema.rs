@@ -6,7 +6,6 @@ use numcodecs_fourier_network::FourierNetworkCodec;
 use ::{
     burn as _, bytemuck as _, itertools as _, log as _, ndarray as _, num_traits as _,
     schemars as _, serde as _, serde_json as _, simple_logger as _, thiserror as _,
-    wasm_bindgen as _,
 };
 
 #[test]
@@ -18,6 +17,7 @@ fn schema() {
             .to_value()
     );
 
+    #[expect(clippy::manual_assert, clippy::panic)]
     if schema != include_str!("schema.json") {
         panic!("FourierNetwork schema has changed\n===\n{schema}\n===");
     }

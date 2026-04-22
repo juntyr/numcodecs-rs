@@ -859,6 +859,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::redundant_closure)] // FIXME
     fn all_dtypes() -> Result<(), Sz3CodecError> {
         fn compress_decompress<T: Sz3Element + num_traits::identities::Zero>(
             iter: impl Clone + IntoIterator<Item = T>,
