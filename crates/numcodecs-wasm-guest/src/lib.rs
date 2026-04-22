@@ -44,6 +44,7 @@ use crate::convert::{
 };
 
 #[doc(hidden)]
+#[expect(clippy::same_length_and_capacity)]
 pub mod bindings {
     #[cfg(not(feature = "registry"))]
     wit_bindgen::generate!({
