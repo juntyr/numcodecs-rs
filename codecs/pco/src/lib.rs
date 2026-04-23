@@ -61,6 +61,7 @@ pub struct Pcodec {
     Copy, Clone, Debug, Default, PartialEq, Eq, Serialize_repr, Deserialize_repr, JsonSchema_repr,
 )]
 #[repr(u8)]
+#[schemars(inline)]
 /// Pco compression level.
 ///
 /// The level ranges from 0 to 12 inclusive (default: 8):
@@ -157,6 +158,7 @@ pub enum PcoDeltaSpec {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
 #[repr(u8)]
+#[schemars(inline)]
 /// Pco delta encoding order.
 ///
 /// The order ranges from 0 to 7 inclusive.

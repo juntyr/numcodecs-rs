@@ -263,6 +263,10 @@ impl<'de> Deserialize<'de> for Positive<f32> {
 }
 
 impl JsonSchema for Positive<f32> {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("PositiveF32")
     }

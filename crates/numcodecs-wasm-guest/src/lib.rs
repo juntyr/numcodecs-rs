@@ -27,8 +27,7 @@ use numcodecs::StaticCodec;
 
 #[cfg(target_arch = "wasm32")]
 use ::{
-    numcodecs::{Codec, StaticCodec},
-    schemars::schema_for,
+    numcodecs::{Codec, DynCodecType, StaticCodec, StaticCodecType},
     serde::Deserialize,
 };
 
@@ -104,8 +103,9 @@ impl<T: StaticCodec> wit::Guest for T {
     }
 
     fn codec_config_schema() -> wit::JsonSchema {
-        schema_for!(<Self as StaticCodec>::Config<'static>)
-            .as_value()
+        StaticCodecType::<Self>::of()
+            .codec_config_schema()
+            .to_value()
             .to_string()
     }
 }

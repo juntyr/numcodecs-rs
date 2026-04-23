@@ -120,6 +120,7 @@ pub enum ZfpCompressionMode {
 }
 
 #[derive(Copy, Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
+#[schemars(inline)]
 /// ZFP non-finite values mode
 pub enum ZfpNonFiniteValuesMode {
     /// Deny compressing non-finite values, i.e. return an error.

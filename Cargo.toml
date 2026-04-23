@@ -48,10 +48,10 @@ rust-version = "1.88"
 
 [workspace.dependencies]
 # workspace-internal numcodecs crates
-numcodecs = { version = "0.3.1", path = "crates/numcodecs", default-features = false }
+numcodecs = { version = "0.3.2", path = "crates/numcodecs", default-features = false }
 numcodecs-python = { version = "0.7.1", path = "crates/numcodecs-python", default-features = false }
 numcodecs-wasm-builder = { version = "0.2", path = "crates/numcodecs-wasm-builder", default-features = false }
-numcodecs-wasm-guest = { version = "0.3", path = "crates/numcodecs-wasm-guest", default-features = false }
+numcodecs-wasm-guest = { version = "0.3.1", path = "crates/numcodecs-wasm-guest", default-features = false }
 numcodecs-wasm-host = { version = "0.2", path = "crates/numcodecs-wasm-host", default-features = false }
 numcodecs-wasm-host-reproducible = { version = "0.2.2", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
 numcodecs-wasm-logging = { version = "0.2", path = "crates/numcodecs-wasm-logging", default-features = false }
