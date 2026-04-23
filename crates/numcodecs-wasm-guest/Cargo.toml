@@ -23,7 +23,7 @@ registry = ["dep:numcodecs-registry", "dep:serde-transcode"]
 format_serde_error = { workspace = true, features = ["serde_json"] }
 ndarray = { workspace = true, features = ["std"] }
 numcodecs-registry = { workspace = true, optional = true }
-schemars = { workspace = true }
+schemars = { workspace = true, optional = true }
 serde = { workspace = true }
 serde-transcode = { workspace = true, optional = true }
 serde_json = { workspace = true, features = ["std"] }
