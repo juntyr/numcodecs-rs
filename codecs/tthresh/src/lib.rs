@@ -302,6 +302,10 @@ impl<'de> Deserialize<'de> for NonNegative<f64> {
 }
 
 impl JsonSchema for NonNegative<f64> {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("NonNegativeF64")
     }

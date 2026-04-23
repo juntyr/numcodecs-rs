@@ -115,6 +115,7 @@ pub enum Sz3ErrorBound {
 /// SZ3 predictor
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
+#[schemars(inline)]
 pub enum Sz3Predictor {
     /// Interpolation
     #[serde(rename = "interpolation")]

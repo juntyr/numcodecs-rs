@@ -36,6 +36,9 @@ use serde::{
 };
 use thiserror::Error;
 
+#[cfg(test)]
+use ::serde_json as _;
+
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 /// Codec to swizzle/swap the axes of an array and reshape it.
@@ -71,6 +74,7 @@ pub struct SwizzleReshapeCodec {
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 #[serde(deny_unknown_fields)]
+#[schemars(inline)]
 /// An axis group, potentially from a merged combination of multiple input axes
 pub enum AxisGroup {
     /// A merged combination of zero, one, or multiple input axes
@@ -82,6 +86,7 @@ pub enum AxisGroup {
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 #[serde(deny_unknown_fields)]
+#[schemars(inline)]
 /// An axis or all remaining axes
 pub enum Axis {
     /// A single axis, as determined by its index
@@ -534,6 +539,10 @@ impl<'de> Deserialize<'de> for Rest {
 }
 
 impl JsonSchema for Rest {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("Rest")
     }

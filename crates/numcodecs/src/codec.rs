@@ -1,6 +1,10 @@
 use std::{borrow::Cow, error::Error, fmt, marker::PhantomData};
 
-use schemars::{JsonSchema, Schema, SchemaGenerator, generate::SchemaSettings, json_schema};
+use schemars::{
+    JsonSchema, Schema, SchemaGenerator,
+    generate::{Contract, SchemaSettings},
+    json_schema,
+};
 use semver::{Version, VersionReq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
@@ -152,9 +156,9 @@ impl<T: StaticCodec> DynCodecType for StaticCodecType<T> {
 
     fn codec_config_schema(&self) -> Schema {
         let mut settings = SchemaSettings::draft2020_12();
-        // TODO: perhaps this could be done as a more generally applicable
-        //       transformation instead
-        settings.inline_subschemas = true;
+        settings.inline_subschemas = false;
+        settings.contract = Contract::Deserialize;
+        settings.untagged_enum_variant_titles = true;
         settings
             .into_generator()
             .into_root_schema_for::<T::Config<'static>>()
@@ -392,6 +396,10 @@ impl<'de, const MAJOR: u64, const MINOR: u64, const PATCH: u64> Deserialize<'de>
 impl<const MAJOR: u64, const MINOR: u64, const PATCH: u64> JsonSchema
     for StaticCodecVersion<MAJOR, MINOR, PATCH>
 {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("StaticCodecVersion")
     }

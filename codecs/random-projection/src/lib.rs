@@ -48,7 +48,7 @@ use ::serde_json as _;
 ///
 /// This codec only supports finite floating point data.
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-// FIXME: #[serde(deny_unknown_fields)]
+#[schemars(deny_unknown_fields)] // serde cannot deny unknown fields because of the flatten
 pub struct RandomProjectionCodec {
     /// Seed for generating the random projection matrix
     pub seed: u64,
@@ -65,7 +65,7 @@ pub struct RandomProjectionCodec {
 
 /// Method with which the reduced dimensionality `$K$` is selected
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-// FIXME: #[serde(deny_unknown_fields)]
+#[schemars(deny_unknown_fields)] // serde cannot deny unknown fields because of the flatten
 #[serde(tag = "reduction", rename_all = "kebab-case")]
 pub enum RandomProjectionReduction {
     /// The reduced dimensionality `$K$` is derived from `epsilon`, as defined
@@ -84,7 +84,7 @@ pub enum RandomProjectionReduction {
 
 /// Projection kind that is used to generate the random projection matrix
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-// FIXME: #[serde(deny_unknown_fields)]
+#[schemars(deny_unknown_fields)] // serde cannot deny unknown fields because of the flatten
 #[serde(tag = "projection", rename_all = "kebab-case")]
 pub enum RandomProjectionKind {
     /// The random projection matrix is dense and its components are sampled
@@ -799,6 +799,10 @@ impl<'de> Deserialize<'de> for OpenClosedUnit<f64> {
 }
 
 impl JsonSchema for OpenClosedUnit<f64> {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("OpenClosedUnitF64")
     }
