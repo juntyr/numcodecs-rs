@@ -56,12 +56,12 @@ fn option_cast_failure() {
 }
 
 #[test]
-fn array_data_option() {
+fn bool_array_data_option() {
     let _ = PressioCodec::from_config(
         Deserialize::deserialize(json!({
             "compressor_id": "mask_interpolation",
             "compressor_config": {
-                "mask_interpolation:mask": [true, false],
+                "mask_interpolation:mask": [[true, false], [false, true]],
             },
         }))
         .unwrap(),
