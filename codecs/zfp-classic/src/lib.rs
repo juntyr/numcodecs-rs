@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-zfp-classic
@@ -115,6 +115,7 @@ pub enum ZfpCompressionMode {
 }
 
 #[derive(Copy, Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
+#[schemars(inline)]
 /// ZFP non-finite values mode
 pub enum ZfpNonFiniteValuesMode {
     /// Deny compressing non-finite values, i.e. return an error.

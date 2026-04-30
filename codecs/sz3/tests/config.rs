@@ -1,4 +1,4 @@
-#![expect(missing_docs)]
+#![expect(missing_docs, clippy::unwrap_used)]
 
 use ::{
     ndarray as _, num_traits as _, postcard as _, schemars as _, sz3 as _, thiserror as _,

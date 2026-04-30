@@ -1,0 +1,387 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "compressor_id"
+  ],
+  "properties": {
+    "compressor_id": {
+      "type": "string",
+      "description": "The id of the compressor"
+    },
+    "early_config": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/PressioOption"
+      },
+      "description": "Configuration for the structure of the compressor",
+      "default": {}
+    },
+    "compressor_config": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/PressioOption"
+      },
+      "description": "Configuration for the compressor",
+      "default": {}
+    },
+    "metric_results": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/PressioOption"
+      },
+      "description": "Results of the compressor metrics (output-only)",
+      "default": {}
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional name for the compressor when used in hierarchical mode",
+      "default": null
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "1.0.0"
+    }
+  },
+  "description": "Pressio codec which applies the identity function, i.e. passes through the\ninput unchanged during encoding and decoding.",
+  "title": "PressioCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "PressioOption": {
+      "anyOf": [
+        {
+          "type": "null",
+          "title": "None"
+        },
+        {
+          "type": "boolean",
+          "title": "Bool"
+        },
+        {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0,
+          "maximum": 255,
+          "title": "U8"
+        },
+        {
+          "type": "integer",
+          "format": "int8",
+          "minimum": -128,
+          "maximum": 127,
+          "title": "I8"
+        },
+        {
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0,
+          "maximum": 65535,
+          "title": "U16"
+        },
+        {
+          "type": "integer",
+          "format": "int16",
+          "minimum": -32768,
+          "maximum": 32767,
+          "title": "I16"
+        },
+        {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0,
+          "title": "U32"
+        },
+        {
+          "type": "integer",
+          "format": "int32",
+          "title": "I32"
+        },
+        {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0,
+          "title": "U64"
+        },
+        {
+          "type": "integer",
+          "format": "int64",
+          "title": "I64"
+        },
+        {
+          "type": "number",
+          "format": "float",
+          "title": "F32"
+        },
+        {
+          "type": "number",
+          "format": "double",
+          "title": "F64"
+        },
+        {
+          "type": "string",
+          "title": "String"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "VecString"
+        },
+        {
+          "$ref": "#/$defs/boolNdArray",
+          "title": "DataBool"
+        },
+        {
+          "$ref": "#/$defs/u8NdArray",
+          "title": "DataU8"
+        },
+        {
+          "$ref": "#/$defs/u16NdArray",
+          "title": "DataU16"
+        },
+        {
+          "$ref": "#/$defs/u32NdArray",
+          "title": "DataU32"
+        },
+        {
+          "$ref": "#/$defs/u64NdArray",
+          "title": "DataU64"
+        },
+        {
+          "$ref": "#/$defs/i8NdArray",
+          "title": "DataI8"
+        },
+        {
+          "$ref": "#/$defs/i16NdArray",
+          "title": "DataI16"
+        },
+        {
+          "$ref": "#/$defs/i32NdArray",
+          "title": "DataI32"
+        },
+        {
+          "$ref": "#/$defs/i64NdArray",
+          "title": "DataI64"
+        },
+        {
+          "$ref": "#/$defs/f32NdArray",
+          "title": "DataF32"
+        },
+        {
+          "$ref": "#/$defs/f64NdArray",
+          "title": "DataF64"
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/PressioOption"
+          },
+          "title": "Nested"
+        }
+      ],
+      "description": "Pressio option value"
+    },
+    "boolNdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "boolean"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/boolNdArray"
+          }
+        }
+      ]
+    },
+    "u8NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint8",
+            "minimum": 0,
+            "maximum": 255
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/u8NdArray"
+          }
+        }
+      ]
+    },
+    "u16NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint16",
+            "minimum": 0,
+            "maximum": 65535
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/u16NdArray"
+          }
+        }
+      ]
+    },
+    "u32NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/u32NdArray"
+          }
+        }
+      ]
+    },
+    "u64NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/u64NdArray"
+          }
+        }
+      ]
+    },
+    "i8NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int8",
+            "minimum": -128,
+            "maximum": 127
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/i8NdArray"
+          }
+        }
+      ]
+    },
+    "i16NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int16",
+            "minimum": -32768,
+            "maximum": 32767
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/i16NdArray"
+          }
+        }
+      ]
+    },
+    "i32NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/i32NdArray"
+          }
+        }
+      ]
+    },
+    "i64NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/i64NdArray"
+          }
+        }
+      ]
+    },
+    "f32NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "float"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/f32NdArray"
+          }
+        }
+      ]
+    },
+    "f64NdArray": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/f64NdArray"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -22,6 +22,7 @@ members = [
     "codecs/linear-quantize",
     "codecs/log",
     "codecs/pco",
+    "codecs/pressio",
     "codecs/qpet-sperr",
     "codecs/random-projection",
     "codecs/reinterpret",
@@ -43,14 +44,14 @@ edition = "2024"
 authors = ["Juniper Tyree <juniper.tyree@helsinki.fi>"]
 repository = "https://github.com/juntyr/numcodecs-rs"
 license = "MPL-2.0"
-rust-version = "1.87"
+rust-version = "1.88"
 
 [workspace.dependencies]
 # workspace-internal numcodecs crates
-numcodecs = { version = "0.3.1", path = "crates/numcodecs", default-features = false }
+numcodecs = { version = "0.3.2", path = "crates/numcodecs", default-features = false }
 numcodecs-python = { version = "0.7.1", path = "crates/numcodecs-python", default-features = false }
 numcodecs-wasm-builder = { version = "0.2", path = "crates/numcodecs-wasm-builder", default-features = false }
-numcodecs-wasm-guest = { version = "0.3", path = "crates/numcodecs-wasm-guest", default-features = false }
+numcodecs-wasm-guest = { version = "0.3.1", path = "crates/numcodecs-wasm-guest", default-features = false }
 numcodecs-wasm-host = { version = "0.2", path = "crates/numcodecs-wasm-host", default-features = false }
 numcodecs-wasm-host-reproducible = { version = "0.2.2", path = "crates/numcodecs-wasm-host-reproducible", default-features = false }
 numcodecs-wasm-logging = { version = "0.2", path = "crates/numcodecs-wasm-logging", default-features = false }
@@ -69,6 +70,7 @@ numcodecs-lc = { version = "0.1", path = "codecs/lc", default-features = false }
 numcodecs-linear-quantize = { version = "0.5", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.5", path = "codecs/log", default-features = false }
 numcodecs-pco = { version = "0.3", path = "codecs/pco", default-features = false }
+numcodecs-pressio = { version = "0.1", path = "codecs/pressio", default-features = false }
 numcodecs-qpet-sperr = { version = "0.2.2", path = "codecs/qpet-sperr", default-features = false }
 numcodecs-random-projection = { version = "0.4", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.4", path = "codecs/reinterpret", default-features = false }
@@ -91,9 +93,11 @@ clap = { version = "4.5", default-features = false }
 convert_case = { version = "0.8", default-features = false }
 ebcc = { version = "0.1", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
+fragile = { version = "2.0", default-features = false }
 indexmap = { version = "2.10", default-features = false }
 itertools = { version = "0.14", default-features = false }
 lc-framework = { version = "0.1", default-features = false }
+libpressio = { version = "0.1", git = "https://github.com/juntyr/libpressio-rs.git", rev = "018c80b", default-features = false }
 log = { version = "0.4.27", default-features = false }
 miniz_oxide = { version = "0.8.5", default-features = false }
 ndarray = { version = "0.16.1", default-features = false } # keep in sync with numpy
@@ -115,6 +119,7 @@ schemars = { version = "1.0.3", default-features = false }
 scratch = { version = "1.0", default-features = false }
 semver = { version = "1.0.23", default-features = false }
 serde = { version = "1.0.218", default-features = false }
+serde-ndim = { version = "=2.1.1", git = "https://github.com/juntyr/serde-ndim.git", rev = "060c889", default-features = false }
 serde-transcode = { version = "1.1", default-features = false }
 serde_json = { version = "1.0.140", default-features = false }
 serde_repr = { version = "0.1.5", default-features = false }

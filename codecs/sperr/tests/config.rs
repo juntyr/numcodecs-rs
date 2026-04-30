@@ -1,4 +1,4 @@
-#![expect(missing_docs)]
+#![expect(missing_docs, clippy::unwrap_used)]
 
 use ::{ndarray as _, num_traits as _, postcard as _, schemars as _, sperr as _, thiserror as _};
 
@@ -14,6 +14,7 @@ fn empty_config() {
 }
 
 #[test]
+#[expect(clippy::float_cmp)]
 fn bpp_config() {
     let codec = SperrCodec::from_config(
         Deserialize::deserialize(json!({
@@ -30,6 +31,7 @@ fn bpp_config() {
 }
 
 #[test]
+#[expect(clippy::float_cmp)]
 fn psnr_config() {
     let codec = SperrCodec::from_config(
         Deserialize::deserialize(json!({
@@ -46,6 +48,7 @@ fn psnr_config() {
 }
 
 #[test]
+#[expect(clippy::float_cmp)]
 fn pwe_config() {
     let codec = SperrCodec::from_config(
         Deserialize::deserialize(json!({
@@ -62,6 +65,7 @@ fn pwe_config() {
 }
 
 #[test]
+#[expect(clippy::float_cmp)]
 fn q_config() {
     let codec = SperrCodec::from_config(
         Deserialize::deserialize(json!({

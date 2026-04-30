@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-wasm-guest
@@ -27,8 +27,7 @@ use numcodecs::StaticCodec;
 
 #[cfg(target_arch = "wasm32")]
 use ::{
-    numcodecs::{Codec, StaticCodec},
-    schemars::schema_for,
+    numcodecs::{Codec, DynCodecType, StaticCodec, StaticCodecType},
     serde::Deserialize,
 };
 
@@ -104,8 +103,9 @@ impl<T: StaticCodec> wit::Guest for T {
     }
 
     fn codec_config_schema() -> wit::JsonSchema {
-        schema_for!(<Self as StaticCodec>::Config<'static>)
-            .as_value()
+        StaticCodecType::<Self>::of()
+            .codec_config_schema()
+            .to_value()
             .to_string()
     }
 }

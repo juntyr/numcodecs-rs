@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-qpet-sperr
@@ -482,6 +482,10 @@ impl<'de> Deserialize<'de> for Positive<f64> {
 }
 
 impl JsonSchema for Positive<f64> {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("PositiveF64")
     }
@@ -602,6 +606,7 @@ mod tests {
 
     #[test]
     fn all_modes() {
+        #[expect(clippy::single_element_loop)]
         for mode in [QpetSperrCompressionMode::SymbolicQuantityOfInterest {
             qoi: String::from("x^2"),
             qoi_block_size: default_qoi_block_size(),
@@ -685,7 +690,10 @@ mod tests {
         let decoded = decompress(&encoded).unwrap();
 
         assert_eq!(decoded.dtype(), AnyArrayDType::F64);
-        assert_eq!(decoded.len(), 64 * 64 * 1);
+        #[expect(clippy::identity_op)]
+        {
+            assert_eq!(decoded.len(), 64 * 64 * 1);
+        }
         assert_eq!(decoded.shape(), &[64, 64, 1]);
     }
 }
