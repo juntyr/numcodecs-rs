@@ -3,7 +3,7 @@ use numcodecs_wasm_host_reproducible::{ReproducibleWasmCodec, ReproducibleWasmCo
 use pyo3::{exceptions::PyTypeError, prelude::*};
 
 // FIXME: https://github.com/bytecodealliance/rustix/issues/1620
-use ::rustix as _;
+use ::memfd as _;
 
 mod engine;
 

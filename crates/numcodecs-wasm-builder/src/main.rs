@@ -13,7 +13,7 @@ use clap::Parser;
 use semver::Version;
 
 // FIXME: https://github.com/bytecodealliance/rustix/issues/1620
-use ::rustix as _;
+use ::is_terminal as _;
 
 #[derive(Parser, Debug)]
 #[command()]
