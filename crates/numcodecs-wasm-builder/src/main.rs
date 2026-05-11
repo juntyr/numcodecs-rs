@@ -12,6 +12,9 @@ use std::{
 use clap::Parser;
 use semver::Version;
 
+// FIXME: https://github.com/bytecodealliance/rustix/issues/1620
+use ::rustix as _;
+
 #[derive(Parser, Debug)]
 #[command()]
 struct Args {

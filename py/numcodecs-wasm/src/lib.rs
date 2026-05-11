@@ -2,6 +2,9 @@ use numcodecs_python::{PyCodec, PyCodecAdapter, PyCodecClass};
 use numcodecs_wasm_host_reproducible::{ReproducibleWasmCodec, ReproducibleWasmCodecType};
 use pyo3::{exceptions::PyTypeError, prelude::*};
 
+// FIXME: https://github.com/bytecodealliance/rustix/issues/1620
+use ::rustix as _;
+
 mod engine;
 
 use engine::{Engine, default_engine};
