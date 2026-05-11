@@ -25,21 +25,15 @@ plt.plot(x, y, label="original")
 plt.plot(x, dec, label="decompressed")
 plt.legend()
 plt.show()\
-`) + "&pyodideKernelPackages=" + encodeURIComponent(JSON.stringify([
-  // standard kernel packages
-  "comm",
-  "packaging",
-  "ipython",
-  "micropip",
-  "pyodide-http",
-  "widgetsnbextension",
-  // example packages
-  "matplotlib",
-  "numcodecs-wasm",
-  "numpy",
-  // example package lazy dependencies
-  "crc32c",
-  "msgpack",
-]));
+`) + "&pyodideKernelPackages=" + encodeURIComponent(JSON.stringify({
+  "$concat": [
+    // example packages
+    "matplotlib",
+    "numcodecs-wasm",
+    "numpy",
+    // example package lazy dependencies
+    "crc32c",
+    "msgpack",
+]}));
   });
 </script>
