@@ -25,6 +25,8 @@ clap = { workspace = true, features = [
     "suggestions",
     "wrap_help",
 ] }
+# FIXME: https://github.com/bytecodealliance/rustix/issues/1620
+is-terminal = { version = "0.4.11", default-features = false }
 scratch = { workspace = true }
 semver = { workspace = true, features = ["std"] }
 # REMEMBER: keep +wasi version in sync
