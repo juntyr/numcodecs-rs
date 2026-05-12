@@ -73,7 +73,7 @@ numcodecs-qpet-sperr = { version = "0.2.2", path = "codecs/qpet-sperr", default-
 numcodecs-random-projection = { version = "0.4", path = "codecs/random-projection", default-features = false }
 numcodecs-reinterpret = { version = "0.4", path = "codecs/reinterpret", default-features = false }
 numcodecs-round = { version = "0.5", path = "codecs/round", default-features = false }
-numcodecs-sperr = { version = "0.2.2", path = "codecs/sperr", default-features = false }
+numcodecs-sperr = { version = "0.2.3", path = "codecs/sperr", default-features = false }
 numcodecs-stochastic-rounding = { version = "0.2", path = "codecs/stochastic-rounding", default-features = false }
 numcodecs-swizzle-reshape = { version = "0.4", path = "codecs/swizzle-reshape", default-features = false }
 numcodecs-sz3 = { version = "0.8.4", path = "codecs/sz3", default-features = false }
@@ -119,7 +119,7 @@ serde-transcode = { version = "1.1", default-features = false }
 serde_json = { version = "1.0.140", default-features = false }
 serde_repr = { version = "0.1.5", default-features = false }
 simple_logger = { version = "5.0", default-features = false }
-sperr = { version = "0.3", git = "https://github.com/juntyr/sperr-rs.git", rev = "7fcf1dc", default-features = false }
+sperr = { version = "0.2.1", default-features = false }
 sz3 = { version = "0.4.3", default-features = false }
 thiserror = { version = "2.0.17", default-features = false }
 tthresh = { version = "0.1", default-features = false }
