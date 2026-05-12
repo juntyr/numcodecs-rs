@@ -52,10 +52,15 @@ pub struct EbccCodec {
     #[serde(flatten)]
     pub residual: EbccResidualType,
     /// JPEG2000 positive base compression ratio
+    #[serde(default = "default_base_cr")]
     pub base_cr: Positive<f32>,
     /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: EbccCodecVersion,
+}
+
+const fn default_base_cr() -> Positive<f32> {
+    Positive(100.0)
 }
 
 /// Residual compression types supported by EBCC.
