@@ -59,7 +59,7 @@ pub struct EbccCodec {
     pub version: EbccCodecVersion,
 }
 
-fn default_base_cr() -> Positive<f32> {
+const fn default_base_cr() -> Positive<f32> {
     Positive(100.0)
 }
 
