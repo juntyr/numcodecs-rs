@@ -59,7 +59,8 @@
     "base_cr": {
       "type": "number",
       "exclusiveMinimum": 0.0,
-      "description": "JPEG2000 positive base compression ratio"
+      "description": "JPEG2000 positive base compression ratio",
+      "default": 100.0
     },
     "_version": {
       "type": "string",
@@ -68,9 +69,6 @@
       "default": "0.1.0"
     }
   },
-  "required": [
-    "base_cr"
-  ],
   "title": "EbccCodec",
   "$schema": "https://json-schema.org/draft/2020-12/schema"
 }

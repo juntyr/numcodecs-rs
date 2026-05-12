@@ -9,7 +9,7 @@ use serde::Deserialize;
 use serde_json::json;
 
 #[test]
-#[should_panic(expected = "missing field `base_cr`")]
+#[should_panic(expected = "missing field `residual`")]
 fn empty_config() {
     let _ = EbccCodec::from_config(Deserialize::deserialize(json!({})).unwrap());
 }
