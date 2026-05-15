@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/transform/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (64a965e90 2026-05-11)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/transform/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (7c3c88f42 2026-05-14)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -59,21 +59,21 @@
 <a href=#21 id=21 data-nosnippet>21</a>    </span><span class="kw">let </span><a href="#180-183">PreparedCompositionGraph</a> {
 <a href=#22 id=22 data-nosnippet>22</a>        graph: wac,
 <a href=#23 id=23 data-nosnippet>23</a>        wasi: wasi_component_packages,
-<a href=#24 id=24 data-nosnippet>24</a>    } = <a href="#185-221">get_prepared_composition_graph</a>()<span class="question-mark">?</span>;
+<a href=#24 id=24 data-nosnippet>24</a>    } = get_prepared_composition_graph()<span class="question-mark">?</span>;
 <a href=#25 id=25 data-nosnippet>25</a>    <span class="kw">let </span><span class="kw-2">mut </span>wac = <a href="#22">wac</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>();
 <a href=#26 id=26 data-nosnippet>26</a>
 <a href=#27 id=27 data-nosnippet>27</a>    <span class="comment">// parse and instantiate the root package, which exports numcodecs:abc/codec
 <a href=#28 id=28 data-nosnippet>28</a>    </span><span class="kw">let </span>numcodecs_codec_package = wac_graph::types::Package::from_bytes(
-<a href=#29 id=29 data-nosnippet>29</a>        <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{}"</span>, codec_interface.package().name()),
-<a href=#30 id=30 data-nosnippet>30</a>        <a href="#15">codec_interface</a>.package().version(),
-<a href=#31 id=31 data-nosnippet>31</a>        <a href="#13">wasm_component</a>,
-<a href=#32 id=32 data-nosnippet>32</a>        <a href="#25">wac</a>.types_mut(),
+<a href=#29 id=29 data-nosnippet>29</a>        <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}"</span>, codec_interface.package().name()),
+<a href=#30 id=30 data-nosnippet>30</a>        codec_interface.package().version(),
+<a href=#31 id=31 data-nosnippet>31</a>        wasm_component,
+<a href=#32 id=32 data-nosnippet>32</a>        wac.types_mut(),
 <a href=#33 id=33 data-nosnippet>33</a>    )<span class="question-mark">?</span>;
 <a href=#34 id=34 data-nosnippet>34</a>
 <a href=#35 id=35 data-nosnippet>35</a>    <span class="kw">let </span>numcodecs_codec_world = <span class="kw-2">&amp;</span><a href="#25">wac</a>.types()[<a href="#28">numcodecs_codec_package</a>.ty()];
-<a href=#36 id=36 data-nosnippet>36</a>    <span class="kw">let </span>numcodecs_codec_imports = <a href="#265-277">extract_component_ports</a>(<span class="kw-2">&amp;</span><a href="#35">numcodecs_codec_world</a>.imports)<span class="question-mark">?</span>;
+<a href=#36 id=36 data-nosnippet>36</a>    <span class="kw">let </span>numcodecs_codec_imports = extract_component_ports(<span class="kw-2">&amp;</span>numcodecs_codec_world.imports)<span class="question-mark">?</span>;
 <a href=#37 id=37 data-nosnippet>37</a>
-<a href=#38 id=38 data-nosnippet>38</a>    <span class="kw">let </span>numcodecs_codec_package = <a href="#25">wac</a>.register_package(<a href="#28">numcodecs_codec_package</a>)<span class="question-mark">?</span>;
+<a href=#38 id=38 data-nosnippet>38</a>    <span class="kw">let </span>numcodecs_codec_package = wac.register_package(numcodecs_codec_package)<span class="question-mark">?</span>;
 <a href=#39 id=39 data-nosnippet>39</a>    <span class="kw">let </span>numcodecs_codec_instance = <a href="#25">wac</a>.instantiate(<a href="#38">numcodecs_codec_package</a>);
 <a href=#40 id=40 data-nosnippet>40</a>
 <a href=#41 id=41 data-nosnippet>41</a>    <span class="comment">// list the imports that the linker will provide
@@ -188,15 +188,15 @@
 <a href=#150 id=150 data-nosnippet>150</a>    <span class="comment">// export the numcodecs:abc/codec interface
 <a href=#151 id=151 data-nosnippet>151</a>    </span><span class="kw">let </span>numcodecs_codecs_str = <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{codec_interface}"</span>);
 <a href=#152 id=152 data-nosnippet>152</a>    <span class="kw">let </span>numcodecs_codecs_export =
-<a href=#153 id=153 data-nosnippet>153</a>        <a href="#25">wac</a>.alias_instance_export(<a href="#39">numcodecs_codec_instance</a>, <a href="#151">numcodecs_codecs_str</a>)<span class="question-mark">?</span>;
-<a href=#154 id=154 data-nosnippet>154</a>    <a href="#25">wac</a>.export(<a href="#152">numcodecs_codecs_export</a>, <a href="#151">numcodecs_codecs_str</a>)<span class="question-mark">?</span>;
+<a href=#153 id=153 data-nosnippet>153</a>        wac.alias_instance_export(numcodecs_codec_instance, numcodecs_codecs_str)<span class="question-mark">?</span>;
+<a href=#154 id=154 data-nosnippet>154</a>    wac.export(numcodecs_codecs_export, numcodecs_codecs_str)<span class="question-mark">?</span>;
 <a href=#155 id=155 data-nosnippet>155</a>
 <a href=#156 id=156 data-nosnippet>156</a>    <span class="comment">// encode the WAC composition graph into a WASM component and validate it
-<a href=#157 id=157 data-nosnippet>157</a>    </span><span class="kw">let </span>wasm = <a href="#25">wac</a>.encode(wac_graph::EncodeOptions {
+<a href=#157 id=157 data-nosnippet>157</a>    </span><span class="kw">let </span>wasm = wac.encode(wac_graph::EncodeOptions {
 <a href=#158 id=158 data-nosnippet>158</a>        define_components: <span class="bool-val">true</span>,
 <a href=#159 id=159 data-nosnippet>159</a>        <span class="comment">// we do our own validation right below
 <a href=#160 id=160 data-nosnippet>160</a>        </span>validate: <span class="bool-val">false</span>,
-<a href=#161 id=161 data-nosnippet>161</a>        processor: <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
+<a href=#161 id=161 data-nosnippet>161</a>        processor: <span class="prelude-val">None</span>,
 <a href=#162 id=162 data-nosnippet>162</a>    })<span class="question-mark">?</span>;
 <a href=#163 id=163 data-nosnippet>163</a>
 <a href=#164 id=164 data-nosnippet>164</a>    wasmparser::Validator::new_with_features(
@@ -206,11 +206,11 @@
 <a href=#168 id=168 data-nosnippet>168</a>            </span>floats: <span class="bool-val">true</span>,
 <a href=#169 id=169 data-nosnippet>169</a>            <span class="comment">// MUST: codecs and reproducible WASI are implemented as components
 <a href=#170 id=170 data-nosnippet>170</a>            </span>component_model: <span class="bool-val">true</span>,
-<a href=#171 id=171 data-nosnippet>171</a>            ..<span class="kw">crate</span>::engine::<a href="../engine.rs.html#289-387">DETERMINISTIC_WASM_MODULE_FEATURES</a>
+<a href=#171 id=171 data-nosnippet>171</a>            ..<span class="kw">crate</span>::engine::DETERMINISTIC_WASM_MODULE_FEATURES
 <a href=#172 id=172 data-nosnippet>172</a>        }
-<a href=#173 id=173 data-nosnippet>173</a>        .<a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into">into</a>(),
+<a href=#173 id=173 data-nosnippet>173</a>        .into(),
 <a href=#174 id=174 data-nosnippet>174</a>    )
-<a href=#175 id=175 data-nosnippet>175</a>    .validate_all(<span class="kw-2">&amp;</span><a href="#157">wasm</a>)<span class="question-mark">?</span>;
+<a href=#175 id=175 data-nosnippet>175</a>    .validate_all(<span class="kw-2">&amp;</span>wasm)<span class="question-mark">?</span>;
 <a href=#176 id=176 data-nosnippet>176</a>
 <a href=#177 id=177 data-nosnippet>177</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#157">wasm</a>)
 <a href=#178 id=178 data-nosnippet>178</a>}
@@ -235,16 +235,16 @@
 <a href=#197 id=197 data-nosnippet>197</a>
 <a href=#198 id=198 data-nosnippet>198</a>        <span class="comment">// parse and register the WASI component packages
 <a href=#199 id=199 data-nosnippet>199</a>        </span><span class="kw">let </span>wasi_component_packages =
-<a href=#200 id=200 data-nosnippet>200</a>            <a href="#229-263">register_wasi_component_packages</a>(<span class="kw-2">&amp;mut </span><a href="#196">wac</a>)<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.into_boxed_slice">into_boxed_slice</a>();
+<a href=#200 id=200 data-nosnippet>200</a>            register_wasi_component_packages(<span class="kw-2">&amp;mut </span>wac)<span class="question-mark">?</span>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.into_boxed_slice">into_boxed_slice</a>();
 <a href=#201 id=201 data-nosnippet>201</a>
 <a href=#202 id=202 data-nosnippet>202</a>        <span class="comment">// create, register, and instantiate the numcodecs:wasm package
-<a href=#203 id=203 data-nosnippet>203</a>        </span><span class="kw">let </span>numcodecs_wasm_perf_instance = <a href="#279-299">instantiate_numcodecs_wasm_perf_package</a>(<span class="kw-2">&amp;mut </span><a href="#196">wac</a>)<span class="question-mark">?</span>;
+<a href=#203 id=203 data-nosnippet>203</a>        </span><span class="kw">let </span>numcodecs_wasm_perf_instance = instantiate_numcodecs_wasm_perf_package(<span class="kw-2">&amp;mut </span>wac)<span class="question-mark">?</span>;
 <a href=#204 id=204 data-nosnippet>204</a>
 <a href=#205 id=205 data-nosnippet>205</a>        <span class="comment">// export the numcodecs:wasm/perf interface
 <a href=#206 id=206 data-nosnippet>206</a>        </span><span class="kw">let </span>numcodecs_wasm_perf_str = <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{perf_interface}"</span>);
 <a href=#207 id=207 data-nosnippet>207</a>        <span class="kw">let </span>numcodecs_wasm_perf_export =
-<a href=#208 id=208 data-nosnippet>208</a>            <a href="#196">wac</a>.alias_instance_export(<a href="#203">numcodecs_wasm_perf_instance</a>, <a href="#206">numcodecs_wasm_perf_str</a>)<span class="question-mark">?</span>;
-<a href=#209 id=209 data-nosnippet>209</a>        <a href="#196">wac</a>.export(<a href="#207">numcodecs_wasm_perf_export</a>, <a href="#206">numcodecs_wasm_perf_str</a>)<span class="question-mark">?</span>;
+<a href=#208 id=208 data-nosnippet>208</a>            wac.alias_instance_export(numcodecs_wasm_perf_instance, numcodecs_wasm_perf_str)<span class="question-mark">?</span>;
+<a href=#209 id=209 data-nosnippet>209</a>        wac.export(numcodecs_wasm_perf_export, numcodecs_wasm_perf_str)<span class="question-mark">?</span>;
 <a href=#210 id=210 data-nosnippet>210</a>
 <a href=#211 id=211 data-nosnippet>211</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#180-183">PreparedCompositionGraph</a> {
 <a href=#212 id=212 data-nosnippet>212</a>            graph: <a href="#196">wac</a>,
@@ -272,30 +272,30 @@
 <a href=#234 id=234 data-nosnippet>234</a>        wasi_sandboxed_component_provider::MERGED_COMPONENT,
 <a href=#235 id=235 data-nosnippet>235</a>    )];
 <a href=#236 id=236 data-nosnippet>236</a>
-<a href=#237 id=237 data-nosnippet>237</a>    <span class="kw">let </span>wasi_component_packages = <a href="#232-235">WASI_COMPONENTS</a>
-<a href=#238 id=238 data-nosnippet>238</a>        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
-<a href=#239 id=239 data-nosnippet>239</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.map">map</a>(|(component_name, component_bytes)| -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="kw">_</span>, <a href="https://docs.rs/anyhow/1.0.102/anyhow/struct.Error.html">Error</a>&gt; {
+<a href=#237 id=237 data-nosnippet>237</a>    <span class="kw">let </span>wasi_component_packages = WASI_COMPONENTS
+<a href=#238 id=238 data-nosnippet>238</a>        .iter()
+<a href=#239 id=239 data-nosnippet>239</a>        .map(|(component_name, component_bytes)| -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, Error&gt; {
 <a href=#240 id=240 data-nosnippet>240</a>            <span class="kw">let </span>component_package = wac_graph::types::Package::from_bytes(
-<a href=#241 id=241 data-nosnippet>241</a>                <a href="#239">component_name</a>,
-<a href=#242 id=242 data-nosnippet>242</a>                <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#variant.None">None</a>,
-<a href=#243 id=243 data-nosnippet>243</a>                <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>::<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">from</a>(<span class="kw-2">*</span><a href="#239">component_bytes</a>),
-<a href=#244 id=244 data-nosnippet>244</a>                <a href="#230">wac</a>.types_mut(),
+<a href=#241 id=241 data-nosnippet>241</a>                component_name,
+<a href=#242 id=242 data-nosnippet>242</a>                <span class="prelude-val">None</span>,
+<a href=#243 id=243 data-nosnippet>243</a>                Vec::from(<span class="kw-2">*</span>component_bytes),
+<a href=#244 id=244 data-nosnippet>244</a>                wac.types_mut(),
 <a href=#245 id=245 data-nosnippet>245</a>            )<span class="question-mark">?</span>;
 <a href=#246 id=246 data-nosnippet>246</a>
-<a href=#247 id=247 data-nosnippet>247</a>            <span class="kw">let </span>component_world = <span class="kw-2">&amp;</span><a href="#230">wac</a>.types()[<a href="#240">component_package</a>.ty()];
+<a href=#247 id=247 data-nosnippet>247</a>            <span class="kw">let </span>component_world = <span class="kw-2">&amp;</span>wac.types()[component_package.ty()];
 <a href=#248 id=248 data-nosnippet>248</a>
-<a href=#249 id=249 data-nosnippet>249</a>            <span class="kw">let </span>component_imports = <a href="#265-277">extract_component_ports</a>(<span class="kw-2">&amp;</span><a href="#247">component_world</a>.imports)<span class="question-mark">?</span>;
-<a href=#250 id=250 data-nosnippet>250</a>            <span class="kw">let </span>component_exports = <a href="#265-277">extract_component_ports</a>(<span class="kw-2">&amp;</span><a href="#247">component_world</a>.exports)<span class="question-mark">?</span>;
+<a href=#249 id=249 data-nosnippet>249</a>            <span class="kw">let </span>component_imports = extract_component_ports(<span class="kw-2">&amp;</span>component_world.imports)<span class="question-mark">?</span>;
+<a href=#250 id=250 data-nosnippet>250</a>            <span class="kw">let </span>component_exports = extract_component_ports(<span class="kw-2">&amp;</span>component_world.exports)<span class="question-mark">?</span>;
 <a href=#251 id=251 data-nosnippet>251</a>
-<a href=#252 id=252 data-nosnippet>252</a>            <span class="kw">let </span>component_package = <a href="#230">wac</a>.register_package(<a href="#240">component_package</a>)<span class="question-mark">?</span>;
+<a href=#252 id=252 data-nosnippet>252</a>            <span class="kw">let </span>component_package = wac.register_package(component_package)<span class="question-mark">?</span>;
 <a href=#253 id=253 data-nosnippet>253</a>
-<a href=#254 id=254 data-nosnippet>254</a>            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#223-227">PackageWithPorts</a> {
-<a href=#255 id=255 data-nosnippet>255</a>                package: <a href="#252">component_package</a>,
-<a href=#256 id=256 data-nosnippet>256</a>                imports: <a href="#249">component_imports</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.into_boxed_slice">into_boxed_slice</a>(),
-<a href=#257 id=257 data-nosnippet>257</a>                exports: <a href="#250">component_exports</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.into_boxed_slice">into_boxed_slice</a>(),
+<a href=#254 id=254 data-nosnippet>254</a>            <span class="prelude-val">Ok</span>(PackageWithPorts {
+<a href=#255 id=255 data-nosnippet>255</a>                package: component_package,
+<a href=#256 id=256 data-nosnippet>256</a>                imports: component_imports.into_boxed_slice(),
+<a href=#257 id=257 data-nosnippet>257</a>                exports: component_exports.into_boxed_slice(),
 <a href=#258 id=258 data-nosnippet>258</a>            })
 <a href=#259 id=259 data-nosnippet>259</a>        })
-<a href=#260 id=260 data-nosnippet>260</a>        .collect::&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
+<a href=#260 id=260 data-nosnippet>260</a>        .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
 <a href=#261 id=261 data-nosnippet>261</a>
 <a href=#262 id=262 data-nosnippet>262</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#237">wasi_component_packages</a>)
 <a href=#263 id=263 data-nosnippet>263</a>}
@@ -324,13 +324,13 @@
 <a href=#286 id=286 data-nosnippet>286</a>
 <a href=#287 id=287 data-nosnippet>287</a>    <span class="comment">// create, register, and instantiate the numcodecs:wasm/perf package
 <a href=#288 id=288 data-nosnippet>288</a>    </span><span class="kw">let </span>numcodecs_wasm_perf_package = wac_graph::types::Package::from_bytes(
-<a href=#289 id=289 data-nosnippet>289</a>        <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/alloc/macro.format.html">format!</a>(<span class="string">"{}"</span>, perf_interface.package().name()),
-<a href=#290 id=290 data-nosnippet>290</a>        <a href="#283">perf_interface</a>.package().version(),
-<a href=#291 id=291 data-nosnippet>291</a>        <a href="#301-409">create_numcodecs_wasm_perf_component</a>()<span class="question-mark">?</span>,
-<a href=#292 id=292 data-nosnippet>292</a>        <a href="#280">wac</a>.types_mut(),
+<a href=#289 id=289 data-nosnippet>289</a>        <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}"</span>, perf_interface.package().name()),
+<a href=#290 id=290 data-nosnippet>290</a>        perf_interface.package().version(),
+<a href=#291 id=291 data-nosnippet>291</a>        create_numcodecs_wasm_perf_component()<span class="question-mark">?</span>,
+<a href=#292 id=292 data-nosnippet>292</a>        wac.types_mut(),
 <a href=#293 id=293 data-nosnippet>293</a>    )<span class="question-mark">?</span>;
 <a href=#294 id=294 data-nosnippet>294</a>
-<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">let </span>numcodecs_wasm_perf_package = <a href="#280">wac</a>.register_package(<a href="#288">numcodecs_wasm_perf_package</a>)<span class="question-mark">?</span>;
+<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">let </span>numcodecs_wasm_perf_package = wac.register_package(numcodecs_wasm_perf_package)<span class="question-mark">?</span>;
 <a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">let </span>numcodecs_wasm_perf_instance = <a href="#280">wac</a>.instantiate(<a href="#295">numcodecs_wasm_perf_package</a>);
 <a href=#297 id=297 data-nosnippet>297</a>
 <a href=#298 id=298 data-nosnippet>298</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#296">numcodecs_wasm_perf_instance</a>)
@@ -429,19 +429,19 @@
 <a href=#391 id=391 data-nosnippet>391</a>    }
 <a href=#392 id=392 data-nosnippet>392</a>
 <a href=#393 id=393 data-nosnippet>393</a>    wit_component::embed_component_metadata(
-<a href=#394 id=394 data-nosnippet>394</a>        <span class="kw-2">&amp;mut </span><a href="#309">module</a>,
-<a href=#395 id=395 data-nosnippet>395</a>        <span class="kw-2">&amp;</span><a href="#311">resolve</a>,
-<a href=#396 id=396 data-nosnippet>396</a>        <a href="#355">world</a>,
+<a href=#394 id=394 data-nosnippet>394</a>        <span class="kw-2">&amp;mut </span>module,
+<a href=#395 id=395 data-nosnippet>395</a>        <span class="kw-2">&amp;</span>resolve,
+<a href=#396 id=396 data-nosnippet>396</a>        world,
 <a href=#397 id=397 data-nosnippet>397</a>        wit_component::StringEncoding::UTF8,
 <a href=#398 id=398 data-nosnippet>398</a>    )<span class="question-mark">?</span>;
 <a href=#399 id=399 data-nosnippet>399</a>
-<a href=#400 id=400 data-nosnippet>400</a>    <span class="kw">let </span><span class="kw-2">mut </span>encoder = wit_component::ComponentEncoder::<a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">default</a>()
-<a href=#401 id=401 data-nosnippet>401</a>        .module(<span class="kw-2">&amp;</span><a href="#309">module</a>)
-<a href=#402 id=402 data-nosnippet>402</a>        .<a href="https://docs.rs/anyhow/1.0.102/anyhow/trait.Context.html#tymethod.context">context</a>(<span class="string">"wit_component::ComponentEncoder::module failed"</span>)<span class="question-mark">?</span>;
+<a href=#400 id=400 data-nosnippet>400</a>    <span class="kw">let </span><span class="kw-2">mut </span>encoder = wit_component::ComponentEncoder::default()
+<a href=#401 id=401 data-nosnippet>401</a>        .module(<span class="kw-2">&amp;</span>module)
+<a href=#402 id=402 data-nosnippet>402</a>        .context(<span class="string">"wit_component::ComponentEncoder::module failed"</span>)<span class="question-mark">?</span>;
 <a href=#403 id=403 data-nosnippet>403</a>
-<a href=#404 id=404 data-nosnippet>404</a>    <span class="kw">let </span>component = <a href="#400">encoder</a>
+<a href=#404 id=404 data-nosnippet>404</a>    <span class="kw">let </span>component = encoder
 <a href=#405 id=405 data-nosnippet>405</a>        .encode()
-<a href=#406 id=406 data-nosnippet>406</a>        .<a href="https://docs.rs/anyhow/1.0.102/anyhow/trait.Context.html#tymethod.context">context</a>(<span class="string">"wit_component::ComponentEncoder::encode failed"</span>)<span class="question-mark">?</span>;
+<a href=#406 id=406 data-nosnippet>406</a>        .context(<span class="string">"wit_component::ComponentEncoder::encode failed"</span>)<span class="question-mark">?</span>;
 <a href=#407 id=407 data-nosnippet>407</a>
 <a href=#408 id=408 data-nosnippet>408</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#404">component</a>)
 <a href=#409 id=409 data-nosnippet>409</a>}

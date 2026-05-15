@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zlib/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zlib" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (64a965e90 2026-05-11)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zlib/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zlib" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (7c3c88f42 2026-05-14)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -242,15 +242,15 @@
 <a href=#204 id=204 data-nosnippet>204</a>    <span class="kw">let </span>data = <a href="#203">array</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>();
 <a href=#205 id=205 data-nosnippet>205</a>
 <a href=#206 id=206 data-nosnippet>206</a>    <span class="kw">let </span><span class="kw-2">mut </span>encoded = postcard::to_extend(
-<a href=#207 id=207 data-nosnippet>207</a>        <span class="kw-2">&amp;</span><a href="#369-374">CompressionHeader</a> {
-<a href=#208 id=208 data-nosnippet>208</a>            dtype: <a href="#203">array</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
-<a href=#209 id=209 data-nosnippet>209</a>            shape: Cow::<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Borrowed</a>(<a href="#203">array</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>()),
-<a href=#210 id=210 data-nosnippet>210</a>            version: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecVersion.html">StaticCodecVersion</a>,
+<a href=#207 id=207 data-nosnippet>207</a>        <span class="kw-2">&amp;</span>CompressionHeader {
+<a href=#208 id=208 data-nosnippet>208</a>            dtype: array.dtype(),
+<a href=#209 id=209 data-nosnippet>209</a>            shape: Cow::Borrowed(array.shape()),
+<a href=#210 id=210 data-nosnippet>210</a>            version: StaticCodecVersion,
 <a href=#211 id=211 data-nosnippet>211</a>        },
-<a href=#212 id=212 data-nosnippet>212</a>        <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>::<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">new</a>(),
+<a href=#212 id=212 data-nosnippet>212</a>        Vec::new(),
 <a href=#213 id=213 data-nosnippet>213</a>    )
-<a href=#214 id=214 data-nosnippet>214</a>    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| ZlibCodecError::<a href="#132-135">HeaderEncodeFailed</a> {
-<a href=#215 id=215 data-nosnippet>215</a>        source: <a href="#185">ZlibHeaderError</a>(<a href="#214">err</a>),
+<a href=#214 id=214 data-nosnippet>214</a>    .map_err(|err| ZlibCodecError::HeaderEncodeFailed {
+<a href=#215 id=215 data-nosnippet>215</a>        source: ZlibHeaderError(err),
 <a href=#216 id=216 data-nosnippet>216</a>    })<span class="question-mark">?</span>;
 <a href=#217 id=217 data-nosnippet>217</a>
 <a href=#218 id=218 data-nosnippet>218</a>    <span class="kw">let </span><span class="kw-2">mut </span>in_pos = <span class="number">0</span>;
@@ -319,9 +319,9 @@
 <a href=#281 id=281 data-nosnippet>281</a>/// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
 <a href=#282 id=282 data-nosnippet>282</a></span><span class="kw">pub fn </span><a href="../../numcodecs_zlib/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#129-180">ZlibCodecError</a>&gt; {
 <a href=#283 id=283 data-nosnippet>283</a>    <span class="kw">let </span>(header, encoded) =
-<a href=#284 id=284 data-nosnippet>284</a>        postcard::take_from_bytes::&lt;<a href="#369-374">CompressionHeader</a>&gt;(<a href="#282">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-<a href=#285 id=285 data-nosnippet>285</a>            ZlibCodecError::<a href="#156-159">HeaderDecodeFailed</a> {
-<a href=#286 id=286 data-nosnippet>286</a>                source: <a href="#185">ZlibHeaderError</a>(<a href="#284">err</a>),
+<a href=#284 id=284 data-nosnippet>284</a>        postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
+<a href=#285 id=285 data-nosnippet>285</a>            ZlibCodecError::HeaderDecodeFailed {
+<a href=#286 id=286 data-nosnippet>286</a>                source: ZlibHeaderError(err),
 <a href=#287 id=287 data-nosnippet>287</a>            }
 <a href=#288 id=288 data-nosnippet>288</a>        })<span class="question-mark">?</span>;
 <a href=#289 id=289 data-nosnippet>289</a>
@@ -348,9 +348,9 @@
 <a href=#310 id=310 data-nosnippet>310</a>/// - [`ZlibCodecError::ZlibDecodeFailed`] if an opaque decoding error occurred
 <a href=#311 id=311 data-nosnippet>311</a></span><span class="kw">pub fn </span><a href="../../numcodecs_zlib/fn.decompress_into.html">decompress_into</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#129-180">ZlibCodecError</a>&gt; {
 <a href=#312 id=312 data-nosnippet>312</a>    <span class="kw">let </span>(header, encoded) =
-<a href=#313 id=313 data-nosnippet>313</a>        postcard::take_from_bytes::&lt;<a href="#369-374">CompressionHeader</a>&gt;(<a href="#311">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-<a href=#314 id=314 data-nosnippet>314</a>            ZlibCodecError::<a href="#156-159">HeaderDecodeFailed</a> {
-<a href=#315 id=315 data-nosnippet>315</a>                source: <a href="#185">ZlibHeaderError</a>(<a href="#313">err</a>),
+<a href=#313 id=313 data-nosnippet>313</a>        postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
+<a href=#314 id=314 data-nosnippet>314</a>            ZlibCodecError::HeaderDecodeFailed {
+<a href=#315 id=315 data-nosnippet>315</a>                source: ZlibHeaderError(err),
 <a href=#316 id=316 data-nosnippet>316</a>            }
 <a href=#317 id=317 data-nosnippet>317</a>        })<span class="question-mark">?</span>;
 <a href=#318 id=318 data-nosnippet>318</a>

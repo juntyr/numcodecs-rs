@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zstd/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zstd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (64a965e90 2026-05-11)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/zstd/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_zstd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (7c3c88f42 2026-05-14)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -161,7 +161,7 @@
 <a href=#123 id=123 data-nosnippet>123</a>
 <a href=#124 id=124 data-nosnippet>124</a><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#114-116">ZstdLevel</a> {
 <a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">fn </span>deserialize&lt;D: <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, D::Error&gt; {
-<a href=#126 id=126 data-nosnippet>126</a>        <span class="kw">let </span>level = Deserialize::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html#tymethod.deserialize">deserialize</a>(<a href="#125">deserializer</a>)<span class="question-mark">?</span>;
+<a href=#126 id=126 data-nosnippet>126</a>        <span class="kw">let </span>level = Deserialize::deserialize(deserializer)<span class="question-mark">?</span>;
 <a href=#127 id=127 data-nosnippet>127</a>
 <a href=#128 id=128 data-nosnippet>128</a>        <span class="kw">let </span>level_range = zstd::compression_level_range();
 <a href=#129 id=129 data-nosnippet>129</a>
@@ -263,20 +263,20 @@
 <a href=#225 id=225 data-nosnippet>225</a>/// Panics if the infallible encoding with Zstd fails.
 <a href=#226 id=226 data-nosnippet>226</a></span><span class="kw">pub fn </span><a href="../../numcodecs_zstd/fn.compress.html">compress</a>(array: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayView.html">AnyArrayView</a>, level: <a href="#114-116">ZstdLevel</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#144-201">ZstdCodecError</a>&gt; {
 <a href=#227 id=227 data-nosnippet>227</a>    <span class="kw">let </span><span class="kw-2">mut </span>encoded = postcard::to_extend(
-<a href=#228 id=228 data-nosnippet>228</a>        <span class="kw-2">&amp;</span><a href="#337-342">CompressionHeader</a> {
-<a href=#229 id=229 data-nosnippet>229</a>            dtype: <a href="#226">array</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>(),
-<a href=#230 id=230 data-nosnippet>230</a>            shape: Cow::<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Borrowed</a>(<a href="#226">array</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>()),
-<a href=#231 id=231 data-nosnippet>231</a>            version: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/struct.StaticCodecVersion.html">StaticCodecVersion</a>,
+<a href=#228 id=228 data-nosnippet>228</a>        <span class="kw-2">&amp;</span>CompressionHeader {
+<a href=#229 id=229 data-nosnippet>229</a>            dtype: array.dtype(),
+<a href=#230 id=230 data-nosnippet>230</a>            shape: Cow::Borrowed(array.shape()),
+<a href=#231 id=231 data-nosnippet>231</a>            version: StaticCodecVersion,
 <a href=#232 id=232 data-nosnippet>232</a>        },
-<a href=#233 id=233 data-nosnippet>233</a>        <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>::<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">new</a>(),
+<a href=#233 id=233 data-nosnippet>233</a>        Vec::new(),
 <a href=#234 id=234 data-nosnippet>234</a>    )
-<a href=#235 id=235 data-nosnippet>235</a>    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| ZstdCodecError::<a href="#147-150">HeaderEncodeFailed</a> {
-<a href=#236 id=236 data-nosnippet>236</a>        source: <a href="#206">ZstdHeaderError</a>(<a href="#235">err</a>),
+<a href=#235 id=235 data-nosnippet>235</a>    .map_err(|err| ZstdCodecError::HeaderEncodeFailed {
+<a href=#236 id=236 data-nosnippet>236</a>        source: ZstdHeaderError(err),
 <a href=#237 id=237 data-nosnippet>237</a>    })<span class="question-mark">?</span>;
 <a href=#238 id=238 data-nosnippet>238</a>
-<a href=#239 id=239 data-nosnippet>239</a>    zstd::stream::copy_encode(<span class="kw-2">&amp;*</span><a href="#226">array</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.as_bytes">as_bytes</a>(), <span class="kw-2">&amp;mut </span><a href="#227">encoded</a>, <a href="#226">level</a>.level).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-<a href=#240 id=240 data-nosnippet>240</a>        ZstdCodecError::<a href="#153-156">ZstdEncodeFailed</a> {
-<a href=#241 id=241 data-nosnippet>241</a>            source: <a href="#211">ZstdCodingError</a>(<a href="#239">err</a>),
+<a href=#239 id=239 data-nosnippet>239</a>    zstd::stream::copy_encode(<span class="kw-2">&amp;*</span>array.as_bytes(), <span class="kw-2">&amp;mut </span>encoded, level.level).map_err(|err| {
+<a href=#240 id=240 data-nosnippet>240</a>        ZstdCodecError::ZstdEncodeFailed {
+<a href=#241 id=241 data-nosnippet>241</a>            source: ZstdCodingError(err),
 <a href=#242 id=242 data-nosnippet>242</a>        }
 <a href=#243 id=243 data-nosnippet>243</a>    })<span class="question-mark">?</span>;
 <a href=#244 id=244 data-nosnippet>244</a>
@@ -296,9 +296,9 @@
 <a href=#258 id=258 data-nosnippet>258</a>/// - [`ZstdCodecError::ZstdDecodeFailed`] if an opaque decoding error occurred
 <a href=#259 id=259 data-nosnippet>259</a></span><span class="kw">pub fn </span><a href="../../numcodecs_zstd/fn.decompress.html">decompress</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArray.html">AnyArray</a>, <a href="#144-201">ZstdCodecError</a>&gt; {
 <a href=#260 id=260 data-nosnippet>260</a>    <span class="kw">let </span>(header, encoded) =
-<a href=#261 id=261 data-nosnippet>261</a>        postcard::take_from_bytes::&lt;<a href="#337-342">CompressionHeader</a>&gt;(<a href="#259">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-<a href=#262 id=262 data-nosnippet>262</a>            ZstdCodecError::<a href="#177-180">HeaderDecodeFailed</a> {
-<a href=#263 id=263 data-nosnippet>263</a>                source: <a href="#206">ZstdHeaderError</a>(<a href="#261">err</a>),
+<a href=#261 id=261 data-nosnippet>261</a>        postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
+<a href=#262 id=262 data-nosnippet>262</a>            ZstdCodecError::HeaderDecodeFailed {
+<a href=#263 id=263 data-nosnippet>263</a>                source: ZstdHeaderError(err),
 <a href=#264 id=264 data-nosnippet>264</a>            }
 <a href=#265 id=265 data-nosnippet>265</a>        })<span class="question-mark">?</span>;
 <a href=#266 id=266 data-nosnippet>266</a>
@@ -325,9 +325,9 @@
 <a href=#287 id=287 data-nosnippet>287</a>/// - [`ZstdCodecError::ZstdDecodeFailed`] if an opaque decoding error occurred
 <a href=#288 id=288 data-nosnippet>288</a></span><span class="kw">pub fn </span><a href="../../numcodecs_zstd/fn.decompress_into.html">decompress_into</a>(encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], <span class="kw-2">mut </span>decoded: <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#144-201">ZstdCodecError</a>&gt; {
 <a href=#289 id=289 data-nosnippet>289</a>    <span class="kw">let </span>(header, encoded) =
-<a href=#290 id=290 data-nosnippet>290</a>        postcard::take_from_bytes::&lt;<a href="#337-342">CompressionHeader</a>&gt;(<a href="#288">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-<a href=#291 id=291 data-nosnippet>291</a>            ZstdCodecError::<a href="#177-180">HeaderDecodeFailed</a> {
-<a href=#292 id=292 data-nosnippet>292</a>                source: <a href="#206">ZstdHeaderError</a>(<a href="#290">err</a>),
+<a href=#290 id=290 data-nosnippet>290</a>        postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
+<a href=#291 id=291 data-nosnippet>291</a>            ZstdCodecError::HeaderDecodeFailed {
+<a href=#292 id=292 data-nosnippet>292</a>                source: ZstdHeaderError(err),
 <a href=#293 id=293 data-nosnippet>293</a>            }
 <a href=#294 id=294 data-nosnippet>294</a>        })<span class="question-mark">?</span>;
 <a href=#295 id=295 data-nosnippet>295</a>
@@ -354,9 +354,9 @@
 <a href=#316 id=316 data-nosnippet>316</a>
 <a href=#317 id=317 data-nosnippet>317</a><span class="kw">fn </span>decompress_into_bytes(<span class="kw-2">mut </span>encoded: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], <span class="kw-2">mut </span>decoded: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#144-201">ZstdCodecError</a>&gt; {
 <a href=#318 id=318 data-nosnippet>318</a>    <span class="comment">// we want to check encoded and decoded for full consumption after the decoding
-<a href=#319 id=319 data-nosnippet>319</a>    </span>zstd::stream::copy_decode(<span class="kw-2">&amp;mut </span><a href="#317">encoded</a>, <span class="kw-2">&amp;mut </span><a href="#317">decoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-<a href=#320 id=320 data-nosnippet>320</a>        ZstdCodecError::<a href="#190-193">ZstdDecodeFailed</a> {
-<a href=#321 id=321 data-nosnippet>321</a>            source: <a href="#211">ZstdCodingError</a>(<a href="#319">err</a>),
+<a href=#319 id=319 data-nosnippet>319</a>    </span>zstd::stream::copy_decode(<span class="kw-2">&amp;mut </span>encoded, <span class="kw-2">&amp;mut </span>decoded).map_err(|err| {
+<a href=#320 id=320 data-nosnippet>320</a>        ZstdCodecError::ZstdDecodeFailed {
+<a href=#321 id=321 data-nosnippet>321</a>            source: ZstdCodingError(err),
 <a href=#322 id=322 data-nosnippet>322</a>        }
 <a href=#323 id=323 data-nosnippet>323</a>    })<span class="question-mark">?</span>;
 <a href=#324 id=324 data-nosnippet>324</a>

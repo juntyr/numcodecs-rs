@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/stdio.rs`."><title>stdio.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (64a965e90 2026-05-11)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/numcodecs-wasm-host-reproducible/src/stdio.rs`."><title>stdio.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_wasm_host_reproducible" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (7c3c88f42 2026-05-14)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -48,23 +48,23 @@
 <a href=#10 id=10 data-nosnippet>10</a>        stdio: simple_stdio_interface,
 <a href=#11 id=11 data-nosnippet>11</a>    } = <a href="#109-111">WasiSandboxedStdioInterface</a>::<a href="#115-128">get</a>();
 <a href=#12 id=12 data-nosnippet>12</a>
-<a href=#13 id=13 data-nosnippet>13</a>    <span class="kw">let </span>simple_stdio_instance = <a href="#8">linker</a>.define_instance(<a href="#10">simple_stdio_interface</a>.<a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">clone</a>())<span class="question-mark">?</span>;
+<a href=#13 id=13 data-nosnippet>13</a>    <span class="kw">let </span>simple_stdio_instance = linker.define_instance(simple_stdio_interface.clone())<span class="question-mark">?</span>;
 <a href=#14 id=14 data-nosnippet>14</a>
-<a href=#15 id=15 data-nosnippet>15</a>    <a href="#13">simple_stdio_instance</a>.define_func(
+<a href=#15 id=15 data-nosnippet>15</a>    simple_stdio_instance.define_func(
 <a href=#16 id=16 data-nosnippet>16</a>        <span class="string">"write-stdout"</span>,
-<a href=#17 id=17 data-nosnippet>17</a>        OutputStream::<a href="#37">Stdout</a>.<a href="#42-73">create_write_func</a>(<a href="#8">ctx</a>.as_context_mut()),
+<a href=#17 id=17 data-nosnippet>17</a>        OutputStream::Stdout.create_write_func(ctx.as_context_mut()),
 <a href=#18 id=18 data-nosnippet>18</a>    )<span class="question-mark">?</span>;
-<a href=#19 id=19 data-nosnippet>19</a>    <a href="#13">simple_stdio_instance</a>.define_func(
+<a href=#19 id=19 data-nosnippet>19</a>    simple_stdio_instance.define_func(
 <a href=#20 id=20 data-nosnippet>20</a>        <span class="string">"flush-stdout"</span>,
-<a href=#21 id=21 data-nosnippet>21</a>        OutputStream::<a href="#37">Stdout</a>.<a href="#75-96">create_flush_func</a>(<a href="#8">ctx</a>.as_context_mut()),
+<a href=#21 id=21 data-nosnippet>21</a>        OutputStream::Stdout.create_flush_func(ctx.as_context_mut()),
 <a href=#22 id=22 data-nosnippet>22</a>    )<span class="question-mark">?</span>;
-<a href=#23 id=23 data-nosnippet>23</a>    <a href="#13">simple_stdio_instance</a>.define_func(
+<a href=#23 id=23 data-nosnippet>23</a>    simple_stdio_instance.define_func(
 <a href=#24 id=24 data-nosnippet>24</a>        <span class="string">"write-stderr"</span>,
-<a href=#25 id=25 data-nosnippet>25</a>        OutputStream::<a href="#38">Stderr</a>.<a href="#42-73">create_write_func</a>(<a href="#8">ctx</a>.as_context_mut()),
+<a href=#25 id=25 data-nosnippet>25</a>        OutputStream::Stderr.create_write_func(ctx.as_context_mut()),
 <a href=#26 id=26 data-nosnippet>26</a>    )<span class="question-mark">?</span>;
-<a href=#27 id=27 data-nosnippet>27</a>    <a href="#13">simple_stdio_instance</a>.define_func(
+<a href=#27 id=27 data-nosnippet>27</a>    simple_stdio_instance.define_func(
 <a href=#28 id=28 data-nosnippet>28</a>        <span class="string">"flush-stderr"</span>,
-<a href=#29 id=29 data-nosnippet>29</a>        OutputStream::<a href="#38">Stderr</a>.<a href="#75-96">create_flush_func</a>(<a href="#8">ctx</a>.as_context_mut()),
+<a href=#29 id=29 data-nosnippet>29</a>        OutputStream::Stderr.create_flush_func(ctx.as_context_mut()),
 <a href=#30 id=30 data-nosnippet>30</a>    )<span class="question-mark">?</span>;
 <a href=#31 id=31 data-nosnippet>31</a>
 <a href=#32 id=32 data-nosnippet>32</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/ebcc/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_ebcc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (64a965e90 2026-05-11)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/ebcc/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_ebcc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (7c3c88f42 2026-05-14)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -129,7 +129,7 @@
 <a href=#91 id=91 data-nosnippet>91</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>, <span class="self">Self</span>::Error&gt; {
 <a href=#92 id=92 data-nosnippet>92</a>        <span class="kw">match </span><a href="#91">data</a> {
 <a href=#93 id=93 data-nosnippet>93</a>            <a href="../../numcodecs/array/type.AnyCowArray.html">AnyCowArray</a>::<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(data) =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.U8">U8</a>(
-<a href=#94 id=94 data-nosnippet>94</a>                <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Array1.html">Array1</a>::<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">from</a>(<a href="#314-394">compress</a>(<a href="#93">data</a>, <a class="self" href="#91">self</a>.residual, <a class="self" href="#91">self</a>.base_cr)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
+<a href=#94 id=94 data-nosnippet>94</a>                <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Array1.html">Array1</a>::<a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from">from</a>(compress(data, <span class="self">self</span>.residual, <span class="self">self</span>.base_cr)<span class="question-mark">?</span>).<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dyn">into_dyn</a>(),
 <a href=#95 id=95 data-nosnippet>95</a>            )),
 <a href=#96 id=96 data-nosnippet>96</a>            encoded =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(EbccCodecError::<a href="#161">UnsupportedDtype</a>(<a href="#96">encoded</a>.<a href="../../numcodecs/array/enum.AnyArrayBase.html#method.dtype">dtype</a>())),
 <a href=#97 id=97 data-nosnippet>97</a>        }
@@ -292,7 +292,7 @@
 <a href=#254 id=254 data-nosnippet>254</a>
 <a href=#255 id=255 data-nosnippet>255</a><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html">Deserialize</a>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><a href="#241">Positive</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt; {
 <a href=#256 id=256 data-nosnippet>256</a>    <span class="kw">fn </span>deserialize&lt;D: <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserializer.html">Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, D::Error&gt; {
-<a href=#257 id=257 data-nosnippet>257</a>        <span class="kw">let </span>x = <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html#tymethod.deserialize">deserialize</a>(<a href="#256">deserializer</a>)<span class="question-mark">?</span>;
+<a href=#257 id=257 data-nosnippet>257</a>        <span class="kw">let </span>x = f32::deserialize(deserializer)<span class="question-mark">?</span>;
 <a href=#258 id=258 data-nosnippet>258</a>
 <a href=#259 id=259 data-nosnippet>259</a>        <span class="kw">if </span><a href="#257">x</a> &gt; <span class="number">0.0 </span>{
 <a href=#260 id=260 data-nosnippet>260</a>            <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<span class="self">Self</span>(<a href="#257">x</a>))
@@ -355,15 +355,15 @@
 <a href=#317 id=317 data-nosnippet>317</a>    base_cr: <a href="#241">Positive</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;,
 <a href=#318 id=318 data-nosnippet>318</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="#158-236">EbccCodecError</a>&gt; {
 <a href=#319 id=319 data-nosnippet>319</a>    <span class="kw">let </span><span class="kw-2">mut </span>encoded = postcard::to_extend(
-<a href=#320 id=320 data-nosnippet>320</a>        <span class="kw-2">&amp;</span><a href="#526-531">CompressionHeader</a> {
-<a href=#321 id=321 data-nosnippet>321</a>            dtype: EbccDType::<a href="#537">F32</a>,
-<a href=#322 id=322 data-nosnippet>322</a>            shape: Cow::<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#variant.Borrowed">Borrowed</a>(<a href="#315">data</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>()),
-<a href=#323 id=323 data-nosnippet>323</a>            version: <a href="../../numcodecs/codec/struct.StaticCodecVersion.html">StaticCodecVersion</a>,
+<a href=#320 id=320 data-nosnippet>320</a>        <span class="kw-2">&amp;</span>CompressionHeader {
+<a href=#321 id=321 data-nosnippet>321</a>            dtype: EbccDType::F32,
+<a href=#322 id=322 data-nosnippet>322</a>            shape: Cow::Borrowed(data.shape()),
+<a href=#323 id=323 data-nosnippet>323</a>            version: StaticCodecVersion,
 <a href=#324 id=324 data-nosnippet>324</a>        },
-<a href=#325 id=325 data-nosnippet>325</a>        <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>::<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">new</a>(),
+<a href=#325 id=325 data-nosnippet>325</a>        Vec::new(),
 <a href=#326 id=326 data-nosnippet>326</a>    )
-<a href=#327 id=327 data-nosnippet>327</a>    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| EbccCodecError::<a href="#164-167">HeaderEncodeFailed</a> {
-<a href=#328 id=328 data-nosnippet>328</a>        source: <a href="#290">EbccHeaderError</a>(<a href="#327">err</a>),
+<a href=#327 id=327 data-nosnippet>327</a>    .map_err(|err| EbccCodecError::HeaderEncodeFailed {
+<a href=#328 id=328 data-nosnippet>328</a>        source: EbccHeaderError(err),
 <a href=#329 id=329 data-nosnippet>329</a>    })<span class="question-mark">?</span>;
 <a href=#330 id=330 data-nosnippet>330</a>
 <a href=#331 id=331 data-nosnippet>331</a>    <span class="comment">// EBCC cannot handle zero-length dimensions
@@ -447,14 +447,14 @@
 <a href=#409 id=409 data-nosnippet>409</a>        shape: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>],
 <a href=#410 id=410 data-nosnippet>410</a>    ) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/type.Array.html">Array</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.IxDyn.html">IxDyn</a>&gt;, <a href="#158-236">EbccCodecError</a>&gt; {
 <a href=#411 id=411 data-nosnippet>411</a>        <span class="kw">let </span><span class="kw-2">mut </span>decoded = Array::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <span class="kw">_</span>&gt;::<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.zeros">zeros</a>(<a href="#409">shape</a>);
-<a href=#412 id=412 data-nosnippet>412</a>        <a href="#477-523">decompress_into_typed</a>(<a href="#408">encoded</a>, <a href="#411">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view_mut">view_mut</a>())<span class="question-mark">?</span>;
+<a href=#412 id=412 data-nosnippet>412</a>        decompress_into_typed(encoded, decoded.view_mut())<span class="question-mark">?</span>;
 <a href=#413 id=413 data-nosnippet>413</a>        <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="#411">decoded</a>)
 <a href=#414 id=414 data-nosnippet>414</a>    }
 <a href=#415 id=415 data-nosnippet>415</a>
 <a href=#416 id=416 data-nosnippet>416</a>    <span class="kw">let </span>(header, encoded) =
-<a href=#417 id=417 data-nosnippet>417</a>        postcard::take_from_bytes::&lt;<a href="#526-531">CompressionHeader</a>&gt;(<a href="#406">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-<a href=#418 id=418 data-nosnippet>418</a>            EbccCodecError::<a href="#209-212">HeaderDecodeFailed</a> {
-<a href=#419 id=419 data-nosnippet>419</a>                source: <a href="#290">EbccHeaderError</a>(<a href="#417">err</a>),
+<a href=#417 id=417 data-nosnippet>417</a>        postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
+<a href=#418 id=418 data-nosnippet>418</a>            EbccCodecError::HeaderDecodeFailed {
+<a href=#419 id=419 data-nosnippet>419</a>                source: EbccHeaderError(err),
 <a href=#420 id=420 data-nosnippet>420</a>            }
 <a href=#421 id=421 data-nosnippet>421</a>        })<span class="question-mark">?</span>;
 <a href=#422 id=422 data-nosnippet>422</a>
@@ -466,7 +466,7 @@
 <a href=#428 id=428 data-nosnippet>428</a>    }
 <a href=#429 id=429 data-nosnippet>429</a>
 <a href=#430 id=430 data-nosnippet>430</a>    <span class="kw">match </span><a href="#416">header</a>.dtype {
-<a href=#431 id=431 data-nosnippet>431</a>        EbccDType::<a href="#537">F32</a> =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(<a href="#407-414">decompress_typed</a>(<a href="#416">encoded</a>, <span class="kw-2">&amp;</span><a href="#416">header</a>.shape)<span class="question-mark">?</span>)),
+<a href=#431 id=431 data-nosnippet>431</a>        EbccDType::<a href="#537">F32</a> =&gt; <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(<a href="../../numcodecs/array/type.AnyArray.html">AnyArray</a>::<a href="../../numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(decompress_typed(encoded, <span class="kw-2">&amp;</span>header.shape)<span class="question-mark">?</span>)),
 <a href=#432 id=432 data-nosnippet>432</a>    }
 <a href=#433 id=433 data-nosnippet>433</a>}
 <a href=#434 id=434 data-nosnippet>434</a>
@@ -487,9 +487,9 @@
 <a href=#449 id=449 data-nosnippet>449</a>    decoded: <a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;S, D&gt;,
 <a href=#450 id=450 data-nosnippet>450</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#158-236">EbccCodecError</a>&gt; {
 <a href=#451 id=451 data-nosnippet>451</a>    <span class="kw">let </span>(header, encoded) =
-<a href=#452 id=452 data-nosnippet>452</a>        postcard::take_from_bytes::&lt;<a href="#526-531">CompressionHeader</a>&gt;(<a href="#448">encoded</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|err| {
-<a href=#453 id=453 data-nosnippet>453</a>            EbccCodecError::<a href="#209-212">HeaderDecodeFailed</a> {
-<a href=#454 id=454 data-nosnippet>454</a>                source: <a href="#290">EbccHeaderError</a>(<a href="#452">err</a>),
+<a href=#452 id=452 data-nosnippet>452</a>        postcard::take_from_bytes::&lt;CompressionHeader&gt;(encoded).map_err(|err| {
+<a href=#453 id=453 data-nosnippet>453</a>            EbccCodecError::HeaderDecodeFailed {
+<a href=#454 id=454 data-nosnippet>454</a>                source: EbccHeaderError(err),
 <a href=#455 id=455 data-nosnippet>455</a>            }
 <a href=#456 id=456 data-nosnippet>456</a>        })<span class="question-mark">?</span>;
 <a href=#457 id=457 data-nosnippet>457</a>
