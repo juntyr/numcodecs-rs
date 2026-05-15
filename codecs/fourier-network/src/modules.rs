@@ -11,7 +11,7 @@ use burn::{
 
 #[derive(Debug, Module)]
 pub struct Block<B: Backend> {
-    bn2_1: BatchNorm<B, 0>,
+    bn2_1: BatchNorm<B>,
     gu2_2: Gelu,
     ln2_3: Linear<B>,
 }
@@ -35,7 +35,7 @@ impl BlockConfig {
     pub fn init<B: Backend>(&self, device: &B::Device) -> Block<B> {
         Block {
             bn2_1: BatchNormConfig::new(self.fourier_features.get()).init(device),
-            gu2_2: Gelu,
+            gu2_2: Gelu::new(),
             ln2_3: LinearConfig::new(self.fourier_features.get(), self.fourier_features.get())
                 .init(device),
         }
@@ -46,7 +46,7 @@ impl BlockConfig {
 pub struct Model<B: Backend> {
     ln1: Linear<B>,
     bl2: Vec<Block<B>>,
-    bn3: BatchNorm<B, 0>,
+    bn3: BatchNorm<B>,
     gu4: Gelu,
     ln5: Linear<B>,
 }
@@ -88,7 +88,7 @@ impl ModelConfig {
                 .map(|_| block.init(device))
                 .collect(),
             bn3: BatchNormConfig::new(self.fourier_features.get()).init(device),
-            gu4: Gelu,
+            gu4: Gelu::new(),
             ln5: LinearConfig::new(self.fourier_features.get(), 1).init(device),
         }
     }
@@ -126,7 +126,7 @@ impl<B: Backend> Record<B> for ModelExtra<B> {
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(bound = "")]
 pub struct ModelExtraItem<B: Backend, S: PrecisionSettings> {
     model: <<Model<B> as Module<B>>::Record as Record<B>>::Item<S>,

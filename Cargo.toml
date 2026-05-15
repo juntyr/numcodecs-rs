@@ -62,7 +62,7 @@ numcodecs-asinh = { version = "0.4", path = "codecs/asinh", default-features = f
 numcodecs-bit-round = { version = "0.4", path = "codecs/bit-round", default-features = false }
 numcodecs-ebcc = { version = "0.1.1", path = "codecs/ebcc", default-features = false }
 numcodecs-fixed-offset-scale = { version = "0.4", path = "codecs/fixed-offset-scale", default-features = false }
-numcodecs-fourier-network = { version = "0.3", path = "codecs/fourier-network", default-features = false }
+numcodecs-fourier-network = { version = "0.4", path = "codecs/fourier-network", default-features = false }
 numcodecs-identity = { version = "0.4", path = "codecs/identity", default-features = false }
 numcodecs-jpeg2000 = { version = "0.3", path = "codecs/jpeg2000", default-features = false }
 numcodecs-lc = { version = "0.1", path = "codecs/lc", default-features = false }
@@ -86,7 +86,7 @@ numcodecs-zstd = { version = "0.4", path = "codecs/zstd", default-features = fal
 
 # crates.io third-party dependencies
 anyhow = { version = "1.0.93", default-features = false }
-burn = { version = "0.18", default-features = false }
+burn = { version = "0.21", default-features = false }
 clap = { version = "4.6", default-features = false }
 convert_case = { version = "0.8", default-features = false }
 ebcc = { version = "0.2", default-features = false }
