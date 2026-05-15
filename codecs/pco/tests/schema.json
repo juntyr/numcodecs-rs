@@ -27,7 +27,7 @@
       "type": "string",
       "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
       "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
-      "default": "0.1.0"
+      "default": "0.2.0"
     }
   },
   "unevaluatedProperties": false,
@@ -142,7 +142,7 @@
           "properties": {
             "delta": {
               "type": "string",
-              "const": "none"
+              "const": "no-op"
             }
           },
           "required": [
@@ -190,6 +190,59 @@
             "delta"
           ],
           "description": "Tries delta encoding according to an extra latent variable of\n\"lookback\".\n\nThis can improve compression ratio when there are nontrivial patterns\nin the array, but reduces compression speed substantially."
+        },
+        {
+          "type": "object",
+          "description": "Tries delta encoding by subtracting a convolution of the previous\n`delta_encoding_order` elements.\n\nThis is best if your numbers have local trends that aren't captured by\nsimply taking differences, and you are willing to accept noticeably\nreduced decompression speeds.",
+          "properties": {
+            "delta_encoding_order": {
+              "type": "integer",
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32
+              ],
+              "description": "the order of the delta encoding"
+            },
+            "delta": {
+              "type": "string",
+              "const": "try-conv1"
+            }
+          },
+          "required": [
+            "delta",
+            "delta_encoding_order"
+          ]
         }
       ]
     }

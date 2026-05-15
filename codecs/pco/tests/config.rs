@@ -21,7 +21,7 @@ fn minimal_config() {
         Deserialize::deserialize(json!({
             "level": 0,
             "mode": "classic",
-            "delta": "none",
+            "delta": "no-op",
             "paging": "equal-pages-up-to",
             "equal_pages_up_to": 1000,
         }))
@@ -30,7 +30,7 @@ fn minimal_config() {
 
     assert_eq!(codec.level, PcoCompressionLevel::Level0);
     assert_eq!(codec.mode, PcoModeSpec::Classic);
-    assert_eq!(codec.delta, PcoDeltaSpec::None);
+    assert_eq!(codec.delta, PcoDeltaSpec::NoOp);
     assert_eq!(
         codec.paging,
         PcoPagingSpec::EqualPagesUpTo {
@@ -45,7 +45,7 @@ fn mode_config() {
         Deserialize::deserialize(json!({
             "level": 1,
             "mode": "auto",
-            "delta": "none",
+            "delta": "no-op",
             "paging": "equal-pages-up-to",
         }))
         .unwrap(),
@@ -55,7 +55,7 @@ fn mode_config() {
         Deserialize::deserialize(json!({
             "level": 2,
             "mode": "classic",
-            "delta": "none",
+            "delta": "no-op",
             "paging": "equal-pages-up-to",
         }))
         .unwrap(),
@@ -66,7 +66,7 @@ fn mode_config() {
             "level": 3,
             "mode": "try-float-mult",
             "float_mult_base": 42.0,
-            "delta": "none",
+            "delta": "no-op",
             "paging": "equal-pages-up-to",
         }))
         .unwrap(),
@@ -77,7 +77,7 @@ fn mode_config() {
             "level": 3,
             "mode": "try-float-quant",
             "float_quant_bits": 12,
-            "delta": "none",
+            "delta": "no-op",
             "paging": "equal-pages-up-to",
         }))
         .unwrap(),
@@ -88,7 +88,7 @@ fn mode_config() {
             "level": 4,
             "mode": "try-int-mult",
             "int_mult_base": 24,
-            "delta": "none",
+            "delta": "no-op",
             "paging": "equal-pages-up-to",
         }))
         .unwrap(),
@@ -111,7 +111,7 @@ fn delta_config() {
         Deserialize::deserialize(json!({
             "level": 6,
             "mode": "classic",
-            "delta": "none",
+            "delta": "no-op",
             "paging": "equal-pages-up-to",
         }))
         .unwrap(),
@@ -122,7 +122,7 @@ fn delta_config() {
             "level": 7,
             "mode": "classic",
             "delta": "try-consecutive",
-            "delta_encoding_order": 0,
+            "delta_encoding_order": 7,
             "paging": "equal-pages-up-to",
         }))
         .unwrap(),
@@ -137,6 +137,17 @@ fn delta_config() {
         }))
         .unwrap(),
     );
+
+    let _ = Pcodec::from_config(
+        Deserialize::deserialize(json!({
+            "level": 8,
+            "mode": "classic",
+            "delta": "try-conv1",
+            "delta_encoding_order": 32,
+            "paging": "equal-pages-up-to",
+        }))
+        .unwrap(),
+    );
 }
 
 #[test]
@@ -145,7 +156,7 @@ fn paging_config() {
         Deserialize::deserialize(json!({
             "level": 9,
             "mode": "classic",
-            "delta": "none",
+            "delta": "no-op",
             "paging": "equal-pages-up-to",
         }))
         .unwrap(),
@@ -162,7 +173,7 @@ fn paging_config() {
         Deserialize::deserialize(json!({
             "level": 10,
             "mode": "classic",
-            "delta": "none",
+            "delta": "no-op",
             "paging": "equal-pages-up-to",
             "equal_pages_up_to": 1000,
         }))

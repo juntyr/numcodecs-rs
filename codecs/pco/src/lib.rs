@@ -34,7 +34,7 @@ use thiserror::Error;
 #[cfg(test)]
 use ::serde_json as _;
 
-type PcodecVersion = StaticCodecVersion<0, 1, 0>;
+type PcodecVersion = StaticCodecVersion<0, 2, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[schemars(deny_unknown_fields)] // serde cannot deny unknown fields because of the flatten
@@ -137,7 +137,7 @@ pub enum PcoDeltaSpec {
     ///
     /// This is best if your data is in a random order or adjacent numbers have
     /// no relation to each other.
-    None,
+    NoOp,
     /// Tries taking nth order consecutive deltas.
     ///
     /// Supports a delta encoding order up to 7. For instance, 1st order is
@@ -145,7 +145,7 @@ pub enum PcoDeltaSpec {
     /// to use 0th order, but it is identical to None.
     TryConsecutive {
         /// the order of the delta encoding
-        delta_encoding_order: PcoDeltaEncodingOrder,
+        delta_encoding_order: PcoDeltaEncodingConsecutiveOrder,
     },
     /// Tries delta encoding according to an extra latent variable of
     /// "lookback".
@@ -153,15 +153,25 @@ pub enum PcoDeltaSpec {
     /// This can improve compression ratio when there are nontrivial patterns
     /// in the array, but reduces compression speed substantially.
     TryLookback,
+    /// Tries delta encoding by subtracting a convolution of the previous
+    /// `delta_encoding_order` elements.
+    ///
+    /// This is best if your numbers have local trends that aren't captured by
+    /// simply taking differences, and you are willing to accept noticeably
+    /// reduced decompression speeds.
+    TryConv1 {
+        /// the order of the delta encoding
+        delta_encoding_order: PcoDeltaEncodingConv1Order,
+    },
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
 #[repr(u8)]
-/// Pco delta encoding order.
+/// Pco delta encoding order for consecutive deltas.
 ///
 /// The order ranges from 0 to 7 inclusive.
 #[expect(missing_docs)]
-pub enum PcoDeltaEncodingOrder {
+pub enum PcoDeltaEncodingConsecutiveOrder {
     Order0 = 0,
     Order1 = 1,
     Order2 = 2,
@@ -170,6 +180,48 @@ pub enum PcoDeltaEncodingOrder {
     Order5 = 5,
     Order6 = 6,
     Order7 = 7,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
+#[repr(u8)]
+/// Pco delta encoding order for convolution deltas.
+///
+/// The order ranges from 0 to 32 inclusive.
+#[expect(missing_docs)]
+pub enum PcoDeltaEncodingConv1Order {
+    Order0 = 0,
+    Order1 = 1,
+    Order2 = 2,
+    Order3 = 3,
+    Order4 = 4,
+    Order5 = 5,
+    Order6 = 6,
+    Order7 = 7,
+    Order8 = 8,
+    Order9 = 9,
+    Order10 = 10,
+    Order11 = 11,
+    Order12 = 12,
+    Order13 = 13,
+    Order14 = 14,
+    Order15 = 15,
+    Order16 = 16,
+    Order17 = 17,
+    Order18 = 18,
+    Order19 = 19,
+    Order20 = 20,
+    Order21 = 21,
+    Order22 = 22,
+    Order23 = 23,
+    Order24 = 24,
+    Order25 = 25,
+    Order26 = 26,
+    Order27 = 27,
+    Order28 = 28,
+    Order29 = 29,
+    Order30 = 30,
+    Order31 = 31,
+    Order32 = 32,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -203,8 +255,19 @@ const fn default_equal_pages_up_to() -> NonZeroUsize {
 impl Codec for Pcodec {
     type Error = PcodecError;
 
+    #[expect(clippy::too_many_lines)] // FIXME
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
+            AnyCowArray::U8(data) => Ok(AnyArray::U8(
+                Array1::from(compress(
+                    data,
+                    self.level,
+                    self.mode,
+                    self.delta,
+                    self.paging,
+                )?)
+                .into_dyn(),
+            )),
             AnyCowArray::U16(data) => Ok(AnyArray::U8(
                 Array1::from(compress(
                     data,
@@ -226,6 +289,16 @@ impl Codec for Pcodec {
                 .into_dyn(),
             )),
             AnyCowArray::U64(data) => Ok(AnyArray::U8(
+                Array1::from(compress(
+                    data,
+                    self.level,
+                    self.mode,
+                    self.delta,
+                    self.paging,
+                )?)
+                .into_dyn(),
+            )),
+            AnyCowArray::I8(data) => Ok(AnyArray::U8(
                 Array1::from(compress(
                     data,
                     self.level,
@@ -326,9 +399,11 @@ impl Codec for Pcodec {
         let encoded = encoded.as_bytes();
 
         match decoded {
+            AnyArrayViewMut::U8(decoded) => decompress_into(&encoded, decoded),
             AnyArrayViewMut::U16(decoded) => decompress_into(&encoded, decoded),
             AnyArrayViewMut::U32(decoded) => decompress_into(&encoded, decoded),
             AnyArrayViewMut::U64(decoded) => decompress_into(&encoded, decoded),
+            AnyArrayViewMut::I8(decoded) => decompress_into(&encoded, decoded),
             AnyArrayViewMut::I16(decoded) => decompress_into(&encoded, decoded),
             AnyArrayViewMut::I32(decoded) => decompress_into(&encoded, decoded),
             AnyArrayViewMut::I64(decoded) => decompress_into(&encoded, decoded),
@@ -466,6 +541,7 @@ pub fn compress<T: PcoElement, S: Data<Elem = T>, D: Dimension>(
     };
 
     let config = pco::ChunkConfig::default()
+        .with_enable_8_bit(true)
         .with_compression_level(level as usize)
         .with_mode_spec(match mode {
             PcoModeSpec::Auto => pco::ModeSpec::Auto,
@@ -480,11 +556,14 @@ pub fn compress<T: PcoElement, S: Data<Elem = T>, D: Dimension>(
         })
         .with_delta_spec(match delta {
             PcoDeltaSpec::Auto => pco::DeltaSpec::Auto,
-            PcoDeltaSpec::None => pco::DeltaSpec::None,
+            PcoDeltaSpec::NoOp => pco::DeltaSpec::NoOp,
             PcoDeltaSpec::TryConsecutive {
                 delta_encoding_order,
             } => pco::DeltaSpec::TryConsecutive(delta_encoding_order as usize),
             PcoDeltaSpec::TryLookback => pco::DeltaSpec::TryLookback,
+            PcoDeltaSpec::TryConv1 {
+                delta_encoding_order,
+            } => pco::DeltaSpec::TryConv1(delta_encoding_order as usize),
         })
         .with_paging_spec(match paging {
             PcoPagingSpec::EqualPagesUpTo { equal_pages_up_to } => {
@@ -518,6 +597,14 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, PcodecError> {
         })?;
 
     let decoded = match header.dtype {
+        PcoDType::U8 => AnyArray::U8(Array::from_shape_vec(
+            &*header.shape,
+            pco::standalone::simple_decompress(data).map_err(|err| {
+                PcodecError::PcoDecodeFailed {
+                    source: PcoCodingError(err),
+                }
+            })?,
+        )?),
         PcoDType::U16 => AnyArray::U16(Array::from_shape_vec(
             &*header.shape,
             pco::standalone::simple_decompress(data).map_err(|err| {
@@ -535,6 +622,14 @@ pub fn decompress(encoded: &[u8]) -> Result<AnyArray, PcodecError> {
             })?,
         )?),
         PcoDType::U64 => AnyArray::U64(Array::from_shape_vec(
+            &*header.shape,
+            pco::standalone::simple_decompress(data).map_err(|err| {
+                PcodecError::PcoDecodeFailed {
+                    source: PcoCodingError(err),
+                }
+            })?,
+        )?),
+        PcoDType::I8 => AnyArray::I8(Array::from_shape_vec(
             &*header.shape,
             pco::standalone::simple_decompress(data).map_err(|err| {
                 PcodecError::PcoDecodeFailed {
@@ -658,6 +753,10 @@ pub trait PcoElement: Copy + pco::data_types::Number {
     const DTYPE: PcoDType;
 }
 
+impl PcoElement for u8 {
+    const DTYPE: PcoDType = PcoDType::U8;
+}
+
 impl PcoElement for u16 {
     const DTYPE: PcoDType = PcoDType::U16;
 }
@@ -668,6 +767,10 @@ impl PcoElement for u32 {
 
 impl PcoElement for u64 {
     const DTYPE: PcoDType = PcoDType::U64;
+}
+
+impl PcoElement for i8 {
+    const DTYPE: PcoDType = PcoDType::I8;
 }
 
 impl PcoElement for i16 {
@@ -702,12 +805,16 @@ struct CompressionHeader<'a> {
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[expect(missing_docs)]
 pub enum PcoDType {
+    #[serde(rename = "u8", alias = "uint8")]
+    U8,
     #[serde(rename = "u16", alias = "uint16")]
     U16,
     #[serde(rename = "u32", alias = "uint32")]
     U32,
     #[serde(rename = "u64", alias = "uint64")]
     U64,
+    #[serde(rename = "i8", alias = "int8")]
+    I8,
     #[serde(rename = "i16", alias = "int16")]
     I16,
     #[serde(rename = "i32", alias = "int32")]
@@ -725,9 +832,11 @@ impl PcoDType {
     /// Convert the [`PcoDType`] into an [`AnyArrayDType`]
     pub const fn into_dtype(self) -> AnyArrayDType {
         match self {
+            Self::U8 => AnyArrayDType::U8,
             Self::U16 => AnyArrayDType::U16,
             Self::U32 => AnyArrayDType::U32,
             Self::U64 => AnyArrayDType::U64,
+            Self::I8 => AnyArrayDType::I8,
             Self::I16 => AnyArrayDType::I16,
             Self::I32 => AnyArrayDType::I32,
             Self::I64 => AnyArrayDType::I64,
@@ -740,9 +849,11 @@ impl PcoDType {
 impl fmt::Display for PcoDType {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.write_str(match self {
+            Self::U8 => "u8",
             Self::U16 => "u16",
             Self::U32 => "u32",
             Self::U64 => "u64",
+            Self::I8 => "i8",
             Self::I16 => "i16",
             Self::I32 => "i32",
             Self::I64 => "i64",
