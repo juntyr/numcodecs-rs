@@ -364,7 +364,7 @@ pub fn compress<S: Data<Elem = f32>, D: Dimension>(
         //  must be of size 1
         let slice = slice.into_shape_with_order((depth, height, width)).unwrap();
 
-        let encoded_slice = ebcc::ebcc_encode(
+        let encoded_slice = ebcc::ebcc_encode_chunking_compat(
             slice,
             &ebcc::EBCCConfig {
                 base_cr: base_cr.0,
@@ -378,6 +378,7 @@ pub fn compress<S: Data<Elem = f32>, D: Dimension>(
                     }
                 },
             },
+            [0; ebcc::EBCC_NDIMS],
         )
         .map_err(|err| EbccCodecError::EbccEncodeFailed {
             source: EbccCodingError(err),
@@ -508,7 +509,7 @@ fn decompress_into_typed(
         //  three must be of size 1
         let slice = slice.into_shape_with_order((depth, height, width)).unwrap();
 
-        ebcc::ebcc_decode_into(&encoded_slice, slice).map_err(|err| {
+        ebcc::ebcc_decode_chunking_into(&encoded_slice, slice).map_err(|err| {
             EbccCodecError::EbccDecodeFailed {
                 source: EbccCodingError(err),
             }
@@ -601,6 +602,69 @@ mod tests {
         let height = 721; // Quarter degree resolution
         let width = 1440;
         let frames = 1;
+
+        #[expect(clippy::suboptimal_flops, clippy::cast_precision_loss)]
+        let data = Array::from_shape_fn((frames, height, width), |(_k, i, j)| {
+            let lat = -90.0 + (i as f32 / height as f32) * 180.0;
+            let lon = -180.0 + (j as f32 / width as f32) * 360.0;
+            #[allow(clippy::let_and_return)]
+            let temp = 273.15 + 30.0 * (1.0 - lat.abs() / 90.0) + 5.0 * (lon / 180.0).sin();
+            temp
+        });
+
+        let codec_error = 0.1;
+        let codec = EbccCodec {
+            residual: EbccResidualType::AbsoluteError {
+                error: Positive(codec_error),
+            },
+            base_cr: Positive(20.0),
+            version: StaticCodecVersion,
+        };
+
+        let encoded = codec.encode(AnyArray::F32(data.clone().into_dyn()).into_cow())?;
+        let decoded = codec.decode(encoded.cow())?;
+
+        let AnyArray::U8(encoded) = encoded else {
+            return Err(EbccCodecError::EncodedDataNotBytes {
+                dtype: encoded.dtype(),
+            });
+        };
+
+        let AnyArray::F32(decoded) = decoded else {
+            return Err(EbccCodecError::UnsupportedDtype(decoded.dtype()));
+        };
+
+        // Check compression ratio
+        let original_size = data.len() * std::mem::size_of::<f32>();
+        #[allow(clippy::cast_precision_loss)]
+        let compression_ratio = original_size as f64 / encoded.len() as f64;
+
+        assert!(
+            compression_ratio > 5.0,
+            "Compression ratio {compression_ratio} should be at least 5:1",
+        );
+
+        // Check error bound is respected
+        let max_error = data
+            .iter()
+            .zip(decoded.iter())
+            .map(|(&orig, &decomp)| (orig - decomp).abs())
+            .fold(0.0f32, f32::max);
+
+        assert!(
+            max_error <= (codec_error + 1e-6),
+            "Max error {max_error} exceeds error bound {codec_error}",
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_huge_array() -> Result<(), EbccCodecError> {
+        // Test with a huge array that would require chunking
+        let height = 721 * 2; // Quarter degree resolution
+        let width = 1440 * 2;
+        let frames = 2;
 
         #[expect(clippy::suboptimal_flops, clippy::cast_precision_loss)]
         let data = Array::from_shape_fn((frames, height, width), |(_k, i, j)| {
