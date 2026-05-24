@@ -378,7 +378,7 @@ pub fn compress<S: Data<Elem = f32>, D: Dimension>(
                     }
                 },
             },
-            [0; ebcc::EBCC_NDIMS],
+            None,
         )
         .map_err(|err| EbccCodecError::EbccEncodeFailed {
             source: EbccCodingError(err),
