@@ -493,45 +493,48 @@ jobs:
         run: |
           uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
 
-  # wasm-codecs-test-pyemscripten:
-  #   name: Test the WASM codecs on PyEmscripten
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: [ubuntu-latest]
-  #       python: ["3.14"]
-  #   runs-on: ${{ matrix.os }}
-  #   needs: ["wasm-codec-build", "numcodecs-wasm-pyemscripten"]
-  #   if: always()
+  wasm-codecs-test-pyemscripten:
+    name: Test the WASM codecs on PyEmscripten
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python:
+          - version: 3.14
+            numpy: https://cdn.jsdelivr.net/pyodide/v314.0.0a2/full/numpy-2.4.3-cp314-cp314-pyemscripten_2026_0_wasm32.whl
+    runs-on: ${{ matrix.os }}
+    needs: ["wasm-codec-build", "numcodecs-wasm-pyemscripten"]
+    if: always()
 
-  #   steps:
-  #     - name: Setup Python
-  #       uses: actions/setup-python@v6
-  #       with:
-  #         python-version: ${{ matrix.python }}
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python.version }}
 
-  #     - name: Download the WASM codecs
-  #       uses: actions/download-artifact@v8
-  #       with:
-  #         pattern: wasm-*-codec
-  #         path: dist
-  #         merge-multiple: true
+      - name: Download the WASM codecs
+        uses: actions/download-artifact@v8
+        with:
+          pattern: wasm-*-codec
+          path: dist
+          merge-multiple: true
 
-  #     - name: Download numcodecs-wasm
-  #       if: always()
-  #       uses: actions/download-artifact@v8
-  #       with:
-  #         pattern: numcodecs-wasm-${{ matrix.python }}
-  #         path: dist
+      - name: Download numcodecs-wasm
+        if: always()
+        uses: actions/download-artifact@v8
+        with:
+          pattern: numcodecs-wasm-${{ matrix.python.version }}
+          path: dist
 
-  #     - name: Create the Pyodide venv and install the WASM codecs
-  #       run: |
-  #         uv pip install pyodide-build
-  #         uv run pyodide venv .venv-pyodide
-  #         source .venv-pyodide/bin/activate
-  #         python -m pip install dist/*.whl
+      - name: Create the Pyodide venv and install the WASM codecs
+        run: |
+          uv pip install pyodide-build
+          uv run pyodide venv .venv-pyodide
+          source .venv-pyodide/bin/activate
+          python -m pip install ${{ matrix.python.numpy }}
+          python -m pip install dist/*.whl
 
-  #     - name: Test importing the WASM codecs (local numcodecs-wasm)
-  #       run: |
-  #         source .venv-pyodide/bin/activate
-  #         python -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
+      - name: Test importing the WASM codecs (local numcodecs-wasm)
+        run: |
+          source .venv-pyodide/bin/activate
+          python -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
