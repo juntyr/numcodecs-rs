@@ -400,7 +400,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.12", "3.13", "3.14"]
+        python: ["3.14"]
 
     steps:
       - name: Checkout the Repository
@@ -419,8 +419,8 @@ jobs:
         run: |
           echo "rust-toolchain=$(pyodide config get rust_toolchain)" >> "$GITHUB_OUTPUT"
           echo "emscripten-version=$(pyodide config get emscripten_version)" >> "$GITHUB_OUTPUT"
-          echo "pyodide-abi-version=$(uv run pyodide config get pyodide_abi_version)" >> "$GITHUB_OUTPUT"
-          echo "rustflags=$(uv run pyodide config get rustflags)" >> "$GITHUB_OUTPUT"
+          echo "pyodide-abi-version=$(pyodide config get pyodide_abi_version)" >> "$GITHUB_OUTPUT"
+          echo "rustflags=$(pyodide config get rustflags)" >> "$GITHUB_OUTPUT"
 
       - name: Setup Emscripten
         uses: emscripten-core/setup-emsdk@v16
@@ -499,7 +499,7 @@ jobs:
   #     fail-fast: false
   #     matrix:
   #       os: [ubuntu-latest]
-  #       python: ["3.12", "3.13", "3.14"]
+  #       python: ["3.14"]
   #   runs-on: ${{ matrix.os }}
   #   needs: ["wasm-codec-build", "numcodecs-wasm-pyemscripten"]
   #   if: always()

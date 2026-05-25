@@ -188,12 +188,6 @@ jobs:
     strategy:
       matrix:
         platform:
-          # - runner: ubuntu-22.04
-          #   target: wasm32-unknown-emscripten
-          #   python: 3.12
-          # - runner: ubuntu-22.04
-          #   target: wasm32-unknown-emscripten
-          #   python: 3.13
           - runner: ubuntu-22.04
             target: wasm32-unknown-emscripten
             python: 3.14
@@ -215,8 +209,8 @@ jobs:
         run: |
           echo "rust-toolchain=$(pyodide config get rust_toolchain)" >> "$GITHUB_OUTPUT"
           echo "emscripten-version=$(pyodide config get emscripten_version)" >> "$GITHUB_OUTPUT"
-          echo "pyodide-abi-version=$(uv run pyodide config get pyodide_abi_version)" >> "$GITHUB_OUTPUT"
-          echo "rustflags=$(uv run pyodide config get rustflags)" >> "$GITHUB_OUTPUT"
+          echo "pyodide-abi-version=$(pyodide config get pyodide_abi_version)" >> "$GITHUB_OUTPUT"
+          echo "rustflags=$(pyodide config get rustflags)" >> "$GITHUB_OUTPUT"
 
       - name: Setup Emscripten
         uses: emscripten-core/setup-emsdk@v16
