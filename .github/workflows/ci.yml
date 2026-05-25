@@ -441,7 +441,7 @@ jobs:
       - name: Upload the numcodecs-wasm wheel
         uses: actions/upload-artifact@v7
         with:
-          name: numcodecs-wasm-${{ matrix.python }}
+          name: numcodecs-wasm-pyemscripten-${{ matrix.python }}
           path: py/numcodecs-wasm/dist
 
   wasm-codecs-test:
@@ -523,13 +523,13 @@ jobs:
         if: always()
         uses: actions/download-artifact@v8
         with:
-          pattern: numcodecs-wasm-${{ matrix.python.version }}
+          pattern: numcodecs-wasm-pyemscripten-${{ matrix.python.version }}
           path: dist
 
       - name: Create the Pyodide venv and install the WASM codecs
         run: |
-          uv pip install pyodide-build
-          uv run pyodide venv .venv-pyodide
+          python -m pip install pyodide-build
+          pyodide venv .venv-pyodide
           source .venv-pyodide/bin/activate
           python -m pip install ${{ matrix.python.numpy }}
           python -m pip install dist/*.whl
