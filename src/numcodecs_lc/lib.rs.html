@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/lc/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_lc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (7c3c88f42 2026-05-14)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/lc/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_lc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (31a9463c6 2026-05-25)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -498,7 +498,7 @@
 <a href=#460 id=460 data-nosnippet>460</a>
 <a href=#461 id=461 data-nosnippet>461</a>        <span class="kw">if </span>!<a href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(encoded.shape(), [<span class="kw">_</span>]) {
 <a href=#462 id=462 data-nosnippet>462</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(LcCodecError::<a href="#543-546">EncodedDataNotOneDimensional</a> {
-<a href=#463 id=463 data-nosnippet>463</a>                shape: <a href="#455">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+<a href=#463 id=463 data-nosnippet>463</a>                shape: <a href="#455">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/primitive.slice.html#method.to_vec">to_vec</a>(),
 <a href=#464 id=464 data-nosnippet>464</a>            });
 <a href=#465 id=465 data-nosnippet>465</a>        }
 <a href=#466 id=466 data-nosnippet>466</a>
@@ -522,7 +522,7 @@
 <a href=#484 id=484 data-nosnippet>484</a>
 <a href=#485 id=485 data-nosnippet>485</a>        <span class="kw">if </span>!<a href="https://doc.rust-lang.org/nightly/core/macro.matches.html">matches!</a>(encoded.shape(), [<span class="kw">_</span>]) {
 <a href=#486 id=486 data-nosnippet>486</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(LcCodecError::<a href="#543-546">EncodedDataNotOneDimensional</a> {
-<a href=#487 id=487 data-nosnippet>487</a>                shape: <a href="#479">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+<a href=#487 id=487 data-nosnippet>487</a>                shape: <a href="#479">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/primitive.slice.html#method.to_vec">to_vec</a>(),
 <a href=#488 id=488 data-nosnippet>488</a>            });
 <a href=#489 id=489 data-nosnippet>489</a>        }
 <a href=#490 id=490 data-nosnippet>490</a>
@@ -649,15 +649,15 @@
 <a href=#611 id=611 data-nosnippet>611</a>    }
 <a href=#612 id=612 data-nosnippet>612</a>
 <a href=#613 id=613 data-nosnippet>613</a>    <span class="kw">let </span>preprocessors = <a href="#593">preprocessors</a>
-<a href=#614 id=614 data-nosnippet>614</a>        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
+<a href=#614 id=614 data-nosnippet>614</a>        .<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.iter">iter</a>()
 <a href=#615 id=615 data-nosnippet>615</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.cloned">cloned</a>()
 <a href=#616 id=616 data-nosnippet>616</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.map">map</a>(<a href="#79-92">LcPreprocessor</a>::<a href="#95-115">into_lc</a>)
-<a href=#617 id=617 data-nosnippet>617</a>        .collect::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#617 id=617 data-nosnippet>617</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
 <a href=#618 id=618 data-nosnippet>618</a>    <span class="kw">let </span>components = <a href="#594">components</a>
-<a href=#619 id=619 data-nosnippet>619</a>        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
+<a href=#619 id=619 data-nosnippet>619</a>        .<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.iter">iter</a>()
 <a href=#620 id=620 data-nosnippet>620</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.copied">copied</a>()
 <a href=#621 id=621 data-nosnippet>621</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.map">map</a>(<a href="#211-250">LcComponent</a>::<a href="#253-321">into_lc</a>)
-<a href=#622 id=622 data-nosnippet>622</a>        .collect::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#622 id=622 data-nosnippet>622</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
 <a href=#623 id=623 data-nosnippet>623</a>
 <a href=#624 id=624 data-nosnippet>624</a>    <a href="#596">encoded</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.append">append</a>(
 <a href=#625 id=625 data-nosnippet>625</a>        <span class="kw-2">&amp;mut </span>lc_framework::compress(<span class="kw-2">&amp;</span>preprocessors, <span class="kw-2">&amp;</span>components, <span class="kw-2">&amp;</span>array.as_bytes()).map_err(
@@ -736,7 +736,7 @@
 <a href=#698 id=698 data-nosnippet>698</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(LcCodecError::<a href="#564-568">MismatchedDecodeIntoArray</a> {
 <a href=#699 id=699 data-nosnippet>699</a>            source: AnyArrayAssignError::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">ShapeMismatch</a> {
 <a href=#700 id=700 data-nosnippet>700</a>                src: <a href="#681">header</a>.shape.<a href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html#method.into_owned">into_owned</a>(),
-<a href=#701 id=701 data-nosnippet>701</a>                dst: <a href="#679">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+<a href=#701 id=701 data-nosnippet>701</a>                dst: <a href="#679">decoded</a>.<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/primitive.slice.html#method.to_vec">to_vec</a>(),
 <a href=#702 id=702 data-nosnippet>702</a>            },
 <a href=#703 id=703 data-nosnippet>703</a>        });
 <a href=#704 id=704 data-nosnippet>704</a>    }
@@ -753,20 +753,20 @@
 <a href=#715 id=715 data-nosnippet>715</a>    decoded: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
 <a href=#716 id=716 data-nosnippet>716</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;(), <a href="#516-569">LcCodecError</a>&gt; {
 <a href=#717 id=717 data-nosnippet>717</a>    <span class="comment">// LC does not support empty input, so skip decoding
-<a href=#718 id=718 data-nosnippet>718</a>    </span><span class="kw">if </span><a href="#715">decoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.is_empty">is_empty</a>() &amp;&amp; <a href="#714">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.is_empty">is_empty</a>() {
+<a href=#718 id=718 data-nosnippet>718</a>    </span><span class="kw">if </span><a href="#715">decoded</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.is_empty">is_empty</a>() &amp;&amp; <a href="#714">encoded</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.is_empty">is_empty</a>() {
 <a href=#719 id=719 data-nosnippet>719</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(());
 <a href=#720 id=720 data-nosnippet>720</a>    }
 <a href=#721 id=721 data-nosnippet>721</a>
 <a href=#722 id=722 data-nosnippet>722</a>    <span class="kw">let </span>preprocessors = <a href="#712">preprocessors</a>
-<a href=#723 id=723 data-nosnippet>723</a>        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
+<a href=#723 id=723 data-nosnippet>723</a>        .<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.iter">iter</a>()
 <a href=#724 id=724 data-nosnippet>724</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.cloned">cloned</a>()
 <a href=#725 id=725 data-nosnippet>725</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.map">map</a>(<a href="#79-92">LcPreprocessor</a>::<a href="#95-115">into_lc</a>)
-<a href=#726 id=726 data-nosnippet>726</a>        .collect::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#726 id=726 data-nosnippet>726</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
 <a href=#727 id=727 data-nosnippet>727</a>    <span class="kw">let </span>components = <a href="#713">components</a>
-<a href=#728 id=728 data-nosnippet>728</a>        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
+<a href=#728 id=728 data-nosnippet>728</a>        .<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.iter">iter</a>()
 <a href=#729 id=729 data-nosnippet>729</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.copied">copied</a>()
 <a href=#730 id=730 data-nosnippet>730</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.map">map</a>(<a href="#211-250">LcComponent</a>::<a href="#253-321">into_lc</a>)
-<a href=#731 id=731 data-nosnippet>731</a>        .collect::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#731 id=731 data-nosnippet>731</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
 <a href=#732 id=732 data-nosnippet>732</a>
 <a href=#733 id=733 data-nosnippet>733</a>    <span class="kw">let </span>dec = lc_framework::decompress(<span class="kw-2">&amp;</span>preprocessors, <span class="kw-2">&amp;</span>components, encoded).map_err(|err| {
 <a href=#734 id=734 data-nosnippet>734</a>        LcCodecError::LcDecodeFailed {
@@ -774,11 +774,11 @@
 <a href=#736 id=736 data-nosnippet>736</a>        }
 <a href=#737 id=737 data-nosnippet>737</a>    })<span class="question-mark">?</span>;
 <a href=#738 id=738 data-nosnippet>738</a>
-<a href=#739 id=739 data-nosnippet>739</a>    <span class="kw">if </span><a href="#733">dec</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>() != <a href="#715">decoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() {
+<a href=#739 id=739 data-nosnippet>739</a>    <span class="kw">if </span><a href="#733">dec</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>() != <a href="#715">decoded</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.len">len</a>() {
 <a href=#740 id=740 data-nosnippet>740</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(LcCodecError::<a href="#555">DecodeDataLengthMismatch</a>);
 <a href=#741 id=741 data-nosnippet>741</a>    }
 <a href=#742 id=742 data-nosnippet>742</a>
-<a href=#743 id=743 data-nosnippet>743</a>    <a href="#715">decoded</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.copy_from_slice">copy_from_slice</a>(<span class="kw-2">&amp;</span><a href="#733">dec</a>);
+<a href=#743 id=743 data-nosnippet>743</a>    <a href="#715">decoded</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.copy_from_slice">copy_from_slice</a>(<span class="kw-2">&amp;</span><a href="#733">dec</a>);
 <a href=#744 id=744 data-nosnippet>744</a>
 <a href=#745 id=745 data-nosnippet>745</a>    <a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(())
 <a href=#746 id=746 data-nosnippet>746</a>}
@@ -794,7 +794,7 @@
 <a href=#756 id=756 data-nosnippet>756</a><span class="attr">#[cfg(test)]
 <a href=#757 id=757 data-nosnippet>757</a>#[allow(clippy::unwrap_used, clippy::panic)]
 <a href=#758 id=758 data-nosnippet>758</a></span><span class="kw">mod </span>tests {
-<a href=#759 id=759 data-nosnippet>759</a>    <span class="kw">use </span>super::<span class="kw-2">*</span>;
+<a href=#759 id=759 data-nosnippet>759</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#760 id=760 data-nosnippet>760</a>
 <a href=#761 id=761 data-nosnippet>761</a>    <span class="attr">#[test]
 <a href=#762 id=762 data-nosnippet>762</a>    </span><span class="kw">fn </span>lossless() {

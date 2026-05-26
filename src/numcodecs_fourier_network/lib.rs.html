@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/fourier-network/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_fourier_network" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (7c3c88f42 2026-05-14)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/fourier-network/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_fourier_network" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (31a9463c6 2026-05-25)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -138,7 +138,7 @@
 <a href=#100 id=100 data-nosnippet>100</a></span><span class="kw">fn </span>deserialize_required_option&lt;<span class="lifetime">'de</span>, T: <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html">serde::Deserialize</a>&lt;<span class="lifetime">'de</span>&gt;, D: <a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserializer.html">serde::Deserializer</a>&lt;<span class="lifetime">'de</span>&gt;&gt;(
 <a href=#101 id=101 data-nosnippet>101</a>    deserializer: D,
 <a href=#102 id=102 data-nosnippet>102</a>) -&gt; <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>&lt;T&gt;, D::Error&gt; {
-<a href=#103 id=103 data-nosnippet>103</a>    Option::&lt;T&gt;::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html#tymethod.deserialize">deserialize</a>(<a href="#101">deserializer</a>)
+<a href=#103 id=103 data-nosnippet>103</a>    <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html">Option</a>::&lt;T&gt;::<a href="https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html#tymethod.deserialize">deserialize</a>(<a href="#101">deserializer</a>)
 <a href=#104 id=104 data-nosnippet>104</a>}
 <a href=#105 id=105 data-nosnippet>105</a>
 <a href=#106 id=106 data-nosnippet>106</a><span class="kw">impl </span><a href="https://juntyr.github.io/numcodecs-rs/numcodecs/codec/trait.Codec.html">Codec</a> <span class="kw">for </span><a href="#73-97">FourierNetworkCodec</a> {
@@ -195,19 +195,19 @@
 <a href=#157 id=157 data-nosnippet>157</a>
 <a href=#158 id=158 data-nosnippet>158</a>        <span class="kw">let </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Ok">Ok</a>(encoded): <a class="prelude-ty" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html">Result</a>&lt;<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html">ArrayBase</a>&lt;<span class="kw">_</span>, <a href="https://docs.rs/ndarray/0.15/ndarray/aliases/type.Ix1.html">Ix1</a>&gt;, <span class="kw">_</span>&gt; = <a href="#152">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.view">view</a>().<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.into_dimensionality">into_dimensionality</a>() <span class="kw">else </span>{
 <a href=#159 id=159 data-nosnippet>159</a>            <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(FourierNetworkCodecError::<a href="#275-278">EncodedDataNotOneDimensional</a> {
-<a href=#160 id=160 data-nosnippet>160</a>                shape: <a href="#152">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+<a href=#160 id=160 data-nosnippet>160</a>                shape: <a href="#152">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/primitive.slice.html#method.to_vec">to_vec</a>(),
 <a href=#161 id=161 data-nosnippet>161</a>            });
 <a href=#162 id=162 data-nosnippet>162</a>        };
 <a href=#163 id=163 data-nosnippet>163</a>
 <a href=#164 id=164 data-nosnippet>164</a>        <span class="kw">match </span><a href="#150">decoded</a> {
-<a href=#165 id=165 data-nosnippet>165</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(decoded) =&gt; decode_into::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <span class="kw">_</span>, <span class="kw">_</span>, NdArray&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;&gt;(
+<a href=#165 id=165 data-nosnippet>165</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F32">F32</a>(decoded) =&gt; <a href="#436-480">decode_into</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <span class="kw">_</span>, <span class="kw">_</span>, NdArray&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;&gt;(
 <a href=#166 id=166 data-nosnippet>166</a>                <span class="kw-2">&amp;</span>NdArrayDevice::Cpu,
 <a href=#167 id=167 data-nosnippet>167</a>                <a href="#158">encoded</a>,
 <a href=#168 id=168 data-nosnippet>168</a>                <a href="#165">decoded</a>,
 <a href=#169 id=169 data-nosnippet>169</a>                <a class="self" href="#148">self</a>.fourier_features,
 <a href=#170 id=170 data-nosnippet>170</a>                <a class="self" href="#148">self</a>.num_blocks,
 <a href=#171 id=171 data-nosnippet>171</a>            ),
-<a href=#172 id=172 data-nosnippet>172</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(decoded) =&gt; decode_into::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, <span class="kw">_</span>, <span class="kw">_</span>, NdArray&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;&gt;(
+<a href=#172 id=172 data-nosnippet>172</a>            <a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/type.AnyArrayViewMut.html">AnyArrayViewMut</a>::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayBase.html#variant.F64">F64</a>(decoded) =&gt; <a href="#436-480">decode_into</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, <span class="kw">_</span>, <span class="kw">_</span>, NdArray&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;&gt;(
 <a href=#173 id=173 data-nosnippet>173</a>                <span class="kw-2">&amp;</span>NdArrayDevice::Cpu,
 <a href=#174 id=174 data-nosnippet>174</a>                <a href="#158">encoded</a>,
 <a href=#175 id=175 data-nosnippet>175</a>                <a href="#172">decoded</a>,
@@ -485,8 +485,8 @@
 <a href=#447 id=447 data-nosnippet>447</a>
 <a href=#448 id=448 data-nosnippet>448</a>        <span class="kw">return </span><a class="prelude-val" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#variant.Err">Err</a>(FourierNetworkCodecError::<a href="#281-285">MismatchedDecodeIntoArray</a> {
 <a href=#449 id=449 data-nosnippet>449</a>            source: AnyArrayAssignError::<a href="https://juntyr.github.io/numcodecs-rs/numcodecs/array/enum.AnyArrayAssignError.html#variant.ShapeMismatch">ShapeMismatch</a> {
-<a href=#450 id=450 data-nosnippet>450</a>                src: <a href="#438">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
-<a href=#451 id=451 data-nosnippet>451</a>                dst: <a href="#439">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/foreigntype.slice.html#method.to_vec">to_vec</a>(),
+<a href=#450 id=450 data-nosnippet>450</a>                src: <a href="#438">encoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/primitive.slice.html#method.to_vec">to_vec</a>(),
+<a href=#451 id=451 data-nosnippet>451</a>                dst: <a href="#439">decoded</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>().<a href="https://doc.rust-lang.org/nightly/alloc/primitive.slice.html#method.to_vec">to_vec</a>(),
 <a href=#452 id=452 data-nosnippet>452</a>            },
 <a href=#453 id=453 data-nosnippet>453</a>        });
 <a href=#454 id=454 data-nosnippet>454</a>    }
@@ -523,7 +523,7 @@
 <a href=#485 id=485 data-nosnippet>485</a>) -&gt; Tensor&lt;B, <span class="number">2</span>, Float&gt; {
 <a href=#486 id=486 data-nosnippet>486</a>    <span class="kw">let </span>grid = <a href="#483">a</a>
 <a href=#487 id=487 data-nosnippet>487</a>        .<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.shape">shape</a>()
-<a href=#488 id=488 data-nosnippet>488</a>        .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>()
+<a href=#488 id=488 data-nosnippet>488</a>        .<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.iter">iter</a>()
 <a href=#489 id=489 data-nosnippet>489</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.copied">copied</a>()
 <a href=#490 id=490 data-nosnippet>490</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.map">map</a>(|s| {
 <a href=#491 id=491 data-nosnippet>491</a>            <span class="attr">#[expect(clippy::useless_conversion)] </span><span class="comment">// (0..s).into_iter()
@@ -533,7 +533,7 @@
 <a href=#495 id=495 data-nosnippet>495</a>        })
 <a href=#496 id=496 data-nosnippet>496</a>        .multi_cartesian_product()
 <a href=#497 id=497 data-nosnippet>497</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.flatten">flatten</a>()
-<a href=#498 id=498 data-nosnippet>498</a>        .collect::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#498 id=498 data-nosnippet>498</a>        .<a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.collect">collect</a>::&lt;<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html">Vec</a>&lt;<span class="kw">_</span>&gt;&gt;();
 <a href=#499 id=499 data-nosnippet>499</a>
 <a href=#500 id=500 data-nosnippet>500</a>    Tensor::from_data(TensorData::new(<a href="#486">grid</a>, [<a href="#483">a</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.len">len</a>(), <a href="#483">a</a>.<a href="https://docs.rs/ndarray/0.15/ndarray/struct.ArrayBase.html#method.ndim">ndim</a>()]), <a href="#484">device</a>)
 <a href=#501 id=501 data-nosnippet>501</a>}
@@ -561,7 +561,7 @@
 <a href=#523 id=523 data-nosnippet>523</a>    stdv: T,
 <a href=#524 id=524 data-nosnippet>524</a>) -&gt; <a href="modules.rs.html#46-52">Model</a>&lt;B&gt; {
 <a href=#525 id=525 data-nosnippet>525</a>    <span class="kw">let </span>num_samples = <a href="#517">train_ys</a>.shape().num_elements();
-<a href=#526 id=526 data-nosnippet>526</a>    <span class="kw">let </span>num_batches = <a href="#522">mini_batch_size</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(|b| <a href="#525">num_samples</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.div_ceil">div_ceil</a>(<a href="#526">b</a>.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>()));
+<a href=#526 id=526 data-nosnippet>526</a>    <span class="kw">let </span>num_batches = <a href="#522">mini_batch_size</a>.<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map">map</a>(|b| <a href="#525">num_samples</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.usize.html#method.div_ceil">div_ceil</a>(<a href="#526">b</a>.<a href="https://doc.rust-lang.org/nightly/core/num/nonzero/struct.NonZero.html#method.get">get</a>()));
 <a href=#527 id=527 data-nosnippet>527</a>
 <a href=#528 id=528 data-nosnippet>528</a>    <span class="kw">let </span><span class="kw-2">mut </span>model = <a href="modules.rs.html#73-76">ModelConfig</a>::<a href="modules.rs.html#72">new</a>(<a href="#518">fourier_features</a>, <a href="#519">num_blocks</a>).<a href="modules.rs.html#79-94">init</a>(<a href="#515">device</a>);
 <a href=#529 id=529 data-nosnippet>529</a>    <span class="kw">let </span><span class="kw-2">mut </span>optim = AdamConfig::new().init();
@@ -635,7 +635,7 @@
 <a href=#597 id=597 data-nosnippet>597</a>    <span class="kw">if </span><a href="#532">best_epoch</a> != <a href="#521">num_epochs</a> {
 <a href=#598 id=598 data-nosnippet>598</a>        <a href="#528">model</a> = <a href="#528">model</a>.load_record(<a href="modules.rs.html#45">ModelRecord</a>::from_item(<a href="#533">best_model_checkpoint</a>, <a href="#515">device</a>));
 <a href=#599 id=599 data-nosnippet>599</a>
-<a href=#600 id=600 data-nosnippet>600</a>        <a href="https://docs.rs/log/0.4.29/log/macro.info.html">log::info!</a>(<span class="string">"restored from epoch {best_epoch} with lowest loss={best_loss:0.3}"</span>);
+<a href=#600 id=600 data-nosnippet>600</a>        <a href="https://docs.rs/log/0.4.30/log/macro.info.html">log::info!</a>(<span class="string">"restored from epoch {best_epoch} with lowest loss={best_loss:0.3}"</span>);
 <a href=#601 id=601 data-nosnippet>601</a>    }
 <a href=#602 id=602 data-nosnippet>602</a>
 <a href=#603 id=603 data-nosnippet>603</a>    <a href="#528">model</a>
@@ -644,7 +644,7 @@
 <a href=#606 id=606 data-nosnippet>606</a><span class="attr">#[cfg(test)]
 <a href=#607 id=607 data-nosnippet>607</a>#[expect(clippy::unwrap_used)]
 <a href=#608 id=608 data-nosnippet>608</a></span><span class="kw">mod </span>tests {
-<a href=#609 id=609 data-nosnippet>609</a>    <span class="kw">use </span>super::<span class="kw-2">*</span>;
+<a href=#609 id=609 data-nosnippet>609</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#610 id=610 data-nosnippet>610</a>
 <a href=#611 id=611 data-nosnippet>611</a>    <span class="attr">#[test]
 <a href=#612 id=612 data-nosnippet>612</a>    </span><span class="kw">fn </span>empty() {

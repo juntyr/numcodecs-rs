@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/stochastic-rounding/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_stochastic_rounding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.0-nightly (7c3c88f42 2026-05-14)" data-channel="nightly" data-search-js="search-b5634cc7.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-aa4d37ac.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codecs/stochastic-rounding/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="numcodecs_stochastic_rounding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (31a9463c6 2026-05-25)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
@@ -310,19 +310,19 @@
 <a href=#272 id=272 data-nosnippet>272</a>    <span class="kw">const </span>NEG_HALF: <span class="self">Self </span>= -<span class="number">0.5</span>;
 <a href=#273 id=273 data-nosnippet>273</a>
 <a href=#274 id=274 data-nosnippet>274</a>    <span class="kw">fn </span>hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H) {
-<a href=#275 id=275 data-nosnippet>275</a>        <a href="#274">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#method.write_u32">write_u32</a>(<a class="self" href="#274">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.to_bits">to_bits</a>());
+<a href=#275 id=275 data-nosnippet>275</a>        <a href="#274">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#method.write_u32">write_u32</a>(<a class="self" href="#274">self</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.f32.html#method.to_bits">to_bits</a>());
 <a href=#276 id=276 data-nosnippet>276</a>    }
 <a href=#277 id=277 data-nosnippet>277</a>
 <a href=#278 id=278 data-nosnippet>278</a>    <span class="kw">fn </span>rem_euclid(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-<a href=#279 id=279 data-nosnippet>279</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f32.html#method.rem_euclid">rem_euclid</a>(<a class="self" href="#278">self</a>, <a href="#278">rhs</a>)
+<a href=#279 id=279 data-nosnippet>279</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html#method.rem_euclid">rem_euclid</a>(<a class="self" href="#278">self</a>, <a href="#278">rhs</a>)
 <a href=#280 id=280 data-nosnippet>280</a>    }
 <a href=#281 id=281 data-nosnippet>281</a>
 <a href=#282 id=282 data-nosnippet>282</a>    <span class="kw">fn </span>next_up(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-<a href=#283 id=283 data-nosnippet>283</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.next_up">next_up</a>(<a class="self" href="#282">self</a>)
+<a href=#283 id=283 data-nosnippet>283</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/primitive.f32.html#method.next_up">next_up</a>(<a class="self" href="#282">self</a>)
 <a href=#284 id=284 data-nosnippet>284</a>    }
 <a href=#285 id=285 data-nosnippet>285</a>
 <a href=#286 id=286 data-nosnippet>286</a>    <span class="kw">fn </span>next_down(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-<a href=#287 id=287 data-nosnippet>287</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f32.html#method.next_down">next_down</a>(<a class="self" href="#286">self</a>)
+<a href=#287 id=287 data-nosnippet>287</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/primitive.f32.html#method.next_down">next_down</a>(<a class="self" href="#286">self</a>)
 <a href=#288 id=288 data-nosnippet>288</a>    }
 <a href=#289 id=289 data-nosnippet>289</a>}
 <a href=#290 id=290 data-nosnippet>290</a>
@@ -330,19 +330,19 @@
 <a href=#292 id=292 data-nosnippet>292</a>    <span class="kw">const </span>NEG_HALF: <span class="self">Self </span>= -<span class="number">0.5</span>;
 <a href=#293 id=293 data-nosnippet>293</a>
 <a href=#294 id=294 data-nosnippet>294</a>    <span class="kw">fn </span>hash_bits&lt;H: <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html">Hasher</a>&gt;(<span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H) {
-<a href=#295 id=295 data-nosnippet>295</a>        <a href="#294">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#method.write_u64">write_u64</a>(<a class="self" href="#294">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.to_bits">to_bits</a>());
+<a href=#295 id=295 data-nosnippet>295</a>        <a href="#294">hasher</a>.<a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html#method.write_u64">write_u64</a>(<a class="self" href="#294">self</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.f64.html#method.to_bits">to_bits</a>());
 <a href=#296 id=296 data-nosnippet>296</a>    }
 <a href=#297 id=297 data-nosnippet>297</a>
 <a href=#298 id=298 data-nosnippet>298</a>    <span class="kw">fn </span>rem_euclid(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-<a href=#299 id=299 data-nosnippet>299</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/std/foreigntype.f64.html#method.rem_euclid">rem_euclid</a>(<a class="self" href="#298">self</a>, <a href="#298">rhs</a>)
+<a href=#299 id=299 data-nosnippet>299</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html#method.rem_euclid">rem_euclid</a>(<a class="self" href="#298">self</a>, <a href="#298">rhs</a>)
 <a href=#300 id=300 data-nosnippet>300</a>    }
 <a href=#301 id=301 data-nosnippet>301</a>
 <a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">fn </span>next_up(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-<a href=#303 id=303 data-nosnippet>303</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.next_up">next_up</a>(<a class="self" href="#302">self</a>)
+<a href=#303 id=303 data-nosnippet>303</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/primitive.f64.html#method.next_up">next_up</a>(<a class="self" href="#302">self</a>)
 <a href=#304 id=304 data-nosnippet>304</a>    }
 <a href=#305 id=305 data-nosnippet>305</a>
 <a href=#306 id=306 data-nosnippet>306</a>    <span class="kw">fn </span>next_down(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-<a href=#307 id=307 data-nosnippet>307</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/foreigntype.f64.html#method.next_down">next_down</a>(<a class="self" href="#306">self</a>)
+<a href=#307 id=307 data-nosnippet>307</a>        <span class="self">Self</span>::<a href="https://doc.rust-lang.org/nightly/core/primitive.f64.html#method.next_down">next_down</a>(<a class="self" href="#306">self</a>)
 <a href=#308 id=308 data-nosnippet>308</a>    }
 <a href=#309 id=309 data-nosnippet>309</a>}
 <a href=#310 id=310 data-nosnippet>310</a>
@@ -350,7 +350,7 @@
 <a href=#312 id=312 data-nosnippet>312</a></span><span class="kw">mod </span>tests {
 <a href=#313 id=313 data-nosnippet>313</a>    <span class="kw">use </span>ndarray::{array, linspace};
 <a href=#314 id=314 data-nosnippet>314</a>
-<a href=#315 id=315 data-nosnippet>315</a>    <span class="kw">use </span>super::<span class="kw-2">*</span>;
+<a href=#315 id=315 data-nosnippet>315</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#316 id=316 data-nosnippet>316</a>
 <a href=#317 id=317 data-nosnippet>317</a>    <span class="attr">#[test]
 <a href=#318 id=318 data-nosnippet>318</a>    </span><span class="kw">fn </span>round_zero_precision() {

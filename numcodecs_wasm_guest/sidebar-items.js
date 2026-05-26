@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["export_codec"]};
+window.SIDEBAR_ITEMS = {"macro":[["export_codec",1]]};
