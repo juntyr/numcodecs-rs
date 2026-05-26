@@ -34,7 +34,7 @@ use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-type EbccCodecVersion = StaticCodecVersion<0, 1, 0>;
+type EbccCodecVersion = StaticCodecVersion<0, 1, 1>;
 
 /// Codec providing compression using EBCC.
 ///
