@@ -22,7 +22,7 @@
 #[cfg(test)]
 use ::serde_json as _;
 
-use std::borrow::Cow;
+use std::{borrow::Cow, num::NonZeroUsize};
 
 use ndarray::{Array, Array1, ArrayBase, ArrayViewMut, Axis, Data, DataMut, Dimension, IxDyn};
 use num_traits::Float;
@@ -54,9 +54,25 @@ pub struct EbccCodec {
     /// JPEG2000 positive base compression ratio
     #[serde(default = "default_base_cr")]
     pub base_cr: Positive<f32>,
+    /// Optional EBCC-internal chunk shape.
+    #[serde(default)]
+    pub chunk_shape: EbccChunkShape,
     /// The codec's encoding format version. Do not provide this parameter explicitly.
     #[serde(default, rename = "_version")]
     pub version: EbccCodecVersion,
+}
+
+#[derive(Debug, Copy, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+/// Chunk shape that EBCC uses to handle large data.
+pub enum EbccChunkShape {
+    /// EBCC chooses an appropriate chunk shape automatically.
+    #[serde(rename = "auto")]
+    #[default]
+    Auto,
+    /// EBCC uses the provided explicit chunk shape.
+    #[serde(untagged)]
+    Explicit([NonZeroUsize; 3]),
 }
 
 const fn default_base_cr() -> Positive<f32> {
@@ -91,7 +107,13 @@ impl Codec for EbccCodec {
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
             AnyCowArray::F32(data) => Ok(AnyArray::U8(
-                Array1::from(compress(data, self.residual, self.base_cr)?).into_dyn(),
+                Array1::from(compress(
+                    data,
+                    self.residual,
+                    self.base_cr,
+                    self.chunk_shape,
+                )?)
+                .into_dyn(),
             )),
             encoded => Err(EbccCodecError::UnsupportedDtype(encoded.dtype())),
         }
@@ -300,7 +322,7 @@ pub struct EbccSliceError(postcard::Error);
 pub struct EbccCodingError(ebcc::EBCCError);
 
 /// Compress the `data` array using EBCC with the provided `residual` and
-/// `base_cr`.
+/// `base_cr`. The `data` is internally chunked using the `chunk_shape`.
 ///
 /// # Errors
 ///
@@ -315,6 +337,7 @@ pub fn compress<S: Data<Elem = f32>, D: Dimension>(
     data: ArrayBase<S, D>,
     residual: EbccResidualType,
     base_cr: Positive<f32>,
+    chunk_shape: EbccChunkShape,
 ) -> Result<Vec<u8>, EbccCodecError> {
     let mut encoded = postcard::to_extend(
         &CompressionHeader {
@@ -378,7 +401,12 @@ pub fn compress<S: Data<Elem = f32>, D: Dimension>(
                     }
                 },
             },
-            None,
+            match chunk_shape {
+                EbccChunkShape::Auto => ebcc::EBCCCompatChunkShape::Auto,
+                EbccChunkShape::Explicit(chunk_shape) => {
+                    ebcc::EBCCCompatChunkShape::Explicit(chunk_shape)
+                }
+            },
         )
         .map_err(|err| EbccCodecError::EbccEncodeFailed {
             source: EbccCodingError(err),
@@ -548,6 +576,7 @@ mod tests {
             residual: EbccResidualType::Jpeg2000Only,
             base_cr: Positive(10.0),
             version: StaticCodecVersion,
+            chunk_shape: EbccChunkShape::Auto,
         };
 
         let data = Array1::<i32>::zeros(100);
@@ -562,6 +591,7 @@ mod tests {
             residual: EbccResidualType::Jpeg2000Only,
             base_cr: Positive(10.0),
             version: StaticCodecVersion,
+            chunk_shape: EbccChunkShape::Auto,
         };
 
         // Test dimensions too small (32 < 32x32 requirement)
@@ -619,6 +649,7 @@ mod tests {
             },
             base_cr: Positive(20.0),
             version: StaticCodecVersion,
+            chunk_shape: EbccChunkShape::Auto,
         };
 
         let encoded = codec.encode(AnyArray::F32(data.clone().into_dyn()).into_cow())?;
@@ -682,6 +713,7 @@ mod tests {
             },
             base_cr: Positive(20.0),
             version: StaticCodecVersion,
+            chunk_shape: EbccChunkShape::Auto,
         };
 
         let encoded = codec.encode(AnyArray::F32(data.clone().into_dyn()).into_cow())?;

@@ -1,10 +1,12 @@
 #![expect(missing_docs)]
 #![expect(clippy::unwrap_used)]
 
+use std::num::NonZeroUsize;
+
 use ::{ebcc as _, ndarray as _, num_traits as _, postcard as _, schemars as _, thiserror as _};
 
 use numcodecs::StaticCodec;
-use numcodecs_ebcc::{EbccCodec, EbccResidualType};
+use numcodecs_ebcc::{EbccChunkShape, EbccCodec, EbccResidualType};
 use serde::Deserialize;
 use serde_json::json;
 
@@ -37,6 +39,7 @@ fn jpeg2000_only() {
 
     assert_eq!(codec.base_cr, 10.0);
     assert_eq!(codec.residual, EbccResidualType::Jpeg2000Only);
+    assert!(matches!(codec.chunk_shape, EbccChunkShape::Auto));
 }
 
 #[test]
@@ -78,6 +81,49 @@ fn invalid_residual() {
         Deserialize::deserialize(json!({
             "base_cr": 10.0,
             "residual": "invalid",
+        }))
+        .unwrap(),
+    );
+}
+
+#[test]
+fn auto_chunk_shape() {
+    let codec = EbccCodec::from_config(
+        Deserialize::deserialize(json!({
+            "base_cr": 10.0,
+            "residual": "jpeg2000-only",
+            "chunk_shape": "auto",
+        }))
+        .unwrap(),
+    );
+
+    assert!(matches!(codec.chunk_shape, EbccChunkShape::Auto));
+}
+
+#[test]
+fn explicit_chunk_shape() {
+    let codec = EbccCodec::from_config(
+        Deserialize::deserialize(json!({
+            "base_cr": 10.0,
+            "residual": "jpeg2000-only",
+            "chunk_shape": [32, 32, 32],
+        }))
+        .unwrap(),
+    );
+
+    assert!(
+        matches!(codec.chunk_shape, EbccChunkShape::Explicit(chunk_shape) if chunk_shape == [NonZeroUsize::new(32).unwrap(); 3])
+    );
+}
+
+#[test]
+#[should_panic(expected = "data did not match any variant")]
+fn invalid_explicit_chunk_shape() {
+    let _ = EbccCodec::from_config(
+        Deserialize::deserialize(json!({
+            "base_cr": 10.0,
+            "residual": "jpeg2000-only",
+            "chunk_shape": [32, 0, 32],
         }))
         .unwrap(),
     );

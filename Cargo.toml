@@ -89,7 +89,7 @@ anyhow = { version = "1.0.93", default-features = false }
 burn = { version = "0.18", default-features = false }
 clap = { version = "4.6", default-features = false }
 convert_case = { version = "0.8", default-features = false }
-ebcc = { version = "0.3.0-alpha", git = "https://github.com/juntyr/ebcc-rs.git", rev = "177a43d", default-features = false }
+ebcc = { version = "0.3.0-alpha", git = "https://github.com/juntyr/ebcc-rs.git", rev = "4d0315b", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
 indexmap = { version = "2.10", default-features = false }
 itertools = { version = "0.14", default-features = false }
