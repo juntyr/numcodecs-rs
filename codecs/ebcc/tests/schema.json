@@ -62,11 +62,33 @@
       "description": "JPEG2000 positive base compression ratio",
       "default": 100.0
     },
+    "chunk_shape": {
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "auto",
+          "description": "EBCC chooses an appropriate chunk shape automatically."
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 1
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "description": "EBCC uses the provided explicit chunk shape."
+        }
+      ],
+      "description": "Optional EBCC-internal chunk shape.",
+      "default": "auto"
+    },
     "_version": {
       "type": "string",
       "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
       "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
-      "default": "0.1.0"
+      "default": "0.1.1"
     }
   },
   "title": "EbccCodec",
