@@ -1,25 +1,23 @@
 [package]
-name = "numcodecs"
-version = "0.3.1"
+name = "numcodecs-registry"
+version = "0.1.0"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 
-description = "numcodecs API for buffer compression"
+description = "registries for numcodecs codecs"
 readme = "README.md"
 categories = ["compression", "encoding"]
-keywords = ["numcodecs", "compression", "encoding"]
+keywords = ["numcodecs", "registry", "compression", "encoding"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 erased-serde = { workspace = true, features = ["std"] }
-ndarray = { workspace = true }
-schemars = { workspace = true, features = ["derive"] }
-semver = { workspace = true, features = ["std", "serde"] }
-serde = { workspace = true, features = ["derive"] }
+numcodecs = { workspace = true }
+serde = { workspace = true }
 serde_json = { workspace = true, features = ["std"] }
 thiserror = { workspace = true }
 
