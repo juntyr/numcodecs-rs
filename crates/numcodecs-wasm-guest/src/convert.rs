@@ -74,6 +74,28 @@ pub fn into_wit_any_array(array: AnyArray) -> Result<wit::AnyArray, AnyArrayConv
     Ok(wit::AnyArray { data, shape })
 }
 
+pub fn into_wit_any_array_dtype(dtype: AnyArrayDType) -> Result<wit::AnyArrayDtype, AnyArrayConversionError> {
+    let dtype = match dtype {
+        AnyArrayDType::U8 => wit::AnyArrayDType::U8,
+        AnyArrayDType::U16 => wit::AnyArrayDType::U16,
+        AnyArrayDType::U32 => wit::AnyArrayDType::U32,
+        AnyArrayDType::U64 => wit::AnyArrayDType::U64,
+        AnyArrayDType::I8 => wit::AnyArrayDType::I8,
+        AnyArrayDType::I16 => wit::AnyArrayDType::I16,
+        AnyArrayDType::I32 => wit::AnyArrayDType::I32,
+        AnyArrayDType::I64 => wit::AnyArrayDType::I64,
+        AnyArrayDType::F32 => wit::AnyArrayDType::F32,
+        AnyArrayDType::F64 => wit::AnyArrayDType::F64,
+        array => {
+            return Err(AnyArrayConversionError::UnsupportedDtype {
+                dtype,
+            });
+        }
+    };
+
+    Ok(dtype)
+}
+
 #[derive(Debug, Error)]
 pub enum AnyArrayConversionError {
     #[error("numcodecs-wasm-guest received an array of an invalid shape")]
@@ -108,11 +130,11 @@ pub fn into_wit_error<T: Error>(err: T) -> wit::Error {
 
 #[expect(clippy::cast_possible_truncation)]
 #[must_use]
-fn usize_as_u32_slice(slice: &[usize]) -> Vec<u32> {
+pub(crate) fn usize_as_u32_slice(slice: &[usize]) -> Vec<u32> {
     slice.iter().map(|x| *x as u32).collect()
 }
 
 #[must_use]
-fn u32_as_usize_vec(vec: Vec<u32>) -> Vec<usize> {
+pub(crate) fn u32_as_usize_vec(vec: Vec<u32>) -> Vec<usize> {
     vec.into_iter().map(|x| x as usize).collect()
 }
