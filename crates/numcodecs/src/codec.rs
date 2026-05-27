@@ -169,11 +169,13 @@ impl<T: StaticCodec> DynCodecType for StaticCodecType<T> {
     }
 }
 
+/// Type-erased [`Error`] type.
 pub struct ErasedError {
     error: Box<dyn 'static + Error + Send + Sync>,
 }
 
 impl ErasedError {
+    /// Erase the type information of the concrete `err`or.
     pub fn new<T: 'static + Error + Send + Sync>(err: T) -> Self {
         Self {
             error: Box::new(err),
@@ -199,17 +201,24 @@ impl Error for ErasedError {
     }
 }
 
+/// Type-erased dynamically typed compression codec.
 pub struct ErasedDynCodec {
     codec: Box<dyn ErasedDynCodecDispatch>,
 }
 
 impl ErasedDynCodec {
+    /// Erase the type information of the concrete `codec`.
     pub fn new<T: DynCodec>(codec: T) -> Self {
         Self {
             codec: Box::new(codec),
         }
     }
 
+    /// Try to downcast into a concretely-typed codec.
+    ///
+    /// # Errors
+    ///
+    /// Returns `self` if the type-erased codec is not of the concrete type.
     pub fn downcast<T: DynCodec>(self) -> Result<T, Self> {
         if self.codec.erased_as_any().is::<T>() {
             let raw = Box::into_raw(self.codec);
@@ -222,10 +231,14 @@ impl ErasedDynCodec {
         }
     }
 
+    /// Try to downcast to a concretely-typed codec reference.
+    #[must_use]
     pub fn downcast_ref<T: DynCodec>(&self) -> Option<&T> {
         self.codec.erased_as_any().downcast_ref()
     }
 
+    /// Try to downcast to a concretely-typed mutable codec reference.
+    #[must_use]
     pub fn downcast_mut<T: DynCodec>(&mut self) -> Option<&mut T> {
         self.codec.erased_as_any_mut().downcast_mut()
     }
@@ -233,7 +246,7 @@ impl ErasedDynCodec {
 
 impl Clone for ErasedDynCodec {
     fn clone(&self) -> Self {
-        ErasedDynCodec {
+        Self {
             codec: self.codec.erased_clone(),
         }
     }
@@ -273,15 +286,23 @@ impl DynCodec for ErasedDynCodec {
     }
 }
 
+/// Type-erased dynamically typed compression codec type.
 pub struct ErasedDynCodecType {
     ty: Box<dyn ErasedDynCodecTypeDispatch>,
 }
 
 impl ErasedDynCodecType {
+    /// Erase the type information of the concrete codec `ty`pe.
     pub fn new<T: DynCodecType>(ty: T) -> Self {
         Self { ty: Box::new(ty) }
     }
 
+    /// Try to downcast into a concretely-typed codec type.
+    ///
+    /// # Errors
+    ///
+    /// Returns `self` if the type-erased codec type is not of the concrete
+    /// type.
     pub fn downcast<T: DynCodecType>(self) -> Result<T, Self> {
         if self.ty.erased_as_any().is::<T>() {
             let raw = Box::into_raw(self.ty);
@@ -294,10 +315,14 @@ impl ErasedDynCodecType {
         }
     }
 
+    /// Try to downcast to a concretely-typed codec type reference.
+    #[must_use]
     pub fn downcast_ref<T: DynCodec>(&self) -> Option<&T> {
         self.ty.erased_as_any().downcast_ref()
     }
 
+    /// Try to downcast to a concretely-typed mutable codec type reference.
+    #[must_use]
     pub fn downcast_mut<T: DynCodec>(&mut self) -> Option<&mut T> {
         self.ty.erased_as_any_mut().downcast_mut()
     }
@@ -328,92 +353,34 @@ impl DynCodecType for ErasedDynCodecType {
     }
 }
 
-/// Dyn-compatible type-erased dynamically typed compression codec.
-///
-/// Every codec that implements [`DynCodec`], which includes every codec that
-/// implements [`StaticCodec`], also implements [`ErasedCodec`].
 trait ErasedDynCodecDispatch: 'static + Send + Sync {
-    /// Encodes the `data` and returns the result.
-    ///
-    /// # Errors
-    ///
-    /// Errors if encoding the buffer fails.
     fn erased_encode(&self, data: AnyCowArray) -> Result<AnyArray, ErasedError>;
-
-    /// Decodes the `encoded` data and returns the result.
-    ///
-    /// # Errors
-    ///
-    /// Errors if decoding the buffer fails.
     fn erased_decode(&self, encoded: AnyCowArray) -> Result<AnyArray, ErasedError>;
-
-    /// Decodes the `encoded` data and writes the result into the provided
-    /// `decoded` output.
-    ///
-    /// The output must have the correct type and shape.
-    ///
-    /// # Errors
-    ///
-    /// Errors if decoding the buffer fails.
     fn erased_decode_into(
         &self,
         encoded: AnyArrayView,
         decoded: AnyArrayViewMut,
     ) -> Result<(), ErasedError>;
 
-    // Serializes the configuration parameters for this codec.
-
-    // The config include an `id` field with the
-    // [`ErasedCodecType::codec_id`].
-
-    // # Errors
-
-    // Errors if serializing the codec configuration fails.
-    // fn erased_get_config(
-    //     &self,
-    //     ser: &mut dyn erased_serde::Serializer,
-    // ) -> Result<(), erased_serde::Error>;
-
-    fn erased_as_serialize(&self) -> &dyn erased_serde::Serialize;
-
-    /// Returns the type object for this codec.
-    fn erased_ty(&self) -> Box<dyn ErasedDynCodecTypeDispatch>;
-
     fn erased_clone(&self) -> Box<dyn ErasedDynCodecDispatch>;
 
-    fn erased_as_any(&self) -> &dyn Any;
+    fn erased_ty(&self) -> Box<dyn ErasedDynCodecTypeDispatch>;
 
+    fn erased_as_any(&self) -> &dyn Any;
     fn erased_as_any_mut(&mut self) -> &mut dyn Any;
+
+    fn erased_as_serialize(&self) -> &dyn erased_serde::Serialize;
 }
 
-/// Dyn-compatible type-erased type object for dynamically typed compression
-/// codecs.
-///
-/// Every codec type that implements [`DynCodecType`] also implements
-/// [`ErasedCodecType`].
 trait ErasedDynCodecTypeDispatch: 'static + Send + Sync {
-    /// Codec identifier.
     fn erased_codec_id(&self) -> &str;
-
-    /// JSON schema for the codec's configuration.
     fn erased_codec_config_schema(&self) -> Schema;
-
-    /// Instantiate a codec of this type from a JSON `config`uration.
-    ///
-    /// The `config` must *not* contain an `id` field. If the `config` *may*
-    /// contain one, use the [`erased_codec_from_config_with_id`] helper
-    /// function.
-    ///
-    /// # Errors
-    ///
-    /// Errors if constructing the codec fails.
-    fn erased_codec_from_config<'de>(
+    fn erased_codec_from_config(
         &self,
-        config: &mut dyn erased_serde::Deserializer<'de>,
+        config: &mut dyn erased_serde::Deserializer,
     ) -> Result<Box<dyn ErasedDynCodecDispatch>, erased_serde::Error>;
 
     fn erased_as_any(&self) -> &dyn Any;
-
     fn erased_as_any_mut(&mut self) -> &mut dyn Any;
 }
 
@@ -434,33 +401,12 @@ impl<T: DynCodec> ErasedDynCodecDispatch for T {
         Codec::decode_into(self, encoded, decoded).map_err(ErasedError::new)
     }
 
-    // fn erased_get_config(&self) -> Result<Value, ErasedError> {
-    //     DynCodec::get_config(self, serde_json::value::Serializer).map_err(ErasedError::new)
-    // }
-
-    fn erased_as_serialize(&self) -> &dyn erased_serde::Serialize {
-        #[repr(transparent)]
-        struct Wrapper<T: DynCodec>(T);
-
-        impl<T: DynCodec> Serialize for Wrapper<T> {
-            fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-                DynCodec::get_config(&self.0, serializer)
-            }
-        }
-
-        #[expect(unsafe_code)]
-        // SAFETY: Wrapper is a transparent newtype around Self
-        unsafe {
-            &*std::ptr::from_ref(self).cast::<Wrapper<Self>>()
-        }
+    fn erased_clone(&self) -> Box<dyn ErasedDynCodecDispatch> {
+        Box::new(Clone::clone(self))
     }
 
     fn erased_ty(&self) -> Box<dyn ErasedDynCodecTypeDispatch> {
         Box::new(DynCodec::ty(self))
-    }
-
-    fn erased_clone(&self) -> Box<dyn ErasedDynCodecDispatch> {
-        Box::new(Clone::clone(self))
     }
 
     fn erased_as_any(&self) -> &dyn Any {
@@ -469,6 +415,23 @@ impl<T: DynCodec> ErasedDynCodecDispatch for T {
 
     fn erased_as_any_mut(&mut self) -> &mut dyn Any {
         self
+    }
+
+    fn erased_as_serialize(&self) -> &dyn erased_serde::Serialize {
+        #[repr(transparent)]
+        struct SerializeDynCodec<T: DynCodec>(T);
+
+        impl<T: DynCodec> Serialize for SerializeDynCodec<T> {
+            fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+                DynCodec::get_config(&self.0, serializer)
+            }
+        }
+
+        #[expect(unsafe_code)]
+        // SAFETY: SerializeDynCodec is a transparent newtype around Self
+        unsafe {
+            &*std::ptr::from_ref(self).cast::<SerializeDynCodec<Self>>()
+        }
     }
 }
 
@@ -481,9 +444,9 @@ impl<T: DynCodecType> ErasedDynCodecTypeDispatch for T {
         DynCodecType::codec_config_schema(self)
     }
 
-    fn erased_codec_from_config<'de>(
+    fn erased_codec_from_config(
         &self,
-        config: &mut dyn erased_serde::Deserializer<'de>,
+        config: &mut dyn erased_serde::Deserializer,
     ) -> Result<Box<dyn ErasedDynCodecDispatch>, erased_serde::Error> {
         match DynCodecType::codec_from_config(self, config) {
             Ok(codec) => Ok(Box::new(codec)),

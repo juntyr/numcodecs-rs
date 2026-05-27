@@ -18,6 +18,7 @@ keywords = ["numcodecs", "compression", "encoding", "python", "pyo3"]
 convert_case = { workspace = true }
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
+numcodecs-registry = { workspace = true }
 numpy = { workspace = true }
 pyo3 = { workspace = true }
 pyo3-error = { workspace = true }
