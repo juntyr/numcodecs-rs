@@ -60,3 +60,7 @@ fn read_codec_instruction_counter<'py>(
 
     Ok(instruction_counter.0)
 }
+
+numcodecs_registry::export_global! {
+    registry: numcodecs_python::PyCodecRegistry = numcodecs_python::PyCodecRegistry
+}

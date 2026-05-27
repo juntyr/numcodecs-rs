@@ -10,9 +10,7 @@ use crate::PyCodecClassMethods;
 use crate::{PyCodec, PyCodecAdapter, PyCodecClass, export_codec_class};
 
 /// Dynamic registry of codec classes.
-pub struct PyCodecRegistry {
-    _private: (),
-}
+pub struct PyCodecRegistry;
 
 impl PyCodecRegistry {
     /// Instantiate a codec from a configuration dictionary.
