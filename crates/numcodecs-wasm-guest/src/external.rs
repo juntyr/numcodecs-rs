@@ -12,7 +12,7 @@ use serde_transcode::transcode;
 use crate::{convert, wit};
 
 pub struct ExternalCodec {
-    codec: wit::exports::ErasedDynCodec,
+    codec: wit::registry::ErasedDynCodec,
     ty: ExternalCodecType,
 }
 
@@ -33,27 +33,20 @@ impl Codec for ExternalCodec {
     type Error = ExternalError;
 
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
-        match self
-            .codec
-            .encode(&convert::into_wit_any_array(data.into_owned()))
-        {
-            Ok(encoded) => match convert::from_wit_any_array(encoded) {
-                Ok(encoded) => Ok(encoded),
-                Err(err) => Err(ExternalError::new(convert::into_wit_error(err))),
-            },
+        match self.codec.encode(
+            &convert::into_wit_any_array(data.into_owned()).map_err(ExternalError::from_error)?,
+        ) {
+            Ok(encoded) => convert::from_wit_any_array(encoded).map_err(ExternalError::from_error),
             Err(err) => Err(ExternalError::new(err)),
         }
     }
 
     fn decode(&self, encoded: AnyCowArray) -> Result<AnyArray, Self::Error> {
-        match self
-            .codec
-            .decode(&convert::into_wit_any_array(encoded.into_owned()))
-        {
-            Ok(decoded) => match convert::from_wit_any_array(decoded) {
-                Ok(decoded) => Ok(decoded),
-                Err(err) => Err(ExternalError::new(convert::into_wit_error(err))),
-            },
+        match self.codec.decode(
+            &convert::into_wit_any_array(encoded.into_owned())
+                .map_err(ExternalError::from_error)?,
+        ) {
+            Ok(decoded) => convert::from_wit_any_array(decoded).map_err(ExternalError::from_error),
             Err(err) => Err(ExternalError::new(err)),
         }
     }
@@ -64,21 +57,17 @@ impl Codec for ExternalCodec {
         mut decoded: AnyArrayViewMut,
     ) -> Result<(), Self::Error> {
         match self.codec.decode_into(
-            &convert::into_wit_any_array(encoded.into_owned()),
+            &convert::into_wit_any_array(encoded.into_owned())
+                .map_err(ExternalError::from_error)?,
             &wit::types::AnyArrayPrototype {
-                dtype: match convert::into_wit_any_array_dtype(decoded.dtype()) {
-                    Ok(dtype) => dtype,
-                    Err(err) => return Err(ExternalError::new(convert::into_wit_error(err))),
-                },
+                dtype: convert::into_wit_any_array_dtype(decoded.dtype())
+                    .map_err(ExternalError::from_error)?,
                 shape: convert::usize_as_u32_slice(decoded.shape()),
             },
         ) {
             Ok(dec) => match convert::from_wit_any_array(dec) {
-                Ok(dec) => {
-                    decoded.assign(&dec);
-                    Ok(())
-                }
-                Err(err) => Err(ExternalError::new(convert::into_wit_error(err))),
+                Ok(dec) => decoded.assign(&dec).map_err(ExternalError::from_error),
+                Err(err) => Err(ExternalError::from_error(err)),
             },
             Err(err) => Err(ExternalError::new(err)),
         }
@@ -107,7 +96,7 @@ impl DynCodec for ExternalCodec {
 }
 
 pub struct ExternalCodecType {
-    ty: Arc<wit::imports::ErasedDynCodecType>,
+    ty: Arc<wit::registry::ErasedDynCodecType>,
     codec_id: Arc<str>,
     schema: Arc<Schema>,
 }
@@ -157,7 +146,7 @@ pub struct ExternalError {
 }
 
 impl ExternalError {
-    pub(crate) fn new(error: wit::types::Error) -> Self {
+    fn new(error: wit::types::Error) -> Self {
         let mut root = Self {
             msg: error.message,
             source: None,
@@ -170,6 +159,10 @@ impl ExternalError {
         }
 
         root
+    }
+
+    fn from_error(err: impl std::error::Error) -> Self {
+        Self::new(convert::into_wit_error(err))
     }
 }
 
@@ -184,19 +177,15 @@ impl Registry for ExternalRegistry {
     ) -> Result<ErasedDynCodec, Self::Error> {
         let mut config_bytes = Vec::new();
         transcode(config, &mut serde_json::Serializer::new(&mut config_bytes))
-            .map_err(convert::into_wit_error)
-            .map_err(ExternalError::new)?;
-        let config = String::from_utf8(config_bytes)
-            .map_err(convert::into_wit_error)
-            .map_err(ExternalError::new)?;
+            .map_err(ExternalError::from_error)?;
+        let config = String::from_utf8(config_bytes).map_err(ExternalError::from_error)?;
 
-        let codec = wit::imports::get_codec(&config).map_err(ExternalError::new)?;
+        let codec = wit::registry::get_codec(&config).map_err(ExternalError::new)?;
         let ty = codec.ty();
 
         let codec_id = ty.codec_id();
-        let schema: Schema = serde_json::from_str(&ty.codec_config_schema())
-            .map_err(convert::into_wit_error)
-            .map_err(ExternalError::new)?;
+        let schema: Schema =
+            serde_json::from_str(&ty.codec_config_schema()).map_err(ExternalError::from_error)?;
 
         let codec = ExternalCodec {
             codec,

@@ -57,8 +57,8 @@ pub mod bindings {
 #[cfg(target_arch = "wasm32")]
 mod wit {
     pub use crate::bindings::{
-        exports::numcodecs::abc::codec as exports, numcodecs::abc::registry as imports,
-        numcodecs::abc::types,
+        exports::numcodecs::abc::codec,
+        numcodecs::abc::{registry, types},
     };
 }
 
@@ -103,7 +103,7 @@ macro_rules! export_codec {
 
 #[cfg(target_arch = "wasm32")]
 #[doc(hidden)]
-impl<T: StaticCodec> wit::exports::Guest for T {
+impl<T: StaticCodec> wit::codec::Guest for T {
     type Codec = Self;
 
     fn codec_id() -> String {
@@ -118,15 +118,15 @@ impl<T: StaticCodec> wit::exports::Guest for T {
 }
 
 #[cfg(target_arch = "wasm32")]
-impl<T: StaticCodec> wit::exports::GuestCodec for T {
-    fn from_config(config: String) -> Result<wit::exports::Codec, wit::types::Error> {
+impl<T: StaticCodec> wit::codec::GuestCodec for T {
+    fn from_config(config: String) -> Result<wit::codec::Codec, wit::types::Error> {
         let err = match <Self as StaticCodec>::Config::deserialize(
             &mut serde_json::Deserializer::from_str(&config),
         ) {
             Ok(config) => {
-                return Ok(wit::exports::Codec::new(
-                    <Self as StaticCodec>::from_config(config),
-                ));
+                return Ok(wit::codec::Codec::new(<Self as StaticCodec>::from_config(
+                    config,
+                )));
             }
             Err(err) => err,
         };

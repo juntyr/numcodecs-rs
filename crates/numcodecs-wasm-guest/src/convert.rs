@@ -98,17 +98,17 @@ pub fn into_wit_any_array_dtype(
     dtype: AnyArrayDType,
 ) -> Result<wit::types::AnyArrayDtype, AnyArrayConversionError> {
     let dtype = match dtype {
-        AnyArrayDType::U8 => wit::types::AnyArrayDType::U8,
-        AnyArrayDType::U16 => wit::types::AnyArrayDType::U16,
-        AnyArrayDType::U32 => wit::types::AnyArrayDType::U32,
-        AnyArrayDType::U64 => wit::types::AnyArrayDType::U64,
-        AnyArrayDType::I8 => wit::types::AnyArrayDType::I8,
-        AnyArrayDType::I16 => wit::types::AnyArrayDType::I16,
-        AnyArrayDType::I32 => wit::types::AnyArrayDType::I32,
-        AnyArrayDType::I64 => wit::types::AnyArrayDType::I64,
-        AnyArrayDType::F32 => wit::types::AnyArrayDType::F32,
-        AnyArrayDType::F64 => wit::types::AnyArrayDType::F64,
-        array => {
+        AnyArrayDType::U8 => wit::types::AnyArrayDtype::U8,
+        AnyArrayDType::U16 => wit::types::AnyArrayDtype::U16,
+        AnyArrayDType::U32 => wit::types::AnyArrayDtype::U32,
+        AnyArrayDType::U64 => wit::types::AnyArrayDtype::U64,
+        AnyArrayDType::I8 => wit::types::AnyArrayDtype::I8,
+        AnyArrayDType::I16 => wit::types::AnyArrayDtype::I16,
+        AnyArrayDType::I32 => wit::types::AnyArrayDtype::I32,
+        AnyArrayDType::I64 => wit::types::AnyArrayDtype::I64,
+        AnyArrayDType::F32 => wit::types::AnyArrayDtype::F32,
+        AnyArrayDType::F64 => wit::types::AnyArrayDtype::F64,
+        dtype => {
             return Err(AnyArrayConversionError::UnsupportedDtype { dtype });
         }
     };
