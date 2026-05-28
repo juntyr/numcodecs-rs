@@ -16,17 +16,13 @@ keywords = ["numcodecs", "compression", "encoding", "wasm-component", "wasm-bind
 numcodecs = { workspace = true }
 wit-bindgen = { workspace = true, features = ["macros", "realloc"] }
 
-schemars = { workspace = true }
-serde = { workspace = true }
-serde-transcode = { workspace = true }
-serde_json = { workspace = true, features = ["std"] }
-thiserror = { workspace = true }
-
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 format_serde_error = { workspace = true, features = ["serde_json"] }
 ndarray = { workspace = true, features = ["std"] }
+numcodecs-registry = { workspace = true }
 schemars = { workspace = true }
 serde = { workspace = true }
+serde-transcode = { workspace = true }
 serde_json = { workspace = true, features = ["std"] }
 thiserror = { workspace = true }
 

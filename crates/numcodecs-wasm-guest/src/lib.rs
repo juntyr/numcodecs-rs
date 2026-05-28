@@ -32,15 +32,14 @@ use ::{
     serde::Deserialize,
 };
 
-// #[cfg(target_arch = "wasm32")]
+#[cfg(target_arch = "wasm32")]
 mod convert;
+#[cfg(target_arch = "wasm32")]
+mod external;
 
 #[cfg(target_arch = "wasm32")]
-use crate::{
-    bindings::exports::numcodecs::abc::codec as wit,
-    convert::{
-        from_wit_any_array, into_wit_any_array, into_wit_error, zeros_from_wit_any_array_prototype,
-    },
+use crate::convert::{
+    from_wit_any_array, into_wit_any_array, into_wit_error, zeros_from_wit_any_array_prototype,
 };
 
 #[doc(hidden)]
@@ -53,6 +52,14 @@ pub mod bindings {
         },
         pub_export_macro: true,
     });
+}
+
+#[cfg(target_arch = "wasm32")]
+mod wit {
+    pub use crate::bindings::{
+        exports::numcodecs::abc::codec as exports, numcodecs::abc::registry as imports,
+        numcodecs::abc::types,
+    };
 }
 
 #[macro_export]
@@ -96,14 +103,14 @@ macro_rules! export_codec {
 
 #[cfg(target_arch = "wasm32")]
 #[doc(hidden)]
-impl<T: StaticCodec> wit::Guest for T {
+impl<T: StaticCodec> wit::exports::Guest for T {
     type Codec = Self;
 
     fn codec_id() -> String {
         String::from(<Self as StaticCodec>::CODEC_ID)
     }
 
-    fn codec_config_schema() -> wit::JsonSchema {
+    fn codec_config_schema() -> wit::types::JsonSchema {
         schema_for!(<Self as StaticCodec>::Config<'static>)
             .as_value()
             .to_string()
@@ -111,12 +118,16 @@ impl<T: StaticCodec> wit::Guest for T {
 }
 
 #[cfg(target_arch = "wasm32")]
-impl<T: StaticCodec> wit::GuestCodec for T {
-    fn from_config(config: String) -> Result<wit::Codec, wit::Error> {
+impl<T: StaticCodec> wit::exports::GuestCodec for T {
+    fn from_config(config: String) -> Result<wit::exports::Codec, wit::types::Error> {
         let err = match <Self as StaticCodec>::Config::deserialize(
             &mut serde_json::Deserializer::from_str(&config),
         ) {
-            Ok(config) => return Ok(wit::Codec::new(<Self as StaticCodec>::from_config(config))),
+            Ok(config) => {
+                return Ok(wit::exports::Codec::new(
+                    <Self as StaticCodec>::from_config(config),
+                ));
+            }
             Err(err) => err,
         };
 
@@ -124,7 +135,10 @@ impl<T: StaticCodec> wit::GuestCodec for T {
         Err(into_wit_error(err))
     }
 
-    fn encode(&self, data: wit::AnyArray) -> Result<wit::AnyArray, wit::Error> {
+    fn encode(
+        &self,
+        data: wit::types::AnyArray,
+    ) -> Result<wit::types::AnyArray, wit::types::Error> {
         let data = match from_wit_any_array(data) {
             Ok(data) => data,
             Err(err) => return Err(into_wit_error(err)),
@@ -139,7 +153,10 @@ impl<T: StaticCodec> wit::GuestCodec for T {
         }
     }
 
-    fn decode(&self, encoded: wit::AnyArray) -> Result<wit::AnyArray, wit::Error> {
+    fn decode(
+        &self,
+        encoded: wit::types::AnyArray,
+    ) -> Result<wit::types::AnyArray, wit::types::Error> {
         let encoded = match from_wit_any_array(encoded) {
             Ok(encoded) => encoded,
             Err(err) => return Err(into_wit_error(err)),
@@ -156,9 +173,9 @@ impl<T: StaticCodec> wit::GuestCodec for T {
 
     fn decode_into(
         &self,
-        encoded: wit::AnyArray,
-        decoded: wit::AnyArrayPrototype,
-    ) -> Result<wit::AnyArray, wit::Error> {
+        encoded: wit::types::AnyArray,
+        decoded: wit::types::AnyArrayPrototype,
+    ) -> Result<wit::types::AnyArray, wit::types::Error> {
         let encoded = match from_wit_any_array(encoded) {
             Ok(encoded) => encoded,
             Err(err) => return Err(into_wit_error(err)),
@@ -175,202 +192,10 @@ impl<T: StaticCodec> wit::GuestCodec for T {
         }
     }
 
-    fn get_config(&self) -> Result<wit::Json, wit::Error> {
+    fn get_config(&self) -> Result<wit::types::Json, wit::types::Error> {
         match serde_json::to_string(&<Self as StaticCodec>::get_config(self)) {
             Ok(config) => Ok(config),
             Err(err) => Err(into_wit_error(err)),
         }
-    }
-}
-
-pub fn get_codec<'de, D: serde::Deserializer<'de>>(
-    config: D,
-) -> Result<ExternalCodec, ExternalError> {
-    let mut config_bytes = Vec::new();
-    serde_transcode::transcode(config, &mut serde_json::Serializer::new(&mut config_bytes))
-        .map_err(convert::into_wit_error)
-        .map_err(ExternalError::new)?;
-    let config = String::from_utf8(config_bytes)
-        .map_err(convert::into_wit_error)
-        .map_err(ExternalError::new)?;
-
-    let codec =
-        bindings::numcodecs::abc::registry::get_codec(&config).map_err(ExternalError::new)?;
-    let ty = codec.ty();
-
-    let codec_id = ty.codec_id();
-    let schema: schemars::Schema = serde_json::from_str(&ty.codec_config_schema())
-        .map_err(convert::into_wit_error)
-        .map_err(ExternalError::new)?;
-
-    Ok(ExternalCodec {
-        codec,
-        ty: ExternalCodecType {
-            ty: std::sync::Arc::new(ty),
-            codec_id: codec_id.into(),
-            schema: std::sync::Arc::new(schema),
-        },
-    })
-}
-
-pub struct ExternalCodec {
-    codec: bindings::numcodecs::abc::registry::ErasedDynCodec,
-    ty: ExternalCodecType,
-}
-
-impl Clone for ExternalCodec {
-    fn clone(&self) -> Self {
-        Self {
-            codec: self.codec.clone(),
-            ty: ExternalCodecType {
-                ty: self.ty.ty.clone(),
-                codec_id: self.ty.codec_id.clone(),
-                schema: self.ty.schema.clone(),
-            },
-        }
-    }
-}
-
-impl numcodecs::Codec for ExternalCodec {
-    type Error = ExternalError;
-
-    fn encode(&self, data: numcodecs::AnyCowArray) -> Result<numcodecs::AnyArray, Self::Error> {
-        match self
-            .codec
-            .encode(&convert::into_wit_any_array(data.into_owned()))
-        {
-            Ok(encoded) => match convert::from_wit_any_array(encoded) {
-                Ok(encoded) => Ok(encoded),
-                Err(err) => Err(ExternalError::new(convert::into_wit_error(err))),
-            },
-            Err(err) => Err(ExternalError::new(err)),
-        }
-    }
-
-    fn decode(&self, encoded: numcodecs::AnyCowArray) -> Result<numcodecs::AnyArray, Self::Error> {
-        match self
-            .codec
-            .decode(&convert::into_wit_any_array(encoded.into_owned()))
-        {
-            Ok(decoded) => match convert::from_wit_any_array(decoded) {
-                Ok(decoded) => Ok(decoded),
-                Err(err) => Err(ExternalError::new(convert::into_wit_error(err))),
-            },
-            Err(err) => Err(ExternalError::new(err)),
-        }
-    }
-
-    fn decode_into(
-        &self,
-        encoded: numcodecs::AnyArrayView,
-        mut decoded: numcodecs::AnyArrayViewMut,
-    ) -> Result<(), Self::Error> {
-        match self.codec.decode_into(
-            &convert::into_wit_any_array(encoded.into_owned()),
-            &bindings::numcodecs::abc::types::AnyArrayPrototype {
-                dtype: match convert::into_wit_any_array_dtype(decoded.dtype()) {
-                    Ok(dtype) => dtype,
-                    Err(err) => return Err(ExternalError::new(convert::into_wit_error(err))),
-                },
-                shape: convert::usize_as_u32_slice(decoded.shape()),
-            },
-        ) {
-            Ok(dec) => match convert::from_wit_any_array(dec) {
-                Ok(dec) => {
-                    decoded.assign(&dec);
-                    Ok(())
-                }
-                Err(err) => Err(ExternalError::new(convert::into_wit_error(err))),
-            },
-            Err(err) => Err(ExternalError::new(err)),
-        }
-    }
-}
-
-impl numcodecs::DynCodec for ExternalCodec {
-    type Type = ExternalCodecType;
-
-    fn get_config<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        let config = self
-            .codec
-            .get_config()
-            .map_err(ExternalError::new)
-            .map_err(serde::ser::Error::custom)?;
-        serde_transcode::transcode(&mut serde_json::Deserializer::from_str(&config), serializer)
-    }
-
-    fn ty(&self) -> Self::Type {
-        ExternalCodecType {
-            ty: self.ty.ty.clone(),
-            codec_id: self.ty.codec_id.clone(),
-            schema: self.ty.schema.clone(),
-        }
-    }
-}
-
-pub struct ExternalCodecType {
-    ty: std::sync::Arc<bindings::numcodecs::abc::registry::ErasedDynCodecType>,
-    codec_id: std::sync::Arc<str>,
-    schema: std::sync::Arc<schemars::Schema>,
-}
-
-impl numcodecs::DynCodecType for ExternalCodecType {
-    type Codec = ExternalCodec;
-
-    fn codec_id(&self) -> &str {
-        &*self.codec_id
-    }
-
-    fn codec_config_schema(&self) -> schemars::Schema {
-        (*self.schema).clone()
-    }
-
-    fn codec_from_config<'de, D: serde::Deserializer<'de>>(
-        &self,
-        config: D,
-    ) -> Result<Self::Codec, D::Error> {
-        let mut config_bytes = Vec::new();
-        serde_transcode::transcode(config, &mut serde_json::Serializer::new(&mut config_bytes))
-            .map_err(serde::de::Error::custom)?;
-        let config = String::from_utf8(config_bytes).map_err(serde::de::Error::custom)?;
-
-        let codec = self
-            .ty
-            .from_config(&config)
-            .map_err(ExternalError::new)
-            .map_err(serde::de::Error::custom)?;
-
-        Ok(ExternalCodec {
-            codec,
-            ty: ExternalCodecType {
-                ty: self.ty.clone(),
-                codec_id: self.codec_id.clone(),
-                schema: self.schema.clone(),
-            },
-        })
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-#[error("{msg}")]
-pub struct ExternalError {
-    msg: String,
-    source: Option<Box<Self>>,
-}
-
-impl ExternalError {
-    pub(crate) fn new(error: bindings::numcodecs::abc::types::Error) -> Self {
-        let mut root = Self {
-            msg: error.message,
-            source: None,
-        };
-
-        let mut err = &mut root;
-
-        for msg in error.chain {
-            err = &mut *err.source.insert(Box::new(Self { msg, source: None }));
-        }
-
-        root
     }
 }

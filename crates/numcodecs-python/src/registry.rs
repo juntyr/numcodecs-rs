@@ -1,4 +1,4 @@
-use numcodecs::{DynCodec, DynCodecType, ErasedDynCodec};
+use numcodecs::{DynCodec, ErasedDynCodec};
 use numcodecs_registry::Registry;
 use pyo3::{prelude::*, sync::PyOnceLock, types::PyDict};
 use pythonize::Pythonizer;
@@ -7,7 +7,7 @@ use serde_transcode::transcode;
 
 #[expect(unused_imports)] // FIXME: use expect, only used in docs
 use crate::PyCodecClassMethods;
-use crate::{PyCodec, PyCodecAdapter, PyCodecClass, export_codec_class};
+use crate::{PyCodec, PyCodecAdapter, PyCodecClass};
 
 /// Dynamic registry of codec classes.
 pub struct PyCodecRegistry;
@@ -91,15 +91,6 @@ impl Registry for PyCodecRegistry {
             let codec = PyCodecAdapter::with_downcast(py, &codec, |codec: &T| codec.clone());
 
             Ok(codec)
-        })
-    }
-
-    fn register_codec<T: DynCodecType>(&mut self, ty: T) -> Result<(), Self::Error> {
-        Python::attach(|py| {
-            let module = PyModule::new(py, "codec")?;
-            let class = export_codec_class(py, ty, module.as_borrowed())?;
-            Self::register_codec(class.as_borrowed(), None)?;
-            Ok(())
         })
     }
 }

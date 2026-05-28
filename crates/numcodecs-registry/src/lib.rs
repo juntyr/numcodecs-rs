@@ -19,9 +19,9 @@
 //!
 //! [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 
-use std::{error::Error, sync::RwLock};
+use std::error::Error;
 
-use numcodecs::{DynCodec, DynCodecType, ErasedDynCodec, ErasedDynCodecType, ErasedError};
+use numcodecs::{DynCodec, ErasedDynCodec, ErasedError};
 use serde::Deserializer;
 
 /// Registry of codec types.
@@ -61,16 +61,6 @@ pub trait Registry: 'static + Send + Sync {
     ) -> Result<Option<T>, Self::Error> {
         self.get_codec(config).map(|codec| codec.downcast().ok())
     }
-
-    /// Register a codec type.
-    ///
-    /// When a codec type is registered, it will replace any type previously
-    /// registered under the same codec identifier, if present.
-    ///
-    /// # Errors
-    ///
-    /// Errors if registering the codec type fails.
-    fn register_codec<T: DynCodecType>(&mut self, ty: T) -> Result<(), Self::Error>;
 }
 
 /// Type-erased [`Registry`].
@@ -97,11 +87,6 @@ impl Registry for ErasedRegistry {
         self.registry
             .erased_get_codec(&mut <dyn erased_serde::Deserializer>::erase(config))
     }
-
-    fn register_codec<T: DynCodecType>(&mut self, ty: T) -> Result<(), Self::Error> {
-        self.registry
-            .erased_register_codec(ErasedDynCodecType::new(ty))
-    }
 }
 
 trait ErasedRegistryDispatch: 'static + Send + Sync {
@@ -109,8 +94,6 @@ trait ErasedRegistryDispatch: 'static + Send + Sync {
         &self,
         config: &mut dyn erased_serde::Deserializer,
     ) -> Result<ErasedDynCodec, ErasedError>;
-
-    fn erased_register_codec(&mut self, ty: ErasedDynCodecType) -> Result<(), ErasedError>;
 }
 
 impl<T: Registry> ErasedRegistryDispatch for T {
@@ -120,13 +103,6 @@ impl<T: Registry> ErasedRegistryDispatch for T {
     ) -> Result<ErasedDynCodec, ErasedError> {
         match self.get_codec(config) {
             Ok(codec) => Ok(codec),
-            Err(err) => Err(ErasedError::new(err)),
-        }
-    }
-
-    fn erased_register_codec(&mut self, ty: ErasedDynCodecType) -> Result<(), ErasedError> {
-        match self.register_codec(ty) {
-            Ok(()) => Ok(()),
             Err(err) => Err(ErasedError::new(err)),
         }
     }
@@ -142,11 +118,11 @@ impl<T: Registry> ErasedRegistryDispatch for T {
 pub struct GlobalRegistry;
 
 impl GlobalRegistry {
-    fn get() -> &'static RwLock<ErasedRegistry> {
+    fn get() -> &'static ErasedRegistry {
         #[expect(unsafe_code)]
         unsafe extern "C" {
             #[expect(improper_ctypes)]
-            safe fn _numcodecs_registry_get_global_registry() -> &'static RwLock<ErasedRegistry>;
+            safe fn _numcodecs_registry_get_global_registry() -> &'static ErasedRegistry;
         }
 
         _numcodecs_registry_get_global_registry()
@@ -160,15 +136,14 @@ impl Registry for GlobalRegistry {
         &self,
         config: D,
     ) -> Result<ErasedDynCodec, Self::Error> {
-        #[expect(clippy::expect_used)]
-        let registry = Self::get().read().expect("global registry was poisoned");
-        registry.get_codec(config)
+        Self::get().get_codec(config)
     }
 
-    fn register_codec<T: DynCodecType>(&mut self, ty: T) -> Result<(), Self::Error> {
-        #[expect(clippy::expect_used)]
-        let mut registry = Self::get().write().expect("global registry was poisoned");
-        registry.register_codec(ty)
+    fn get_codec_typed<'de, T: DynCodec, D: Deserializer<'de>>(
+        &self,
+        config: D,
+    ) -> Result<Option<T>, Self::Error> {
+        Self::get().get_codec_typed(config)
     }
 }
 
@@ -181,17 +156,16 @@ impl Registry for GlobalRegistry {
 macro_rules! export_global {
     (registry: $ty:ty = $init:expr) => {
         const _: () = {
-            use std::sync::{LazyLock, RwLock};
+            use std::sync::LazyLock;
 
             use $crate::ErasedRegistry;
 
-            static _GLOBAL_REGISTRY: LazyLock<RwLock<ErasedRegistry>> =
-                LazyLock::new(|| RwLock::new(ErasedRegistry::new($init)));
+            static _GLOBAL_REGISTRY: LazyLock<ErasedRegistry> =
+                LazyLock::new(|| ErasedRegistry::new($init));
 
             #[allow(improper_ctypes, unsafe_code)]
             #[unsafe(no_mangle)]
-            extern "C" fn _numcodecs_registry_get_global_registry()
-            -> &'static RwLock<ErasedRegistry> {
+            extern "C" fn _numcodecs_registry_get_global_registry() -> &'static ErasedRegistry {
                 LazyLock::force(&_GLOBAL_REGISTRY)
             }
         };

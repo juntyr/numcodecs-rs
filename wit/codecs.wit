@@ -1,6 +1,6 @@
 package numcodecs:abc@0.1.1;
 
-// TODO: major version bump
+// TODO: major version bump + since annotations
 
 interface types {
     type json = string;
@@ -90,7 +90,7 @@ interface registry {
         decode-into: func(encoded: any-array, decoded: any-array-prototype) -> result<any-array, error>;
 
         clone: func() -> erased-dyn-codec;
-        
+
         get-config: func() -> result<json, error>;
 
         ty: func() -> erased-dyn-codec-type;
