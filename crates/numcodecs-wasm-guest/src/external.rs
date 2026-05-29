@@ -123,7 +123,7 @@ impl DynCodecType for ExternalCodecType {
 
         let codec = self
             .ty
-            .from_config(&config)
+            .codec_from_config(&config)
             .map_err(ExternalError::new)
             .map_err(serde::de::Error::custom)?;
 

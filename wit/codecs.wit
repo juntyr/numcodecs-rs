@@ -101,7 +101,7 @@ interface registry {
 
         codec-config-schema: func() -> json-schema;
 
-        from-config: func(config: json) -> result<erased-dyn-codec, error>;
+        codec-from-config: func(config: json) -> result<erased-dyn-codec, error>;
     }
 
     get-codec: func(config: json) -> result<erased-dyn-codec, error>;

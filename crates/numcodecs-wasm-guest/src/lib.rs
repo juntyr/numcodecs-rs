@@ -112,7 +112,7 @@ impl<T: StaticCodec> wit::codec::Guest for T {
 
     fn codec_config_schema() -> wit::types::JsonSchema {
         schema_for!(<Self as StaticCodec>::Config<'static>)
-            .as_value()
+            .to_value()
             .to_string()
     }
 }
