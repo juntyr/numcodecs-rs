@@ -8,8 +8,14 @@ use crate::error::{CodecError, RuntimeError};
 /// WebAssembly Interface Type (WIT) interfaces for `numcodecs`
 #[non_exhaustive]
 pub struct NumcodecsWitInterfaces {
+    /// The `numcodecs:abc` package
+    pub package: PackageIdentifier,
     /// The `numcodecs:abc/codec` interface
     pub codec: InterfaceIdentifier,
+    /// The `numcodecs:abc/registry` interface
+    pub registry: InterfaceIdentifier,
+    /// The `numcodecs:abc/types` interface
+    pub types: InterfaceIdentifier,
 }
 
 impl NumcodecsWitInterfaces {
@@ -18,14 +24,17 @@ impl NumcodecsWitInterfaces {
     pub fn get() -> &'static Self {
         static NUMCODECS_WIT_INTERFACES: OnceLock<NumcodecsWitInterfaces> = OnceLock::new();
 
-        NUMCODECS_WIT_INTERFACES.get_or_init(|| Self {
-            codec: InterfaceIdentifier::new(
-                PackageIdentifier::new(
-                    PackageName::new("numcodecs", "abc"),
-                    Some(Version::new(0, 1, 1)),
-                ),
-                "codec",
-            ),
+        NUMCODECS_WIT_INTERFACES.get_or_init(|| {
+            let package = PackageIdentifier::new(
+                PackageName::new("numcodecs", "abc"),
+                Some(Version::new(0, 1, 1)),
+            );
+            Self {
+                package: package.clone(),
+                codec: InterfaceIdentifier::new(package.clone(), "codec"),
+                registry: InterfaceIdentifier::new(package.clone(), "registry"),
+                types: InterfaceIdentifier::new(package, "types"),
+            }
         })
     }
 }

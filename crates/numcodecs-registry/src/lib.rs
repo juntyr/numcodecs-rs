@@ -19,7 +19,7 @@
 //!
 //! [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 
-use std::error::Error;
+use std::{error::Error, sync::Arc};
 
 use numcodecs::{DynCodec, ErasedDynCodec, ErasedError};
 use serde::Deserializer;
@@ -60,6 +60,42 @@ pub trait Registry: 'static + Send + Sync {
         config: D,
     ) -> Result<Option<T>, Self::Error> {
         self.get_codec(config).map(|codec| codec.downcast().ok())
+    }
+}
+
+impl<R: Registry> Registry for Box<R> {
+    type Error = R::Error;
+
+    fn get_codec<'de, D: Deserializer<'de>>(
+        &self,
+        config: D,
+    ) -> Result<ErasedDynCodec, Self::Error> {
+        R::get_codec(self, config)
+    }
+
+    fn get_codec_typed<'de, T: DynCodec, D: Deserializer<'de>>(
+        &self,
+        config: D,
+    ) -> Result<Option<T>, Self::Error> {
+        R::get_codec_typed(self, config)
+    }
+}
+
+impl<R: Registry> Registry for Arc<R> {
+    type Error = R::Error;
+
+    fn get_codec<'de, D: Deserializer<'de>>(
+        &self,
+        config: D,
+    ) -> Result<ErasedDynCodec, Self::Error> {
+        R::get_codec(self, config)
+    }
+
+    fn get_codec_typed<'de, T: DynCodec, D: Deserializer<'de>>(
+        &self,
+        config: D,
+    ) -> Result<Option<T>, Self::Error> {
+        R::get_codec_typed(self, config)
     }
 }
 
@@ -170,4 +206,30 @@ macro_rules! export_global {
             }
         };
     };
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("codec not found")]
+/// Codec was not found in the registry
+pub struct CodecNotFoundError;
+
+/// Empty registry that contains no codecs
+pub struct EmptyRegistry;
+
+impl Registry for EmptyRegistry {
+    type Error = CodecNotFoundError;
+
+    fn get_codec<'de, D: Deserializer<'de>>(
+        &self,
+        _config: D,
+    ) -> Result<ErasedDynCodec, Self::Error> {
+        Err(CodecNotFoundError)
+    }
+
+    fn get_codec_typed<'de, T: DynCodec, D: Deserializer<'de>>(
+        &self,
+        _config: D,
+    ) -> Result<Option<T>, Self::Error> {
+        Err(CodecNotFoundError)
+    }
 }

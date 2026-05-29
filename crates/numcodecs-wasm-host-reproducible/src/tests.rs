@@ -2,6 +2,7 @@ use ndarray::Array;
 use ndarray_rand::RandomExt;
 use ndarray_rand::rand_distr::Normal;
 use numcodecs::{Codec, DynCodecType};
+use numcodecs_registry::EmptyRegistry;
 
 use crate::ReproducibleWasmCodecType;
 
@@ -53,7 +54,11 @@ fn codec_roundtrip() {
 
     let engine = wasmtime_runtime_layer::Engine::new(wasmtime::Engine::new(&config).unwrap());
 
-    let ty = match ReproducibleWasmCodecType::new(engine, include_bytes!("../tests/round.wasm")) {
+    let ty = match ReproducibleWasmCodecType::new(
+        engine,
+        include_bytes!("../tests/round.wasm"),
+        EmptyRegistry,
+    ) {
         Ok(ty) => ty,
         Err(err) => panic!(
             "ReproducibleWasmCodecType::new:\n===\n{err}\n===\n{err:?}\n===\n{err:#}\n===\n{err:#?}\n===\n"

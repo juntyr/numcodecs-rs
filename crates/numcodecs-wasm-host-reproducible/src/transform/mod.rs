@@ -12,7 +12,10 @@ pub mod nan;
 #[expect(clippy::too_many_lines)] // FIXME
 pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Vec<u8>, Error> {
     let NumcodecsWitInterfaces {
+        package,
         codec: codec_interface,
+        registry: registry_interface,
+        types: types_interface,
         ..
     } = NumcodecsWitInterfaces::get();
 
@@ -24,33 +27,37 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     } = get_prepared_composition_graph()?;
     let mut wac = wac.clone();
 
-    // parse and instantiate the root package, which exports numcodecs:abc/codec
-    let numcodecs_codec_package = wac_graph::types::Package::from_bytes(
-        &format!("{}", codec_interface.package().name()),
-        codec_interface.package().version(),
+    // parse and instantiate the root numcodecs:abc package, which
+    //  - exports the numcodecs:abc/codec interface
+    //  - imports the numcodecs:abc/registry interface
+    let numcodecs_package = wac_graph::types::Package::from_bytes(
+        &format!("{}", package.name()),
+        package.version(),
         wasm_component,
         wac.types_mut(),
     )?;
 
-    let numcodecs_codec_world = &wac.types()[numcodecs_codec_package.ty()];
-    let numcodecs_codec_imports = extract_component_ports(&numcodecs_codec_world.imports)?;
+    let numcodecs_world = &wac.types()[numcodecs_package.ty()];
+    let numcodecs_imports = extract_component_ports(&numcodecs_world.imports)?;
 
-    let numcodecs_codec_package = wac.register_package(numcodecs_codec_package)?;
-    let numcodecs_codec_instance = wac.instantiate(numcodecs_codec_package);
+    let numcodecs_package = wac.register_package(numcodecs_package)?;
+    let numcodecs_instance = wac.instantiate(numcodecs_package);
 
     // list the imports that the linker will provide
     let linker_provided_imports = [
         &WasiSandboxedStdioInterface::get().stdio,
         &WasiLoggingInterface::get().logging,
+        registry_interface,
+        types_interface,
     ];
 
     // initialise the unresolved imports to the imports of the root package
     let mut unresolved_imports = vecmap::VecMap::new();
-    for import in &numcodecs_codec_imports {
+    for import in &numcodecs_imports {
         unresolved_imports
             .entry(import.clone())
             .or_insert_with(Vec::new)
-            .push(numcodecs_codec_instance);
+            .push(numcodecs_instance);
     }
 
     // track all non-root instances, which may fulfil imports
@@ -58,7 +65,7 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
 
     // initialise the queue of required, still to instantiate packages
     //  to the imports of the root package
-    let mut required_packages_queue = numcodecs_codec_imports
+    let mut required_packages_queue = numcodecs_imports
         .iter()
         .map(|import| import.package().clone())
         .collect::<std::collections::VecDeque<_>>();
@@ -150,7 +157,7 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     // export the numcodecs:abc/codec interface
     let numcodecs_codecs_str = &format!("{codec_interface}");
     let numcodecs_codecs_export =
-        wac.alias_instance_export(numcodecs_codec_instance, numcodecs_codecs_str)?;
+        wac.alias_instance_export(numcodecs_instance, numcodecs_codecs_str)?;
     wac.export(numcodecs_codecs_export, numcodecs_codecs_str)?;
 
     // encode the WAC composition graph into a WASM component and validate it
