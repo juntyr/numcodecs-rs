@@ -1,13 +1,13 @@
 use std::{error::Error, sync::Arc};
 
-use numcodecs::{DynCodec, DynCodecType, ErasedDynCodec, ErasedDynCodecType};
+use numcodecs::{Codec, DynCodec, DynCodecType, ErasedDynCodec, ErasedDynCodecType};
 use numcodecs_registry::Registry;
 use wasm_component_layer::{
     AsContext, AsContextMut, Func, FuncType, Linker, List, ListType, Record, RecordType,
     ResourceOwn, ResourceType, ResultType, ResultValue, TypeIdentifier, Value, ValueType,
 };
 
-use crate::wit::NumcodecsWitInterfaces;
+use crate::{WasmCodec, wit::NumcodecsWitInterfaces};
 
 /// Adds the `registry` to the `linker` to define the `numcodecs:abc/registry`
 /// interface.
@@ -76,6 +76,173 @@ pub fn add_registry_to_linker(
         "erased-dyn-codec-type",
         numcodecs_registry_codec_type_resource.clone(),
     )?;
+
+    let any_array_record = WasmCodec::any_array_ty().clone();
+
+    let any_array_result = ResultType::new(
+        Some(ValueType::Record(any_array_record.clone())),
+        Some(ValueType::Record(numcodecs_types_error_record.clone())),
+    );
+
+    let my_any_array_result = any_array_result.clone();
+    let my_numcodecs_types_error_record = numcodecs_types_error_record.clone();
+    let codec_encode = Func::new(
+        ctx.as_context_mut(),
+        FuncType::new(
+            [
+                ValueType::Borrow(numcodecs_registry_codec_resource.clone()),
+                ValueType::Record(any_array_record.clone()),
+            ],
+            [ValueType::Result(any_array_result.clone())],
+        ),
+        move |ctx, args, results| {
+            let [Value::Borrow(codec), Value::Record(data)] = args else {
+                anyhow::bail!(
+                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.encode arguments"
+                );
+            };
+
+            let [result] = results else {
+                anyhow::bail!(
+                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.encode results"
+                );
+            };
+
+            let encoded = WasmCodec::with_array_view_from_wasm_record(data, |data| {
+                let ctx = ctx.as_context();
+                let codec: &ErasedDynCodec = codec.rep(&ctx)?;
+
+                let encoded = codec.encode(data.cow()).map_err(anyhow::Error::new)?;
+                Ok(encoded)
+            });
+
+            let encoded = match encoded {
+                Ok(encoded) => Ok(WasmCodec::array_into_wasm(encoded.view())?),
+                Err(err) => Err(into_wit_error(err, &my_numcodecs_types_error_record)?),
+            };
+
+            let res = match encoded {
+                Ok(encoded) => Ok(Some(Value::Record(encoded))),
+                Err(err) => Err(Some(Value::Record(err))),
+            };
+
+            *result = Value::Result(ResultValue::new(my_any_array_result.clone(), res)?);
+
+            Ok(())
+        },
+    );
+    numcodecs_registry_instance.define_func("[method]erased-dyn-codec.encode", codec_encode)?;
+
+    let my_any_array_result = any_array_result.clone();
+    let my_numcodecs_types_error_record = numcodecs_types_error_record.clone();
+    let codec_decode = Func::new(
+        ctx.as_context_mut(),
+        FuncType::new(
+            [
+                ValueType::Borrow(numcodecs_registry_codec_resource.clone()),
+                ValueType::Record(any_array_record.clone()),
+            ],
+            [ValueType::Result(any_array_result.clone())],
+        ),
+        move |ctx, args, results| {
+            let [Value::Borrow(codec), Value::Record(encoded)] = args else {
+                anyhow::bail!(
+                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.decode arguments"
+                );
+            };
+
+            let [result] = results else {
+                anyhow::bail!(
+                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.decode results"
+                );
+            };
+
+            let decoded = WasmCodec::with_array_view_from_wasm_record(encoded, |encoded| {
+                let ctx = ctx.as_context();
+                let codec: &ErasedDynCodec = codec.rep(&ctx)?;
+
+                let decoded = codec.decode(encoded.cow()).map_err(anyhow::Error::new)?;
+                Ok(decoded)
+            });
+
+            let decoded = match decoded {
+                Ok(decoded) => Ok(WasmCodec::array_into_wasm(decoded.view())?),
+                Err(err) => Err(into_wit_error(err, &my_numcodecs_types_error_record)?),
+            };
+
+            let res = match decoded {
+                Ok(decoded) => Ok(Some(Value::Record(decoded))),
+                Err(err) => Err(Some(Value::Record(err))),
+            };
+
+            *result = Value::Result(ResultValue::new(my_any_array_result.clone(), res)?);
+
+            Ok(())
+        },
+    );
+    numcodecs_registry_instance.define_func("[method]erased-dyn-codec.decode", codec_decode)?;
+
+    let any_array_prototype_record = WasmCodec::any_array_prototype_ty().clone();
+
+    let my_any_array_result = any_array_result.clone();
+    let my_numcodecs_types_error_record = numcodecs_types_error_record.clone();
+    let codec_decode_into = Func::new(
+        ctx.as_context_mut(),
+        FuncType::new(
+            [
+                ValueType::Borrow(numcodecs_registry_codec_resource.clone()),
+                ValueType::Record(any_array_record),
+                ValueType::Record(any_array_prototype_record),
+            ],
+            [ValueType::Result(any_array_result)],
+        ),
+        move |ctx, args, results| {
+            let [
+                Value::Borrow(codec),
+                Value::Record(encoded),
+                Value::Record(decoded),
+            ] = args
+            else {
+                anyhow::bail!(
+                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.decode-into arguments"
+                );
+            };
+
+            let [result] = results else {
+                anyhow::bail!(
+                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.decode-into results"
+                );
+            };
+
+            let mut decoded = WasmCodec::array_prototype_from_wasm_record(decoded)?;
+
+            let res = WasmCodec::with_array_view_from_wasm_record(encoded, |encoded| {
+                let ctx = ctx.as_context();
+                let codec: &ErasedDynCodec = codec.rep(&ctx)?;
+
+                codec
+                    .decode_into(encoded, decoded.view_mut())
+                    .map_err(anyhow::Error::new)?;
+                Ok(())
+            });
+
+            let decoded = match res {
+                Ok(()) => Ok(WasmCodec::array_into_wasm(decoded.view())?),
+                Err(err) => Err(into_wit_error(err, &my_numcodecs_types_error_record)?),
+            };
+
+            let res = match decoded {
+                Ok(decoded) => Ok(Some(Value::Record(decoded))),
+                Err(err) => Err(Some(Value::Record(err))),
+            };
+
+            *result = Value::Result(ResultValue::new(my_any_array_result.clone(), res)?);
+
+            Ok(())
+        },
+    );
+    numcodecs_registry_instance
+        .define_func("[method]erased-dyn-codec.decode-into", codec_decode_into)?;
 
     let my_numcodecs_registry_codec_resource = numcodecs_registry_codec_resource.clone();
     let codec_clone = Func::new(
