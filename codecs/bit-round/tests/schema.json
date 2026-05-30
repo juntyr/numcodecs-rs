@@ -25,6 +25,25 @@
     },
     {
       "type": "object",
+      "description": "Pointwise absolute error.",
+      "properties": {
+        "eb_abs": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "The pointwise absolute error bound to preserve.\n\nThis error bound guarantees that\n`$|x - \\hat{x}| \\leq \\epsilon_{abs}$`."
+        },
+        "mode": {
+          "type": "string",
+          "const": "AbsoluteError"
+        }
+      },
+      "required": [
+        "mode",
+        "eb_abs"
+      ]
+    },
+    {
+      "type": "object",
       "description": "Pointwise relative error.",
       "properties": {
         "eb_rel": {

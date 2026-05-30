@@ -17,7 +17,7 @@
 //!
 //! Bit rounding codec implementation for the [`numcodecs`] API.
 
-use std::{borrow::Cow, num::FpCategory};
+use std::borrow::Cow;
 
 use ndarray::{Array, ArrayBase, Data, Dimension};
 use numcodecs::{
@@ -62,6 +62,14 @@ pub enum BitRoundMode {
         /// If keepbits is equal to the bitlength of the dtype's mantissa, no
         /// transformation is performed.
         keepbits: u8,
+    },
+    /// Pointwise absolute error.
+    AbsoluteError {
+        /// The pointwise absolute error bound to preserve.
+        ///
+        /// This error bound guarantees that
+        /// `$|x - \hat{x}| \leq \epsilon_{abs}$`.
+        eb_abs: NonNegative<f64>,
     },
     /// Pointwise relative error.
     RelativeError {
@@ -210,16 +218,27 @@ pub fn bit_round<T: Float, S: Data<Elem = T>, D: Dimension>(
             }
             (u32::from(keepbits), false)
         }
-        BitRoundMode::RelativeError { eb_rel } => {
-            #[expect(clippy::cast_possible_truncation)]
-            // no truncation since the exponent is in [-1074, 1024]
-            let keepbits = (-eb_rel.0.log2().floor() as i64) - 1;
-            // keepbits must be within the range of the mantissa bits of single precision.
-            #[expect(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-            // no sign loss or truncation since we clamp to between 0 and a u32
-            let keepbits = keepbits.clamp(0, i64::from(T::MANITSSA_BITS)) as u32;
-            (keepbits, true)
+        BitRoundMode::AbsoluteError { eb_abs } => {
+            let eb_abs = T::from_f64(eb_abs.0);
+
+            let mut encoded = data.into_owned();
+
+            encoded.mapv_inplace(|x| {
+                // subnormal, infinite, and NaN values are hard so just keep
+                // them as is
+                if !x.is_normal() {
+                    return x;
+                }
+
+                let keepbits = BitRounder::keepbits_from_eb_rel(NonNegative(eb_abs / x.abs()));
+                let bit_round = BitRounder::new(keepbits);
+
+                bit_round.apply(x)
+            });
+
+            return Ok(encoded);
         }
+        BitRoundMode::RelativeError { eb_rel } => (BitRounder::keepbits_from_eb_rel(*eb_rel), true),
     };
 
     let mut encoded = data.into_owned();
@@ -230,35 +249,68 @@ pub fn bit_round<T: Float, S: Data<Elem = T>, D: Dimension>(
         return Ok(encoded);
     }
 
-    // half of unit in last place (ulp)
-    let ulp_half = T::MANTISSA_MASK >> (keepbits + 1);
-    // mask to zero out trailing mantissa bits
-    let keep_mask = !(T::MANTISSA_MASK >> keepbits);
-    // shift to extract the least significant bit of the exponent
-    let shift = T::MANITSSA_BITS - keepbits;
+    let bit_round = BitRounder::new(keepbits);
 
     encoded.mapv_inplace(|x| {
-        // subnormal, infinite, and NaN values are
-        if keep_non_normal && !x.is_normal_or_zero() {
+        // subnormal, infinite, and NaN values are hard so just keep them as is
+        if keep_non_normal && !x.is_normal() {
             return x;
         }
 
-        let mut bits = T::to_binary(x);
-
-        // add ulp/2 with ties to even
-        bits += ulp_half + ((bits >> shift) & T::BINARY_ONE);
-
-        // set the trailing bits to zero
-        bits &= keep_mask;
-
-        T::from_binary(bits)
+        bit_round.apply(x)
     });
 
     Ok(encoded)
 }
 
+struct BitRounder<T: Float> {
+    ulp_half: T::Binary,
+    keep_mask: T::Binary,
+    shift: u32,
+}
+
+impl<T: Float> BitRounder<T> {
+    #[inline]
+    fn new(keepbits: u32) -> Self {
+        // half of unit in last place (ulp)
+        let ulp_half = T::MANTISSA_MASK >> (keepbits + 1);
+        // mask to zero out trailing mantissa bits
+        let keep_mask = !(T::MANTISSA_MASK >> keepbits);
+        // shift to extract the least significant bit of the exponent
+        let shift = T::MANITSSA_BITS - keepbits;
+
+        Self {
+            ulp_half,
+            keep_mask,
+            shift,
+        }
+    }
+
+    fn keepbits_from_eb_rel(eb_rel: NonNegative<T>) -> u32 {
+        let keepbits = -eb_rel.0.log2_floor() - 1;
+        // keepbits must be within the range of the mantissa bits of single precision.
+        #[expect(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+        // no sign loss or truncation since we clamp to between 0 and a u32
+        let keepbits = keepbits.clamp(0, i64::from(T::MANITSSA_BITS)) as u32;
+        keepbits
+    }
+
+    #[inline]
+    fn apply(&self, x: T) -> T {
+        let mut bits = T::to_binary(x);
+
+        // add ulp/2 with ties to even
+        bits += self.ulp_half + ((bits >> self.shift) & T::BINARY_ONE);
+
+        // set the trailing bits to zero
+        bits &= self.keep_mask;
+
+        T::from_binary(bits)
+    }
+}
+
 /// Floating point types.
-pub trait Float: Sized + Copy {
+pub trait Float: Sized + Copy + std::ops::Div<Self, Output = Self> {
     /// Number of significant digits in base 2
     const MANITSSA_BITS: u32;
     /// Binary mask to extract only the mantissa bits
@@ -283,8 +335,18 @@ pub trait Float: Sized + Copy {
     /// Bit-cast the binary representation into a floating point value
     fn from_binary(u: Self::Binary) -> Self;
 
-    /// Returns true if the number is neither infinite, subnormal, or NaN
-    fn is_normal_or_zero(self) -> bool;
+    /// Returns the floating point category of the number
+    fn is_normal(self) -> bool;
+
+    /// Returns the floor of the base-2 logarithm as a signed integer
+    fn log2_floor(self) -> i64;
+
+    /// Computes the absolute value
+    #[must_use]
+    fn abs(self) -> Self;
+
+    /// Convert from an [`f64`] value
+    fn from_f64(x: f64) -> Self;
 }
 
 impl Float for f32 {
@@ -303,8 +365,23 @@ impl Float for f32 {
         Self::from_bits(u)
     }
 
-    fn is_normal_or_zero(self) -> bool {
-        matches!(self.classify(), FpCategory::Normal | FpCategory::Zero)
+    fn is_normal(self) -> bool {
+        self.is_normal()
+    }
+
+    #[expect(clippy::cast_possible_truncation)]
+    fn log2_floor(self) -> i64 {
+        // no truncation since the exponent is in [-149, 128]
+        -self.log2().floor() as i64
+    }
+
+    fn abs(self) -> Self {
+        self.abs()
+    }
+
+    #[expect(clippy::cast_possible_truncation)]
+    fn from_f64(x: f64) -> Self {
+        x as Self
     }
 }
 
@@ -324,8 +401,22 @@ impl Float for f64 {
         Self::from_bits(u)
     }
 
-    fn is_normal_or_zero(self) -> bool {
-        matches!(self.classify(), FpCategory::Normal | FpCategory::Zero)
+    fn is_normal(self) -> bool {
+        self.is_normal()
+    }
+
+    #[expect(clippy::cast_possible_truncation)]
+    fn log2_floor(self) -> i64 {
+        // no truncation since the exponent is in [-1074, 1024]
+        self.log2().floor() as i64
+    }
+
+    fn abs(self) -> Self {
+        self.abs()
+    }
+
+    fn from_f64(x: f64) -> Self {
+        x
     }
 }
 
