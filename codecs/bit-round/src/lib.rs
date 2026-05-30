@@ -290,11 +290,11 @@ impl<T: Float> BitRounder<T> {
     }
 
     fn keepbits_from_eb_rel(eb_rel: NonNegative<T>) -> u32 {
-        let keepbits = -eb_rel.0.log2_floor() - 1;
+        let keepbits = -(eb_rel.0.normal_log2_floor()) - 1;
         // keepbits must be within the range of the mantissa bits of single precision.
         #[expect(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
         // no sign loss or truncation since we clamp to between 0 and a u32
-        let keepbits = keepbits.clamp(0, i64::from(T::MANITSSA_BITS)) as u32;
+        let keepbits = i64::from(keepbits).clamp(0, i64::from(T::MANITSSA_BITS)) as u32;
         keepbits
     }
 
@@ -342,7 +342,7 @@ pub trait Float: Sized + Copy + std::ops::Div<Self, Output = Self> {
     fn is_normal(self) -> bool;
 
     /// Returns the floor of the base-2 logarithm as a signed integer
-    fn log2_floor(self) -> i64;
+    fn normal_log2_floor(self) -> i16;
 
     /// Computes the absolute value
     #[must_use]
@@ -372,10 +372,8 @@ impl Float for f32 {
         self.is_normal()
     }
 
-    #[expect(clippy::cast_possible_truncation)]
-    fn log2_floor(self) -> i64 {
-        // no truncation since the exponent is in [-149, 128]
-        -self.log2().floor() as i64
+    fn normal_log2_floor(self) -> i16 {
+        (((self.to_bits() >> 23) & 0xff) as i16) - 127
     }
 
     fn abs(self) -> Self {
@@ -408,10 +406,8 @@ impl Float for f64 {
         self.is_normal()
     }
 
-    #[expect(clippy::cast_possible_truncation)]
-    fn log2_floor(self) -> i64 {
-        // no truncation since the exponent is in [-1074, 1024]
-        self.log2().floor() as i64
+    fn normal_log2_floor(self) -> i16 {
+        (((self.to_bits() >> 52) & 0x7ff) as i16) - 1023
     }
 
     fn abs(self) -> Self {
@@ -666,5 +662,41 @@ mod tests {
                 Array1::from_vec(vec![full(v)])
             );
         }
+    }
+
+    #[test]
+    fn normal_log2_floor_f32() {
+        for e in -100_i16..100 {
+            let b = f32::from(e).exp2();
+            for f in [0.55, 0.75, 0.9, 1.0, 1.1, 1.5, 1.95] {
+                let x = b * f;
+
+                #[expect(clippy::cast_possible_truncation)]
+                let math = x.log2().floor() as i16;
+                let binary = x.normal_log2_floor();
+
+                assert_eq!(math, binary, "{x}");
+            }
+        }
+
+        assert_eq!(i32::from(0.0_f32.normal_log2_floor()), f32::MIN_EXP - 2);
+    }
+
+    #[test]
+    fn normal_log2_floor_f64() {
+        for e in -100_i32..100 {
+            let b = f64::from(e).exp2();
+            for f in [0.55, 0.75, 0.9, 1.0, 1.1, 1.5, 1.95] {
+                let x = b * f;
+
+                #[expect(clippy::cast_possible_truncation)]
+                let math = x.log2().floor() as i16;
+                let binary = x.normal_log2_floor();
+
+                assert_eq!(math, binary, "{x}");
+            }
+        }
+
+        assert_eq!(i32::from(0.0_f64.normal_log2_floor()), f64::MIN_EXP - 2);
     }
 }
