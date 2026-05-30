@@ -19,10 +19,16 @@
 //!
 //! [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 
-use std::{error::Error, sync::Arc};
+use std::{
+    borrow::Cow,
+    error::Error,
+    ops::{Deref, DerefMut},
+    sync::Arc,
+};
 
 use numcodecs::{DynCodec, ErasedDynCodec, ErasedError};
-use serde::Deserializer;
+use schemars::{JsonSchema, Schema, SchemaGenerator};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Registry of codec types.
 pub trait Registry: 'static + Send + Sync {
@@ -231,5 +237,84 @@ impl Registry for EmptyRegistry {
         _config: D,
     ) -> Result<Option<T>, Self::Error> {
         Err(CodecNotFoundError)
+    }
+}
+
+#[derive(Clone)]
+/// Wrapper around an [`ErasedDynCodec`] that can be used inside a meta-codec
+/// configuration to (de)serialize a wrapped inner codec.
+pub struct GlobalErasedDynCodec {
+    codec: ErasedDynCodec,
+}
+
+impl GlobalErasedDynCodec {
+    #[must_use]
+    /// Wrap an existing `codec`.
+    pub const fn new(codec: ErasedDynCodec) -> Self {
+        Self { codec }
+    }
+
+    #[must_use]
+    /// Extract the inner codec.
+    pub fn into_inner(this: Self) -> ErasedDynCodec {
+        this.codec
+    }
+}
+
+impl Deref for GlobalErasedDynCodec {
+    type Target = ErasedDynCodec;
+
+    fn deref(&self) -> &Self::Target {
+        &self.codec
+    }
+}
+
+impl DerefMut for GlobalErasedDynCodec {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.codec
+    }
+}
+
+impl Serialize for GlobalErasedDynCodec {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.codec.get_config(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for GlobalErasedDynCodec {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        Ok(Self {
+            codec: GlobalRegistry
+                .get_codec(deserializer)
+                .map_err(serde::de::Error::custom)?,
+        })
+    }
+}
+
+impl JsonSchema for GlobalErasedDynCodec {
+    fn inline_schema() -> bool {
+        false
+    }
+
+    fn schema_name() -> Cow<'static, str> {
+        Cow::Borrowed("NumcodecsCodecConfig")
+    }
+
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Borrowed(concat!(module_path!(), "::", "GlobalErasedDynCodec"))
+    }
+
+    fn json_schema(generator: &mut SchemaGenerator) -> Schema {
+        #[derive(JsonSchema)]
+        #[schemars(extend("additionalProperties" = {"type": "object"}))]
+        /// The configuration for a codec.
+        struct NumcodecsCodecConfig {
+            /// The `codec_id` of the codec, which is looked up in the global
+            /// registry.
+            #[expect(dead_code)]
+            id: String,
+        }
+
+        NumcodecsCodecConfig::json_schema(generator)
     }
 }
