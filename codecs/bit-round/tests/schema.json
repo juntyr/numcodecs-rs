@@ -15,7 +15,7 @@
         },
         "mode": {
           "type": "string",
-          "const": "Keepbits"
+          "const": "keepbits"
         }
       },
       "required": [
@@ -34,7 +34,7 @@
         },
         "mode": {
           "type": "string",
-          "const": "AbsoluteError"
+          "const": "abs"
         }
       },
       "required": [
@@ -53,7 +53,7 @@
         },
         "mode": {
           "type": "string",
-          "const": "RelativeError"
+          "const": "rel"
         }
       },
       "required": [

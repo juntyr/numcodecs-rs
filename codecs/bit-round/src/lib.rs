@@ -29,7 +29,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+#[schemars(deny_unknown_fields)]
 /// Codec providing floating-point bit rounding.
 ///
 /// Drops the specified number of bits from the floating point mantissa,
@@ -54,6 +54,7 @@ pub struct BitRoundCodec {
 /// Bit rounding mode
 pub enum BitRoundMode {
     /// Directly specify the number of bits of the mantissa to keep.
+    #[serde(rename = "keepbits")]
     Keepbits {
         /// The number of bits of the mantissa to keep.
         ///
@@ -64,6 +65,7 @@ pub enum BitRoundMode {
         keepbits: u8,
     },
     /// Pointwise absolute error.
+    #[serde(rename = "abs")]
     AbsoluteError {
         /// The pointwise absolute error bound to preserve.
         ///
@@ -72,6 +74,7 @@ pub enum BitRoundMode {
         eb_abs: NonNegative<f64>,
     },
     /// Pointwise relative error.
+    #[serde(rename = "rel")]
     RelativeError {
         /// The pointwise relative error bound to preserve.
         ///
