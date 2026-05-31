@@ -73,13 +73,22 @@ impl WasmCodecComponent {
 
         let NumcodecsWitInterfaces {
             codec: codec_interface,
+            codec_v0_1_1: codec_v0_1_1_interface,
             ..
         } = NumcodecsWitInterfaces::get();
 
-        let Some(codec_interface) = instance.exports().instance(codec_interface) else {
-            return Err(RuntimeError::from(anyhow::Error::msg(format!(
-                "WASM component does not contain an interface named `{codec_interface}`"
-            ))));
+        // prefer to import the numcodecs:abc@0.1.2/codec interface
+        let codec_interface = match instance.exports().instance(codec_interface) {
+            Some(codec_interface) => codec_interface,
+            None => match instance.exports().instance(codec_v0_1_1_interface) {
+                // fall back to import the numcodecs:abc@0.1.1/codec interface
+                Some(codec_interface) => codec_interface,
+                None => {
+                    return Err(RuntimeError::from(anyhow::Error::msg(format!(
+                        "WASM component does not export an interface named `{codec_interface}`"
+                    ))));
+                }
+            },
         };
 
         let codec_id = load_typed_func(codec_interface, "codec-id")?;
