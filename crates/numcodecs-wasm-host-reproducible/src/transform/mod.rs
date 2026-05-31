@@ -3,6 +3,7 @@ use std::sync::OnceLock;
 use anyhow::{Context, Error, anyhow};
 use instcnt::PerfWitInterfaces;
 use numcodecs_wasm_host::NumcodecsWitInterfaces;
+use wac_graph::AliasError;
 
 use crate::{logging::WasiLoggingInterface, stdio::WasiSandboxedStdioInterface};
 
@@ -14,6 +15,7 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     let NumcodecsWitInterfaces {
         package: numcodecs_package,
         codec: numcodecs_codec_interface,
+        codec_v0_1_1: numcodecs_v0_1_1_codec_interface,
         registry: numcodecs_registry_interface,
         types: numcodecs_types_interface,
         ..
@@ -158,7 +160,14 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     // export the numcodecs:abc/codec interface
     let numcodecs_codecs_str = &format!("{numcodecs_codec_interface}");
     let numcodecs_codecs_export =
-        wac.alias_instance_export(numcodecs_instance, numcodecs_codecs_str)?;
+        match wac.alias_instance_export(numcodecs_instance, numcodecs_codecs_str) {
+            Ok(numcodecs_codecs_export) => numcodecs_codecs_export,
+            Err(AliasError::InstanceMissingExport { .. }) => wac.alias_instance_export(
+                numcodecs_instance,
+                &format!("{numcodecs_v0_1_1_codec_interface}"),
+            )?,
+            Err(err) => Err(err)?,
+        };
     wac.export(numcodecs_codecs_export, numcodecs_codecs_str)?;
 
     // encode the WAC composition graph into a WASM component and validate it

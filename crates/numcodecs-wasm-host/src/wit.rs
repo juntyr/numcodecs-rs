@@ -12,6 +12,8 @@ pub struct NumcodecsWitInterfaces {
     pub package: PackageIdentifier,
     /// The `numcodecs:abc/codec` interface
     pub codec: InterfaceIdentifier,
+    /// The `numcodecs:abc@0.1.1/codec` interface
+    pub codec_v0_1_1: InterfaceIdentifier,
     /// The `numcodecs:abc/registry` interface
     pub registry: InterfaceIdentifier,
     /// The `numcodecs:abc/types` interface
@@ -29,9 +31,14 @@ impl NumcodecsWitInterfaces {
                 PackageName::new("numcodecs", "abc"),
                 Some(Version::new(0, 1, 2)),
             );
+            let package_v0_1_1 = PackageIdentifier::new(
+                PackageName::new("numcodecs", "abc"),
+                Some(Version::new(0, 1, 1)),
+            );
             Self {
                 package: package.clone(),
                 codec: InterfaceIdentifier::new(package.clone(), "codec"),
+                codec_v0_1_1: InterfaceIdentifier::new(package_v0_1_1, "codec"),
                 registry: InterfaceIdentifier::new(package.clone(), "registry"),
                 types: InterfaceIdentifier::new(package, "types"),
             }
