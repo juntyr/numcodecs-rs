@@ -29,6 +29,7 @@ anyhow = { workspace = true }
 # FIXME: https://github.com/bytecodealliance/rustix/issues/1620
 memfd = { version = "0.6.5", default-features = false }
 numcodecs-python = { workspace = true }
+numcodecs-registry = { workspace = true }
 numcodecs-wasm-host-reproducible = { workspace = true }
 pyo3 = { workspace = true, features = ["macros", "abi3-py310"] }
 pyo3-error = { workspace = true }

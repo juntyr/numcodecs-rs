@@ -1,13 +1,16 @@
+use numcodecs::{DynCodec, ErasedDynCodec};
+use numcodecs_registry::Registry;
 use pyo3::{prelude::*, sync::PyOnceLock, types::PyDict};
+use pythonize::Pythonizer;
+use serde::Deserializer;
+use serde_transcode::transcode;
 
 #[expect(unused_imports)] // FIXME: use expect, only used in docs
 use crate::PyCodecClassMethods;
-use crate::{PyCodec, PyCodecClass};
+use crate::{PyCodec, PyCodecAdapter, PyCodecClass};
 
 /// Dynamic registry of codec classes.
-pub struct PyCodecRegistry {
-    _private: (),
-}
+pub struct PyCodecRegistry;
 
 impl PyCodecRegistry {
     /// Instantiate a codec from a configuration dictionary.
@@ -54,5 +57,40 @@ impl PyCodecRegistry {
         register_codec.call1((class, codec_id))?;
 
         Ok(())
+    }
+}
+
+impl Registry for PyCodecRegistry {
+    type Error = PyErr;
+
+    fn get_codec<'de, D: Deserializer<'de>>(
+        &self,
+        config: D,
+    ) -> Result<ErasedDynCodec, Self::Error> {
+        Python::attach(|py| {
+            let config = transcode(config, Pythonizer::new(py))?;
+            let config: Bound<PyDict> = config.extract()?;
+
+            let codec = Self::get_codec(config.as_borrowed())?;
+            let codec = PyCodecAdapter::from_codec(codec)?;
+
+            Ok(ErasedDynCodec::new(codec))
+        })
+    }
+
+    fn get_codec_typed<'de, T: DynCodec, D: Deserializer<'de>>(
+        &self,
+        config: D,
+    ) -> Result<Option<T>, Self::Error> {
+        Python::attach(|py| {
+            let config = transcode(config, Pythonizer::new(py))?;
+            let config: Bound<PyDict> = config.extract()?;
+
+            let codec = Self::get_codec(config.as_borrowed())?;
+            // clone is necessary since we cannot move out of a PyCodec
+            let codec = PyCodecAdapter::with_downcast(py, &codec, |codec: &T| codec.clone());
+
+            Ok(codec)
+        })
     }
 }

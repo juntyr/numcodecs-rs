@@ -32,7 +32,8 @@ fn create_codec_class<'py>(
 ) -> Result<Bound<'py, PyCodecClass>, PyErr> {
     let engine = default_engine(py)?;
 
-    let codec_ty = ReproducibleWasmCodecType::new(engine, wasm)
+    // TODO: we should allow restricting the codecs that the reproducible codec can 'see'
+    let codec_ty = ReproducibleWasmCodecType::new(engine, wasm, numcodecs_python::PyCodecRegistry)
         .map_err(|err| pyo3_error::PyErrChain::new(py, err))?;
 
     let codec_class = numcodecs_python::export_codec_class(py, codec_ty, module.as_borrowed())?;
@@ -59,4 +60,8 @@ fn read_codec_instruction_counter<'py>(
     };
 
     Ok(instruction_counter.0)
+}
+
+numcodecs_registry::export_global! {
+    static REGISTRY: numcodecs_python::PyCodecRegistry = numcodecs_python::PyCodecRegistry;
 }
