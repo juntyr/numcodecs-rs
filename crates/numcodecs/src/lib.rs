@@ -21,6 +21,7 @@
 
 mod array;
 mod codec;
+mod erased;
 
 pub use array::{
     AnyArcArray, AnyArray, AnyArrayAssignError, AnyArrayBase, AnyArrayDType, AnyArrayView,
@@ -30,3 +31,4 @@ pub use codec::{
     Codec, DynCodec, DynCodecType, StaticCodec, StaticCodecConfig, StaticCodecType,
     StaticCodecVersion, codec_from_config_with_id, serialize_codec_config_with_id,
 };
+pub use erased::{ErasedDynCodec, ErasedDynCodecType, ErasedError};

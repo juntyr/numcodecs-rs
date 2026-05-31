@@ -23,7 +23,7 @@ fn collect_schemas() -> Result<(), PyErr> {
 
             println!(
                 "{codec_id}: {:#}",
-                codec_ty.codec_config_schema().as_value()
+                codec_ty.codec_config_schema().to_value()
             );
         }
 
