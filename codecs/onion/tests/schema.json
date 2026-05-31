@@ -28,7 +28,7 @@
   "required": [
     "codec"
   ],
-  "description": "Onion identity meta-codec which wraps an existing codec and passes the\ninputs to and outputs from it unchanged during encoding and decoding.",
+  "description": "Onion identity meta-codec which wraps an existing codec and passes the\ninputs and outputs unchanged to and from this codec during encoding and\ndecoding.",
   "title": "OnionCodec",
   "$schema": "https://json-schema.org/draft/2020-12/schema"
 }

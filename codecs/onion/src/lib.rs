@@ -29,7 +29,8 @@ use thiserror::Error;
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 /// Onion identity meta-codec which wraps an existing codec and passes the
-/// inputs to and outputs from it unchanged during encoding and decoding.
+/// inputs and outputs unchanged to and from this codec during encoding and
+/// decoding.
 pub struct OnionCodec {
     /// The configuration of the wrapped codec.
     #[serde(serialize_with = "DynCodec::get_config")]
@@ -82,7 +83,7 @@ impl StaticCodec for OnionCodec {
 }
 
 #[derive(Debug, Error)]
-/// Errors that may occur when applying the [`OnionCodec`].
+/// Error that may occur when applying the [`OnionCodec`].
 #[error(transparent)]
 pub struct OnionCodecError {
     error: ErasedError,

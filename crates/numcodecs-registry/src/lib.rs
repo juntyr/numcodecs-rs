@@ -46,14 +46,15 @@ pub trait Registry: 'static + Send + Sync {
 
     /// Instantiate a codec with a concrete type from its `config`uration.
     ///
+    /// Returns [`None`] if the constructed codec is of the wrong type.
+    ///
     /// The config *must* include the `id` field with the
     /// [`DynCodecType::codec_id`].
     ///
     /// # Errors
     ///
-    /// Errors if no codec with a matching `id` has been registered, if
-    /// constructing the codec fails, or if the constructed codec is not of the
-    /// concrete type.
+    /// Errors if no codec with a matching `id` has been registered, or if
+    /// constructing the codec fails.
     fn get_codec_typed<'de, T: DynCodec, D: Deserializer<'de>>(
         &self,
         config: D,
@@ -163,8 +164,8 @@ impl GlobalRegistry {
         _numcodecs_registry_get_global_registry()
     }
 
-    /// Deserialize an [`ErasedDynCodec`] from the [`GlobalRegistry`] from its
-    /// `config`.
+    /// Deserialize an [`ErasedDynCodec`] from its `config` by looking up the
+    /// codec `id` in the [`GlobalRegistry`].
     ///
     /// The config *must* include the `id` field with the
     /// [`DynCodecType::codec_id`].
