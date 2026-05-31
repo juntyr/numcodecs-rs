@@ -71,19 +71,21 @@ impl WasmCodecComponent {
                 .map_err(RuntimeError::from)
         }
 
-        let interfaces = NumcodecsWitInterfaces::get();
+        let NumcodecsWitInterfaces {
+            codec: codec_interface,
+            ..
+        } = NumcodecsWitInterfaces::get();
 
-        let Some(codecs_interface) = instance.exports().instance(&interfaces.codec) else {
+        let Some(codec_interface) = instance.exports().instance(codec_interface) else {
             return Err(RuntimeError::from(anyhow::Error::msg(format!(
-                "WASM component does not contain an interface named `{}`",
-                interfaces.codec
+                "WASM component does not contain an interface named `{codec_interface}`"
             ))));
         };
 
-        let codec_id = load_typed_func(codecs_interface, "codec-id")?;
+        let codec_id = load_typed_func(codec_interface, "codec-id")?;
         let codec_id = codec_id.call(&mut ctx, ())?;
 
-        let codec_config_schema = load_typed_func(codecs_interface, "codec-config-schema")?;
+        let codec_config_schema = load_typed_func(codec_interface, "codec-config-schema")?;
         let codec_config_schema: Arc<str> = codec_config_schema.call(&mut ctx, ())?;
         let codec_config_schema: Schema =
             serde_json::from_str(&codec_config_schema).map_err(anyhow::Error::new)?;
@@ -91,11 +93,11 @@ impl WasmCodecComponent {
         Ok(Self {
             codec_id,
             codec_config_schema: Arc::new(codec_config_schema),
-            from_config: load_func(codecs_interface, "[static]codec.from-config")?,
-            encode: load_func(codecs_interface, "[method]codec.encode")?,
-            decode: load_func(codecs_interface, "[method]codec.decode")?,
-            decode_into: load_func(codecs_interface, "[method]codec.decode-into")?,
-            get_config: load_func(codecs_interface, "[method]codec.get-config")?,
+            from_config: load_func(codec_interface, "[static]codec.from-config")?,
+            encode: load_func(codec_interface, "[method]codec.encode")?,
+            decode: load_func(codec_interface, "[method]codec.decode")?,
+            decode_into: load_func(codec_interface, "[method]codec.decode-into")?,
+            get_config: load_func(codec_interface, "[method]codec.get-config")?,
             instance,
         })
     }

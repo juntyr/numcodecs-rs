@@ -12,10 +12,10 @@ pub mod nan;
 #[expect(clippy::too_many_lines)] // FIXME
 pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Vec<u8>, Error> {
     let NumcodecsWitInterfaces {
-        package,
-        codec: codec_interface,
-        registry: registry_interface,
-        types: types_interface,
+        package: numcodecs_package,
+        codec: numcodecs_codec_interface,
+        registry: numcodecs_registry_interface,
+        types: numcodecs_types_interface,
         ..
     } = NumcodecsWitInterfaces::get();
 
@@ -31,8 +31,8 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     //  - exports the numcodecs:abc/codec interface
     //  - imports the numcodecs:abc/registry interface
     let numcodecs_package = wac_graph::types::Package::from_bytes(
-        &format!("{}", package.name()),
-        package.version(),
+        &format!("{}", numcodecs_package.name()),
+        numcodecs_package.version(),
         wasm_component,
         wac.types_mut(),
     )?;
@@ -47,8 +47,9 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     let linker_provided_imports = [
         &WasiSandboxedStdioInterface::get().stdio,
         &WasiLoggingInterface::get().logging,
-        registry_interface,
-        types_interface,
+        numcodecs_registry_interface,
+        // numcodecs:abc/types is a types-only interface
+        numcodecs_types_interface,
     ];
 
     // initialise the unresolved imports to the imports of the root package
@@ -155,7 +156,7 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     }
 
     // export the numcodecs:abc/codec interface
-    let numcodecs_codecs_str = &format!("{codec_interface}");
+    let numcodecs_codecs_str = &format!("{numcodecs_codec_interface}");
     let numcodecs_codecs_export =
         wac.alias_instance_export(numcodecs_instance, numcodecs_codecs_str)?;
     wac.export(numcodecs_codecs_export, numcodecs_codecs_str)?;
