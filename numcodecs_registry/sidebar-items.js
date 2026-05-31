@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["export_global",1]],"struct":["CodecNotFoundError","EmptyRegistry","ErasedRegistry","GlobalRegistry"],"trait":["Registry"]};
