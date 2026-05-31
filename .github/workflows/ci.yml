@@ -357,7 +357,7 @@ jobs:
           rm .python-version
           uv python install ${{ matrix.python }}
           uv sync && uv pip install .
-          uv run python3 -m numcodecs_wasm_materialize "^${{ matrix.codec }}$" --local
+          uv run python3 -m numcodecs_wasm_materialize "^${{ matrix.codec }}$" --local --debug
 
       - name: Upload the ${{ matrix.codec }} WASM codec
         if: ${{ matrix.lock == 'Cargo.lock' }}
