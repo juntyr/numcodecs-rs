@@ -29,3 +29,6 @@ serde_json = { workspace = true, features = ["std"] }
 
 [lints]
 workspace = true
+
+[package.metadata.numcodecs-wasm]
+version = "0.2.4"  # wasi 0.2.6

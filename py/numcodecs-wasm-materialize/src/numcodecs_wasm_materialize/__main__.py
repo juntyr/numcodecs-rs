@@ -58,6 +58,9 @@ for c in (repo_path / "codecs").iterdir():
         "crate-version": toml.load(codec_crate_path / "Cargo.toml")["package"][
             "version"
         ],
+        "numcodecs-wasm-version": toml.load(codec_crate_path / "Cargo.toml")["package"][
+            "metadata"
+        ]["numcodecs-wasm"]["version"],
         "codec-id": f"{codec}.rs",
         "codec-path": "".join(c.title() for c in codec.split("-")) + "Codec",
         "CodecName": "".join(c.title() for c in codec.split("-")),

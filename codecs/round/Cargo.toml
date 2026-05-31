@@ -29,3 +29,6 @@ workspace = true
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "./docs/katex.html"]
+
+[package.metadata.numcodecs-wasm]
+version = "0.2.2"  # wasi 0.2.6
