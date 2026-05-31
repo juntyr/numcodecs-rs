@@ -1,6 +1,6 @@
 use std::{any::Any, error::Error, fmt};
 
-use schemars::Schema;
+use schemars::{JsonSchema, Schema, SchemaGenerator};
 use serde::{Deserializer, Serialize, Serializer};
 
 use crate::{AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec, DynCodecType};
@@ -77,6 +77,21 @@ impl ErasedDynCodec {
     #[must_use]
     pub fn downcast_mut<T: DynCodec>(&mut self) -> Option<&mut T> {
         self.codec.erased_as_any_mut().downcast_mut()
+    }
+
+    /// Generate the schema for any codec config.
+    pub fn codec_config_schema(generator: &mut SchemaGenerator) -> Schema {
+        #[derive(JsonSchema)]
+        #[schemars(extend("additionalProperties" = {"type": "object"}))]
+        /// The configuration for a codec.
+        struct Codec {
+            /// The `codec_id` of the codec, which is looked up in the global
+            /// registry.
+            #[expect(dead_code)]
+            id: String,
+        }
+
+        Codec::json_schema(generator)
     }
 }
 

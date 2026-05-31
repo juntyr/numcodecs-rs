@@ -17,7 +17,6 @@ keywords = ["numcodecs", "registry", "compression", "encoding"]
 [dependencies]
 erased-serde = { workspace = true, features = ["std"] }
 numcodecs = { workspace = true }
-schemars = { workspace = true, features = ["derive"] }
 serde = { workspace = true }
 thiserror = { workspace = true }
 
