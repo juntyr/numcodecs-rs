@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs-ebcc"
-version = "0.3.0-alpha"
+version = "0.3.0"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
