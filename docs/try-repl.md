@@ -12,15 +12,15 @@
     document.getElementById("try-jupyterlite").src = "https://lab.climet.eu/main/repl/index.html?kernel=python&toolbar=1&code=" + encodeURIComponent(`\
 import numpy as np
 from matplotlib import pyplot as plt
-from numcodecs_wasm_sz3 import Sz3
-
+from numcodecs_wasm_sz3 import Sz3\
+`) + "&code=" + encodeURIComponent(`\
 x = np.linspace(-np.pi, np.pi)
-y = np.sin(x)
-
+y = np.sin(x)\
+`) + "&code=" + encodeURIComponent(`\
 sz3 = Sz3(eb_mode="abs", eb_abs=0.1)
 enc = sz3.encode(y)
-dec = sz3.decode(enc)
-
+dec = sz3.decode(enc)\
+`) + "&code=" + encodeURIComponent(`\
 plt.plot(x, y, label="original")
 plt.plot(x, dec, label="decompressed")
 plt.legend()
