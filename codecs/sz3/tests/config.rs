@@ -1,9 +1,6 @@
 #![expect(missing_docs)]
 
-use ::{
-    ndarray as _, num_traits as _, postcard as _, schemars as _, sz3 as _, thiserror as _,
-    zstd_sys as _,
-};
+use ::{ndarray as _, postcard as _, schemars as _, sz3 as _, thiserror as _, zstd_sys as _};
 
 use numcodecs::StaticCodec;
 use numcodecs_sz3::Sz3Codec;
@@ -62,7 +59,7 @@ fn config_predictor() {
         Deserialize::deserialize(json!({
             "eb_mode": "rel",
             "eb_rel": 1.0,
-            "predictor": "interpolation",
+            "predictor": "linear-interpolation",
         }))
         .unwrap(),
     );
@@ -71,7 +68,7 @@ fn config_predictor() {
         Deserialize::deserialize(json!({
             "eb_mode": "rel",
             "eb_rel": 1.0,
-            "predictor": "interpolation-lorenzo",
+            "predictor": "cubic-interpolation-lorenzo",
         }))
         .unwrap(),
     );
