@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs-bit-round"
-version = "0.4.0"
+version = "0.5.0"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
@@ -11,6 +11,8 @@ description = "Bit rounding codec implementation for the numcodecs API"
 readme = "README.md"
 categories = ["compression", "encoding"]
 keywords = ["bit-rounding", "numcodecs", "compression", "encoding"]
+
+include = ["/src", "/LICENSE", "/docs/katex.html"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -23,6 +25,9 @@ thiserror = { workspace = true }
 
 [lints]
 workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "./docs/katex.html"]
 
 [package.metadata.numcodecs-wasm]
 version = "0.2.2"  # wasi 0.2.6

@@ -1,0 +1,76 @@
+{
+  "type": "object",
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "type": "object",
+      "description": "Directly specify the number of bits of the mantissa to keep.",
+      "properties": {
+        "keepbits": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "The number of bits of the mantissa to keep.\n\nThe valid range depends on the dtype of the input data.\n\nIf keepbits is equal to the bitlength of the dtype's mantissa, no\ntransformation is performed."
+        },
+        "mode": {
+          "type": "string",
+          "const": "keepbits"
+        }
+      },
+      "required": [
+        "mode",
+        "keepbits"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Pointwise absolute error.",
+      "properties": {
+        "eb_abs": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "The pointwise absolute error bound to preserve.\n\nThis error bound guarantees that\n`$|x - \\hat{x}| \\leq \\epsilon_{abs}$`."
+        },
+        "mode": {
+          "type": "string",
+          "const": "abs"
+        }
+      },
+      "required": [
+        "mode",
+        "eb_abs"
+      ]
+    },
+    {
+      "type": "object",
+      "description": "Pointwise relative error.",
+      "properties": {
+        "eb_rel": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "The pointwise relative error bound to preserve.\n\nThis error bound guarantees that\n`$|x - \\hat{x}| \\leq |x| \\cdot \\epsilon_{rel}$`."
+        },
+        "mode": {
+          "type": "string",
+          "const": "rel"
+        }
+      },
+      "required": [
+        "mode",
+        "eb_rel"
+      ]
+    }
+  ],
+  "description": "Codec providing floating-point bit rounding.\n\nDrops the specified number of bits from the floating point mantissa,\nleaving an array that is more amenable to compression. The number of\nbits to keep should be determined by information analysis of the data\nto be compressed.\n\nThe approach is based on the paper by Klöwer et al. 2021\n(<https://www.nature.com/articles/s43588-021-00156-2>).",
+  "properties": {
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "2.0.0"
+    }
+  },
+  "title": "BitRoundCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
