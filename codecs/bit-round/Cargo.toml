@@ -12,7 +12,7 @@ readme = "README.md"
 categories = ["compression", "encoding"]
 keywords = ["bit-rounding", "numcodecs", "compression", "encoding"]
 
-include = ["/src", "/LICENSE", "/docs/katex.html"]
+include = ["/src", "/tests", "/LICENSE", "/docs/katex.html"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
