@@ -95,7 +95,7 @@ pub fn into_wit_any_array(
 }
 
 #[cfg(feature = "registry")]
-pub fn into_wit_any_array_dtype(
+pub const fn into_wit_any_array_dtype(
     dtype: AnyArrayDType,
 ) -> Result<wit::types::AnyArrayDtype, AnyArrayConversionError> {
     let dtype = match dtype {
