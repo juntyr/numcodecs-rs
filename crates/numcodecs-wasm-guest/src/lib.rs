@@ -57,7 +57,10 @@ pub mod bindings {
 
 #[cfg(target_arch = "wasm32")]
 mod wit {
-    pub use crate::bindings::{exports::numcodecs::abc::codec, numcodecs::abc::{registry, types}};
+    pub use crate::bindings::{
+        exports::numcodecs::abc::codec,
+        numcodecs::abc::{registry, types},
+    };
 }
 
 #[macro_export]
