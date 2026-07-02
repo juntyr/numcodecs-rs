@@ -151,11 +151,11 @@ pub fn into_wit_error<T: Error>(err: T) -> wit::types::Error {
 
 #[expect(clippy::cast_possible_truncation)]
 #[must_use]
-pub(crate) fn into_wit_usize_vec(slice: &[usize]) -> Vec<wit::types::Usize> {
+pub fn into_wit_usize_vec(slice: &[usize]) -> Vec<wit::types::Usize> {
     slice.iter().map(|x| *x as wit::types::Usize).collect()
 }
 
 #[must_use]
-pub(crate) fn from_wit_usize_vec(vec: Vec<wit::types::Usize>) -> Vec<usize> {
+pub fn from_wit_usize_vec(vec: Vec<wit::types::Usize>) -> Vec<usize> {
     vec.into_iter().map(|x| x as usize).collect()
 }
