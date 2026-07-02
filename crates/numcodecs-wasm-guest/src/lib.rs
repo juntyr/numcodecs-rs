@@ -36,23 +36,28 @@ use ::{
 mod convert;
 
 #[cfg(target_arch = "wasm32")]
-use crate::{
-    bindings::exports::numcodecs::abc::codec as wit,
-    convert::{
-        from_wit_any_array, into_wit_any_array, into_wit_error, zeros_from_wit_any_array_prototype,
-    },
+mod external;
+
+#[cfg(target_arch = "wasm32")]
+use crate::convert::{
+    from_wit_any_array, into_wit_any_array, into_wit_error, zeros_from_wit_any_array_prototype,
 };
 
 #[doc(hidden)]
 #[expect(clippy::same_length_and_capacity)]
 pub mod bindings {
     wit_bindgen::generate!({
-        world: "numcodecs:abc/exports@0.1.1",
+        world: "numcodecs:abc/exports-with-registry@0.1.1",
         with: {
             "numcodecs:abc/codec@0.1.1": generate,
         },
         pub_export_macro: true,
     });
+}
+
+#[cfg(target_arch = "wasm32")]
+mod wit {
+    pub use crate::bindings::{exports::numcodecs::abc::codec, numcodecs::abc::{registry, types}};
 }
 
 #[macro_export]
@@ -96,14 +101,14 @@ macro_rules! export_codec {
 
 #[cfg(target_arch = "wasm32")]
 #[doc(hidden)]
-impl<T: StaticCodec> wit::Guest for T {
+impl<T: StaticCodec> wit::codec::Guest for T {
     type Codec = Self;
 
     fn codec_id() -> String {
         String::from(<Self as StaticCodec>::CODEC_ID)
     }
 
-    fn codec_config_schema() -> wit::JsonSchema {
+    fn codec_config_schema() -> wit::types::JsonSchema {
         schema_for!(<Self as StaticCodec>::Config<'static>)
             .as_value()
             .to_string()
@@ -111,12 +116,16 @@ impl<T: StaticCodec> wit::Guest for T {
 }
 
 #[cfg(target_arch = "wasm32")]
-impl<T: StaticCodec> wit::GuestCodec for T {
-    fn from_config(config: String) -> Result<wit::Codec, wit::Error> {
+impl<T: StaticCodec> wit::codec::GuestCodec for T {
+    fn from_config(config: String) -> Result<wit::codec::Codec, wit::types::Error> {
         let err = match <Self as StaticCodec>::Config::deserialize(
             &mut serde_json::Deserializer::from_str(&config),
         ) {
-            Ok(config) => return Ok(wit::Codec::new(<Self as StaticCodec>::from_config(config))),
+            Ok(config) => {
+                return Ok(wit::codec::Codec::new(<Self as StaticCodec>::from_config(
+                    config,
+                )));
+            }
             Err(err) => err,
         };
 
@@ -124,7 +133,10 @@ impl<T: StaticCodec> wit::GuestCodec for T {
         Err(into_wit_error(err))
     }
 
-    fn encode(&self, data: wit::AnyArray) -> Result<wit::AnyArray, wit::Error> {
+    fn encode(
+        &self,
+        data: wit::types::AnyArray,
+    ) -> Result<wit::types::AnyArray, wit::types::Error> {
         let data = match from_wit_any_array(data) {
             Ok(data) => data,
             Err(err) => return Err(into_wit_error(err)),
@@ -139,7 +151,10 @@ impl<T: StaticCodec> wit::GuestCodec for T {
         }
     }
 
-    fn decode(&self, encoded: wit::AnyArray) -> Result<wit::AnyArray, wit::Error> {
+    fn decode(
+        &self,
+        encoded: wit::types::AnyArray,
+    ) -> Result<wit::types::AnyArray, wit::types::Error> {
         let encoded = match from_wit_any_array(encoded) {
             Ok(encoded) => encoded,
             Err(err) => return Err(into_wit_error(err)),
@@ -156,9 +171,9 @@ impl<T: StaticCodec> wit::GuestCodec for T {
 
     fn decode_into(
         &self,
-        encoded: wit::AnyArray,
-        decoded: wit::AnyArrayPrototype,
-    ) -> Result<wit::AnyArray, wit::Error> {
+        encoded: wit::types::AnyArray,
+        decoded: wit::types::AnyArrayPrototype,
+    ) -> Result<wit::types::AnyArray, wit::types::Error> {
         let encoded = match from_wit_any_array(encoded) {
             Ok(encoded) => encoded,
             Err(err) => return Err(into_wit_error(err)),
@@ -175,7 +190,7 @@ impl<T: StaticCodec> wit::GuestCodec for T {
         }
     }
 
-    fn get_config(&self) -> Result<wit::Json, wit::Error> {
+    fn get_config(&self) -> Result<wit::types::Json, wit::types::Error> {
         match serde_json::to_string(&<Self as StaticCodec>::get_config(self)) {
             Ok(config) => Ok(config),
             Err(err) => Err(into_wit_error(err)),
