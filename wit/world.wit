@@ -2,20 +2,12 @@ package numcodecs:abc@0.1.1;
 
 world imports {
     import codec;
+    @unstable(feature = registry)
+    export registry;
 }
 
 world exports {
     export codec;
-}
-
-@since(version = 0.1.1)
-world imports-with-registry {
-    import codec;
-    export registry;
-}
-
-@since(version = 0.1.1)
-world exports-with-registry {
-    export codec;
+    @unstable(feature = registry)
     import registry;
 }

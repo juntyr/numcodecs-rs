@@ -1,6 +1,5 @@
 package numcodecs:abc@0.1.1;
 
-@since(version = 0.1.1)
 interface types {
     type json = string;
     type json-schema = json;

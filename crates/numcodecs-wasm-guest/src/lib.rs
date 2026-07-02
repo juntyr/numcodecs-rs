@@ -47,11 +47,12 @@ use crate::convert::{
 #[expect(clippy::same_length_and_capacity)]
 pub mod bindings {
     wit_bindgen::generate!({
-        world: "numcodecs:abc/exports-with-registry@0.1.1",
+        world: "numcodecs:abc/exports@0.1.1",
         with: {
             "numcodecs:abc/codec@0.1.1": generate,
         },
         pub_export_macro: true,
+        features: ["registry"],
     });
 }
 

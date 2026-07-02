@@ -1,12 +1,14 @@
 package numcodecs:abc@0.1.1;
 
-@since(version = 0.1.1)
+@unstable(feature = registry)
 interface registry {
+    @unstable(feature = registry)
     use types.{
         any-array, any-array-prototype, any-array-data, any-array-dtype, error,
         json, json-schema, usize,
     };
 
+    @unstable(feature = registry)
     resource external-codec {
         encode: func(data: any-array) -> result<any-array, error>;
 
@@ -21,6 +23,7 @@ interface registry {
         ty: func() -> external-codec-type;
     }
 
+    @unstable(feature = registry)
     resource external-codec-type {
         codec-id: func() -> string;
 
@@ -29,5 +32,6 @@ interface registry {
         codec-from-config: func(config: json) -> result<external-codec, error>;
     }
 
+    @unstable(feature = registry)
     get-external-codec: func(config: json) -> result<external-codec, error>;
 }
