@@ -47,7 +47,7 @@ struct InstructionCounterInjecterReencoder {
     func_index: u32,
 }
 
-impl wasm_encoder::reencode::Reencode for InstructionCounterInjecterReencoder {
+impl reencode::Reencode for InstructionCounterInjecterReencoder {
     type Error = Error;
 
     fn global_index(&mut self, global: u32) -> Result<u32, reencode::Error<Self::Error>> {

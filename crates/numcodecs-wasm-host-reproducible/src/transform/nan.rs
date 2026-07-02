@@ -42,7 +42,7 @@ struct NaNCanonicaliserReencoder {
     function_type_indices: VecDeque<usize>,
 }
 
-impl wasm_encoder::reencode::Reencode for NaNCanonicaliserReencoder {
+impl reencode::Reencode for NaNCanonicaliserReencoder {
     type Error = Error;
 
     fn parse_type_section(

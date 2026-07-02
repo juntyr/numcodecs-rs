@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
 use numcodecs::{
-    self, AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec, DynCodecType,
+    AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec, DynCodecType,
     ErasedDynCodec,
 };
-use numcodecs_registry::{self, Registry, export_global};
+use numcodecs_registry::Registry;
 use schemars::Schema;
-use serde::{self, Deserializer, Serializer};
+use serde::{Deserializer, Serializer};
 use serde_transcode::transcode;
 
 use crate::{convert, wit};
@@ -200,4 +200,6 @@ impl Registry for ExternalRegistry {
     }
 }
 
-export_global! { registry: ExternalRegistry = ExternalRegistry }
+numcodecs_registry::export_global! {
+    static REGISTRY: ExternalRegistry = ExternalRegistry;
+}

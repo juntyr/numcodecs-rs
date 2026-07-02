@@ -88,8 +88,3 @@ impl StaticCodec for OnionCodec {
 pub struct OnionCodecError {
     error: ErasedError,
 }
-
-// FIXME: provide global registry elsewhere
-numcodecs_registry::export_global! {
-    static REGISTRY: numcodecs_registry::EmptyRegistry = numcodecs_registry::EmptyRegistry;
-}
