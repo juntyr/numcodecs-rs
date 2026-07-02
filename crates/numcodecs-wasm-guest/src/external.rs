@@ -105,7 +105,7 @@ impl DynCodecType for ExternalCodecType {
     type Codec = ExternalCodec;
 
     fn codec_id(&self) -> &str {
-        &*self.codec_id
+        &self.codec_id
     }
 
     fn codec_config_schema(&self) -> Schema {
@@ -129,7 +129,7 @@ impl DynCodecType for ExternalCodecType {
 
         Ok(ExternalCodec {
             codec,
-            ty: ExternalCodecType {
+            ty: Self {
                 ty: self.ty.clone(),
                 codec_id: self.codec_id.clone(),
                 schema: self.schema.clone(),
