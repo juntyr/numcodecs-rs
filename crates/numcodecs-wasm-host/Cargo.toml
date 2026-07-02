@@ -18,6 +18,7 @@ keywords = ["numcodecs", "compression", "encoding", "wasm-component", "wasm-bind
 anyhow = { workspace = true }
 ndarray = { workspace = true, features = ["std"] }
 numcodecs = { workspace = true }
+numcodecs-registry = { workspace = true }
 schemars = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }

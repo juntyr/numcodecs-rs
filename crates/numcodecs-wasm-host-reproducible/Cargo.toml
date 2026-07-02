@@ -22,10 +22,11 @@ keywords = [
 
 [dependencies]
 anyhow = { workspace = true }
-numcodecs-wasm-host = { workspace = true }
 indexmap = { workspace = true, features = ["std"] }
 log = { workspace = true }
 numcodecs = { workspace = true }
+numcodecs-registry = { workspace = true }
+numcodecs-wasm-host = { workspace = true }
 polonius-the-crab = { workspace = true }
 schemars = { workspace = true }
 semver = { workspace = true }

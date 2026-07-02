@@ -24,9 +24,11 @@
 mod codec;
 mod component;
 mod error;
+mod registry;
 mod wit;
 
 pub use codec::WasmCodec;
 pub use component::WasmCodecComponent;
 pub use error::{CodecError, RuntimeError};
+pub use registry::add_registry_to_linker;
 pub use wit::NumcodecsWitInterfaces;

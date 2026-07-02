@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex};
 use numcodecs::{
     AnyArray, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodec, DynCodecType,
 };
+use numcodecs_registry::{EmptyRegistry, Registry};
 use numcodecs_wasm_host::{CodecError, RuntimeError, WasmCodec, WasmCodecComponent};
 use schemars::Schema;
 use serde::Serializer;
@@ -328,6 +329,26 @@ where
         E: Send + Sync,
         Store<(), ReproducibleEngine<E>>: Send + Sync,
     {
+        Self::new_with_registry(engine, wasm_component, EmptyRegistry)
+    }
+
+    /// Load a [`DynCodecType`] from a binary `wasm_component`, which will be
+    /// executed in the provided core WebAssembly `engine` and have access to
+    /// the provided external codec `registry`.
+    ///
+    /// # Errors
+    ///
+    /// Errors if the `wasm_component` does not export the `numcodecs:abc/codec`
+    /// interface or if interacting with the component fails.
+    pub fn new_with_registry(
+        engine: E,
+        wasm_component: impl Into<Vec<u8>>,
+        registry: impl Registry,
+    ) -> Result<Self, ReproducibleWasmCodecError>
+    where
+        E: Send + Sync,
+        Store<(), ReproducibleEngine<E>>: Send + Sync,
+    {
         let wasm_component = transform_wasm_component(wasm_component).map_err(|err| {
             ReproducibleWasmCodecError::Runtime {
                 codec_id: Arc::from("<unknown>"),
@@ -342,6 +363,8 @@ where
                 source: RuntimeError::from(err),
             }
         })?;
+
+        let registry = Arc::new(registry);
 
         let component_instantiater = Arc::new(move |component: &Component, codec_id: &str| {
             let mut store = Store::new(&engine, ());
@@ -359,6 +382,11 @@ where
                     source: RuntimeError::from(err),
                 }
             })?;
+            numcodecs_wasm_host::add_registry_to_linker(&mut linker, &mut store, registry.clone())
+                .map_err(|err| ReproducibleWasmCodecError::Runtime {
+                    codec_id: Arc::from(codec_id),
+                    source: RuntimeError::from(err),
+                })?;
 
             let instance = linker.instantiate(&mut store, component).map_err(|err| {
                 ReproducibleWasmCodecError::Runtime {
