@@ -62,7 +62,7 @@ impl Codec for ExternalCodec {
             &wit::types::AnyArrayPrototype {
                 dtype: convert::into_wit_any_array_dtype(decoded.dtype())
                     .map_err(ExternalError::from_error)?,
-                shape: convert::usize_as_u32_slice(decoded.shape()),
+                shape: convert::into_wit_usize_vec(decoded.shape()),
             },
         ) {
             Ok(dec) => match convert::from_wit_any_array(dec) {

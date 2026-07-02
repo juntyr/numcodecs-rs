@@ -98,6 +98,10 @@ for c in (repo_path / "codecs").iterdir():
         with np.open("w") as f:
             f.write(c)
 
+    wasm_features = toml.load(codec_crate_path / "Cargo.toml")["package"]["metadata"][
+        "numcodecs-wasm"
+    ].get("wasm-features", [])
+
     subprocess.run(
         shlex.split(
             "cargo run -p numcodecs-wasm-builder --"
@@ -108,6 +112,7 @@ for c in (repo_path / "codecs").iterdir():
             + (" --local" if args.local else "")
             + (" --debug" if args.debug else "")
             + (" --verbose" if args.verbose else "")
+            + "".join(f" --wasm-features {feature}" for feature in wasm_features)
         ),
         check=True,
     )

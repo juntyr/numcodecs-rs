@@ -1,10 +1,54 @@
 package numcodecs:abc@0.1.1;
 
 interface codec {
-    use types.{
-        any-array, any-array-prototype, any-array-data, any-array-dtype, error,
-        json, json-schema, usize,
-    };
+    // BEGIN TODO: replace by use types.{..} in the v0.2.0
+    type json = string;
+    type json-schema = json;
+    type usize = u32;
+
+    record any-array {
+        data: any-array-data,
+        shape: list<usize>,
+    }
+
+    @since(version = 0.1.1)
+    record any-array-prototype {
+        dtype: any-array-dtype,
+        shape: list<usize>,
+    }
+
+    variant any-array-data {
+        %u8(list<u8>),
+        %u16(list<u16>),
+        %u32(list<u32>),
+        %u64(list<u64>),
+        i8(list<s8>),
+        i16(list<s16>),
+        i32(list<s32>),
+        i64(list<s64>),
+        %f32(list<f32>),
+        %f64(list<f64>),
+    }
+
+    @since(version = 0.1.1)
+    enum any-array-dtype {
+        %u8,
+        %u16,
+        %u32,
+        %u64,
+        i8,
+        i16,
+        i32,
+        i64,
+        %f32,
+        %f64,
+    }
+
+    record error {
+        message: string,
+        chain: list<string>,
+    }
+    // END TODO: replace by use types.{..} in the v0.2.0
 
     resource codec {
         from-config: static func(config: json) -> result<codec, error>;

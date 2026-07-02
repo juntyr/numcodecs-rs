@@ -9,7 +9,7 @@ use crate::wit;
 pub fn from_wit_any_array(
     array: wit::types::AnyArray,
 ) -> Result<AnyArray, AnyArrayConversionError> {
-    let shape = u32_as_usize_vec(array.shape);
+    let shape = from_wit_usize_vec(array.shape);
 
     let array = match array.data {
         wit::types::AnyArrayData::U8(data) => AnyArray::U8(Array::from_shape_vec(shape, data)?),
@@ -28,7 +28,7 @@ pub fn from_wit_any_array(
 }
 
 pub fn zeros_from_wit_any_array_prototype(prototype: wit::types::AnyArrayPrototype) -> AnyArray {
-    let shape = u32_as_usize_vec(prototype.shape);
+    let shape = from_wit_usize_vec(prototype.shape);
 
     match prototype.dtype {
         wit::types::AnyArrayDtype::U8 => AnyArray::U8(Array::zeros(shape)),
@@ -55,7 +55,7 @@ pub fn into_wit_any_array(
         }
     }
 
-    let shape = usize_as_u32_slice(array.shape());
+    let shape = into_wit_usize_vec(array.shape());
 
     let data = match array {
         AnyArray::U8(array) => wit::types::AnyArrayData::U8(array_into_standard_layout_vec(array)),
@@ -94,6 +94,7 @@ pub fn into_wit_any_array(
     Ok(wit::types::AnyArray { data, shape })
 }
 
+#[cfg(feature = "registry")]
 pub fn into_wit_any_array_dtype(
     dtype: AnyArrayDType,
 ) -> Result<wit::types::AnyArrayDtype, AnyArrayConversionError> {
@@ -150,11 +151,11 @@ pub fn into_wit_error<T: Error>(err: T) -> wit::types::Error {
 
 #[expect(clippy::cast_possible_truncation)]
 #[must_use]
-pub(crate) fn usize_as_u32_slice(slice: &[usize]) -> Vec<u32> {
-    slice.iter().map(|x| *x as u32).collect()
+pub(crate) fn into_wit_usize_vec(slice: &[usize]) -> Vec<wit::types::Usize> {
+    slice.iter().map(|x| *x as wit::types::Usize).collect()
 }
 
 #[must_use]
-pub(crate) fn u32_as_usize_vec(vec: Vec<u32>) -> Vec<usize> {
+pub(crate) fn from_wit_usize_vec(vec: Vec<wit::types::Usize>) -> Vec<usize> {
     vec.into_iter().map(|x| x as usize).collect()
 }

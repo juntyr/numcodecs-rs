@@ -35,7 +35,7 @@ use ::{
 #[cfg(target_arch = "wasm32")]
 mod convert;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(feature = "registry", target_arch = "wasm32"))]
 mod external;
 
 #[cfg(target_arch = "wasm32")]
@@ -46,6 +46,15 @@ use crate::convert::{
 #[doc(hidden)]
 #[expect(clippy::same_length_and_capacity)]
 pub mod bindings {
+    #[cfg(not(feature = "registry"))]
+    wit_bindgen::generate!({
+        world: "numcodecs:abc/exports@0.1.1",
+        with: {
+            "numcodecs:abc/codec@0.1.1": generate,
+        },
+        pub_export_macro: true,
+    });
+    #[cfg(feature = "registry")]
     wit_bindgen::generate!({
         world: "numcodecs:abc/exports@0.1.1",
         with: {
@@ -58,10 +67,29 @@ pub mod bindings {
 
 #[cfg(target_arch = "wasm32")]
 mod wit {
-    pub use crate::bindings::{
-        exports::numcodecs::abc::codec,
-        numcodecs::abc::{registry, types},
-    };
+    pub mod codec {
+        pub use crate::bindings::exports::numcodecs::abc::codec::{Codec, Guest, GuestCodec};
+    }
+
+    #[cfg(feature = "registry")]
+    pub mod registry {
+        pub use crate::bindings::numcodecs::abc::registry::{
+            ExternalCodec, ExternalCodecType, get_external_codec,
+        };
+    }
+
+    pub mod types {
+        #[cfg(not(feature = "registry"))]
+        pub use crate::bindings::exports::numcodecs::abc::codec::{
+            AnyArray, AnyArrayData, AnyArrayDtype, AnyArrayPrototype, Error, Json, JsonSchema,
+            Usize,
+        };
+        #[cfg(feature = "registry")]
+        pub use crate::bindings::numcodecs::abc::types::{
+            AnyArray, AnyArrayData, AnyArrayDtype, AnyArrayPrototype, Error, Json, JsonSchema,
+            Usize,
+        };
+    }
 }
 
 #[macro_export]
