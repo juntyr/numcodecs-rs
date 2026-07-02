@@ -59,6 +59,8 @@ pub mod bindings {
         world: "numcodecs:abc/exports@0.1.1",
         with: {
             "numcodecs:abc/codec@0.1.1": generate,
+            // TODO: generate the separate types interface
+            "numcodecs:abc/types@0.1.1": crate::bindings::exports::numcodecs::abc::codec,
         },
         pub_export_macro: true,
         features: ["registry"],
@@ -79,13 +81,8 @@ mod wit {
     }
 
     pub mod types {
-        #[cfg(not(feature = "registry"))]
+        // TODO: use crate::bindings::numcodecs::abc::types
         pub use crate::bindings::exports::numcodecs::abc::codec::{
-            AnyArray, AnyArrayData, AnyArrayDtype, AnyArrayPrototype, Error, Json, JsonSchema,
-            Usize,
-        };
-        #[cfg(feature = "registry")]
-        pub use crate::bindings::numcodecs::abc::types::{
             AnyArray, AnyArrayData, AnyArrayDtype, AnyArrayPrototype, Error, Json, JsonSchema,
             Usize,
         };
