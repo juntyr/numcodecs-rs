@@ -180,7 +180,7 @@ impl Registry for ExternalRegistry {
             .map_err(ExternalError::from_error)?;
         let config = String::from_utf8(config_bytes).map_err(ExternalError::from_error)?;
 
-        let codec = wit::registry::get_codec(&config).map_err(ExternalError::new)?;
+        let codec = wit::registry::get_external_codec(&config).map_err(ExternalError::new)?;
         let ty = codec.ty();
 
         let codec_id = ty.codec_id();
