@@ -3,16 +3,18 @@ use std::sync::OnceLock;
 use anyhow::{Context, Error, anyhow};
 use instcnt::PerfWitInterfaces;
 use numcodecs_wasm_host::NumcodecsWitInterfaces;
+use vecmap::VecMap;
 
 use crate::{logging::WasiLoggingInterface, stdio::WasiSandboxedStdioInterface};
 
 pub mod instcnt;
 pub mod nan;
 
-#[expect(clippy::too_many_lines)] // FIXME
 pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Vec<u8>, Error> {
     let NumcodecsWitInterfaces {
+        package,
         codec: codec_interface,
+        types: types_interface,
         ..
     } = NumcodecsWitInterfaces::get();
 
@@ -26,8 +28,8 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
 
     // parse and instantiate the root package, which exports numcodecs:abc/codec
     let numcodecs_codec_package = wac_graph::types::Package::from_bytes(
-        &format!("{}", codec_interface.package().name()),
-        codec_interface.package().version(),
+        &format!("{}", package.name()),
+        package.version(),
         wasm_component,
         wac.types_mut(),
     )?;
@@ -43,9 +45,11 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
         &WasiSandboxedStdioInterface::get().stdio,
         &WasiLoggingInterface::get().logging,
     ];
+    // trivial imports that require no linking
+    let trivial_imports = [types_interface];
 
     // initialise the unresolved imports to the imports of the root package
-    let mut unresolved_imports = vecmap::VecMap::new();
+    let mut unresolved_imports = VecMap::new();
     for import in &numcodecs_codec_imports {
         unresolved_imports
             .entry(import.clone())
@@ -54,98 +58,69 @@ pub fn transform_wasm_component(wasm_component: impl Into<Vec<u8>>) -> Result<Ve
     }
 
     // track all non-root instances, which may fulfil imports
-    let mut package_instances = vecmap::VecMap::new();
+    let mut package_instances = VecMap::new();
 
-    // initialise the queue of required, still to instantiate packages
-    //  to the imports of the root package
-    let mut required_packages_queue = numcodecs_codec_imports
-        .iter()
-        .map(|import| import.package().clone())
-        .collect::<std::collections::VecDeque<_>>();
-
-    // iterate while not all required packages have been instantiated
-    while let Some(required_package) = required_packages_queue.pop_front() {
-        if package_instances.contains_key(&required_package) {
+    // iterate while not all unresolved imports have been satisfied
+    while let Some((unresolved_import, dependents)) = unresolved_imports.pop() {
+        // some imports are trivial and require no linking
+        if trivial_imports.contains(&&unresolved_import) {
             continue;
         }
 
-        // some packages do not need to be instantiated since they will be
-        //  provided by the linker
-        if linker_provided_imports
-            .iter()
-            .any(|interface| interface.package() == &required_package)
-        {
+        // some imports will be provided by the linker
+        if linker_provided_imports.contains(&&unresolved_import) {
             continue;
         }
 
-        // find the WASI component package that can fulfil the required package
-        let Some(component_package) = wasi_component_packages.iter().find(|component_package| {
-            component_package
-                .exports
+        // resolve the import
+        // - either it has been instantiated already
+        // - or we instantiate the WASI component that will provide it
+        // - or it is unresolvable and we raise an error
+        let dependency_instance =
+            if let Some(dependency_instance) = package_instances.get(unresolved_import.package()) {
+                *dependency_instance
+            } else if let Some(component_package) = wasi_component_packages
                 .iter()
-                .any(|export| export.package() == &required_package)
-        }) else {
-            return Err(anyhow!(
-                "WASM component requires unresolved import(s) from package {required_package}"
-            ));
-        };
+                .find(|component_package| component_package.exports.contains(&unresolved_import))
+            {
+                let PackageWithPorts {
+                    package: component_package,
+                    imports: component_imports,
+                    exports: component_exports,
+                } = component_package;
 
-        let PackageWithPorts {
-            package: component_package,
-            imports: component_imports,
-            exports: component_exports,
-        } = component_package;
+                // instantiate the component package
+                let component_instance = wac.instantiate(*component_package);
 
-        // instantiate the component package
-        let component_instance = wac.instantiate(*component_package);
-
-        // try to resolve all imports of the component package ...
-        for import in component_imports {
-            if let Some(dependency_instance) = package_instances.get(import.package()).copied() {
-                // ... if the dependency has already been instantiated,
-                //     import its export directly
-                let import_str = &format!("{import}");
-                let dependency_export =
-                    wac.alias_instance_export(dependency_instance, import_str)?;
-                wac.set_instantiation_argument(component_instance, import_str, dependency_export)?;
-            } else {
-                // ... otherwise require the dependency package and store the
-                //     import so that it can be resolved later
-                required_packages_queue.push_back(import.package().clone());
-                unresolved_imports
-                    .entry(import.clone())
-                    .or_insert_with(Vec::new)
-                    .push(component_instance);
-            }
-        }
-
-        for export in component_exports {
-            // register this instance's package so that its exports can later
-            //  fulfil more imports
-            package_instances.insert(export.package().clone(), component_instance);
-
-            // try to resolve unresolved imports using the export of this package
-            if let Some(unresolved_imports) = unresolved_imports.remove(export) {
-                let export_str = &format!("{export}");
-                let component_export = wac.alias_instance_export(component_instance, export_str)?;
-                for import in unresolved_imports {
-                    wac.set_instantiation_argument(import, export_str, component_export)?;
+                // require all imports of the component package to be resolved
+                for import in component_imports {
+                    unresolved_imports
+                        .entry(import.clone())
+                        .or_insert_with(Vec::new)
+                        .push(component_instance);
                 }
-            }
+
+                for export in component_exports {
+                    // register this instance's package so that its exports can later
+                    //  fulfil more imports
+                    package_instances.insert(export.package().clone(), component_instance);
+                }
+
+                component_instance
+            } else {
+                return Err(anyhow!(
+                    "WASM component requires unresolved import {unresolved_import}"
+                ));
+            };
+
+        let import_str = &format!("{unresolved_import}");
+        let dependency_export = wac.alias_instance_export(dependency_instance, import_str)?;
+        for dependent in dependents {
+            wac.set_instantiation_argument(dependent, import_str, dependency_export)?;
         }
     }
 
-    // linker-provided imports will be resolved later
-    for provided in linker_provided_imports {
-        unresolved_imports.remove(provided);
-    }
-
-    if !unresolved_imports.is_empty() {
-        return Err(anyhow!(
-            "WASM component requires unresolved import(s): {:?}",
-            unresolved_imports.into_keys().collect::<Vec<_>>(),
-        ));
-    }
+    assert!(unresolved_imports.into_vec().is_empty());
 
     // export the numcodecs:abc/codec interface
     let numcodecs_codecs_str = &format!("{codec_interface}");
