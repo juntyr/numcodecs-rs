@@ -35,7 +35,7 @@ pub use adapter::{PyCodecAdapter, PyCodecClassAdapter};
 pub use codec::{PyCodec, PyCodecMethods};
 pub use codec_class::{PyCodecClass, PyCodecClassMethods};
 pub use export::export_codec_class;
-pub use registry::PyCodecRegistry;
+pub use registry::{PyCodecRegistry, PyCodecRegistryHandle};
 
 mod sealed {
     pub trait Sealed {}

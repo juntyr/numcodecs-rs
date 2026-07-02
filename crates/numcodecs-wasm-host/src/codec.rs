@@ -311,7 +311,7 @@ impl WasmCodec {
         }
     }
 
-    fn any_array_data_ty() -> &'static VariantType {
+    pub(crate) fn any_array_data_ty() -> &'static VariantType {
         static ANY_ARRAY_DATA_TY: OnceLock<VariantType> = OnceLock::new();
 
         #[expect(clippy::expect_used)]
@@ -319,7 +319,7 @@ impl WasmCodec {
         //        blocked on https://github.com/rust-lang/rust/issues/109737
         ANY_ARRAY_DATA_TY.get_or_init(|| {
             VariantType::new(
-                None,
+                None, // skip name to keep plain data types flexible
                 [
                     VariantCase::new("u8", Some(ValueType::List(ListType::new(ValueType::U8)))),
                     VariantCase::new("u16", Some(ValueType::List(ListType::new(ValueType::U16)))),
@@ -337,7 +337,7 @@ impl WasmCodec {
         })
     }
 
-    fn any_array_ty() -> &'static RecordType {
+    pub(crate) fn any_array_ty() -> &'static RecordType {
         static ANY_ARRAY_TY: OnceLock<RecordType> = OnceLock::new();
 
         #[expect(clippy::expect_used)]
@@ -345,7 +345,7 @@ impl WasmCodec {
         //        blocked on https://github.com/rust-lang/rust/issues/109737
         ANY_ARRAY_TY.get_or_init(|| {
             RecordType::new(
-                None,
+                None, // skip name to keep plain data types flexible
                 [
                     (
                         "data",
@@ -359,7 +359,7 @@ impl WasmCodec {
     }
 
     #[expect(clippy::needless_pass_by_value)]
-    fn array_into_wasm(array: AnyArrayView) -> Result<Record, RuntimeError> {
+    pub(crate) fn array_into_wasm(array: AnyArrayView) -> Result<Record, RuntimeError> {
         fn list_from_standard_layout<'a, T: 'static + Copy, S: Data<Elem = T>, D: Dimension>(
             array: &'a ArrayBase<S, D>,
         ) -> List
@@ -451,7 +451,7 @@ impl WasmCodec {
         .map_err(RuntimeError::from)
     }
 
-    fn any_array_dtype_ty() -> &'static EnumType {
+    pub(crate) fn any_array_dtype_ty() -> &'static EnumType {
         static ANY_ARRAY_DTYPE_TY: OnceLock<EnumType> = OnceLock::new();
 
         #[expect(clippy::expect_used)]
@@ -459,7 +459,7 @@ impl WasmCodec {
         //        blocked on https://github.com/rust-lang/rust/issues/109737
         ANY_ARRAY_DTYPE_TY.get_or_init(|| {
             EnumType::new(
-                None,
+                None, // skip name to keep plain data types flexible
                 [
                     "u8", "u16", "u32", "u64", "i8", "i16", "i32", "i64", "f32", "f64",
                 ],
@@ -468,7 +468,7 @@ impl WasmCodec {
         })
     }
 
-    fn any_array_prototype_ty() -> &'static RecordType {
+    pub(crate) fn any_array_prototype_ty() -> &'static RecordType {
         static ANY_ARRAY_PROTOTYPE_TY: OnceLock<RecordType> = OnceLock::new();
 
         #[expect(clippy::expect_used)]
@@ -476,7 +476,7 @@ impl WasmCodec {
         //        blocked on https://github.com/rust-lang/rust/issues/109737
         ANY_ARRAY_PROTOTYPE_TY.get_or_init(|| {
             RecordType::new(
-                None,
+                None, // skip name to keep plain data types flexible
                 [
                     ("dtype", ValueType::Enum(Self::any_array_dtype_ty().clone())),
                     ("shape", ValueType::List(ListType::new(ValueType::U32))),
@@ -486,7 +486,7 @@ impl WasmCodec {
         })
     }
 
-    fn array_prototype_into_wasm(
+    pub(crate) fn array_prototype_into_wasm(
         dtype: AnyArrayDType,
         shape: &[usize],
     ) -> Result<Record, RuntimeError> {
@@ -522,7 +522,7 @@ impl WasmCodec {
         .map_err(RuntimeError::from)
     }
 
-    fn with_array_view_from_wasm_record<O>(
+    pub(crate) fn with_array_view_from_wasm_record<O>(
         record: &Record,
         with: impl for<'a> FnOnce(AnyArrayView<'a>) -> Result<O, RuntimeError>,
     ) -> Result<O, RuntimeError> {
@@ -601,5 +601,53 @@ impl WasmCodec {
         };
 
         with(array)
+    }
+
+    pub(crate) fn array_prototype_from_wasm_record(
+        record: &Record,
+    ) -> Result<AnyArray, RuntimeError> {
+        let Some(Value::Variant(dtype)) = record.field("dtype") else {
+            return Err(RuntimeError::from(anyhow::Error::msg(format!(
+                "{record:?} is missing dtype field"
+            ))));
+        };
+        if let Some(ty) = dtype.value() {
+            return Err(RuntimeError::from(anyhow::Error::msg(format!(
+                "{record:?} has an invalid dtype variant type {ty:?}"
+            ))));
+        }
+
+        let dtype = match dtype.discriminant() {
+            0 => AnyArrayDType::U8,
+            1 => AnyArrayDType::U16,
+            2 => AnyArrayDType::U32,
+            3 => AnyArrayDType::U64,
+            4 => AnyArrayDType::I8,
+            5 => AnyArrayDType::I16,
+            6 => AnyArrayDType::I32,
+            7 => AnyArrayDType::I64,
+            8 => AnyArrayDType::F32,
+            9 => AnyArrayDType::F64,
+            discriminant => {
+                return Err(RuntimeError::from(anyhow::Error::msg(format!(
+                    "{record:?} has an invalid dtype variant [{discriminant}]"
+                ))));
+            }
+        };
+
+        let Some(Value::List(shape)) = record.field("shape") else {
+            return Err(RuntimeError::from(anyhow::Error::msg(format!(
+                "process result record {record:?} is missing shape field"
+            ))));
+        };
+        let shape = shape
+            .typed::<u32>()?
+            .iter()
+            .copied()
+            .map(usize::try_from)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(anyhow::Error::new)?;
+
+        Ok(AnyArray::zeros(dtype, &shape))
     }
 }
