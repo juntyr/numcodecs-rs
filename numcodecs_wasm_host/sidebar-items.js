@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["CodecError","NumcodecsWitInterfaces","RuntimeError","WasmCodec","WasmCodecComponent"]};
+window.SIDEBAR_ITEMS = {"fn":["add_registry_to_linker"],"struct":["CodecError","NumcodecsWitInterfaces","RuntimeError","WasmCodec","WasmCodecComponent"]};
