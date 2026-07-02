@@ -319,7 +319,7 @@ impl WasmCodec {
         //        blocked on https://github.com/rust-lang/rust/issues/109737
         ANY_ARRAY_DATA_TY.get_or_init(|| {
             VariantType::new(
-                None,
+                None, // skip name to keep plain data types flexible
                 [
                     VariantCase::new("u8", Some(ValueType::List(ListType::new(ValueType::U8)))),
                     VariantCase::new("u16", Some(ValueType::List(ListType::new(ValueType::U16)))),
@@ -345,7 +345,7 @@ impl WasmCodec {
         //        blocked on https://github.com/rust-lang/rust/issues/109737
         ANY_ARRAY_TY.get_or_init(|| {
             RecordType::new(
-                None,
+                None, // skip name to keep plain data types flexible
                 [
                     (
                         "data",
@@ -459,7 +459,7 @@ impl WasmCodec {
         //        blocked on https://github.com/rust-lang/rust/issues/109737
         ANY_ARRAY_DTYPE_TY.get_or_init(|| {
             EnumType::new(
-                None,
+                None, // skip name to keep plain data types flexible
                 [
                     "u8", "u16", "u32", "u64", "i8", "i16", "i32", "i64", "f32", "f64",
                 ],
@@ -476,7 +476,7 @@ impl WasmCodec {
         //        blocked on https://github.com/rust-lang/rust/issues/109737
         ANY_ARRAY_PROTOTYPE_TY.get_or_init(|| {
             RecordType::new(
-                None,
+                None, // skip name to keep plain data types flexible
                 [
                     ("dtype", ValueType::Enum(Self::any_array_dtype_ty().clone())),
                     ("shape", ValueType::List(ListType::new(ValueType::U32))),

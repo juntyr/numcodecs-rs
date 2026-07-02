@@ -23,17 +23,13 @@ pub fn add_registry_to_linker(
 ) -> Result<(), anyhow::Error> {
     let NumcodecsWitInterfaces {
         registry: numcodecs_registry_interface,
-        types: numcodecs_types_interface,
         ..
     } = NumcodecsWitInterfaces::get();
 
     let registry = Arc::new(registry);
 
     let numcodecs_types_error_record = RecordType::new(
-        Some(TypeIdentifier::new(
-            "error",
-            Some(numcodecs_types_interface.clone()),
-        )),
+        None, // skip name to keep plain data types flexible
         [
             ("message", ValueType::String),
             ("chain", ValueType::List(ListType::new(ValueType::String))),
