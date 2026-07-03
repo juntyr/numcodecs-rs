@@ -323,7 +323,7 @@ jobs:
         lock: ["Cargo.lock", "Cargo.lock.min"]
         codec: ${{ fromJSON(needs.codecs-ls.outputs.codecs) }}
     runs-on: ${{ matrix.os }}
-    needs: ["lock", "codecs-ls"]
+    needs: ["lock", "codecs-ls", "numcodecs-wasm"]
 
     steps:
       - name: Checkout the Repository
@@ -351,13 +351,22 @@ jobs:
         run: mv ${{ matrix.lock }} Cargo.lock
         if: ${{ matrix.lock != 'Cargo.lock' }}
 
+      - name: Download numcodecs-wasm
+        uses: actions/download-artifact@v8
+        with:
+          pattern: numcodecs-wasm
+          path: py/numcodecs-wasm-materialize
+
       - name: Build the ${{ matrix.codec }} WASM codec
         run: |
           cd py/numcodecs-wasm-materialize
           rm .python-version
           uv python install ${{ matrix.python }}
           uv sync && uv pip install .
-          uv run python3 -m numcodecs_wasm_materialize "^${{ matrix.codec }}$" --local
+          uv run python3 -m numcodecs_wasm_materialize \
+            "^${{ matrix.codec }}$" \
+            --local \
+            --numcodecs-wasm-wheel numcodecs_wasm-*.whl
 
       - name: Upload the ${{ matrix.codec }} WASM codec
         if: ${{ matrix.lock == 'Cargo.lock' }}

@@ -1,4 +1,5 @@
 import argparse
+import os
 import re
 import shlex
 import shutil
@@ -33,6 +34,11 @@ parser.add_argument(
     "--verbose",
     action="store_true",
     help="enable verbose logging while compiling the codec",
+)
+parser.add_argument(
+    "--numcodecs-wasm-wheel",
+    type=Path,
+    help="pre-install a specific numcodecs_wasm-*.whl file",
 )
 args = parser.parse_args()
 
@@ -89,8 +95,8 @@ for c in (repo_path / "codecs").iterdir():
         for t, r in templates.items():
             c = c.replace(f"%{t}%", r)
 
-        for l in c.splitlines():
-            for m in template_pattern.finditer(l):
+        for line in c.splitlines():
+            for m in template_pattern.finditer(line):
                 raise Exception(f"unknown template {m.group(0)}")
 
         np.parent.mkdir(parents=True, exist_ok=True)
@@ -117,32 +123,43 @@ for c in (repo_path / "codecs").iterdir():
         check=True,
     )
 
+    shutil.rmtree(staging_path / ".venv", ignore_errors=True)
     subprocess.run(
-        shlex.split("uv sync"),
+        shlex.split("uv venv"),
         check=True,
         cwd=staging_path,
     )
+    if args.numcodecs_wasm_wheel is not None:
+        subprocess.run(
+            shlex.split(f"uv pip install {args.numcodecs_wasm_wheel.resolve()}"),
+            check=True,
+            cwd=staging_path,
+            env={**os.environ, "VIRTUAL_ENV": str(staging_path / ".venv")},
+        )
     subprocess.run(
         shlex.split("uv pip install ."),
         check=True,
         cwd=staging_path,
+        env={**os.environ, "VIRTUAL_ENV": str(staging_path / ".venv")},
     )
     subprocess.run(
         shlex.split(
-            f"uv run python3 {Path(__file__).parent / 'stub.py'} "
+            f"uv run --no-sync python3 {Path(__file__).parent / 'stub.py'} "
             + f"{'numcodecs_wasm_' + templates['package_suffix']} src"
         ),
         check=True,
         cwd=staging_path,
+        env={**os.environ, "VIRTUAL_ENV": str(staging_path / ".venv")},
     )
     subprocess.run(
         shlex.split(
-            f'uv run python3 -c "from {"numcodecs_wasm_" + templates["package_suffix"]} '
+            f'uv run --no-sync python3 -c "from {"numcodecs_wasm_" + templates["package_suffix"]} '
             + f"import {templates['CodecName']} as Codec; "
             + f'assert Codec.codec_id == {templates["codec-id"]!r}, Codec.codec_id"'
         ),
         check=True,
         cwd=staging_path,
+        env={**os.environ, "VIRTUAL_ENV": str(staging_path / ".venv")},
     )
     shutil.rmtree(staging_path / ".venv", ignore_errors=True)
 

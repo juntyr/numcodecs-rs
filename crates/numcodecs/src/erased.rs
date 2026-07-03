@@ -13,8 +13,12 @@ pub struct ErasedError {
 impl ErasedError {
     /// Erase the type information of the concrete `err`or.
     pub fn new<T: 'static + Error + Send + Sync>(err: T) -> Self {
-        Self {
-            error: Box::new(err),
+        let err: Box<dyn 'static + Error + Send + Sync> = Box::new(err);
+
+        // avoid double-erasing Self(Self(...))
+        match err.downcast::<Self>() {
+            Ok(err) => *err,
+            Err(err) => Self { error: err },
         }
     }
 }
@@ -45,9 +49,18 @@ pub struct ErasedDynCodec {
 impl ErasedDynCodec {
     /// Erase the type information of the concrete `codec`.
     pub fn new<T: DynCodec>(codec: T) -> Self {
-        Self {
-            codec: Box::new(codec),
+        let codec: Box<dyn ErasedDynCodecDispatch> = Box::new(codec);
+
+        // avoid double-erasing Self(Self(...))
+        if codec.erased_as_any().is::<Self>() {
+            let raw = Box::into_raw(codec);
+            #[expect(unsafe_code, clippy::cast_ptr_alignment)]
+            // SAFETY: we have checked that self.codec is of type Self
+            let codec = unsafe { Box::from_raw(raw.cast::<Self>()) };
+            return *codec;
         }
+
+        Self { codec }
     }
 
     /// Try to downcast into a concretely-typed codec.
@@ -145,7 +158,18 @@ pub struct ErasedDynCodecType {
 impl ErasedDynCodecType {
     /// Erase the type information of the concrete codec `ty`pe.
     pub fn new<T: DynCodecType>(ty: T) -> Self {
-        Self { ty: Box::new(ty) }
+        let ty: Box<dyn ErasedDynCodecTypeDispatch> = Box::new(ty);
+
+        // avoid double-erasing Self(Self(...))
+        if ty.erased_as_any().is::<Self>() {
+            let raw = Box::into_raw(ty);
+            #[expect(unsafe_code, clippy::cast_ptr_alignment)]
+            // SAFETY: we have checked that self.codec is of type Self
+            let ty = unsafe { Box::from_raw(raw.cast::<Self>()) };
+            return *ty;
+        }
+
+        Self { ty }
     }
 
     /// Try to downcast into a concretely-typed codec type.

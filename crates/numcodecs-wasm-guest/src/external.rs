@@ -127,6 +127,8 @@ impl DynCodecType for ExternalCodecType {
             .map_err(ExternalError::new)
             .map_err(serde::de::Error::custom)?;
 
+        // TODO: can we avoid double wrapping through the WASM boundary
+        //       ExternalCodec(WasmCodec(MyCodec))
         Ok(ExternalCodec {
             codec,
             ty: Self {
