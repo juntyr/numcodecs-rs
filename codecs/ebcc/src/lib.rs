@@ -64,6 +64,7 @@ pub struct EbccCodec {
 
 #[derive(Debug, Copy, Clone, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
+#[schemars(inline)]
 /// Chunk shape that EBCC uses to handle large data.
 pub enum EbccChunkShape {
     /// EBCC chooses an appropriate chunk shape automatically.

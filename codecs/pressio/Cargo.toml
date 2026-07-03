@@ -16,9 +16,10 @@ keywords = ["libpressio", "numcodecs", "compression", "encoding"]
 
 [dependencies]
 fragile = { workspace = true }
-libpressio = { workspace = true, features = ["bzip2", "lua"] }
+libpressio = { workspace = true, features = ["bzip2", "lua", "mpi-stubs", "opt"] }
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
+numcodecs-registry = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 serde-ndim = { workspace = true, features = ["ndarray"] }

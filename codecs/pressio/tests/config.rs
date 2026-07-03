@@ -67,3 +67,7 @@ fn bool_array_data_option() {
         .unwrap(),
     );
 }
+
+numcodecs_registry::export_global! {
+    static REGISTRY: numcodecs_registry::EmptyRegistry = numcodecs_registry::EmptyRegistry;
+}

@@ -1026,6 +1026,7 @@ mod tests {
         }
     }
 
+    #[expect(clippy::let_and_return)]
     fn roundtrip<T: FloatExt>(
         data: &Array<T, Ix2>,
         seed: u64,
@@ -1041,7 +1042,6 @@ mod tests {
         .expect("projecting must not fail");
         let reconstructed = reconstruct_with_projection(projected, seed, projection)
             .expect("reconstruction must not fail");
-        #[expect(clippy::let_and_return)]
         reconstructed
     }
 

@@ -22,3 +22,7 @@ fn schema() {
         panic!("Pressio schema has changed\n===\n{schema}\n===");
     }
 }
+
+numcodecs_registry::export_global! {
+    static REGISTRY: numcodecs_registry::EmptyRegistry = numcodecs_registry::EmptyRegistry;
+}

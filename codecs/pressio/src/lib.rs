@@ -27,7 +27,8 @@ use fragile::Fragile;
 use ndarray::{Array, ArrayView, ArrayViewMut, CowArray, IxDyn};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
+    Codec, DynCodec, DynCodecType, ErasedDynCodec, StaticCodec, StaticCodecConfig,
+    StaticCodecVersion,
 };
 use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -414,6 +415,19 @@ impl<'de> Deserialize<'de> for PressioCompressor {
         std::mem::drop(format.metric_results);
 
         let mut pressio = libpressio::Pressio::new().map_err(serde::de::Error::custom)?;
+        pressio
+            .register_compressor(
+                "numcodecs.rs",
+                NumcodecsPressioCompressor {
+                    codec: Option::None,
+                },
+                "0.1.0.0",
+                0,
+                1,
+                0,
+                0,
+            )
+            .map_err(serde::de::Error::custom)?;
         let mut compressor = pressio
             .get_compressor(format.compressor_id.as_str())
             .map_err(|err| {
@@ -641,12 +655,12 @@ impl<'de> Deserialize<'de> for None {
 }
 
 impl JsonSchema for None {
-    fn schema_name() -> Cow<'static, str> {
-        Cow::Borrowed("null")
-    }
-
     fn inline_schema() -> bool {
         true
+    }
+
+    fn schema_name() -> Cow<'static, str> {
+        Cow::Borrowed("null")
     }
 
     fn json_schema(_generator: &mut SchemaGenerator) -> Schema {
@@ -1025,6 +1039,107 @@ pub enum PressioCodecError {
 /// Opaque error for when encoding or decoding with libpressio fails
 pub struct PressioCodingError(libpressio::PressioError);
 
+#[derive(Clone)]
+struct NumcodecsPressioCompressor {
+    codec: Option<ErasedDynCodec>,
+}
+
+#[expect(clippy::expect_used)]
+impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
+    fn get_configuration(&self) -> libpressio::PressioOptions {
+        (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
+            let mut options = libpressio::PressioOptions::new()?;
+            options.set(
+                "pressio:thread_safe",
+                libpressio::PressioOption::thread_safety(Some(
+                    libpressio::PressioThreadSafety::Multiple,
+                )),
+            )?;
+            options.set(
+                "pressio:stability",
+                libpressio::PressioOption::string(Some(String::from("experimental"))),
+            )?;
+            Ok(options)
+        })()
+        .expect("get_configuration should not fail")
+    }
+
+    fn get_documentation(&self) -> libpressio::PressioOptions {
+        (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
+            let mut options = libpressio::PressioOptions::new()?;
+            options.set(
+                "pressio:description",
+                libpressio::PressioOption::string(Some(String::from(
+                    "A numcodecs codec exposed through numcodecs-rs",
+                ))),
+            )?;
+            options.set(
+                "numcodecs.rs:id",
+                libpressio::PressioOption::string(Some(String::from("numcodecs codec id"))),
+            )?;
+            Ok(options)
+        })()
+        .expect("get_documentation should not fail")
+    }
+
+    fn get_options(&self) -> libpressio::PressioOptions {
+        (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
+            let mut options = libpressio::PressioOptions::new()?;
+            if let Some(codec) = &self.codec {
+                options.set(
+                    "numcodecs.rs:id",
+                    libpressio::PressioOption::string(Some(String::from(codec.ty().codec_id()))),
+                )?;
+                // TODO: serialize all remaining options
+            } else {
+                options.set(
+                    "numcodecs.rs:id",
+                    libpressio::PressioOption::string(Option::None),
+                )?;
+            }
+            Ok(options)
+        })()
+        .expect("get_options should not fail")
+    }
+
+    fn set_options(
+        &self,
+        options: &libpressio::PressioOptions,
+    ) -> Result<(), libpressio::PressioError> {
+        let _id = options.get("numcodecs.rs:id")?;
+
+        todo!("deserialize options")
+    }
+
+    fn compress(
+        &self,
+        _input_data: &libpressio::PressioData,
+        _compressed_data: libpressio::PressioData,
+    ) -> Result<libpressio::PressioData, libpressio::PressioError> {
+        let Some(_codec) = &self.codec else {
+            todo!("error or no-op");
+        };
+
+        todo!("compress");
+    }
+
+    fn decompress(
+        &self,
+        _compressed_data: &libpressio::PressioData,
+        _decompressed_data: libpressio::PressioData,
+    ) -> Result<libpressio::PressioData, libpressio::PressioError> {
+        let Some(_codec) = &self.codec else {
+            todo!("error or no-op");
+        };
+
+        todo!("decompress");
+    }
+
+    fn get_metrics_results(&self) -> libpressio::PressioOptions {
+        libpressio::PressioOptions::new().expect("get_metrics_results should not fail")
+    }
+}
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
@@ -1071,7 +1186,7 @@ mod tests {
             assert!(((*i) - (*o)).abs() <= 10.0);
         }
 
-        let config = serde_json::to_string(&pressio.get_config()).unwrap();
+        let config = serde_json::to_string(&StaticCodec::get_config(&pressio)).unwrap();
         assert!(config.contains("\"size:compressed_size\":400"));
     }
 
@@ -1110,7 +1225,7 @@ mod tests {
             assert!(((*i) - (*o)).abs() <= 10.0);
         }
 
-        let config = serde_json::to_string(&pressio.get_config()).unwrap();
+        let config = serde_json::to_string(&StaticCodec::get_config(&pressio)).unwrap();
         assert!(config.contains("\"size:compressed_size\":63"));
     }
 
@@ -1132,7 +1247,7 @@ mod tests {
         }))
         .unwrap();
 
-        let config = serde_json::to_string(&pressio.get_config()).unwrap();
+        let config = serde_json::to_string(&StaticCodec::get_config(&pressio)).unwrap();
         assert!(!config.contains("\"size:compression_ratio\""));
         assert!(config.contains("\"composite:objective\":1.2"));
         assert!(!config.contains("\"composite:objective2\""));
@@ -1160,9 +1275,13 @@ mod tests {
             assert!(i.to_bits() == o.to_bits());
         }
 
-        let config = serde_json::to_string(&pressio.get_config()).unwrap();
+        let config = serde_json::to_string(&StaticCodec::get_config(&pressio)).unwrap();
         assert!(config.contains("\"size:compression_ratio\":1.0"));
         assert!(config.contains("\"composite:objective\":1.2"));
         assert!(config.contains("\"composite:objective2\":4.2"));
+    }
+
+    numcodecs_registry::export_global! {
+        static REGISTRY: numcodecs_registry::EmptyRegistry = numcodecs_registry::EmptyRegistry;
     }
 }

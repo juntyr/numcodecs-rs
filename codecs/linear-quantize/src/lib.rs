@@ -54,6 +54,7 @@ pub struct LinearQuantizeCodec {
 /// Data types which the [`LinearQuantizeCodec`] can quantize
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[schemars(extend("enum" = ["f32", "float32", "f64", "float64"]))]
+#[schemars(inline)]
 #[expect(missing_docs)]
 pub enum LinearQuantizeDType {
     #[serde(rename = "f32", alias = "float32")]
@@ -78,6 +79,7 @@ impl fmt::Display for LinearQuantizeDType {
 /// bits used.
 #[derive(Copy, Clone, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
 #[repr(u8)]
+#[schemars(inline)]
 #[rustfmt::skip]
 #[expect(missing_docs)]
 pub enum LinearQuantizeBins {

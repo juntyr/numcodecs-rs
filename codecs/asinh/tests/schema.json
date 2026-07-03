@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "linear_width": {
+      "type": "number",
+      "format": "double",
+      "description": "The width of the close-to-zero input value range where the transform is\nnearly linear"
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "1.0.0"
+    }
+  },
+  "required": [
+    "linear_width"
+  ],
+  "description": "Asinh codec, which applies a quasi-logarithmic transformation on encoding.\n\nFor values close to zero that are within the codec's `linear_width`, the\ntransform is close to linear. For values of larger magnitudes, the\ntransform is asymptotically logarithmic. Unlike a logarithmic transform,\nthis codec supports all finite values, including negative values and zero.\n\nIn detail, the codec calculates\n`$c = w \\cdot \\text{asinh}\\left( \\frac{x}{w} \\right)$`\non encoding and\n`$d = w \\cdot \\text{sinh}\\left( \\frac{c}{w} \\right)$`\non decoding, where `$w$` is the codec's `linear_width`.\n\nThe codec only supports finite floating point numbers.",
+  "title": "AsinhCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

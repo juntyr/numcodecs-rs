@@ -48,6 +48,7 @@ pub struct ZlibCodec {
 
 #[derive(Copy, Clone, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
 #[repr(u8)]
+#[schemars(inline)]
 /// Zlib compression level.
 ///
 /// The level ranges from 0, no compression, to 9, best compression.

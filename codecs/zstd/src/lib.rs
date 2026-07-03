@@ -108,6 +108,7 @@ impl StaticCodec for ZstdCodec {
 
 #[derive(Clone, Copy, JsonSchema)]
 #[schemars(transparent)]
+#[schemars(inline)]
 /// Zstandard compression level.
 ///
 /// The level ranges from small (fastest) to large (best compression).
