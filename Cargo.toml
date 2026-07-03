@@ -68,7 +68,7 @@ numcodecs-fixed-offset-scale = { version = "0.4", path = "codecs/fixed-offset-sc
 numcodecs-fourier-network = { version = "0.3", path = "codecs/fourier-network", default-features = false }
 numcodecs-identity = { version = "0.4", path = "codecs/identity", default-features = false }
 numcodecs-jpeg2000 = { version = "0.3", path = "codecs/jpeg2000", default-features = false }
-numcodecs-lc = { version = "0.1", path = "codecs/lc", default-features = false }
+numcodecs-lc = { version = "0.2", path = "codecs/lc", default-features = false }
 numcodecs-linear-quantize = { version = "0.5", path = "codecs/linear-quantize", default-features = false }
 numcodecs-log = { version = "0.5", path = "codecs/log", default-features = false }
 numcodecs-onion = { version = "0.1", path = "codecs/onion", default-features = false }
@@ -98,7 +98,7 @@ erased-serde = { version = "0.4", default-features = false }
 format_serde_error = { version = "0.3", default-features = false }
 indexmap = { version = "2.10", default-features = false }
 itertools = { version = "0.14", default-features = false }
-lc-framework = { version = "0.1", default-features = false }
+lc-framework = { version = "0.2", default-features = false, git = "https://github.com/juntyr/lc-framework-rs.git", rev = "d35fb13" }
 log = { version = "0.4.27", default-features = false }
 miniz_oxide = { version = "0.8.5", default-features = false }
 ndarray = { version = "0.16.1", default-features = false } # keep in sync with numpy

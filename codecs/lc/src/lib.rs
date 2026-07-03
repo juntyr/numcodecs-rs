@@ -34,7 +34,7 @@ use thiserror::Error;
 #[cfg(test)]
 use ::serde_json as _;
 
-type LcCodecVersion = StaticCodecVersion<0, 1, 0>;
+type LcCodecVersion = StaticCodecVersion<0, 2, 0>;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -73,21 +73,31 @@ fn deserialize_components<'de, D: Deserializer<'de>>(
 
 #[expect(missing_docs)]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
+#[schemars(deny_unknown_fields)]
 #[serde(tag = "id")]
 /// LC preprocessor
 pub enum LcPreprocessor {
+    /// no-op
     #[serde(rename = "NUL")]
     Noop,
+    /// 1D Lorenzo predictor
     #[serde(rename = "LOR")]
     Lorenzo1D { dtype: LcLorenzoDtype },
+    /// Error-bounding quantizer
     #[serde(rename = "QUANT")]
     QuantizeErrorBound {
         dtype: LcQuantizeDType,
-        kind: LcErrorKind,
-        error_bound: f64,
+        #[serde(flatten)]
+        error_bound: LcErrorBound,
         threshold: Option<f64>,
         decorrelation: LcDecorrelation,
+    },
+    /// Error-bounding quantizer using integer operations only
+    #[serde(rename = "QUANT_I")]
+    BinaryQuantizeErrorBound {
+        dtype: LcQuantizeDType,
+        #[serde(flatten)]
+        error_bound: LcBinaryErrorBound,
     },
 }
 
@@ -100,43 +110,99 @@ impl LcPreprocessor {
             },
             Self::QuantizeErrorBound {
                 dtype,
-                kind,
                 error_bound,
                 threshold,
                 decorrelation,
             } => lc_framework::Preprocessor::QuantizeErrorBound {
                 dtype: dtype.into_lc(),
-                kind: kind.into_lc(),
-                error_bound,
+                error_bound: error_bound.into_lc(),
                 threshold,
                 decorrelation: decorrelation.into_lc(),
+            },
+            Self::BinaryQuantizeErrorBound { dtype, error_bound } => {
+                lc_framework::Preprocessor::BinaryQuantizeErrorBound {
+                    dtype: dtype.into_lc(),
+                    error_bound: error_bound.into_lc(),
+                }
+            }
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+#[serde(tag = "kind")]
+/// LC error bound
+pub enum LcErrorBound {
+    /// pointwise absolute error bound
+    #[serde(rename = "ABS")]
+    Abs {
+        /// error bound
+        error_bound: f64,
+    },
+    /// pointwise normalised absolute / data-range-relative error bound
+    #[serde(rename = "NOA")]
+    Noa {
+        /// error bound
+        error_bound: f64,
+    },
+    /// pointwise relative error bound
+    #[serde(rename = "REL")]
+    Rel {
+        /// error bound
+        error_bound: f64,
+    },
+    /// pointwise absolute and relative error bound
+    #[serde(rename = "ABS_REL")]
+    AbsRel {
+        /// absolute error bound
+        abs_error_bound: f64,
+        /// relative error bound
+        rel_error_bound: f64,
+    },
+}
+
+impl LcErrorBound {
+    const fn into_lc(self) -> lc_framework::ErrorBound {
+        match self {
+            Self::Abs { error_bound } => lc_framework::ErrorBound::Abs { abs: error_bound },
+            Self::Noa { error_bound } => lc_framework::ErrorBound::Noa { noa: error_bound },
+            Self::Rel { error_bound } => lc_framework::ErrorBound::Rel { rel: error_bound },
+            Self::AbsRel {
+                abs_error_bound,
+                rel_error_bound,
+            } => lc_framework::ErrorBound::AbsRel {
+                abs: abs_error_bound,
+                rel: rel_error_bound,
             },
         }
     }
 }
 
-#[derive(
-    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
-)]
-/// LC error bound kind
-pub enum LcErrorKind {
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+#[serde(tag = "kind")]
+/// LC error bound using integer operations only
+pub enum LcBinaryErrorBound {
     /// pointwise absolute error bound
     #[serde(rename = "ABS")]
-    Abs,
+    Abs {
+        /// error bound
+        error_bound: f64,
+    },
     /// pointwise normalised absolute / data-range-relative error bound
     #[serde(rename = "NOA")]
-    Noa,
-    /// pointwise relative error bound
-    #[serde(rename = "REL")]
-    Rel,
+    Noa {
+        /// error bound
+        error_bound: f64,
+    },
 }
 
-impl LcErrorKind {
-    const fn into_lc(self) -> lc_framework::ErrorKind {
+impl LcBinaryErrorBound {
+    const fn into_lc(self) -> lc_framework::BinaryErrorBound {
         match self {
-            Self::Abs => lc_framework::ErrorKind::Abs,
-            Self::Noa => lc_framework::ErrorKind::Noa,
-            Self::Rel => lc_framework::ErrorKind::Rel,
+            Self::Abs { error_bound } => lc_framework::BinaryErrorBound::Abs { abs: error_bound },
+            Self::Noa { error_bound } => lc_framework::BinaryErrorBound::Noa { noa: error_bound },
         }
     }
 }
@@ -216,10 +282,6 @@ pub enum LcComponent {
     TwosComplementToSignMagnitude { size: LcElemSize },
     #[serde(rename = "TCNB")]
     TwosComplementToNegaBinary { size: LcElemSize },
-    #[serde(rename = "DBEFS")]
-    DebiasedExponentFractionSign { size: LcFloatSize },
-    #[serde(rename = "DBESF")]
-    DebiasedExponentSignFraction { size: LcFloatSize },
     // shufflers
     #[serde(rename = "BIT")]
     BitShuffle { size: LcElemSize },
@@ -234,19 +296,19 @@ pub enum LcComponent {
     DeltaAsNegaBinary { size: LcElemSize },
     // reducers
     #[serde(rename = "CLOG")]
-    Clog { size: LcElemSize },
+    ChunkedLeadingZeroBitElimination { size: LcElemSize },
     #[serde(rename = "HCLOG")]
-    HClog { size: LcElemSize },
+    HybridChunkedLeadingZeroBitElimination { size: LcElemSize },
     #[serde(rename = "RARE")]
-    Rare { size: LcElemSize },
+    RepeatedAdaptiveRedundancyElimination { size: LcElemSize },
     #[serde(rename = "RAZE")]
-    Raze { size: LcElemSize },
+    RepeatedAdaptiveZeroElimination { size: LcElemSize },
     #[serde(rename = "RLE")]
     RunLengthEncoding { size: LcElemSize },
     #[serde(rename = "RRE")]
-    RepetitionRunBitmapEncoding { size: LcElemSize },
+    RepeatedRedundancyElimination { size: LcElemSize },
     #[serde(rename = "RZE")]
-    ZeroRunBitmapEncoding { size: LcElemSize },
+    RepeatedZeroElimination { size: LcElemSize },
 }
 
 impl LcComponent {
@@ -261,16 +323,6 @@ impl LcComponent {
             }
             Self::TwosComplementToNegaBinary { size } => {
                 lc_framework::Component::TwosComplementToNegaBinary {
-                    size: size.into_lc(),
-                }
-            }
-            Self::DebiasedExponentFractionSign { size } => {
-                lc_framework::Component::DebiasedExponentFractionSign {
-                    size: size.into_lc(),
-                }
-            }
-            Self::DebiasedExponentSignFraction { size } => {
-                lc_framework::Component::DebiasedExponentSignFraction {
                     size: size.into_lc(),
                 }
             }
@@ -292,28 +344,36 @@ impl LcComponent {
                 size: size.into_lc(),
             },
             // reducers
-            Self::Clog { size } => lc_framework::Component::Clog {
-                size: size.into_lc(),
-            },
-            Self::HClog { size } => lc_framework::Component::HClog {
-                size: size.into_lc(),
-            },
-            Self::Rare { size } => lc_framework::Component::Rare {
-                size: size.into_lc(),
-            },
-            Self::Raze { size } => lc_framework::Component::Raze {
-                size: size.into_lc(),
-            },
-            Self::RunLengthEncoding { size } => lc_framework::Component::RunLengthEncoding {
-                size: size.into_lc(),
-            },
-            Self::RepetitionRunBitmapEncoding { size } => {
-                lc_framework::Component::RepetitionRunBitmapEncoding {
+            Self::ChunkedLeadingZeroBitElimination { size } => {
+                lc_framework::Component::ChunkedLeadingZeroBitElimination {
                     size: size.into_lc(),
                 }
             }
-            Self::ZeroRunBitmapEncoding { size } => {
-                lc_framework::Component::ZeroRunBitmapEncoding {
+            Self::HybridChunkedLeadingZeroBitElimination { size } => {
+                lc_framework::Component::HybridChunkedLeadingZeroBitElimination {
+                    size: size.into_lc(),
+                }
+            }
+            Self::RepeatedAdaptiveRedundancyElimination { size } => {
+                lc_framework::Component::RepeatedAdaptiveRedundancyElimination {
+                    size: size.into_lc(),
+                }
+            }
+            Self::RepeatedAdaptiveZeroElimination { size } => {
+                lc_framework::Component::RepeatedAdaptiveZeroElimination {
+                    size: size.into_lc(),
+                }
+            }
+            Self::RunLengthEncoding { size } => lc_framework::Component::RunLengthEncoding {
+                size: size.into_lc(),
+            },
+            Self::RepeatedRedundancyElimination { size } => {
+                lc_framework::Component::RepeatedRedundancyElimination {
+                    size: size.into_lc(),
+                }
+            }
+            Self::RepeatedZeroElimination { size } => {
+                lc_framework::Component::RepeatedZeroElimination {
                     size: size.into_lc(),
                 }
             }
@@ -351,36 +411,6 @@ impl LcElemSize {
             Self::S2 => lc_framework::ElemSize::S2,
             Self::S4 => lc_framework::ElemSize::S4,
             Self::S8 => lc_framework::ElemSize::S8,
-        }
-    }
-}
-
-#[expect(missing_docs)]
-#[derive(
-    Copy,
-    Clone,
-    Debug,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    Hash,
-    Serialize_repr,
-    Deserialize_repr,
-    JsonSchema_repr,
-)]
-/// LC component float element size, in bytes
-#[repr(u8)]
-pub enum LcFloatSize {
-    S4 = 4,
-    S8 = 8,
-}
-
-impl LcFloatSize {
-    const fn into_lc(self) -> lc_framework::FloatSize {
-        match self {
-            Self::S4 => lc_framework::FloatSize::S4,
-            Self::S8 => lc_framework::FloatSize::S8,
         }
     }
 }
@@ -797,8 +827,7 @@ mod tests {
 
         let preprocessors = &[LcPreprocessor::QuantizeErrorBound {
             dtype: LcQuantizeDType::F32,
-            kind: LcErrorKind::Abs,
-            error_bound: 0.1,
+            error_bound: LcErrorBound::Abs { error_bound: 0.1 },
             threshold: None,
             decorrelation: LcDecorrelation::Zero,
         }];
