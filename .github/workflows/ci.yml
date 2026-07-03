@@ -482,6 +482,7 @@ jobs:
           ls dist/*.whl | xargs -n 1 uv pip install
 
       - name: Test the WASM codecs (PyPi numcodecs-wasm)
+        if: always()
         run: |
           uv run python -c "from pathlib import Path; errors = []; [exec('try:\n    import ' + p.name.split('-')[0] + ' as c; print(c)\nexcept ImportError as err:\n    errors.append(err)') for p in sorted(Path('dist').glob('*.whl'))]; exec('if len(errors) > 0:\n    raise Exception(errors)')"
 
