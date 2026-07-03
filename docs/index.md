@@ -24,6 +24,7 @@ The following Python packages, all published independently on PyPi, use [`numcod
 - [`numcodecs_wasm_lc`][numcodecs_wasm_lc]: LC codec
 - [`numcodecs_wasm_linear_quantize`][numcodecs_wasm_linear_quantize]: linear quantization codec
 - [`numcodecs_wasm_log`][numcodecs_wasm_log]: $\ln(x)$ codec
+- [`numcodecs_wasm_onion`][numcodecs_wasm_onion]: identity meta-codec
 - [`numcodecs_wasm_pco`][numcodecs_wasm_pco]: pcodec
 - [`numcodecs_wasm_qpet_sperr`][numcodecs_wasm_qpet_sperr]: QPET-SPERR codec
 - [`numcodecs_wasm_random_projection`][numcodecs_wasm_random_projection]: random projection codec
