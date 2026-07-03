@@ -39,10 +39,10 @@ pub fn add_registry_to_linker(
     let numcodecs_registry_instance =
         linker.define_instance(numcodecs_registry_interface.clone())?;
 
-    let numcodecs_registry_codec_resource = ResourceType::with_destructor(
+    let numcodecs_registry_external_codec_resource = ResourceType::with_destructor(
         ctx.as_context_mut(),
         Some(TypeIdentifier::new(
-            "erased-dyn-codec",
+            "external-codec",
             Some(numcodecs_registry_interface.clone()),
         )),
         |_ctx, codec: ErasedDynCodec| {
@@ -52,14 +52,14 @@ pub fn add_registry_to_linker(
     )?;
 
     numcodecs_registry_instance.define_resource(
-        "erased-dyn-codec",
-        numcodecs_registry_codec_resource.clone(),
+        "external-codec",
+        numcodecs_registry_external_codec_resource.clone(),
     )?;
 
-    let numcodecs_registry_codec_type_resource = ResourceType::with_destructor(
+    let numcodecs_registry_external_codec_type_resource = ResourceType::with_destructor(
         ctx.as_context_mut(),
         Some(TypeIdentifier::new(
-            "erased-dyn-codec-type",
+            "external-codec-type",
             Some(numcodecs_registry_interface.clone()),
         )),
         |_ctx, codec_ty: ErasedDynCodecType| {
@@ -69,8 +69,8 @@ pub fn add_registry_to_linker(
     )?;
 
     numcodecs_registry_instance.define_resource(
-        "erased-dyn-codec-type",
-        numcodecs_registry_codec_type_resource.clone(),
+        "external-codec-type",
+        numcodecs_registry_external_codec_type_resource.clone(),
     )?;
 
     let any_array_record = WasmCodec::any_array_ty().clone();
@@ -82,11 +82,11 @@ pub fn add_registry_to_linker(
 
     let my_any_array_result = any_array_result.clone();
     let my_numcodecs_types_error_record = numcodecs_types_error_record.clone();
-    let codec_encode = Func::new(
+    let external_codec_encode = Func::new(
         ctx.as_context_mut(),
         FuncType::new(
             [
-                ValueType::Borrow(numcodecs_registry_codec_resource.clone()),
+                ValueType::Borrow(numcodecs_registry_external_codec_resource.clone()),
                 ValueType::Record(any_array_record.clone()),
             ],
             [ValueType::Result(any_array_result.clone())],
@@ -94,13 +94,13 @@ pub fn add_registry_to_linker(
         move |ctx, args, results| {
             let [Value::Borrow(codec), Value::Record(data)] = args else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.encode arguments"
+                    "invalid numcodecs:abc/registry#[method]external-codec.encode arguments"
                 );
             };
 
             let [result] = results else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.encode results"
+                    "invalid numcodecs:abc/registry#[method]external-codec.encode results"
                 );
             };
 
@@ -127,15 +127,16 @@ pub fn add_registry_to_linker(
             Ok(())
         },
     );
-    numcodecs_registry_instance.define_func("[method]erased-dyn-codec.encode", codec_encode)?;
+    numcodecs_registry_instance
+        .define_func("[method]external-codec.encode", external_codec_encode)?;
 
     let my_any_array_result = any_array_result.clone();
     let my_numcodecs_types_error_record = numcodecs_types_error_record.clone();
-    let codec_decode = Func::new(
+    let external_codec_decode = Func::new(
         ctx.as_context_mut(),
         FuncType::new(
             [
-                ValueType::Borrow(numcodecs_registry_codec_resource.clone()),
+                ValueType::Borrow(numcodecs_registry_external_codec_resource.clone()),
                 ValueType::Record(any_array_record.clone()),
             ],
             [ValueType::Result(any_array_result.clone())],
@@ -143,13 +144,13 @@ pub fn add_registry_to_linker(
         move |ctx, args, results| {
             let [Value::Borrow(codec), Value::Record(encoded)] = args else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.decode arguments"
+                    "invalid numcodecs:abc/registry#[method]external-codec.decode arguments"
                 );
             };
 
             let [result] = results else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.decode results"
+                    "invalid numcodecs:abc/registry#[method]external-codec.decode results"
                 );
             };
 
@@ -176,17 +177,18 @@ pub fn add_registry_to_linker(
             Ok(())
         },
     );
-    numcodecs_registry_instance.define_func("[method]erased-dyn-codec.decode", codec_decode)?;
+    numcodecs_registry_instance
+        .define_func("[method]external-codec.decode", external_codec_decode)?;
 
     let any_array_prototype_record = WasmCodec::any_array_prototype_ty().clone();
 
     let my_any_array_result = any_array_result.clone();
     let my_numcodecs_types_error_record = numcodecs_types_error_record.clone();
-    let codec_decode_into = Func::new(
+    let external_codec_decode_into = Func::new(
         ctx.as_context_mut(),
         FuncType::new(
             [
-                ValueType::Borrow(numcodecs_registry_codec_resource.clone()),
+                ValueType::Borrow(numcodecs_registry_external_codec_resource.clone()),
                 ValueType::Record(any_array_record),
                 ValueType::Record(any_array_prototype_record),
             ],
@@ -200,13 +202,13 @@ pub fn add_registry_to_linker(
             ] = args
             else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.decode-into arguments"
+                    "invalid numcodecs:abc/registry#[method]external-codec.decode-into arguments"
                 );
             };
 
             let [result] = results else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.decode-into results"
+                    "invalid numcodecs:abc/registry#[method]external-codec.decode-into results"
                 );
             };
 
@@ -237,26 +239,32 @@ pub fn add_registry_to_linker(
             Ok(())
         },
     );
-    numcodecs_registry_instance
-        .define_func("[method]erased-dyn-codec.decode-into", codec_decode_into)?;
+    numcodecs_registry_instance.define_func(
+        "[method]external-codec.decode-into",
+        external_codec_decode_into,
+    )?;
 
-    let my_numcodecs_registry_codec_resource = numcodecs_registry_codec_resource.clone();
-    let codec_clone = Func::new(
+    let my_numcodecs_registry_codec_resource = numcodecs_registry_external_codec_resource.clone();
+    let external_codec_clone = Func::new(
         ctx.as_context_mut(),
         FuncType::new(
-            [ValueType::Borrow(numcodecs_registry_codec_resource.clone())],
-            [ValueType::Own(numcodecs_registry_codec_resource.clone())],
+            [ValueType::Borrow(
+                numcodecs_registry_external_codec_resource.clone(),
+            )],
+            [ValueType::Own(
+                numcodecs_registry_external_codec_resource.clone(),
+            )],
         ),
         move |ctx, args, results| {
             let [Value::Borrow(codec)] = args else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.clone arguments"
+                    "invalid numcodecs:abc/registry#[method]external-codec.clone arguments"
                 );
             };
 
             let [result] = results else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.clone results"
+                    "invalid numcodecs:abc/registry#[method]external-codec.clone results"
                 );
             };
 
@@ -275,7 +283,8 @@ pub fn add_registry_to_linker(
             Ok(())
         },
     );
-    numcodecs_registry_instance.define_func("[method]erased-dyn-codec.clone", codec_clone)?;
+    numcodecs_registry_instance
+        .define_func("[method]external-codec.clone", external_codec_clone)?;
 
     let string_result = ResultType::new(
         Some(ValueType::String),
@@ -283,22 +292,24 @@ pub fn add_registry_to_linker(
     );
 
     let my_numcodecs_types_error_record = numcodecs_types_error_record.clone();
-    let codec_get_config = Func::new(
+    let external_codec_get_config = Func::new(
         ctx.as_context_mut(),
         FuncType::new(
-            [ValueType::Borrow(numcodecs_registry_codec_resource.clone())],
+            [ValueType::Borrow(
+                numcodecs_registry_external_codec_resource.clone(),
+            )],
             [ValueType::Result(string_result.clone())],
         ),
         move |ctx, args, results| {
             let [Value::Borrow(codec)] = args else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.get-config arguments"
+                    "invalid numcodecs:abc/registry#[method]external-codec.get-config arguments"
                 );
             };
 
             let [result] = results else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.get-config results"
+                    "invalid numcodecs:abc/registry#[method]external-codec.get-config results"
                 );
             };
 
@@ -326,27 +337,30 @@ pub fn add_registry_to_linker(
             Ok(())
         },
     );
-    numcodecs_registry_instance
-        .define_func("[method]erased-dyn-codec.get-config", codec_get_config)?;
+    numcodecs_registry_instance.define_func(
+        "[method]external-codec.get-config",
+        external_codec_get_config,
+    )?;
 
-    let my_numcodecs_registry_codec_type_resource = numcodecs_registry_codec_type_resource.clone();
-    let codec_ty = Func::new(
+    let my_numcodecs_registry_codec_type_resource =
+        numcodecs_registry_external_codec_type_resource.clone();
+    let external_codec_ty = Func::new(
         ctx.as_context_mut(),
         FuncType::new(
-            [ValueType::Borrow(numcodecs_registry_codec_resource.clone())],
+            [ValueType::Borrow(
+                numcodecs_registry_external_codec_resource.clone(),
+            )],
             [ValueType::Own(
-                numcodecs_registry_codec_type_resource.clone(),
+                numcodecs_registry_external_codec_type_resource.clone(),
             )],
         ),
         move |ctx, args, results| {
             let [Value::Borrow(codec)] = args else {
-                anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec.ty arguments"
-                );
+                anyhow::bail!("invalid numcodecs:abc/registry#[method]external-codec.ty arguments");
             };
 
             let [result] = results else {
-                anyhow::bail!("invalid numcodecs:abc/registry#[method]erased-dyn-codec.ty results");
+                anyhow::bail!("invalid numcodecs:abc/registry#[method]external-codec.ty results");
             };
 
             let ty = {
@@ -364,26 +378,26 @@ pub fn add_registry_to_linker(
             Ok(())
         },
     );
-    numcodecs_registry_instance.define_func("[method]erased-dyn-codec.ty", codec_ty)?;
+    numcodecs_registry_instance.define_func("[method]external-codec.ty", external_codec_ty)?;
 
-    let codec_type_id = Func::new(
+    let external_codec_type_id = Func::new(
         ctx.as_context_mut(),
         FuncType::new(
             [ValueType::Borrow(
-                numcodecs_registry_codec_type_resource.clone(),
+                numcodecs_registry_external_codec_type_resource.clone(),
             )],
             [ValueType::String],
         ),
         move |ctx, args, results| {
             let [Value::Borrow(ty)] = args else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec-type.codec-id arguments"
+                    "invalid numcodecs:abc/registry#[method]external-codec-type.codec-id arguments"
                 );
             };
 
             let [result] = results else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codectype.codec-id results"
+                    "invalid numcodecs:abc/registry#[method]external-codectype.codec-id results"
                 );
             };
 
@@ -395,27 +409,29 @@ pub fn add_registry_to_linker(
             Ok(())
         },
     );
-    numcodecs_registry_instance
-        .define_func("[method]erased-dyn-codec-type.codec-id", codec_type_id)?;
+    numcodecs_registry_instance.define_func(
+        "[method]external-codec-type.codec-id",
+        external_codec_type_id,
+    )?;
 
-    let codec_type_schema = Func::new(
+    let external_codec_type_schema = Func::new(
         ctx.as_context_mut(),
         FuncType::new(
             [ValueType::Borrow(
-                numcodecs_registry_codec_type_resource.clone(),
+                numcodecs_registry_external_codec_type_resource.clone(),
             )],
             [ValueType::String],
         ),
         move |ctx, args, results| {
             let [Value::Borrow(ty)] = args else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec-type.codec-config-schema arguments"
+                    "invalid numcodecs:abc/registry#[method]external-codec-type.codec-config-schema arguments"
                 );
             };
 
             let [result] = results else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codectype.codec-config-schema results"
+                    "invalid numcodecs:abc/registry#[method]external-codectype.codec-config-schema results"
                 );
             };
 
@@ -428,23 +444,25 @@ pub fn add_registry_to_linker(
         },
     );
     numcodecs_registry_instance.define_func(
-        "[method]erased-dyn-codec-type.codec-config-schema",
-        codec_type_schema,
+        "[method]external-codec-type.codec-config-schema",
+        external_codec_type_schema,
     )?;
 
     let codec_result = ResultType::new(
-        Some(ValueType::Own(numcodecs_registry_codec_resource.clone())),
+        Some(ValueType::Own(
+            numcodecs_registry_external_codec_resource.clone(),
+        )),
         Some(ValueType::Record(numcodecs_types_error_record.clone())),
     );
 
-    let my_numcodecs_registry_codec_resource = numcodecs_registry_codec_resource.clone();
+    let my_numcodecs_registry_codec_resource = numcodecs_registry_external_codec_resource.clone();
     let my_numcodecs_types_error_record = numcodecs_types_error_record.clone();
     let my_codec_result = codec_result.clone();
-    let codec_from_config = Func::new(
+    let external_codec_from_config = Func::new(
         ctx.as_context_mut(),
         FuncType::new(
             [
-                ValueType::Borrow(numcodecs_registry_codec_type_resource),
+                ValueType::Borrow(numcodecs_registry_external_codec_type_resource),
                 ValueType::String,
             ],
             [ValueType::Result(my_codec_result.clone())],
@@ -452,13 +470,13 @@ pub fn add_registry_to_linker(
         move |ctx, args, results| {
             let [Value::Borrow(ty), Value::String(config)] = args else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codec-type.codec-from-config arguments"
+                    "invalid numcodecs:abc/registry#[method]external-codec-type.codec-from-config arguments"
                 );
             };
 
             let [result] = results else {
                 anyhow::bail!(
-                    "invalid numcodecs:abc/registry#[method]erased-dyn-codectype.codec-from-config results"
+                    "invalid numcodecs:abc/registry#[method]external-codectype.codec-from-config results"
                 );
             };
 
@@ -486,14 +504,14 @@ pub fn add_registry_to_linker(
         },
     );
     numcodecs_registry_instance.define_func(
-        "[method]erased-dyn-codec-type.codec-from-config",
-        codec_from_config,
+        "[method]external-codec-type.codec-from-config",
+        external_codec_from_config,
     )?;
 
-    let my_numcodecs_registry_codec_resource = numcodecs_registry_codec_resource;
+    let my_numcodecs_registry_codec_resource = numcodecs_registry_external_codec_resource;
     let my_numcodecs_types_error_record = numcodecs_types_error_record;
     let my_codec_result = codec_result;
-    let get_codec = Func::new(
+    let get_external_codec = Func::new(
         ctx,
         FuncType::new(
             [ValueType::String],
@@ -501,11 +519,11 @@ pub fn add_registry_to_linker(
         ),
         move |ctx, args, results| {
             let [Value::String(config)] = args else {
-                anyhow::bail!("invalid numcodecs:abc/registry#get-codec arguments");
+                anyhow::bail!("invalid numcodecs:abc/registry#get-external-codec arguments");
             };
 
             let [result] = results else {
-                anyhow::bail!("invalid numcodecs:abc/registry#get-codec results");
+                anyhow::bail!("invalid numcodecs:abc/registry#get-external-codec results");
             };
 
             let res = match registry.get_codec(&mut serde_json::Deserializer::from_str(config)) {
@@ -525,7 +543,7 @@ pub fn add_registry_to_linker(
             Ok(())
         },
     );
-    numcodecs_registry_instance.define_func("get-codec", get_codec)?;
+    numcodecs_registry_instance.define_func("get-external-codec", get_external_codec)?;
 
     Ok(())
 }

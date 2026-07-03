@@ -45,6 +45,10 @@ struct Args {
     /// Enable verbose logging while compiling the crate
     #[arg(long)]
     verbose: bool,
+
+    /// Enable experimental features for the WASM guest
+    #[arg(long)]
+    wasm_features: Vec<String>,
 }
 
 fn main() -> io::Result<()> {
@@ -68,6 +72,7 @@ fn main() -> io::Result<()> {
         &args.version,
         &args.codec,
         args.local,
+        &args.wasm_features,
     )?;
     copy_buildenv_to_crate(&crate_dir)?;
 
@@ -95,6 +100,7 @@ fn create_codec_wasm_component_crate(
     version: &Version,
     codec: &str,
     local: bool,
+    wasm_features: &[String],
 ) -> io::Result<PathBuf> {
     let crate_dir = scratch_dir.join(format!("{crate_}-wasm-{version}"));
     eprintln!("crate_dir={}", crate_dir.display());
@@ -138,7 +144,7 @@ edition = "2024"
 
 [dependencies]
 numcodecs-wasm-logging = {{ version = "0.2",{numcodecs_wasm_logging_path} default-features = false }}
-numcodecs-wasm-guest = {{ version = "0.3",{numcodecs_wasm_guest_path} default-features = false }}
+numcodecs-wasm-guest = {{ version = "0.3",{numcodecs_wasm_guest_path} default-features = false, features = {wasm_features:?} }}
 numcodecs-my-codec = {{ package = "{crate_}", version = "{version}",{numcodecs_my_codec_path} default-features = false }}
     "#
         ),

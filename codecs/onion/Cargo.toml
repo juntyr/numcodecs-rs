@@ -25,4 +25,5 @@ thiserror = { workspace = true }
 workspace = true
 
 [package.metadata.numcodecs-wasm]
-version = "0.2.4"  # wasi 0.2.6
+version = "0.2.5"  # wasi 0.2.6
+wasm-features = ["registry"]

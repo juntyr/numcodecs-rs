@@ -323,7 +323,7 @@ jobs:
         lock: ["Cargo.lock", "Cargo.lock.min"]
         codec: ${{ fromJSON(needs.codecs-ls.outputs.codecs) }}
     runs-on: ${{ matrix.os }}
-    needs: ["lock", "codecs-ls"]
+    needs: ["lock", "codecs-ls", "numcodecs-wasm"]
 
     steps:
       - name: Checkout the Repository
@@ -351,13 +351,22 @@ jobs:
         run: mv ${{ matrix.lock }} Cargo.lock
         if: ${{ matrix.lock != 'Cargo.lock' }}
 
+      - name: Download numcodecs-wasm
+        uses: actions/download-artifact@v8
+        with:
+          pattern: numcodecs-wasm
+          path: py/numcodecs-wasm-materialize
+
       - name: Build the ${{ matrix.codec }} WASM codec
         run: |
           cd py/numcodecs-wasm-materialize
           rm .python-version
           uv python install ${{ matrix.python }}
           uv sync && uv pip install .
-          uv run python3 -m numcodecs_wasm_materialize "^${{ matrix.codec }}$" --local
+          uv run python -m numcodecs_wasm_materialize \
+            "^${{ matrix.codec }}$" \
+            --local \
+            --numcodecs-wasm-wheel numcodecs_wasm-*.whl
 
       - name: Upload the ${{ matrix.codec }} WASM codec
         if: ${{ matrix.lock == 'Cargo.lock' }}
@@ -470,11 +479,12 @@ jobs:
         run: |
           uv venv
           uv python install ${{ matrix.python }}
-          uv pip install dist/*.whl
+          ls dist/*.whl | xargs -n 1 uv pip install
 
       - name: Test the WASM codecs (PyPi numcodecs-wasm)
+        if: always()
         run: |
-          uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
+          uv run python -c "from pathlib import Path; errors = []; [exec('try:\n    import ' + p.name.split('-')[0] + ' as c; print(c)\nexcept ImportError as err:\n    errors.append(err)') for p in sorted(Path('dist').glob('*.whl'))]; exec('if len(errors) > 0:\n    raise Exception(errors)')"
 
       - name: Download numcodecs-wasm
         if: always()
@@ -487,11 +497,12 @@ jobs:
         if: always()
         run: |
           uv pip install dist/numcodecs_wasm-*.whl
+          ls dist/*.whl | xargs -n 1 uv pip install
 
       - name: Test importing the WASM codecs (local numcodecs-wasm)
         if: always()
         run: |
-          uv run python3 -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
+          uv run python -c "from pathlib import Path; errors = []; [exec('try:\n    import ' + p.name.split('-')[0] + ' as c; print(c)\nexcept ImportError as err:\n    errors.append(err)') for p in sorted(Path('dist').glob('*.whl'))]; exec('if len(errors) > 0:\n    raise Exception(errors)')"
 
   wasm-codecs-test-pyemscripten:
     name: Test the WASM codecs on PyEmscripten
@@ -532,9 +543,9 @@ jobs:
           pyodide venv .venv-pyodide
           source .venv-pyodide/bin/activate
           python -m pip install ${{ matrix.python.numpy }}
-          python -m pip install dist/*.whl
+          ls dist/*.whl | xargs -n 1 python -m pip install
 
       - name: Test importing the WASM codecs (local numcodecs-wasm)
         run: |
           source .venv-pyodide/bin/activate
-          python -c "import importlib; from pathlib import Path; [print(importlib.import_module(p.name.split('-')[0])) for p in sorted(Path('dist').glob('*.whl'))]"
+          python -c "from pathlib import Path; errors = []; [exec('try:\n    import ' + p.name.split('-')[0] + ' as c; print(c)\nexcept ImportError as err:\n    errors.append(err)') for p in sorted(Path('dist').glob('*.whl'))]; exec('if len(errors) > 0:\n    raise Exception(errors)')"

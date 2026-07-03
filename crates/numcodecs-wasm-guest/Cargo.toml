@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs-wasm-guest"
-version = "0.3.0"
+version = "0.3.1"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
@@ -16,11 +16,16 @@ keywords = ["numcodecs", "compression", "encoding", "wasm-component", "wasm-bind
 numcodecs = { workspace = true }
 wit-bindgen = { workspace = true, features = ["macros", "realloc"] }
 
+[features]
+registry = ["dep:numcodecs-registry", "dep:serde-transcode"]
+
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 format_serde_error = { workspace = true, features = ["serde_json"] }
 ndarray = { workspace = true, features = ["std"] }
+numcodecs-registry = { workspace = true, optional = true }
 schemars = { workspace = true }
 serde = { workspace = true }
+serde-transcode = { workspace = true, optional = true }
 serde_json = { workspace = true, features = ["std"] }
 thiserror = { workspace = true }
 

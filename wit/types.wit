@@ -1,22 +1,35 @@
 package numcodecs:abc@0.1.1;
 
-interface codec {
-    // BEGIN TODO: replace by use types.{..} in the v0.2.0
+@unstable(feature = registry)
+interface types {
+    @unstable(feature = registry)
+    // @since(version = 0.1.0)
     type json = string;
+    
+    @unstable(feature = registry)
+    // @since(version = 0.1.0)
     type json-schema = json;
+    
+    @unstable(feature = registry)
+    // @since(version = 0.1.0)
     type usize = u32;
 
+    @unstable(feature = registry)
+    // @since(version = 0.1.0)
     record any-array {
         data: any-array-data,
         shape: list<usize>,
     }
 
-    @since(version = 0.1.1)
+    @unstable(feature = registry)
+    // @since(version = 0.1.1)
     record any-array-prototype {
         dtype: any-array-dtype,
         shape: list<usize>,
     }
 
+    @unstable(feature = registry)
+    // @since(version = 0.1.0)
     variant any-array-data {
         %u8(list<u8>),
         %u16(list<u16>),
@@ -30,7 +43,8 @@ interface codec {
         %f64(list<f64>),
     }
 
-    @since(version = 0.1.1)
+    @unstable(feature = registry)
+    // @since(version = 0.1.1)
     enum any-array-dtype {
         %u8,
         %u16,
@@ -44,26 +58,10 @@ interface codec {
         %f64,
     }
 
+    @unstable(feature = registry)
+    // @since(version = 0.1.0)
     record error {
         message: string,
         chain: list<string>,
     }
-    // END TODO: replace by use types.{..} in the v0.2.0
-
-    resource codec {
-        from-config: static func(config: json) -> result<codec, error>;
-
-        encode: func(data: any-array) -> result<any-array, error>;
-
-        decode: func(encoded: any-array) -> result<any-array, error>;
-
-        @since(version = 0.1.1)
-        decode-into: func(encoded: any-array, decoded: any-array-prototype) -> result<any-array, error>;
-
-        get-config: func() -> result<json, error>;
-    }
-
-    codec-id: func() -> string;
-
-    codec-config-schema: func() -> json-schema;
 }
