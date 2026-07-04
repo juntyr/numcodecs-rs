@@ -263,7 +263,7 @@ impl<'de> Deserialize<'de> for PressioCompressor {
             .register_compressor(
                 "numcodecs.rs",
                 NumcodecsPressioCompressor {
-                    codec: RwLock::new(Option::None),
+                    codec: Option::None,
                 },
                 "0.1.0.0",
                 0,
@@ -1012,17 +1012,9 @@ pub enum PressioCodecError {
 /// Opaque error for when encoding or decoding with libpressio fails
 pub struct PressioCodingError(libpressio::PressioError);
 
+#[derive(Clone)]
 struct NumcodecsPressioCompressor {
-    codec: RwLock<Option<ErasedDynCodec>>,
-}
-
-impl Clone for NumcodecsPressioCompressor {
-    #[expect(clippy::unwrap_used)]
-    fn clone(&self) -> Self {
-        Self {
-            codec: RwLock::new(self.codec.read().unwrap().clone()),
-        }
-    }
+    codec: Option<ErasedDynCodec>,
 }
 
 #[expect(clippy::expect_used)]
@@ -1065,8 +1057,7 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
 
     fn get_options(&self) -> libpressio::PressioOptions {
         (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
-            let codec = self.codec.read().expect("codec poisoned");
-            let options = if let Some(codec) = &*codec {
+            let options = if let Some(codec) = &self.codec {
                 let mut config_bytes = Vec::new();
                 match codec.get_config(&mut serde_json::Serializer::new(&mut config_bytes)) {
                     Ok(()) => (),
@@ -1109,14 +1100,13 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
                 )?;
                 options
             };
-            std::mem::drop(codec);
             Ok(options)
         })()
         .expect("get_options should not fail")
     }
 
     fn set_options(
-        &self,
+        &mut self,
         options: &libpressio::PressioOptions,
     ) -> Result<(), libpressio::PressioError> {
         let options = convert_from_pressio_options(options.iter()).map_err(|err| {
@@ -1176,18 +1166,17 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             }
         };
 
-        *self.codec.write().expect("codec poinsoned") = Some(codec);
+        self.codec = Some(codec);
 
         Ok(())
     }
 
     fn compress(
-        &self,
+        &mut self,
         input_data: &libpressio::PressioData,
-        compressed_data: Pin<&mut libpressio::PinnedPressioData>,
+        compressed_data: Pin<&mut libpressio::PressioPinnedData>,
     ) -> Result<(), libpressio::PressioError> {
-        let codec_read = self.codec.read().expect("codec poisoned");
-        let Some(codec) = &*codec_read else {
+        let Some(codec) = &self.codec else {
             return Err(libpressio::PressioError {
                 error_code: 1,
                 message: String::from("uninitialized numcodecs codec"),
@@ -1251,8 +1240,6 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
                 }),
         };
 
-        std::mem::drop(codec_read);
-
         let Some(encoded) = encoded else {
             return Err(libpressio::PressioError {
                 error_code: 1,
@@ -1295,12 +1282,11 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
     }
 
     fn decompress(
-        &self,
+        &mut self,
         compressed_data: &libpressio::PressioData,
-        decompressed_data: Pin<&mut libpressio::PinnedPressioData>,
+        decompressed_data: Pin<&mut libpressio::PressioPinnedData>,
     ) -> Result<(), libpressio::PressioError> {
-        let codec_read = self.codec.read().expect("codec poisoned");
-        let Some(codec) = &*codec_read else {
+        let Some(codec) = &self.codec else {
             return Err(libpressio::PressioError {
                 error_code: 1,
                 message: String::from("uninitialized numcodecs codec"),
@@ -1365,8 +1351,6 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
                     codec.decode(AnyCowArray::F64(compressed_data))
                 }),
         };
-
-        std::mem::drop(codec_read);
 
         let Some(decoded) = decoded else {
             return Err(libpressio::PressioError {
