@@ -28,8 +28,7 @@ use fragile::Fragile;
 use ndarray::{Array, ArrayView, ArrayViewMut, CowArray, Dim, IxDyn};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
-    Codec, DynCodec, DynCodecType, ErasedDynCodec, StaticCodec, StaticCodecConfig,
-    StaticCodecVersion,
+    Codec, DynCodec, ErasedDynCodec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
 };
 use numcodecs_registry::Registry;
 use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
@@ -254,157 +253,7 @@ fn convert_from_pressio_options(
 }
 
 impl<'de> Deserialize<'de> for PressioCompressor {
-    #[expect(clippy::too_many_lines)] // FIXME
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        fn convert_to_pressio_options<E: serde::de::Error>(
-            config: &BTreeMap<String, PressioOption>,
-            template: Option<&libpressio::PressioOptions>,
-            documentation: &libpressio::PressioOptions,
-        ) -> Result<libpressio::PressioOptions, E> {
-            let mut options =
-                libpressio::PressioOptions::new().map_err(serde::de::Error::custom)?;
-
-            let mut entries = vec![(vec![], config)];
-
-            while let Some((path, entry)) = entries.pop() {
-                for (key, value) in entry {
-                    let option = match value {
-                        PressioOption::None(None) => Option::None,
-                        PressioOption::Bool(x) => Some(libpressio::PressioOption::bool(Some(*x))),
-                        PressioOption::U8(x) => Some(libpressio::PressioOption::uint8(Some(*x))),
-                        PressioOption::I8(x) => Some(libpressio::PressioOption::int8(Some(*x))),
-                        PressioOption::U16(x) => Some(libpressio::PressioOption::uint16(Some(*x))),
-                        PressioOption::I16(x) => Some(libpressio::PressioOption::int16(Some(*x))),
-                        PressioOption::U32(x) => Some(libpressio::PressioOption::uint32(Some(*x))),
-                        PressioOption::I32(x) => Some(libpressio::PressioOption::int32(Some(*x))),
-                        PressioOption::U64(x) => Some(libpressio::PressioOption::uint64(Some(*x))),
-                        PressioOption::I64(x) => Some(libpressio::PressioOption::int64(Some(*x))),
-                        PressioOption::F32(x) => Some(libpressio::PressioOption::float32(Some(*x))),
-                        PressioOption::F64(x) => Some(libpressio::PressioOption::float64(Some(*x))),
-                        PressioOption::String(x) => {
-                            Some(libpressio::PressioOption::string(Some(x.clone())))
-                        }
-                        PressioOption::VecString(x) => {
-                            Some(libpressio::PressioOption::vec_string(Some(x.clone())))
-                        }
-                        PressioOption::DataBool(NdArray(x)) => {
-                            Some(libpressio::PressioOption::data(Some(
-                                libpressio::PressioData::new_copied(x),
-                            )))
-                        }
-                        PressioOption::DataU8(NdArray(x)) => Some(libpressio::PressioOption::data(
-                            Some(libpressio::PressioData::new_copied(x)),
-                        )),
-                        PressioOption::DataU16(NdArray(x)) => {
-                            Some(libpressio::PressioOption::data(Some(
-                                libpressio::PressioData::new_copied(x),
-                            )))
-                        }
-                        PressioOption::DataU32(NdArray(x)) => {
-                            Some(libpressio::PressioOption::data(Some(
-                                libpressio::PressioData::new_copied(x),
-                            )))
-                        }
-                        PressioOption::DataU64(NdArray(x)) => {
-                            Some(libpressio::PressioOption::data(Some(
-                                libpressio::PressioData::new_copied(x),
-                            )))
-                        }
-                        PressioOption::DataI8(NdArray(x)) => Some(libpressio::PressioOption::data(
-                            Some(libpressio::PressioData::new_copied(x)),
-                        )),
-                        PressioOption::DataI16(NdArray(x)) => {
-                            Some(libpressio::PressioOption::data(Some(
-                                libpressio::PressioData::new_copied(x),
-                            )))
-                        }
-                        PressioOption::DataI32(NdArray(x)) => {
-                            Some(libpressio::PressioOption::data(Some(
-                                libpressio::PressioData::new_copied(x),
-                            )))
-                        }
-                        PressioOption::DataI64(NdArray(x)) => {
-                            Some(libpressio::PressioOption::data(Some(
-                                libpressio::PressioData::new_copied(x),
-                            )))
-                        }
-                        PressioOption::DataF32(NdArray(x)) => {
-                            Some(libpressio::PressioOption::data(Some(
-                                libpressio::PressioData::new_copied(x),
-                            )))
-                        }
-                        PressioOption::DataF64(NdArray(x)) => {
-                            Some(libpressio::PressioOption::data(Some(
-                                libpressio::PressioData::new_copied(x),
-                            )))
-                        }
-                        PressioOption::Nested(entry) => {
-                            let mut nested_path = path.clone();
-                            nested_path.push(key.clone());
-                            entries.push((nested_path, entry));
-                            continue;
-                        }
-                    };
-
-                    let name = if path.is_empty() {
-                        key.clone()
-                    } else {
-                        format!("/{path}:{key}", path = path.join("/"))
-                    };
-
-                    if let Some(template) = template {
-                        let Some(option_template) =
-                            template.get(&name).map_err(serde::de::Error::custom)?
-                        else {
-                            let supported_options = template
-                                .iter()
-                                .filter_map(|(key, _value)| key)
-                                .map(|x| format!("`{x}`"))
-                                .collect::<Vec<_>>()
-                                .join(", ");
-
-                            return Err(serde::de::Error::custom(format!(
-                                "unknown compressor configuration option: `{name}`, use one of {supported_options}"
-                            )));
-                        };
-
-                        options
-                            .set(&name, option_template.copy_type_only())
-                            .map_err(serde::de::Error::custom)?;
-
-                        if let Some(option) = option {
-                            options
-                                .set_with_cast(
-                                    &name,
-                                    option,
-                                    libpressio::PressioConversionSafety::Special,
-                                )
-                                .map_err(|err| {
-                                    let docs = match documentation.get(&name) {
-                                        Ok(Some(libpressio::PressioOption::string(Some(docs)))) => {
-                                            Some(docs)
-                                        }
-                                        _ => Option::None,
-                                    };
-
-                                    if let Some(docs) = docs {
-                                        serde::de::Error::custom(format_args!("{err} ({docs})"))
-                                    } else {
-                                        serde::de::Error::custom(err)
-                                    }
-                                })?;
-                        }
-                    } else if let Some(option) = option {
-                        options
-                            .set(name, option)
-                            .map_err(serde::de::Error::custom)?;
-                    }
-                }
-            }
-
-            Ok(options)
-        }
-
         // TODO: better error handling
         let format = PressioCompressorOwnedFormat::deserialize(deserializer)?;
         std::mem::drop(format.metric_results);
@@ -452,7 +301,8 @@ impl<'de> Deserialize<'de> for PressioCompressor {
             .map_err(serde::de::Error::custom)?;
 
         let early_options =
-            convert_to_pressio_options(&format.early_config, Option::None, &documentation)?;
+            convert_to_pressio_options(&format.early_config, Option::None, &documentation)
+                .map_err(serde::de::Error::custom)?;
         compressor
             .set_options(&early_options)
             .map_err(serde::de::Error::custom)?;
@@ -462,7 +312,8 @@ impl<'de> Deserialize<'de> for PressioCompressor {
             &format.compressor_config,
             Some(&options_template),
             &documentation,
-        )?;
+        )
+        .map_err(serde::de::Error::custom)?;
         compressor
             .set_options(&options)
             .map_err(serde::de::Error::custom)?;
@@ -480,6 +331,133 @@ impl<'de> Deserialize<'de> for PressioCompressor {
             })),
         })
     }
+}
+
+#[expect(clippy::too_many_lines)]
+fn convert_to_pressio_options(
+    config: &BTreeMap<String, PressioOption>,
+    template: Option<&libpressio::PressioOptions>,
+    documentation: &libpressio::PressioOptions,
+) -> Result<libpressio::PressioOptions, libpressio::PressioError> {
+    let mut options = libpressio::PressioOptions::new()?;
+
+    let mut entries = vec![(vec![], config)];
+
+    while let Some((path, entry)) = entries.pop() {
+        for (key, value) in entry {
+            let option = match value {
+                PressioOption::None(None) => Option::None,
+                PressioOption::Bool(x) => Some(libpressio::PressioOption::bool(Some(*x))),
+                PressioOption::U8(x) => Some(libpressio::PressioOption::uint8(Some(*x))),
+                PressioOption::I8(x) => Some(libpressio::PressioOption::int8(Some(*x))),
+                PressioOption::U16(x) => Some(libpressio::PressioOption::uint16(Some(*x))),
+                PressioOption::I16(x) => Some(libpressio::PressioOption::int16(Some(*x))),
+                PressioOption::U32(x) => Some(libpressio::PressioOption::uint32(Some(*x))),
+                PressioOption::I32(x) => Some(libpressio::PressioOption::int32(Some(*x))),
+                PressioOption::U64(x) => Some(libpressio::PressioOption::uint64(Some(*x))),
+                PressioOption::I64(x) => Some(libpressio::PressioOption::int64(Some(*x))),
+                PressioOption::F32(x) => Some(libpressio::PressioOption::float32(Some(*x))),
+                PressioOption::F64(x) => Some(libpressio::PressioOption::float64(Some(*x))),
+                PressioOption::String(x) => {
+                    Some(libpressio::PressioOption::string(Some(x.clone())))
+                }
+                PressioOption::VecString(x) => {
+                    Some(libpressio::PressioOption::vec_string(Some(x.clone())))
+                }
+                PressioOption::DataBool(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataU8(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataU16(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataU32(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataU64(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataI8(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataI16(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataI32(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataI64(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataF32(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::DataF64(NdArray(x)) => Some(libpressio::PressioOption::data(Some(
+                    libpressio::PressioData::new_copied(x),
+                ))),
+                PressioOption::Nested(entry) => {
+                    let mut nested_path = path.clone();
+                    nested_path.push(key.clone());
+                    entries.push((nested_path, entry));
+                    continue;
+                }
+            };
+
+            let name = if path.is_empty() {
+                key.clone()
+            } else {
+                format!("/{path}:{key}", path = path.join("/"))
+            };
+
+            if let Some(template) = template {
+                let Some(option_template) = template.get(&name)? else {
+                    let supported_options = template
+                        .iter()
+                        .filter_map(|(key, _value)| key)
+                        .map(|x| format!("`{x}`"))
+                        .collect::<Vec<_>>()
+                        .join(", ");
+
+                    return Err(libpressio::PressioError {
+                        error_code: 1,
+                        message: format!(
+                            "unknown compressor configuration option: `{name}`, use one of {supported_options}"
+                        ),
+                    });
+                };
+
+                options.set(&name, option_template.copy_type_only())?;
+
+                if let Some(option) = option {
+                    options
+                        .set_with_cast(&name, option, libpressio::PressioConversionSafety::Special)
+                        .map_err(|err| {
+                            let docs = match documentation.get(&name) {
+                                Ok(Some(libpressio::PressioOption::string(Some(docs)))) => {
+                                    Some(docs)
+                                }
+                                _ => Option::None,
+                            };
+
+                            if let Some(docs) = docs {
+                                libpressio::PressioError {
+                                    error_code: err.error_code,
+                                    message: format!("{err} ({docs})"),
+                                }
+                            } else {
+                                err
+                            }
+                        })?;
+                }
+            } else if let Some(option) = option {
+                options.set(name, option)?;
+            }
+        }
+    }
+
+    Ok(options)
 }
 
 impl JsonSchema for PressioCompressor {
@@ -1087,20 +1065,50 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
 
     fn get_options(&self) -> libpressio::PressioOptions {
         (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
-            let mut options = libpressio::PressioOptions::new()?;
             let codec = self.codec.read().expect("codec poisoned");
-            if let Some(codec) = &*codec {
-                options.set(
-                    "numcodecs.rs:id",
-                    libpressio::PressioOption::string(Some(String::from(codec.ty().codec_id()))),
-                )?;
-                // TODO: serialize all remaining options
+            let options = if let Some(codec) = &*codec {
+                let mut config_bytes = Vec::new();
+                match codec.get_config(&mut serde_json::Serializer::new(&mut config_bytes)) {
+                    Ok(()) => (),
+                    Err(err) => {
+                        return Err(libpressio::PressioError {
+                            error_code: 1,
+                            message: format!("{err}"),
+                        });
+                    }
+                }
+                let Ok(config) = String::from_utf8(config_bytes) else {
+                    return Err(libpressio::PressioError {
+                        error_code: 2,
+                        message: String::from("invalid UTF-8 in JSON config"),
+                    });
+                };
+
+                let options: BTreeMap<String, PressioOption> =
+                    match BTreeMap::deserialize(&mut serde_json::Deserializer::from_str(&config)) {
+                        Ok(options) => options,
+                        Err(err) => {
+                            return Err(libpressio::PressioError {
+                                error_code: 1,
+                                message: format!("{err}"),
+                            });
+                        }
+                    };
+                let options = options
+                    .into_iter()
+                    .map(|(key, value)| (format!("numcodecs.rs:{key}"), value))
+                    .collect();
+
+                let documentation = libpressio::PressioOptions::new()?;
+                convert_to_pressio_options(&options, Option::None, &documentation)?
             } else {
+                let mut options = libpressio::PressioOptions::new()?;
                 options.set(
                     "numcodecs.rs:id",
                     libpressio::PressioOption::string(Option::None),
                 )?;
-            }
+                options
+            };
             std::mem::drop(codec);
             Ok(options)
         })()
