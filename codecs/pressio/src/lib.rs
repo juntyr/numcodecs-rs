@@ -1140,7 +1140,7 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             })
             .collect::<Result<BTreeMap<String, PressioOption>, libpressio::PressioError>>()?;
 
-        let Some(id) = options.get("numcodecs.rs:id") else {
+        let Some(id) = options.get("id") else {
             return Err(libpressio::PressioError {
                 error_code: 1,
                 message: String::from("missing numcodecs.rs:id"),
