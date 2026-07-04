@@ -23,6 +23,7 @@ numcodecs-registry = { workspace = true }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 serde-ndim = { workspace = true, features = ["ndarray"] }
+serde_json = { workspace = true, features = ["std"] }
 thiserror = { workspace = true }
 
 [dev-dependencies]

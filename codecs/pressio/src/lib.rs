@@ -20,16 +20,18 @@
 use std::{
     borrow::Cow,
     collections::{BTreeMap, btree_map::Entry},
+    pin::Pin,
     sync::{Arc, Mutex, RwLock},
 };
 
 use fragile::Fragile;
-use ndarray::{Array, ArrayView, ArrayViewMut, CowArray, IxDyn};
+use ndarray::{Array, ArrayView, ArrayViewMut, CowArray, Dim, IxDyn};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, DynCodec, DynCodecType, ErasedDynCodec, StaticCodec, StaticCodecConfig,
     StaticCodecVersion,
 };
+use numcodecs_registry::Registry;
 use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
@@ -130,104 +132,7 @@ impl PressioCompressorSendable {
 }
 
 impl Serialize for PressioCompressor {
-    #[expect(clippy::too_many_lines)]
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        fn convert_from_pressio_options<E: serde::ser::Error>(
-            options: impl Iterator<Item = (Option<String>, Option<libpressio::PressioOption>)>,
-        ) -> Result<BTreeMap<String, PressioOption>, E> {
-            let mut config = BTreeMap::new();
-
-            for (name, option) in options {
-                // skip invalid option names and values
-                let (Some(name), Some(option)) = (name, option) else {
-                    continue;
-                };
-
-                let value = match option {
-                    libpressio::PressioOption::bool(Some(x)) => PressioOption::Bool(x),
-                    libpressio::PressioOption::int8(Some(x)) => PressioOption::I8(x),
-                    libpressio::PressioOption::int16(Some(x)) => PressioOption::I16(x),
-                    libpressio::PressioOption::int32(Some(x)) => PressioOption::I32(x),
-                    libpressio::PressioOption::int64(Some(x)) => PressioOption::I64(x),
-                    libpressio::PressioOption::uint8(Some(x)) => PressioOption::U8(x),
-                    libpressio::PressioOption::uint16(Some(x)) => PressioOption::U16(x),
-                    libpressio::PressioOption::uint32(Some(x)) => PressioOption::U32(x),
-                    libpressio::PressioOption::uint64(Some(x)) => PressioOption::U64(x),
-                    libpressio::PressioOption::float32(Some(x)) => PressioOption::F32(x),
-                    libpressio::PressioOption::float64(Some(x)) => PressioOption::F64(x),
-                    libpressio::PressioOption::string(Some(x)) => PressioOption::String(x),
-                    libpressio::PressioOption::vec_string(Some(x)) => PressioOption::VecString(x),
-                    libpressio::PressioOption::dtype(Some(x)) => PressioOption::String(format!("{x}")),
-                    libpressio::PressioOption::thread_safety(Some(x)) => PressioOption::String(format!("{x}")),
-                    libpressio::PressioOption::data(Some(x)) => match x.clone_into_array() {
-                        Option::None => continue,
-                        Some(libpressio::PressioArray::Bool(x)) => PressioOption::DataBool(NdArray(x)),
-                        Some(libpressio::PressioArray::Byte(x) | libpressio::PressioArray::U8(x)) => PressioOption::DataU8(NdArray(x)),
-                        Some(libpressio::PressioArray::U16(x)) => PressioOption::DataU16(NdArray(x)),
-                        Some(libpressio::PressioArray::U32(x)) => PressioOption::DataU32(NdArray(x)),
-                        Some(libpressio::PressioArray::U64(x)) => PressioOption::DataU64(NdArray(x)),
-                        Some(libpressio::PressioArray::I8(x)) => PressioOption::DataI8(NdArray(x)),
-                        Some(libpressio::PressioArray::I16(x)) => PressioOption::DataI16(NdArray(x)),
-                        Some(libpressio::PressioArray::I32(x)) => PressioOption::DataI32(NdArray(x)),
-                        Some(libpressio::PressioArray::I64(x)) => PressioOption::DataI64(NdArray(x)),
-                        Some(libpressio::PressioArray::F32(x)) => PressioOption::DataF32(NdArray(x)),
-                        Some(libpressio::PressioArray::F64(x)) => PressioOption::DataF64(NdArray(x)),
-                    },
-                    libpressio::PressioOption::user_ptr(_)
-                    | libpressio::PressioOption::unset
-                    | _ /* non-exhaustive */ => continue,
-                };
-
-                let Some(nested_name) = name.strip_prefix('/') else {
-                    // global option
-                    if config.insert(name.clone(), value).is_some() {
-                        return Err(serde::ser::Error::custom(format!(
-                            "duplicate global option: `{name}`"
-                        )));
-                    }
-                    continue;
-                };
-
-                // hierarchical option
-                let mut parts = nested_name.split(':').peekable();
-
-                let Some(first) = parts.next() else {
-                    return Err(serde::ser::Error::custom(format!(
-                        "invalid hierarchical config name `{name}`"
-                    )));
-                };
-                let paths = first.split('/');
-
-                if parts.peek().is_none() {
-                    return Err(serde::ser::Error::custom(format!(
-                        "invalid hierarchical config name `{name}`"
-                    )));
-                }
-                let option_name = parts.map(String::from).collect::<Vec<_>>().join(":");
-
-                let mut it = &mut config;
-                for path in paths {
-                    if let Entry::Vacant(entry) = it.entry(String::from(path)) {
-                        entry.insert(PressioOption::Nested(BTreeMap::new()));
-                    }
-
-                    let Some(PressioOption::Nested(entry)) = it.get_mut(path) else {
-                        return Err(serde::ser::Error::custom(format!(
-                            "duplicate option nesting: `{path}` in `{name}`"
-                        )));
-                    };
-                    it = entry;
-                }
-                if it.insert(option_name.clone(), value).is_some() {
-                    return Err(serde::ser::Error::custom(format!(
-                        "duplicate nested option: `{option_name}` in `{name}`"
-                    )));
-                }
-            }
-
-            Ok(config)
-        }
-
         let inner = self.inner.read().map_err(serde::ser::Error::custom)?;
         let compressor_guard = inner.compressor.lock().map_err(serde::ser::Error::custom)?;
         let compressor = compressor_guard
@@ -244,8 +149,10 @@ impl Serialize for PressioCompressor {
         let result = PressioCompressorBorrowedFormat {
             compressor_id: inner.compressor_id.as_str(),
             early_config: &inner.early_config,
-            compressor_config: &convert_from_pressio_options(options.iter())?,
-            metric_results: &convert_from_pressio_options(metric_results.iter())?,
+            compressor_config: &convert_from_pressio_options(options.iter())
+                .map_err(serde::ser::Error::custom)?,
+            metric_results: &convert_from_pressio_options(metric_results.iter())
+                .map_err(serde::ser::Error::custom)?,
             name: match name {
                 "" => Option::None,
                 name => Some(name),
@@ -256,6 +163,94 @@ impl Serialize for PressioCompressor {
         std::mem::drop(inner);
         result
     }
+}
+
+fn convert_from_pressio_options(
+    options: impl Iterator<Item = (Option<String>, Option<libpressio::PressioOption>)>,
+) -> Result<BTreeMap<String, PressioOption>, String> {
+    let mut config = BTreeMap::new();
+
+    for (name, option) in options {
+        // skip invalid option names and values
+        let (Some(name), Some(option)) = (name, option) else {
+            continue;
+        };
+
+        let value = match option {
+            libpressio::PressioOption::bool(Some(x)) => PressioOption::Bool(x),
+            libpressio::PressioOption::int8(Some(x)) => PressioOption::I8(x),
+            libpressio::PressioOption::int16(Some(x)) => PressioOption::I16(x),
+            libpressio::PressioOption::int32(Some(x)) => PressioOption::I32(x),
+            libpressio::PressioOption::int64(Some(x)) => PressioOption::I64(x),
+            libpressio::PressioOption::uint8(Some(x)) => PressioOption::U8(x),
+            libpressio::PressioOption::uint16(Some(x)) => PressioOption::U16(x),
+            libpressio::PressioOption::uint32(Some(x)) => PressioOption::U32(x),
+            libpressio::PressioOption::uint64(Some(x)) => PressioOption::U64(x),
+            libpressio::PressioOption::float32(Some(x)) => PressioOption::F32(x),
+            libpressio::PressioOption::float64(Some(x)) => PressioOption::F64(x),
+            libpressio::PressioOption::string(Some(x)) => PressioOption::String(x),
+            libpressio::PressioOption::vec_string(Some(x)) => PressioOption::VecString(x),
+            libpressio::PressioOption::dtype(Some(x)) => PressioOption::String(format!("{x}")),
+            libpressio::PressioOption::thread_safety(Some(x)) => PressioOption::String(format!("{x}")),
+            libpressio::PressioOption::data(Some(x)) => match x.clone_into_array() {
+                Option::None => continue,
+                Some(libpressio::PressioArray::Bool(x)) => PressioOption::DataBool(NdArray(x)),
+                Some(libpressio::PressioArray::Byte(x) | libpressio::PressioArray::U8(x)) => PressioOption::DataU8(NdArray(x)),
+                Some(libpressio::PressioArray::U16(x)) => PressioOption::DataU16(NdArray(x)),
+                Some(libpressio::PressioArray::U32(x)) => PressioOption::DataU32(NdArray(x)),
+                Some(libpressio::PressioArray::U64(x)) => PressioOption::DataU64(NdArray(x)),
+                Some(libpressio::PressioArray::I8(x)) => PressioOption::DataI8(NdArray(x)),
+                Some(libpressio::PressioArray::I16(x)) => PressioOption::DataI16(NdArray(x)),
+                Some(libpressio::PressioArray::I32(x)) => PressioOption::DataI32(NdArray(x)),
+                Some(libpressio::PressioArray::I64(x)) => PressioOption::DataI64(NdArray(x)),
+                Some(libpressio::PressioArray::F32(x)) => PressioOption::DataF32(NdArray(x)),
+                Some(libpressio::PressioArray::F64(x)) => PressioOption::DataF64(NdArray(x)),
+            },
+            libpressio::PressioOption::user_ptr(_)
+            | libpressio::PressioOption::unset
+            | _ /* non-exhaustive */ => continue,
+        };
+
+        let Some(nested_name) = name.strip_prefix('/') else {
+            // global option
+            if config.insert(name.clone(), value).is_some() {
+                return Err(format!("duplicate global option: `{name}`"));
+            }
+            continue;
+        };
+
+        // hierarchical option
+        let mut parts = nested_name.split(':').peekable();
+
+        let Some(first) = parts.next() else {
+            return Err(format!("invalid hierarchical config name `{name}`"));
+        };
+        let paths = first.split('/');
+
+        if parts.peek().is_none() {
+            return Err(format!("invalid hierarchical config name `{name}`"));
+        }
+        let option_name = parts.map(String::from).collect::<Vec<_>>().join(":");
+
+        let mut it = &mut config;
+        for path in paths {
+            if let Entry::Vacant(entry) = it.entry(String::from(path)) {
+                entry.insert(PressioOption::Nested(BTreeMap::new()));
+            }
+
+            let Some(PressioOption::Nested(entry)) = it.get_mut(path) else {
+                return Err(format!("duplicate option nesting: `{path}` in `{name}`"));
+            };
+            it = entry;
+        }
+        if it.insert(option_name.clone(), value).is_some() {
+            return Err(format!(
+                "duplicate nested option: `{option_name}` in `{name}`"
+            ));
+        }
+    }
+
+    Ok(config)
 }
 
 impl<'de> Deserialize<'de> for PressioCompressor {
@@ -419,7 +414,7 @@ impl<'de> Deserialize<'de> for PressioCompressor {
             .register_compressor(
                 "numcodecs.rs",
                 NumcodecsPressioCompressor {
-                    codec: Option::None,
+                    codec: RwLock::new(Option::None),
                 },
                 "0.1.0.0",
                 0,
@@ -1039,9 +1034,17 @@ pub enum PressioCodecError {
 /// Opaque error for when encoding or decoding with libpressio fails
 pub struct PressioCodingError(libpressio::PressioError);
 
-#[derive(Clone)]
 struct NumcodecsPressioCompressor {
-    codec: Option<ErasedDynCodec>,
+    codec: RwLock<Option<ErasedDynCodec>>,
+}
+
+impl Clone for NumcodecsPressioCompressor {
+    #[expect(clippy::unwrap_used)]
+    fn clone(&self) -> Self {
+        Self {
+            codec: RwLock::new(self.codec.read().unwrap().clone()),
+        }
+    }
 }
 
 #[expect(clippy::expect_used)]
@@ -1085,7 +1088,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
     fn get_options(&self) -> libpressio::PressioOptions {
         (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
             let mut options = libpressio::PressioOptions::new()?;
-            if let Some(codec) = &self.codec {
+            let codec = self.codec.read().expect("codec poisoned");
+            if let Some(codec) = &*codec {
                 options.set(
                     "numcodecs.rs:id",
                     libpressio::PressioOption::string(Some(String::from(codec.ty().codec_id()))),
@@ -1097,6 +1101,7 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
                     libpressio::PressioOption::string(Option::None),
                 )?;
             }
+            std::mem::drop(codec);
             Ok(options)
         })()
         .expect("get_options should not fail")
@@ -1106,33 +1111,294 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
         &self,
         options: &libpressio::PressioOptions,
     ) -> Result<(), libpressio::PressioError> {
-        let _id = options.get("numcodecs.rs:id")?;
+        let options = convert_from_pressio_options(options.iter()).map_err(|err| {
+            libpressio::PressioError {
+                error_code: 1,
+                message: err,
+            }
+        })?;
 
-        todo!("deserialize options")
+        #[expect(clippy::option_if_let_else)]
+        let options = options
+            .into_iter()
+            .map(|(key, value)| match key.strip_prefix("numcodecs.rs:") {
+                Some(key) => Ok((String::from(key), value)),
+                Option::None => Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!(
+                        "numcodecs.rs option `{key}` does not start with `numcodecs.rs:`"
+                    ),
+                }),
+            })
+            .collect::<Result<BTreeMap<String, PressioOption>, libpressio::PressioError>>()?;
+
+        let Some(id) = options.get("numcodecs.rs:id") else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("missing numcodecs.rs:id"),
+            });
+        };
+
+        let PressioOption::String(_id) = id else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("numcodecs.rs:id must be a string"),
+            });
+        };
+
+        let config = match serde_json::to_string(&options) {
+            Ok(config) => config,
+            Err(err) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("{err}"),
+                });
+            }
+        };
+
+        let codec = match numcodecs_registry::GlobalRegistry
+            .get_codec(&mut serde_json::Deserializer::from_str(&config))
+        {
+            Ok(codec) => codec,
+            Err(err) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("{err}"),
+                });
+            }
+        };
+
+        *self.codec.write().expect("codec poinsoned") = Some(codec);
+
+        Ok(())
     }
 
     fn compress(
         &self,
-        _input_data: &libpressio::PressioData,
-        _compressed_data: libpressio::PressioData,
-    ) -> Result<libpressio::PressioData, libpressio::PressioError> {
-        let Some(_codec) = &self.codec else {
-            todo!("error or no-op");
+        input_data: &libpressio::PressioData,
+        compressed_data: Pin<&mut libpressio::PinnedPressioData>,
+    ) -> Result<(), libpressio::PressioError> {
+        let codec_read = self.codec.read().expect("codec poisoned");
+        let Some(codec) = &*codec_read else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("uninitialized numcodecs codec"),
+            });
         };
 
-        todo!("compress");
+        let input_shape = input_data.shape();
+
+        let encoded = match input_data.dtype() {
+            Option::None => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: String::from("unsupported input data type"),
+                });
+            }
+            Some(libpressio::PressioDtype::Bool) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: String::from("unsupported input bool array"),
+                });
+            }
+            Some(libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::U8(input_data))
+                }),
+            Some(libpressio::PressioDtype::U16) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::U16(input_data))
+                }),
+            Some(libpressio::PressioDtype::U32) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::U32(input_data))
+                }),
+            Some(libpressio::PressioDtype::U64) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::U64(input_data))
+                }),
+            Some(libpressio::PressioDtype::I8) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::I8(input_data))
+                }),
+            Some(libpressio::PressioDtype::I16) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::I16(input_data))
+                }),
+            Some(libpressio::PressioDtype::I32) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::I32(input_data))
+                }),
+            Some(libpressio::PressioDtype::I64) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::I64(input_data))
+                }),
+            Some(libpressio::PressioDtype::F32) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::F32(input_data))
+                }),
+            Some(libpressio::PressioDtype::F64) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::F64(input_data))
+                }),
+        };
+
+        std::mem::drop(codec_read);
+
+        let Some(encoded) = encoded else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("unexpected encoded data type or shape mismatch"),
+            });
+        };
+
+        let encoded = match encoded {
+            Ok(encoded) => encoded,
+            Err(err) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("{err}"),
+                });
+            }
+        };
+
+        let compressed = match encoded {
+            AnyArray::U8(encoded) => libpressio::PressioData::new_copied(encoded),
+            AnyArray::U16(encoded) => libpressio::PressioData::new_copied(encoded),
+            AnyArray::U32(encoded) => libpressio::PressioData::new_copied(encoded),
+            AnyArray::U64(encoded) => libpressio::PressioData::new_copied(encoded),
+            AnyArray::I8(encoded) => libpressio::PressioData::new_copied(encoded),
+            AnyArray::I16(encoded) => libpressio::PressioData::new_copied(encoded),
+            AnyArray::I32(encoded) => libpressio::PressioData::new_copied(encoded),
+            AnyArray::I64(encoded) => libpressio::PressioData::new_copied(encoded),
+            AnyArray::F32(encoded) => libpressio::PressioData::new_copied(encoded),
+            AnyArray::F64(encoded) => libpressio::PressioData::new_copied(encoded),
+            encoded => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("unsupported encoded data type {}", encoded.dtype()),
+                });
+            }
+        };
+
+        compressed_data.overwrite(compressed);
+
+        Ok(())
     }
 
     fn decompress(
         &self,
-        _compressed_data: &libpressio::PressioData,
-        _decompressed_data: libpressio::PressioData,
-    ) -> Result<libpressio::PressioData, libpressio::PressioError> {
-        let Some(_codec) = &self.codec else {
-            todo!("error or no-op");
+        compressed_data: &libpressio::PressioData,
+        decompressed_data: Pin<&mut libpressio::PinnedPressioData>,
+    ) -> Result<(), libpressio::PressioError> {
+        let codec_read = self.codec.read().expect("codec poisoned");
+        let Some(codec) = &*codec_read else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("uninitialized numcodecs codec"),
+            });
         };
 
-        todo!("decompress");
+        let compressed_shape = compressed_data.shape();
+
+        // TODO: take decompressed_data shape and dtype into account
+
+        let decoded = match compressed_data.dtype() {
+            Option::None => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: String::from("unsupported compressed data type"),
+                });
+            }
+            Some(libpressio::PressioDtype::Bool) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: String::from("unsupported compressed bool array"),
+                });
+            }
+            Some(libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::U8(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::U16) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::U16(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::U32) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::U32(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::U64) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::U64(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::I8) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::I8(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::I16) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::I16(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::I32) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::I32(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::I64) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::I64(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::F32) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::F32(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::F64) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::F64(compressed_data))
+                }),
+        };
+
+        std::mem::drop(codec_read);
+
+        let Some(decoded) = decoded else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("unexpected decoded data type or shape mismatch"),
+            });
+        };
+
+        let decoded = match decoded {
+            Ok(decoded) => decoded,
+            Err(err) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("{err}"),
+                });
+            }
+        };
+
+        let decompressed = match decoded {
+            AnyArray::U8(decoded) => libpressio::PressioData::new_copied(decoded),
+            AnyArray::U16(decoded) => libpressio::PressioData::new_copied(decoded),
+            AnyArray::U32(decoded) => libpressio::PressioData::new_copied(decoded),
+            AnyArray::U64(decoded) => libpressio::PressioData::new_copied(decoded),
+            AnyArray::I8(decoded) => libpressio::PressioData::new_copied(decoded),
+            AnyArray::I16(decoded) => libpressio::PressioData::new_copied(decoded),
+            AnyArray::I32(decoded) => libpressio::PressioData::new_copied(decoded),
+            AnyArray::I64(decoded) => libpressio::PressioData::new_copied(decoded),
+            AnyArray::F32(decoded) => libpressio::PressioData::new_copied(decoded),
+            AnyArray::F64(decoded) => libpressio::PressioData::new_copied(decoded),
+            decoded => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("unsupported decoded data type {}", decoded.dtype()),
+                });
+            }
+        };
+
+        decompressed_data.overwrite(decompressed);
+
+        Ok(())
     }
 
     fn get_metrics_results(&self) -> libpressio::PressioOptions {
