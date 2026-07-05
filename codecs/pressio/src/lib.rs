@@ -1539,6 +1539,100 @@ mod tests {
         assert!(config.contains("\"composite:objective2\":4.2"));
     }
 
+    #[test]
+    fn optzconfig_fraz() {
+        let pressio = PressioCodec::deserialize(json!({
+            "compressor_id": "pressio",
+            "compressor_config": {
+                "pressio:metric": "error_stat",
+                "opt:compressor": "linear_quantizer",
+                "linear_quantizer:compressor": "bzip2",
+                "opt:search": "fraz",
+                "opt:output": ["error_stat:psnr"],
+                "opt:inputs": ["linear_quantizer:step"],
+                "opt:lower_bound": 1e-8,
+                "opt:upper_bound": 1e-3,
+                "opt:max_iterations": 30,
+                "opt:objective_mode_name": "max",
+            },
+            "early_config": {
+                "pressio:compressor": "opt",
+                "opt:compressor": "linear_quantizer",
+                "opt:search": "fraz",
+            },
+        }))
+        .unwrap();
+
+        let config = serde_json::to_string(&StaticCodec::get_config(&pressio)).unwrap();
+        assert!(config.contains("\"opt:search\":\"fraz\""));
+
+        let data = ndarray::linspace(0.0, 100.0, 50)
+            .collect::<Array1<f64>>()
+            .into_dyn();
+
+        let encoded = pressio
+            .encode(AnyCowArray::F64(CowArray::from(&data)))
+            .unwrap();
+
+        let decoded = pressio.decode(encoded.cow());
+        assert!(matches!(
+            decoded,
+            Err(PressioCodecError::DecodeToArrayWithoutData)
+        ));
+
+        let mut decoded = ndarray::Array::zeros(data.dim());
+        pressio
+            .decode_into(encoded.view(), AnyArrayViewMut::F64(decoded.view_mut()))
+            .unwrap();
+    }
+
+    #[test]
+    fn optzconfig_random() {
+        let pressio = PressioCodec::deserialize(json!({
+            "compressor_id": "pressio",
+            "compressor_config": {
+                "pressio:metric": "error_stat",
+                "opt:compressor": "linear_quantizer",
+                "linear_quantizer:compressor": "bzip2",
+                "opt:search": "random_search",
+                "opt:output": ["error_stat:psnr"],
+                "opt:inputs": ["linear_quantizer:step"],
+                "opt:lower_bound": 1e-8,
+                "opt:upper_bound": 1e-3,
+                "opt:max_iterations": 30,
+                "opt:objective_mode_name": "min",
+            },
+            "early_config": {
+                "pressio:compressor": "opt",
+                "opt:compressor": "linear_quantizer",
+                "opt:search": "random_search",
+            },
+        }))
+        .unwrap();
+
+        let config = serde_json::to_string(&StaticCodec::get_config(&pressio)).unwrap();
+        assert!(config.contains("\"opt:search\":\"random_search\""));
+
+        let data = ndarray::linspace(0.0, 100.0, 50)
+            .collect::<Array1<f64>>()
+            .into_dyn();
+
+        let encoded = pressio
+            .encode(AnyCowArray::F64(CowArray::from(&data)))
+            .unwrap();
+
+        let decoded = pressio.decode(encoded.cow());
+        assert!(matches!(
+            decoded,
+            Err(PressioCodecError::DecodeToArrayWithoutData)
+        ));
+
+        let mut decoded = ndarray::Array::zeros(data.dim());
+        pressio
+            .decode_into(encoded.view(), AnyArrayViewMut::F64(decoded.view_mut()))
+            .unwrap();
+    }
+
     numcodecs_registry::export_global! {
         static REGISTRY: numcodecs_registry::EmptyRegistry = numcodecs_registry::EmptyRegistry;
     }
