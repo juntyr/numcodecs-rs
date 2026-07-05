@@ -16,7 +16,7 @@ keywords = ["libpressio", "numcodecs", "compression", "encoding"]
 
 [dependencies]
 fragile = { workspace = true }
-libpressio = { workspace = true, features = ["bzip2", "lua"] }
+libpressio = { workspace = true, features = ["bzip2", "lua", "opt", "mpi-stubs"] }
 ndarray = { workspace = true }
 numcodecs = { workspace = true }
 numcodecs-registry = { workspace = true }
