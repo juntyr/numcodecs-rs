@@ -25,7 +25,7 @@ use std::{
 };
 
 use fragile::Fragile;
-use ndarray::{Array, ArrayView, ArrayViewMut, CowArray, Dim, IxDyn};
+use ndarray::{Array, ArrayView, ArrayViewMut, CowArray, Dim, Ix0, IxDyn};
 use numcodecs::{
     AnyArray, AnyArrayAssignError, AnyArrayDType, AnyArrayView, AnyArrayViewMut, AnyCowArray,
     Codec, DynCodec, ErasedDynCodec, StaticCodec, StaticCodecConfig, StaticCodecVersion,
@@ -270,6 +270,16 @@ impl<'de> Deserialize<'de> for PressioCompressor {
                 1,
                 0,
                 0,
+            )
+            .map_err(serde::de::Error::custom)?;
+        pressio
+            .register_metric(
+                "numcodecs.rs-metric",
+                NumcodecsPressioMetric {
+                    codec: Option::None,
+                    compression_result: Option::None,
+                    decompression_result: Option::None,
+                },
             )
             .map_err(serde::de::Error::custom)?;
         let mut compressor = pressio
@@ -1105,6 +1115,13 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
         .expect("get_options should not fail")
     }
 
+    fn check_options(
+        &self,
+        _options: &libpressio::PressioOptions,
+    ) -> Result<(), libpressio::PressioError> {
+        Ok(())
+    }
+
     fn set_options(
         &mut self,
         options: &libpressio::PressioOptions,
@@ -1393,8 +1410,507 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
         Ok(())
     }
 
+    fn compress_many(
+        &mut self,
+        input_data: &[libpressio::PressioData],
+        compressed_data: Pin<&mut [libpressio::PressioPinnedData]>,
+    ) -> Result<(), libpressio::PressioError> {
+        if input_data.len() != compressed_data.len() {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("mismatched number of compress_many inputs and outputs"),
+            });
+        }
+
+        // FIXME: https://github.com/rust-lang/libs-team/issues/607
+        #[expect(unsafe_code)]
+        let compressed_data_unsafe = unsafe { compressed_data.get_unchecked_mut() };
+
+        for (i, input_data) in input_data.iter().enumerate() {
+            // FIXME: https://github.com/rust-lang/libs-team/issues/607
+            #[expect(unsafe_code)]
+            let compressed_data =
+                unsafe { Pin::new_unchecked(compressed_data_unsafe.get_unchecked_mut(i)) };
+            self.compress(input_data, compressed_data)?;
+        }
+
+        Ok(())
+    }
+
+    fn decompress_many(
+        &mut self,
+        compressed_data: &[libpressio::PressioData],
+        decompressed_data: Pin<&mut [libpressio::PressioPinnedData]>,
+    ) -> Result<(), libpressio::PressioError> {
+        if compressed_data.len() != decompressed_data.len() {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("mismatched number of decompress_many inputs and outputs"),
+            });
+        }
+
+        // FIXME: https://github.com/rust-lang/libs-team/issues/607
+        #[expect(unsafe_code)]
+        let decompressed_data_unsafe = unsafe { decompressed_data.get_unchecked_mut() };
+
+        for (i, compressed_data) in compressed_data.iter().enumerate() {
+            // FIXME: https://github.com/rust-lang/libs-team/issues/607
+            #[expect(unsafe_code)]
+            let decompressed_data =
+                unsafe { Pin::new_unchecked(decompressed_data_unsafe.get_unchecked_mut(i)) };
+            self.decompress(compressed_data, decompressed_data)?;
+        }
+
+        Ok(())
+    }
+
     fn get_metrics_results(&self) -> libpressio::PressioOptions {
         libpressio::PressioOptions::new().expect("get_metrics_results should not fail")
+    }
+}
+
+#[derive(Clone)]
+struct NumcodecsPressioMetric {
+    codec: Option<ErasedDynCodec>,
+    compression_result: Option<f64>,
+    decompression_result: Option<f64>,
+}
+
+#[expect(clippy::expect_used)]
+impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
+    fn get_configuration(&self) -> libpressio::PressioOptions {
+        (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
+            let mut options = libpressio::PressioOptions::new()?;
+            options.set(
+                "pressio:thread_safe",
+                libpressio::PressioOption::thread_safety(Some(
+                    libpressio::PressioThreadSafety::Multiple,
+                )),
+            )?;
+            options.set(
+                "pressio:stability",
+                libpressio::PressioOption::string(Some(String::from("experimental"))),
+            )?;
+            Ok(options)
+        })()
+        .expect("get_configuration should not fail")
+    }
+
+    fn get_documentation(&self) -> libpressio::PressioOptions {
+        (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
+            let mut options = libpressio::PressioOptions::new()?;
+            options.set(
+                "pressio:description",
+                libpressio::PressioOption::string(Some(String::from(
+                    "A metric computed from a numcodecs codec exposed through numcodecs-rs",
+                ))),
+            )?;
+            options.set(
+                "numcodecs.rs-metric:id",
+                libpressio::PressioOption::string(Some(String::from("numcodecs metric codec id"))),
+            )?;
+            options.set(
+                "numcodecs.rs-metric:compression",
+                libpressio::PressioOption::string(Some(String::from("compression metric result"))),
+            )?;
+            options.set(
+                "numcodecs.rs-metric:decompression",
+                libpressio::PressioOption::string(Some(String::from(
+                    "decompression metric result",
+                ))),
+            )?;
+            Ok(options)
+        })()
+        .expect("get_documentation should not fail")
+    }
+
+    fn get_options(&self) -> libpressio::PressioOptions {
+        (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
+            let options = if let Some(codec) = &self.codec {
+                let mut config_bytes = Vec::new();
+                match codec.get_config(&mut serde_json::Serializer::new(&mut config_bytes)) {
+                    Ok(()) => (),
+                    Err(err) => {
+                        return Err(libpressio::PressioError {
+                            error_code: 1,
+                            message: format!("{err}"),
+                        });
+                    }
+                }
+                let Ok(config) = String::from_utf8(config_bytes) else {
+                    return Err(libpressio::PressioError {
+                        error_code: 2,
+                        message: String::from("invalid UTF-8 in JSON config"),
+                    });
+                };
+
+                let options: BTreeMap<String, PressioOption> =
+                    match BTreeMap::deserialize(&mut serde_json::Deserializer::from_str(&config)) {
+                        Ok(options) => options,
+                        Err(err) => {
+                            return Err(libpressio::PressioError {
+                                error_code: 1,
+                                message: format!("{err}"),
+                            });
+                        }
+                    };
+                let options = options
+                    .into_iter()
+                    .map(|(key, value)| (format!("numcodecs.rs-metric:{key}"), value))
+                    .collect();
+
+                let documentation = libpressio::PressioOptions::new()?;
+                convert_to_pressio_options(&options, Option::None, &documentation)?
+            } else {
+                let mut options = libpressio::PressioOptions::new()?;
+                options.set(
+                    "numcodecs.rs-metric:id",
+                    libpressio::PressioOption::string(Option::None),
+                )?;
+                options
+            };
+            Ok(options)
+        })()
+        .expect("get_options should not fail")
+    }
+
+    fn set_options(
+        &mut self,
+        options: &libpressio::PressioOptions,
+    ) -> Result<(), libpressio::PressioError> {
+        self.compression_result = Option::None;
+        self.decompression_result = Option::None;
+
+        let options = convert_from_pressio_options(options.iter()).map_err(|err| {
+            libpressio::PressioError {
+                error_code: 1,
+                message: err,
+            }
+        })?;
+
+        #[expect(clippy::option_if_let_else)]
+        let options = options
+            .into_iter()
+            .map(|(key, value)| match key.strip_prefix("numcodecs.rs-metric:") {
+                Some(key) => Ok((String::from(key), value)),
+                Option::None => Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!(
+                        "numcodecs.rs-metric option `{key}` does not start with `numcodecs.rs-metric:`"
+                    ),
+                }),
+            })
+            .collect::<Result<BTreeMap<String, PressioOption>, libpressio::PressioError>>()?;
+
+        let Some(id) = options.get("id") else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("missing numcodecs.rs-metric:id"),
+            });
+        };
+
+        let PressioOption::String(_id) = id else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("numcodecs.rs-metric:id must be a string"),
+            });
+        };
+
+        let config = match serde_json::to_string(&options) {
+            Ok(config) => config,
+            Err(err) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("{err}"),
+                });
+            }
+        };
+
+        let codec = match numcodecs_registry::GlobalRegistry
+            .get_codec(&mut serde_json::Deserializer::from_str(&config))
+        {
+            Ok(codec) => codec,
+            Err(err) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("{err}"),
+                });
+            }
+        };
+
+        self.codec = Some(codec);
+
+        Ok(())
+    }
+
+    fn end_compress(
+        &mut self,
+        input_data: &libpressio::PressioData,
+        _compressed_data: &libpressio::PressioData,
+        result: Result<(), std::ffi::c_int>,
+    ) -> Result<(), libpressio::PressioError> {
+        let Some(codec) = &self.codec else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("uninitialized numcodecs codec"),
+            });
+        };
+
+        self.compression_result = Option::None;
+
+        if result.is_err() {
+            return Ok(());
+        }
+
+        let input_shape = input_data.shape();
+
+        let encoded = match input_data.dtype() {
+            Option::None => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: String::from("unsupported input data type"),
+                });
+            }
+            Some(libpressio::PressioDtype::Bool) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: String::from("unsupported input bool array"),
+                });
+            }
+            Some(libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::U8(input_data))
+                }),
+            Some(libpressio::PressioDtype::U16) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::U16(input_data))
+                }),
+            Some(libpressio::PressioDtype::U32) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::U32(input_data))
+                }),
+            Some(libpressio::PressioDtype::U64) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::U64(input_data))
+                }),
+            Some(libpressio::PressioDtype::I8) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::I8(input_data))
+                }),
+            Some(libpressio::PressioDtype::I16) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::I16(input_data))
+                }),
+            Some(libpressio::PressioDtype::I32) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::I32(input_data))
+                }),
+            Some(libpressio::PressioDtype::I64) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::I64(input_data))
+                }),
+            Some(libpressio::PressioDtype::F32) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::F32(input_data))
+                }),
+            Some(libpressio::PressioDtype::F64) => input_data
+                .with_shared(Dim(input_shape), |input_data| {
+                    codec.encode(AnyCowArray::F64(input_data))
+                }),
+        };
+
+        let Some(encoded) = encoded else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("unexpected encoded data type or shape mismatch"),
+            });
+        };
+
+        let encoded = match encoded {
+            Ok(encoded) => encoded,
+            Err(err) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("{err}"),
+                });
+            }
+        };
+
+        if let AnyArray::F64(encoded) = encoded
+            && let Ok(encoded) = encoded.into_dimensionality::<Ix0>()
+        {
+            self.compression_result = Some(encoded.into_scalar());
+            return Ok(());
+        }
+
+        Err(libpressio::PressioError {
+            error_code: 1,
+            message: String::from("numcodecs.rs metric codec did not compress to a float64 scalar"),
+        })
+    }
+
+    fn end_decompress(
+        &mut self,
+        compressed_data: &libpressio::PressioData,
+        _decompressed_data: &libpressio::PressioData,
+        result: Result<(), std::ffi::c_int>,
+    ) -> Result<(), libpressio::PressioError> {
+        let Some(codec) = &self.codec else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("uninitialized numcodecs codec"),
+            });
+        };
+
+        self.decompression_result = Option::None;
+
+        if result.is_err() {
+            return Ok(());
+        }
+
+        let compressed_shape = compressed_data.shape();
+
+        let decoded = match compressed_data.dtype() {
+            Option::None => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: String::from("unsupported compressed data type"),
+                });
+            }
+            Some(libpressio::PressioDtype::Bool) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: String::from("unsupported compressed bool array"),
+                });
+            }
+            Some(libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::U8(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::U16) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::U16(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::U32) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::U32(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::U64) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::U64(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::I8) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::I8(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::I16) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::I16(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::I32) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::I32(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::I64) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::I64(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::F32) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::F32(compressed_data))
+                }),
+            Some(libpressio::PressioDtype::F64) => compressed_data
+                .with_shared(Dim(compressed_shape), |compressed_data| {
+                    codec.decode(AnyCowArray::F64(compressed_data))
+                }),
+        };
+
+        let Some(decoded) = decoded else {
+            return Err(libpressio::PressioError {
+                error_code: 1,
+                message: String::from("unexpected decoded data type or shape mismatch"),
+            });
+        };
+
+        let decoded = match decoded {
+            Ok(decoded) => decoded,
+            Err(err) => {
+                return Err(libpressio::PressioError {
+                    error_code: 1,
+                    message: format!("{err}"),
+                });
+            }
+        };
+
+        if let AnyArray::F64(decoded) = decoded
+            && let Ok(decoded) = decoded.into_dimensionality::<Ix0>()
+        {
+            self.decompression_result = Some(decoded.into_scalar());
+            return Ok(());
+        }
+
+        Err(libpressio::PressioError {
+            error_code: 1,
+            message: String::from(
+                "numcodecs.rs metric codec did not decompress to a float64 scalar",
+            ),
+        })
+    }
+
+    fn end_compress_many(
+        &mut self,
+        input_data: &[libpressio::PressioData],
+        compressed_data: &[libpressio::PressioData],
+        result: Result<(), std::ffi::c_int>,
+    ) -> Result<(), libpressio::PressioError> {
+        if let ([input_data], [compressed_data]) = (input_data, compressed_data) {
+            return self.end_compress(input_data, compressed_data, result);
+        }
+
+        Err(libpressio::PressioError {
+            error_code: 1,
+            message: format!(
+                "end_compress_many with {} inputs and {} outputs is unsupported",
+                input_data.len(),
+                compressed_data.len()
+            ),
+        })
+    }
+
+    fn end_decompress_many(
+        &mut self,
+        compressed_data: &[libpressio::PressioData],
+        decompressed_data: &[libpressio::PressioData],
+        result: Result<(), std::ffi::c_int>,
+    ) -> Result<(), libpressio::PressioError> {
+        if let ([compressed_data], [decompressed_data]) = (compressed_data, decompressed_data) {
+            return self.end_decompress(compressed_data, decompressed_data, result);
+        }
+
+        Err(libpressio::PressioError {
+            error_code: 1,
+            message: format!(
+                "end_decompress_many with {} inputs and {} outputs is unsupported",
+                compressed_data.len(),
+                decompressed_data.len()
+            ),
+        })
+    }
+
+    fn get_metrics_results(&self) -> libpressio::PressioOptions {
+        (|| -> Result<libpressio::PressioOptions, libpressio::PressioError> {
+            let mut options = libpressio::PressioOptions::new()?;
+            options.set(
+                "numcodecs.rs-metric:compression",
+                libpressio::PressioOption::float64(self.compression_result),
+            )?;
+            options.set(
+                "numcodecs.rs-metric:decompression",
+                libpressio::PressioOption::float64(self.decompression_result),
+            )?;
+            Ok(options)
+        })()
+        .expect("get_metrics_results should not fail")
     }
 }
 
