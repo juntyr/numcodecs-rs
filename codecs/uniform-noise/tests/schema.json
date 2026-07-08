@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "scale": {
+      "type": "number",
+      "format": "double",
+      "description": "Scale of the uniform noise, which is sampled from\n`$\\text{U}(-0.5 \\cdot scale, 0.5 \\cdot scale)$`"
+    },
+    "seed": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0,
+      "description": "Seed for the random noise generator"
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "1.0.0"
+    }
+  },
+  "required": [
+    "scale",
+    "seed"
+  ],
+  "description": "Codec that adds `seed`ed `$\\text{U}(-0.5 \\cdot scale, 0.5 \\cdot scale)$`\nuniform noise of the given `scale` during encoding and passes through the\ninput unchanged during decoding.\n\nThis codec first hashes the input array data and shape to then seed a\npseudo-random number generator that generates the uniform noise. Therefore,\npassing in the same input with the same `seed` will produce the same noise\nand thus the same encoded output.",
+  "title": "UniformNoiseCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

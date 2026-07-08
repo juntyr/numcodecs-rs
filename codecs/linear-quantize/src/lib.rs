@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-linear-quantize
@@ -54,6 +54,7 @@ pub struct LinearQuantizeCodec {
 /// Data types which the [`LinearQuantizeCodec`] can quantize
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[schemars(extend("enum" = ["f32", "float32", "f64", "float64"]))]
+#[schemars(inline)]
 #[expect(missing_docs)]
 pub enum LinearQuantizeDType {
     #[serde(rename = "f32", alias = "float32")]
@@ -78,6 +79,7 @@ impl fmt::Display for LinearQuantizeDType {
 /// bits used.
 #[derive(Copy, Clone, Serialize_repr, Deserialize_repr, JsonSchema_repr)]
 #[repr(u8)]
+#[schemars(inline)]
 #[rustfmt::skip]
 #[expect(missing_docs)]
 pub enum LinearQuantizeBins {

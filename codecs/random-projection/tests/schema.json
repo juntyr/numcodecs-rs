@@ -1,5 +1,8 @@
 {
   "type": "object",
+  "required": [
+    "seed"
+  ],
   "properties": {
     "seed": {
       "type": "integer",
@@ -14,15 +17,14 @@
       "default": "0.1.0"
     }
   },
-  "required": [
-    "seed"
-  ],
+  "unevaluatedProperties": false,
   "description": "Codec that uses random projections to reduce the dimensionality of high-\ndimensional data to compress it.\n\nA two-dimensional array of shape `$N \\times D$` is encoded as n array of\nshape `$N \\times K$`, where `$K$` is either set explicitly or chosen using\nthe the Johnson-Lindenstrauss lemma. For `$K$` to be smaller than `$D$`,\n`$D$` must be quite large. Therefore, this codec should only applied on\nlarge datasets as it otherwise significantly inflates the data size instead\nof reducing it.\n\nChoosing a lower distortion rate `epsilon` will improve the quality of the\nlossy compression, i.e. reduce the compression error, at the cost of\nincreasing `$K$`.\n\nThis codec only supports finite floating point data.",
   "allOf": [
     {
       "oneOf": [
         {
           "type": "object",
+          "description": "The reduced dimensionality `$K$` is derived from `epsilon`, as defined\nby the Johnson-Lindenstrauss lemma.",
           "properties": {
             "epsilon": {
               "type": "number",
@@ -38,11 +40,11 @@
           "required": [
             "reduction",
             "epsilon"
-          ],
-          "description": "The reduced dimensionality `$K$` is derived from `epsilon`, as defined\nby the Johnson-Lindenstrauss lemma."
+          ]
         },
         {
           "type": "object",
+          "description": "The reduced dimensionality `$K$`, to which the data is projected, is\ngiven explicitly.",
           "properties": {
             "k": {
               "type": "integer",
@@ -58,8 +60,7 @@
           "required": [
             "reduction",
             "k"
-          ],
-          "description": "The reduced dimensionality `$K$`, to which the data is projected, is\ngiven explicitly."
+          ]
         }
       ]
     },
@@ -80,6 +81,7 @@
         },
         {
           "type": "object",
+          "description": "The random projection matrix is sparse where only `density`% of entries\nare non-zero.\n\nThe matrix's components are sampled from\n\n- `$-\\sqrt{\\frac{1}{k \\cdot density}}$` with probability\n  `$0.5 \\cdot density$`\n- `$0$` with probability `$1 - density$`\n- `$+\\sqrt{\\frac{1}{k \\cdot density}}$` with probability\n  `$0.5 \\cdot density$`",
           "properties": {
             "density": {
               "type": [
@@ -97,8 +99,7 @@
           },
           "required": [
             "projection"
-          ],
-          "description": "The random projection matrix is sparse where only `density`% of entries\nare non-zero.\n\nThe matrix's components are sampled from\n\n- `$-\\sqrt{\\frac{1}{k \\cdot density}}$` with probability\n  `$0.5 \\cdot density$`\n- `$0$` with probability `$1 - density$`\n- `$+\\sqrt{\\frac{1}{k \\cdot density}}$` with probability\n  `$0.5 \\cdot density$`"
+          ]
         }
       ]
     }

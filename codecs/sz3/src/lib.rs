@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-sz3
@@ -115,6 +115,7 @@ pub enum Sz3ErrorBound {
 /// SZ3 predictor
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
+#[schemars(inline)]
 pub enum Sz3Predictor {
     /// Interpolation
     #[serde(rename = "interpolation")]
@@ -859,6 +860,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::redundant_closure)] // FIXME
     fn all_dtypes() -> Result<(), Sz3CodecError> {
         fn compress_decompress<T: Sz3Element + num_traits::identities::Zero>(
             iter: impl Clone + IntoIterator<Item = T>,

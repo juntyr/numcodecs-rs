@@ -1,0 +1,71 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "encode_dtype": {
+      "type": "string",
+      "enum": [
+        "u8",
+        "uint8",
+        "u16",
+        "uint16",
+        "u32",
+        "uint32",
+        "u64",
+        "uint64",
+        "i8",
+        "int8",
+        "i16",
+        "int16",
+        "i32",
+        "int32",
+        "i64",
+        "int64",
+        "f32",
+        "float32",
+        "f64",
+        "float64"
+      ],
+      "description": "Dtype of the encoded data."
+    },
+    "decode_dtype": {
+      "type": "string",
+      "enum": [
+        "u8",
+        "uint8",
+        "u16",
+        "uint16",
+        "u32",
+        "uint32",
+        "u64",
+        "uint64",
+        "i8",
+        "int8",
+        "i16",
+        "int16",
+        "i32",
+        "int32",
+        "i64",
+        "int64",
+        "f32",
+        "float32",
+        "f64",
+        "float64"
+      ],
+      "description": "Dtype of the decoded data"
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "1.0.0"
+    }
+  },
+  "required": [
+    "encode_dtype",
+    "decode_dtype"
+  ],
+  "description": "Codec to reinterpret data between different compatible types.\n\nNote that no conversion happens, only the meaning of the bits changes.\n\nReinterpreting to bytes, or to a same-sized unsigned integer type, or\nwithout the changing the dtype are supported.",
+  "title": "ReinterpretCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

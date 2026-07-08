@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "level": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Zstandard compression level.\n\nThe level ranges from small (fastest) to large (best compression)."
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "0.1.0"
+    }
+  },
+  "required": [
+    "level"
+  ],
+  "description": "Codec providing compression using Zstandard",
+  "title": "ZstdCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

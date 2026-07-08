@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "precision": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "The precision of the rounding operation"
+    },
+    "seed": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0,
+      "description": "Seed for the random generator"
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "1.0.0"
+    }
+  },
+  "required": [
+    "precision",
+    "seed"
+  ],
+  "description": "Codec that stochastically rounds the data to the nearest multiple of\n`precision` on encoding and passes through the input unchanged during\ndecoding.\n\nThe nearest representable multiple is chosen such that the absolute\ndifference between the original value and the rounded value do not exceed\nthe precision. Therefore, the rounded value may have a non-zero remainder.\n\nThis codec first hashes the input array data and shape to then `seed` a\npseudo-random number generator that is used to sample the stochasticity for\nrounding. Therefore, passing in the same input with the same `seed` will\nproduce the same stochasticity and thus the same encoded output.",
+  "title": "StochasticRoundingCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

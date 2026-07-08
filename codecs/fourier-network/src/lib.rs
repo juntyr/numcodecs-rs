@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-fourier-network
@@ -46,7 +46,7 @@ use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-// FIXME: bytemuck 1.24 fails to compile on 1.87
+// FIXME: bytemuck 1.24 fails to compile on 1.88
 use ::bytemuck as _;
 
 // FIXME: burn-common -> cubecl-common brings in wasm-bindgen
@@ -222,6 +222,10 @@ impl<'de> Deserialize<'de> for Positive<f64> {
 }
 
 impl JsonSchema for Positive<f64> {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("PositiveF64")
     }

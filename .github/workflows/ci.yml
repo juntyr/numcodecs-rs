@@ -52,7 +52,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.87", stable, nightly]
+        rust: ["1.88", stable, nightly]
         lock: ["Cargo.lock", "Cargo.lock.min"]
     runs-on: ${{ matrix.os }}
     needs: lock
@@ -93,6 +93,7 @@ jobs:
             --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-lc \
+            --exclude numcodecs-pressio \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
             --exclude numcodecs-sz3 \
@@ -217,7 +218,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: ["1.87", stable]
+        rust: ["1.88", stable]
         lock: ["Cargo.lock", "Cargo.lock.min"]
     runs-on: ${{ matrix.os }}
     needs: lock
@@ -269,6 +270,7 @@ jobs:
             --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-lc \
+            --exclude numcodecs-pressio \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
             --exclude numcodecs-sz3 \
@@ -288,6 +290,7 @@ jobs:
             --exclude numcodecs-ebcc \
             --exclude numcodecs-jpeg2000 \
             --exclude numcodecs-lc \
+            --exclude numcodecs-pressio \
             --exclude numcodecs-qpet-sperr \
             --exclude numcodecs-sperr \
             --exclude numcodecs-sz3 \

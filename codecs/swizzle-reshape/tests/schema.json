@@ -1,0 +1,58 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "axes": {
+      "type": "array",
+      "items": {
+        "description": "An axis group, potentially from a merged combination of multiple input axes",
+        "anyOf": [
+          {
+            "title": "Group",
+            "description": "A merged combination of zero, one, or multiple input axes",
+            "type": "array",
+            "items": {
+              "description": "An axis or all remaining axes",
+              "anyOf": [
+                {
+                  "title": "Index",
+                  "description": "A single axis, as determined by its index",
+                  "type": "integer",
+                  "format": "uint",
+                  "minimum": 0
+                },
+                {
+                  "title": "MergedRest",
+                  "description": "All remaining axes, combined into one",
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          {
+            "title": "AllRest",
+            "description": "All remaining axes, each in a separate single-axis group",
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          }
+        ]
+      },
+      "description": "The permutation of the axes that is applied on encoding.\n\nThe permutation is given as a list of axis groups, where each group\ncorresponds to one encoded output axis that may consist of several\ndecoded input axes. For instance, `[[0], [1, 2]]` flattens a three-\ndimensional array into a two-dimensional one by combining the second and\nthird axes.\n\nThe permutation also allows specifying a special catch-all remaining\naxes marker:\n- `[[0], {}]` moves the second axis to be the first and appends all\n  other axes afterwards, i.e. the encoded array has the same number\n  of axes as the input array\n- `[[0], [{}]]` in contrast collapses all other axes into one, i.e.\n  the encoded array is two-dimensional"
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "1.0.0"
+    }
+  },
+  "required": [
+    "axes"
+  ],
+  "description": "Codec to swizzle/swap the axes of an array and reshape it.\n\nThis codec does not store metadata about the original shape of the array.\nSince axes that have been combined during encoding cannot be split without\nfurther information, decoding may fail if an output array is not provided.\n\nSwizzling axes is always supported since no additional information about the\narray's shape is required to reconstruct it.",
+  "title": "SwizzleReshapeCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
