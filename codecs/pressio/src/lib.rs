@@ -167,7 +167,7 @@ impl Serialize for PressioCompressor {
 
 fn convert_from_pressio_options(
     options: impl Iterator<Item = (Option<String>, Option<libpressio::PressioOption>)>,
-) -> Result<BTreeMap<String, PressioOption>, String> {
+) -> Result<BTreeMap<String, PressioOption>, Cow<'static, str>> {
     let mut config = BTreeMap::new();
 
     for (name, option) in options {
@@ -214,7 +214,7 @@ fn convert_from_pressio_options(
         let Some(nested_name) = name.strip_prefix('/') else {
             // global option
             if config.insert(name.clone(), value).is_some() {
-                return Err(format!("duplicate global option: `{name}`"));
+                return Err(Cow::Owned(format!("duplicate global option: `{name}`")));
             }
             continue;
         };
@@ -223,12 +223,16 @@ fn convert_from_pressio_options(
         let mut parts = nested_name.split(':').peekable();
 
         let Some(first) = parts.next() else {
-            return Err(format!("invalid hierarchical config name `{name}`"));
+            return Err(Cow::Owned(format!(
+                "invalid hierarchical config name `{name}`"
+            )));
         };
         let paths = first.split('/');
 
         if parts.peek().is_none() {
-            return Err(format!("invalid hierarchical config name `{name}`"));
+            return Err(Cow::Owned(format!(
+                "invalid hierarchical config name `{name}`"
+            )));
         }
         let option_name = parts.map(String::from).collect::<Vec<_>>().join(":");
 
@@ -239,14 +243,16 @@ fn convert_from_pressio_options(
             }
 
             let Some(PressioOption::Nested(entry)) = it.get_mut(path) else {
-                return Err(format!("duplicate option nesting: `{path}` in `{name}`"));
+                return Err(Cow::Owned(format!(
+                    "duplicate option nesting: `{path}` in `{name}`"
+                )));
             };
             it = entry;
         }
         if it.insert(option_name.clone(), value).is_some() {
-            return Err(format!(
+            return Err(Cow::Owned(format!(
                 "duplicate nested option: `{option_name}` in `{name}`"
-            ));
+            )));
         }
     }
 
@@ -260,7 +266,7 @@ impl<'de> Deserialize<'de> for PressioCompressor {
         std::mem::drop(format.metric_results);
 
         let mut pressio = libpressio::Pressio::new().map_err(serde::de::Error::custom)?;
-        pressio
+        let _: Result<(), NumcodecsPressioCompressor> = pressio
             .register_compressor(
                 "numcodecs.rs",
                 NumcodecsPressioCompressor {
@@ -273,7 +279,7 @@ impl<'de> Deserialize<'de> for PressioCompressor {
                 0,
             )
             .map_err(serde::de::Error::custom)?;
-        pressio
+        let _: Result<(), NumcodecsPressioMetric> = pressio
             .register_metric(
                 "numcodecs.rs-metric",
                 NumcodecsPressioMetric {
@@ -432,10 +438,10 @@ fn convert_to_pressio_options(
                         .join(", ");
 
                     return Err(libpressio::PressioError {
-                        error_code: 1,
-                        message: format!(
+                        error_code: libpressio::PressioErrorCode::ONE,
+                        message: Cow::Owned(format!(
                             "unknown compressor configuration option: `{name}`, use one of {supported_options}"
-                        ),
+                        )),
                     });
                 };
 
@@ -455,7 +461,7 @@ fn convert_to_pressio_options(
                             if let Some(docs) = docs {
                                 libpressio::PressioError {
                                     error_code: err.error_code,
-                                    message: format!("{err} ({docs})"),
+                                    message: Cow::Owned(format!("{err} ({docs})")),
                                 }
                             } else {
                                 err
@@ -1074,15 +1080,15 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
                     Ok(()) => (),
                     Err(err) => {
                         return Err(libpressio::PressioError {
-                            error_code: 1,
-                            message: format!("{err}"),
+                            error_code: libpressio::PressioErrorCode::ONE,
+                            message: Cow::Owned(format!("{err}")),
                         });
                     }
                 }
                 let Ok(config) = String::from_utf8(config_bytes) else {
                     return Err(libpressio::PressioError {
-                        error_code: 2,
-                        message: String::from("invalid UTF-8 in JSON config"),
+                        error_code: libpressio::PressioErrorCode::TWO,
+                        message: Cow::Borrowed("invalid UTF-8 in JSON config"),
                     });
                 };
 
@@ -1091,8 +1097,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
                         Ok(options) => options,
                         Err(err) => {
                             return Err(libpressio::PressioError {
-                                error_code: 1,
-                                message: format!("{err}"),
+                                error_code: libpressio::PressioErrorCode::ONE,
+                                message: Cow::Owned(format!("{err}")),
                             });
                         }
                     };
@@ -1129,7 +1135,7 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
     ) -> Result<(), libpressio::PressioError> {
         let options = convert_from_pressio_options(options.iter()).map_err(|err| {
             libpressio::PressioError {
-                error_code: 1,
+                error_code: libpressio::PressioErrorCode::ONE,
                 message: err,
             }
         })?;
@@ -1137,7 +1143,6 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
         let mut options = options
             .into_iter()
             .filter_map(|(key, value)| {
-                // TODO: should the keys also be prefixed by the codec id?
                 key.strip_prefix("numcodecs.rs:")
                     .map(|key| (String::from(key), value))
             })
@@ -1147,8 +1152,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             Some(PressioOption::String(codec_id)) => Some(codec_id.as_str()),
             Some(_) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("numcodecs.rs:id must be a string"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("numcodecs.rs:id must be a string"),
                 });
             }
             Option::None => Option::None,
@@ -1168,15 +1173,15 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
                     Ok(()) => (),
                     Err(err) => {
                         return Err(libpressio::PressioError {
-                            error_code: 1,
-                            message: format!("{err}"),
+                            error_code: libpressio::PressioErrorCode::ONE,
+                            message: Cow::Owned(format!("{err}")),
                         });
                     }
                 }
                 let Ok(config) = String::from_utf8(config_bytes) else {
                     return Err(libpressio::PressioError {
-                        error_code: 2,
-                        message: String::from("invalid UTF-8 in JSON config"),
+                        error_code: libpressio::PressioErrorCode::TWO,
+                        message: Cow::Borrowed("invalid UTF-8 in JSON config"),
                     });
                 };
 
@@ -1185,8 +1190,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
                         Ok(options) => options,
                         Err(err) => {
                             return Err(libpressio::PressioError {
-                                error_code: 1,
-                                message: format!("{err}"),
+                                error_code: libpressio::PressioErrorCode::ONE,
+                                message: Cow::Owned(format!("{err}")),
                             });
                         }
                     };
@@ -1198,8 +1203,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             Option::None
         } else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("missing numcodecs.rs:id"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("missing numcodecs.rs:id"),
             });
         };
 
@@ -1216,8 +1221,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             Ok(config) => config,
             Err(err) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("{err}"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!("{err}")),
                 });
             }
         };
@@ -1228,8 +1233,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             Ok(codec) => codec,
             Err(err) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("{err}"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!("{err}")),
                 });
             }
         };
@@ -1246,8 +1251,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
     ) -> Result<(), libpressio::PressioError> {
         let Some(codec) = &self.codec else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("uninitialized numcodecs codec"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("uninitialized numcodecs codec"),
             });
         };
 
@@ -1256,14 +1261,14 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
         let encoded = match input_data.dtype() {
             Option::None => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("unsupported input data type"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("unsupported input data type"),
                 });
             }
             Some(libpressio::PressioDtype::Bool) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("unsupported input bool array"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("unsupported input bool array"),
                 });
             }
             Some(libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8) => input_data
@@ -1310,8 +1315,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
 
         let Some(encoded) = encoded else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("unexpected encoded data type or shape mismatch"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("unexpected encoded data type or shape mismatch"),
             });
         };
 
@@ -1319,8 +1324,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             Ok(encoded) => encoded,
             Err(err) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("{err}"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!("{err}")),
                 });
             }
         };
@@ -1338,8 +1343,11 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             AnyArray::F64(encoded) => libpressio::PressioData::new_copied(encoded),
             encoded => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("unsupported encoded data type {}", encoded.dtype()),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!(
+                        "unsupported encoded data type {}",
+                        encoded.dtype()
+                    )),
                 });
             }
         };
@@ -1356,8 +1364,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
     ) -> Result<(), libpressio::PressioError> {
         let Some(codec) = &self.codec else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("uninitialized numcodecs codec"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("uninitialized numcodecs codec"),
             });
         };
 
@@ -1368,14 +1376,14 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
         let decoded = match compressed_data.dtype() {
             Option::None => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("unsupported compressed data type"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("unsupported compressed data type"),
                 });
             }
             Some(libpressio::PressioDtype::Bool) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("unsupported compressed bool array"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("unsupported compressed bool array"),
                 });
             }
             Some(libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8) => compressed_data
@@ -1422,8 +1430,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
 
         let Some(decoded) = decoded else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("unexpected decoded data type or shape mismatch"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("unexpected decoded data type or shape mismatch"),
             });
         };
 
@@ -1431,8 +1439,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             Ok(decoded) => decoded,
             Err(err) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("{err}"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!("{err}")),
                 });
             }
         };
@@ -1450,8 +1458,11 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
             AnyArray::F64(decoded) => libpressio::PressioData::new_copied(decoded),
             decoded => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("unsupported decoded data type {}", decoded.dtype()),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!(
+                        "unsupported decoded data type {}",
+                        decoded.dtype()
+                    )),
                 });
             }
         };
@@ -1468,8 +1479,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
     ) -> Result<(), libpressio::PressioError> {
         if input_data.len() != compressed_data.len() {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("mismatched number of compress_many inputs and outputs"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("mismatched number of compress_many inputs and outputs"),
             });
         }
 
@@ -1495,8 +1506,8 @@ impl libpressio::PressioRsCompressor for NumcodecsPressioCompressor {
     ) -> Result<(), libpressio::PressioError> {
         if compressed_data.len() != decompressed_data.len() {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("mismatched number of decompress_many inputs and outputs"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("mismatched number of decompress_many inputs and outputs"),
             });
         }
 
@@ -1598,15 +1609,15 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
                     Ok(()) => (),
                     Err(err) => {
                         return Err(libpressio::PressioError {
-                            error_code: 1,
-                            message: format!("{err}"),
+                            error_code: libpressio::PressioErrorCode::ONE,
+                            message: Cow::Owned(format!("{err}")),
                         });
                     }
                 }
                 let Ok(config) = String::from_utf8(config_bytes) else {
                     return Err(libpressio::PressioError {
-                        error_code: 2,
-                        message: String::from("invalid UTF-8 in JSON config"),
+                        error_code: libpressio::PressioErrorCode::TWO,
+                        message: Cow::Borrowed("invalid UTF-8 in JSON config"),
                     });
                 };
 
@@ -1615,8 +1626,8 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
                         Ok(options) => options,
                         Err(err) => {
                             return Err(libpressio::PressioError {
-                                error_code: 1,
-                                message: format!("{err}"),
+                                error_code: libpressio::PressioErrorCode::ONE,
+                                message: Cow::Owned(format!("{err}")),
                             });
                         }
                     };
@@ -1649,7 +1660,7 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
 
         let options = convert_from_pressio_options(options.iter()).map_err(|err| {
             libpressio::PressioError {
-                error_code: 1,
+                error_code: libpressio::PressioErrorCode::ONE,
                 message: err,
             }
         })?;
@@ -1666,8 +1677,8 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
             Some(PressioOption::String(codec_id)) => Some(codec_id.as_str()),
             Some(_) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("numcodecs.rs-metric:id must be a string"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("numcodecs.rs-metric:id must be a string"),
                 });
             }
             Option::None => Option::None,
@@ -1687,15 +1698,15 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
                     Ok(()) => (),
                     Err(err) => {
                         return Err(libpressio::PressioError {
-                            error_code: 1,
-                            message: format!("{err}"),
+                            error_code: libpressio::PressioErrorCode::ONE,
+                            message: Cow::Owned(format!("{err}")),
                         });
                     }
                 }
                 let Ok(config) = String::from_utf8(config_bytes) else {
                     return Err(libpressio::PressioError {
-                        error_code: 2,
-                        message: String::from("invalid UTF-8 in JSON config"),
+                        error_code: libpressio::PressioErrorCode::TWO,
+                        message: Cow::Borrowed("invalid UTF-8 in JSON config"),
                     });
                 };
 
@@ -1704,8 +1715,8 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
                         Ok(options) => options,
                         Err(err) => {
                             return Err(libpressio::PressioError {
-                                error_code: 1,
-                                message: format!("{err}"),
+                                error_code: libpressio::PressioErrorCode::ONE,
+                                message: Cow::Owned(format!("{err}")),
                             });
                         }
                     };
@@ -1717,8 +1728,8 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
             Option::None
         } else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("missing numcodecs.rs-metric:id"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("missing numcodecs.rs-metric:id"),
             });
         };
 
@@ -1735,8 +1746,8 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
             Ok(config) => config,
             Err(err) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("{err}"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!("{err}")),
                 });
             }
         };
@@ -1747,8 +1758,8 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
             Ok(codec) => codec,
             Err(err) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("{err}"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!("{err}")),
                 });
             }
         };
@@ -1762,12 +1773,12 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
         &mut self,
         input_data: &libpressio::PressioData,
         _compressed_data: &libpressio::PressioData,
-        result: Result<(), std::ffi::c_int>,
+        result: Result<(), libpressio::PressioErrorCode>,
     ) -> Result<(), libpressio::PressioError> {
         let Some(codec) = &self.codec else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("uninitialized numcodecs metric codec"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("uninitialized numcodecs metric codec"),
             });
         };
 
@@ -1782,14 +1793,14 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
         let encoded = match input_data.dtype() {
             Option::None => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("unsupported input data type"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("unsupported input data type"),
                 });
             }
             Some(libpressio::PressioDtype::Bool) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("unsupported input bool array"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("unsupported input bool array"),
                 });
             }
             Some(libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8) => input_data
@@ -1836,8 +1847,8 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
 
         let Some(encoded) = encoded else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("unexpected encoded data type or shape mismatch"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("unexpected encoded data type or shape mismatch"),
             });
         };
 
@@ -1845,22 +1856,29 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
             Ok(encoded) => encoded,
             Err(err) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("{err}"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!("{err}")),
                 });
             }
         };
 
-        if let AnyArray::F64(encoded) = encoded
-            && let Ok(encoded) = encoded.into_dimensionality::<Ix0>()
-        {
-            self.compression_result = Some(encoded.into_scalar());
-            return Ok(());
+        if let AnyArray::F64(encoded) = encoded {
+            if encoded.is_empty() {
+                self.compression_result = Option::None;
+                return Ok(());
+            }
+
+            if let Ok(encoded) = encoded.into_dimensionality::<Ix0>() {
+                self.compression_result = Some(encoded.into_scalar());
+                return Ok(());
+            }
         }
 
         Err(libpressio::PressioError {
-            error_code: 1,
-            message: String::from("numcodecs.rs metric codec did not compress to a float64 scalar"),
+            error_code: libpressio::PressioErrorCode::ONE,
+            message: Cow::Borrowed(
+                "numcodecs.rs metric codec did not compress to a float64 scalar result or empty non-result",
+            ),
         })
     }
 
@@ -1868,12 +1886,12 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
         &mut self,
         _compressed_data: &libpressio::PressioData,
         decompressed_data: &libpressio::PressioData,
-        result: Result<(), std::ffi::c_int>,
+        result: Result<(), libpressio::PressioErrorCode>,
     ) -> Result<(), libpressio::PressioError> {
         let Some(codec) = &self.codec else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("uninitialized numcodecs metric codec"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("uninitialized numcodecs metric codec"),
             });
         };
 
@@ -1888,14 +1906,14 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
         let decoded = match decompressed_data.dtype() {
             Option::None => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("unsupported decompressed data type"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("unsupported decompressed data type"),
                 });
             }
             Some(libpressio::PressioDtype::Bool) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: String::from("unsupported decompressed bool array"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Borrowed("unsupported decompressed bool array"),
                 });
             }
             Some(libpressio::PressioDtype::Byte | libpressio::PressioDtype::U8) => {
@@ -1943,8 +1961,8 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
 
         let Some(decoded) = decoded else {
             return Err(libpressio::PressioError {
-                error_code: 1,
-                message: String::from("unexpected decoded data type or shape mismatch"),
+                error_code: libpressio::PressioErrorCode::ONE,
+                message: Cow::Borrowed("unexpected decoded data type or shape mismatch"),
             });
         };
 
@@ -1952,23 +1970,28 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
             Ok(decoded) => decoded,
             Err(err) => {
                 return Err(libpressio::PressioError {
-                    error_code: 1,
-                    message: format!("{err}"),
+                    error_code: libpressio::PressioErrorCode::ONE,
+                    message: Cow::Owned(format!("{err}")),
                 });
             }
         };
 
-        if let AnyArray::F64(decoded) = decoded
-            && let Ok(decoded) = decoded.into_dimensionality::<Ix0>()
-        {
-            self.decompression_result = Some(decoded.into_scalar());
-            return Ok(());
+        if let AnyArray::F64(decoded) = decoded {
+            if decoded.is_empty() {
+                self.decompression_result = Option::None;
+                return Ok(());
+            }
+
+            if let Ok(decoded) = decoded.into_dimensionality::<Ix0>() {
+                self.decompression_result = Some(decoded.into_scalar());
+                return Ok(());
+            }
         }
 
         Err(libpressio::PressioError {
-            error_code: 1,
-            message: String::from(
-                "numcodecs.rs metric codec did not decompress to a float64 scalar",
+            error_code: libpressio::PressioErrorCode::ONE,
+            message: Cow::Borrowed(
+                "numcodecs.rs metric codec did not decompress to a float64 scalar result or empty non-result",
             ),
         })
     }
@@ -1977,19 +2000,19 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
         &mut self,
         input_data: &[libpressio::PressioData],
         compressed_data: &[libpressio::PressioData],
-        result: Result<(), std::ffi::c_int>,
+        result: Result<(), libpressio::PressioErrorCode>,
     ) -> Result<(), libpressio::PressioError> {
         if let ([input_data], [compressed_data]) = (input_data, compressed_data) {
             return self.end_compress(input_data, compressed_data, result);
         }
 
         Err(libpressio::PressioError {
-            error_code: 1,
-            message: format!(
+            error_code: libpressio::PressioErrorCode::ONE,
+            message: Cow::Owned(format!(
                 "end_compress_many with {} inputs and {} outputs is unsupported",
                 input_data.len(),
                 compressed_data.len()
-            ),
+            )),
         })
     }
 
@@ -1997,19 +2020,19 @@ impl libpressio::PressioRsMetric for NumcodecsPressioMetric {
         &mut self,
         compressed_data: &[libpressio::PressioData],
         decompressed_data: &[libpressio::PressioData],
-        result: Result<(), std::ffi::c_int>,
+        result: Result<(), libpressio::PressioErrorCode>,
     ) -> Result<(), libpressio::PressioError> {
         if let ([compressed_data], [decompressed_data]) = (compressed_data, decompressed_data) {
             return self.end_decompress(compressed_data, decompressed_data, result);
         }
 
         Err(libpressio::PressioError {
-            error_code: 1,
-            message: format!(
+            error_code: libpressio::PressioErrorCode::ONE,
+            message: Cow::Owned(format!(
                 "end_decompress_many with {} inputs and {} outputs is unsupported",
                 compressed_data.len(),
                 decompressed_data.len()
-            ),
+            )),
         })
     }
 
