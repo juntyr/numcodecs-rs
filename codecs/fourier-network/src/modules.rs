@@ -82,7 +82,8 @@ impl ModelConfig {
         Model {
             ln1: LinearConfig::new(self.fourier_features.get() * 2, self.fourier_features.get())
                 .init(device),
-            #[expect(clippy::useless_conversion)] // (1..num_blocks).into_iter()
+            // (1..num_blocks).into_iter(), fixed in 1.97
+            #[allow(clippy::useless_conversion)]
             bl2: (1..self.num_blocks.get())
                 .into_iter()
                 .map(|_| block.init(device))
