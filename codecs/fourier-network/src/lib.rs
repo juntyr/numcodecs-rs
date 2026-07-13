@@ -488,7 +488,8 @@ fn flat_grid_like<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: Backend<Float
         .iter()
         .copied()
         .map(|s| {
-            #[expect(clippy::useless_conversion)] // (0..s).into_iter()
+            // (0..s).into_iter(), fixed in 1.97
+            #[allow(clippy::useless_conversion)]
             (0..s)
                 .into_iter()
                 .map(move |x| <T as FloatExt>::from_usize(x) / <T as FloatExt>::from_usize(s))
