@@ -47,6 +47,11 @@ plugins:
         - requirements.txt
   - search
   - autorefs
+  - macros:
+      module_name: docs/hooks/macros
+      on_error_fail: true
+      on_undefined: strict
+      render_by_default: false
   - mkdocstrings:
       enable_inventory: true
       handlers:

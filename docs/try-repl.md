@@ -1,3 +1,7 @@
+---
+render_macros: true
+---
+
 # Try the `numcodecs-wasm-*` codecs using JupyterLite
 
 /// details | **Warning:** JupyterLite may not work in every web browser
@@ -34,6 +38,18 @@ plt.show()\
     // example package lazy dependencies
     "crc32c",
     "msgpack",
-]}));
+]})) + "&pyodideKernelEnv=" + encodeURIComponent(JSON.stringify({"$override": {
+  "CLIMET_LAB_BOOTSTRAP_CODE": `\
+def preinstall_packages(lines):
+    return """
+import micropip
+await micropip.install([
+    f"{package}=={version}" for package, version in {{ requirements() }}.items()
+])
+""".splitlines(keepends=True) + lines
+preinstall_packages.has_side_effects = True
+ip.input_transformers_cleanup.append(preinstall_packages)
+`,
+}}));
   });
 </script>
