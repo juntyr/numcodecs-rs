@@ -8,6 +8,7 @@
         "description": "LC preprocessor",
         "oneOf": [
           {
+            "description": "no-op",
             "type": "object",
             "properties": {
               "id": {
@@ -21,6 +22,7 @@
             "additionalProperties": false
           },
           {
+            "description": "1D Lorenzo predictor",
             "type": "object",
             "properties": {
               "dtype": {
@@ -42,6 +44,7 @@
             ]
           },
           {
+            "description": "Error-bounding quantizer",
             "type": "object",
             "properties": {
               "dtype": {
@@ -51,30 +54,6 @@
                   "f32",
                   "f64"
                 ]
-              },
-              "kind": {
-                "description": "LC error bound kind",
-                "oneOf": [
-                  {
-                    "description": "pointwise absolute error bound",
-                    "type": "string",
-                    "const": "ABS"
-                  },
-                  {
-                    "description": "pointwise normalised absolute / data-range-relative error bound",
-                    "type": "string",
-                    "const": "NOA"
-                  },
-                  {
-                    "description": "pointwise relative error bound",
-                    "type": "string",
-                    "const": "REL"
-                  }
-                ]
-              },
-              "error_bound": {
-                "type": "number",
-                "format": "double"
               },
               "threshold": {
                 "type": [
@@ -96,13 +75,158 @@
                 "const": "QUANT"
               }
             },
-            "additionalProperties": false,
             "required": [
               "id",
               "dtype",
-              "kind",
-              "error_bound",
               "decorrelation"
+            ],
+            "unevaluatedProperties": false,
+            "oneOf": [
+              {
+                "description": "pointwise absolute error bound",
+                "type": "object",
+                "properties": {
+                  "error_bound": {
+                    "description": "error bound",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "ABS"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "error_bound"
+                ]
+              },
+              {
+                "description": "pointwise normalised absolute / data-range-relative error bound",
+                "type": "object",
+                "properties": {
+                  "error_bound": {
+                    "description": "error bound",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "NOA"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "error_bound"
+                ]
+              },
+              {
+                "description": "pointwise relative error bound",
+                "type": "object",
+                "properties": {
+                  "error_bound": {
+                    "description": "error bound",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "REL"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "error_bound"
+                ]
+              },
+              {
+                "description": "pointwise absolute and relative error bound",
+                "type": "object",
+                "properties": {
+                  "abs_error_bound": {
+                    "description": "absolute error bound",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "rel_error_bound": {
+                    "description": "relative error bound",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "ABS_REL"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "abs_error_bound",
+                  "rel_error_bound"
+                ]
+              }
+            ]
+          },
+          {
+            "description": "Error-bounding quantizer using integer operations only",
+            "type": "object",
+            "properties": {
+              "dtype": {
+                "description": "LC quantization dtype",
+                "type": "string",
+                "enum": [
+                  "f32",
+                  "f64"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "const": "QUANT_I"
+              }
+            },
+            "required": [
+              "id",
+              "dtype"
+            ],
+            "unevaluatedProperties": false,
+            "oneOf": [
+              {
+                "description": "pointwise absolute error bound",
+                "type": "object",
+                "properties": {
+                  "error_bound": {
+                    "description": "error bound",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "ABS"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "error_bound"
+                ]
+              },
+              {
+                "description": "pointwise normalised absolute / data-range-relative error bound",
+                "type": "object",
+                "properties": {
+                  "error_bound": {
+                    "description": "error bound",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "NOA"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "error_bound"
+                ]
+              }
             ]
           }
         ]
@@ -168,50 +292,6 @@
               "id": {
                 "type": "string",
                 "const": "TCNB"
-              }
-            },
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "size"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "size": {
-                "description": "LC component float element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  4,
-                  8
-                ]
-              },
-              "id": {
-                "type": "string",
-                "const": "DBEFS"
-              }
-            },
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "size"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "size": {
-                "description": "LC component float element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  4,
-                  8
-                ]
-              },
-              "id": {
-                "type": "string",
-                "const": "DBESF"
               }
             },
             "additionalProperties": false,
@@ -528,7 +608,7 @@
       "type": "string",
       "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
       "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
-      "default": "0.1.0"
+      "default": "0.2.0"
     }
   },
   "required": [
