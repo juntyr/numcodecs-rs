@@ -1,6 +1,6 @@
 [package]
 name = "numcodecs-fourier-network"
-version = "0.3.0"
+version = "0.4.0"
 edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
@@ -15,20 +15,15 @@ keywords = ["fourier", "network", "numcodecs", "compression", "encoding"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-burn = { workspace = true, features = ["std", "autodiff", "ndarray"] }
+burn = { workspace = true, features = ["std", "autodiff", "flex"] }
 itertools = { workspace = true, features = ["use_alloc"] }
 log = { workspace = true }
-# FIXME: bytemuck 1.24 fails to compile on 1.87
-bytemuck = { version = "=1.23.2", default-features = false }
 ndarray = { workspace = true, features = ["std"] }
 numcodecs = { workspace = true }
 num-traits = { workspace = true, features = ["std"] }
 schemars = { workspace = true, features = ["derive", "preserve_order"] }
 serde = { workspace = true, features = ["std", "derive"] }
 thiserror = { workspace = true }
-# FIXME: burn-common -> cubecl-common brings in wasm-bindgen
-#        wasm-bindgen v0.2.115 has an unresolved import in wasm32-wasi
-wasm-bindgen = { version = "=0.2.114", default-features = false }
 
 [dev-dependencies]
 serde_json = { workspace = true, features = ["std"] }

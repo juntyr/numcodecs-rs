@@ -22,7 +22,7 @@
 use std::{borrow::Cow, num::NonZeroUsize, ops::AddAssign};
 
 use burn::{
-    backend::{Autodiff, NdArray, ndarray::NdArrayDevice},
+    backend::{Autodiff, Flex, flex::FlexDevice},
     module::{Module, Param},
     nn::loss::{MseLoss, Reduction},
     optim::{AdamConfig, GradientsParams, Optimizer},
@@ -45,13 +45,6 @@ use numcodecs::{
 use schemars::{JsonSchema, Schema, SchemaGenerator, json_schema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
-
-// FIXME: bytemuck 1.24 fails to compile on 1.87
-use ::bytemuck as _;
-
-// FIXME: burn-common -> cubecl-common brings in wasm-bindgen
-//        wasm-bindgen v0.2.115 has an unresolved import in wasm32-wasi
-use ::wasm_bindgen as _;
 
 #[cfg(test)]
 use ::serde_json as _;
@@ -109,8 +102,8 @@ impl Codec for FourierNetworkCodec {
     fn encode(&self, data: AnyCowArray) -> Result<AnyArray, Self::Error> {
         match data {
             AnyCowArray::F32(data) => Ok(AnyArray::U8(
-                encode::<f32, _, _, Autodiff<NdArray<f32>>>(
-                    &NdArrayDevice::Cpu,
+                encode::<f32, _, _, Autodiff<Flex<f32>>>(
+                    &FlexDevice,
                     data,
                     self.fourier_features,
                     self.fourier_scale,
@@ -123,8 +116,8 @@ impl Codec for FourierNetworkCodec {
                 .into_dyn(),
             )),
             AnyCowArray::F64(data) => Ok(AnyArray::U8(
-                encode::<f64, _, _, Autodiff<NdArray<f64>>>(
-                    &NdArrayDevice::Cpu,
+                encode::<f64, _, _, Autodiff<Flex<f64>>>(
+                    &FlexDevice,
                     data,
                     self.fourier_features,
                     self.fourier_scale,
@@ -162,15 +155,15 @@ impl Codec for FourierNetworkCodec {
         };
 
         match decoded {
-            AnyArrayViewMut::F32(decoded) => decode_into::<f32, _, _, NdArray<f32>>(
-                &NdArrayDevice::Cpu,
+            AnyArrayViewMut::F32(decoded) => decode_into::<f32, _, _, Flex<f32>>(
+                &FlexDevice,
                 encoded,
                 decoded,
                 self.fourier_features,
                 self.num_blocks,
             ),
-            AnyArrayViewMut::F64(decoded) => decode_into::<f64, _, _, NdArray<f64>>(
-                &NdArrayDevice::Cpu,
+            AnyArrayViewMut::F64(decoded) => decode_into::<f64, _, _, Flex<f64>>(
+                &FlexDevice,
                 encoded,
                 decoded,
                 self.fourier_features,
@@ -362,7 +355,7 @@ pub fn encode<T: FloatExt, S: Data<Elem = T>, D: Dimension, B: AutodiffBackend<F
         return Err(FourierNetworkCodecError::NonFiniteData);
     }
 
-    B::seed(seed);
+    B::seed(device, seed);
 
     let b_t = Tensor::<B, 2, Float>::random(
         [data.ndim(), fourier_features.get()],
@@ -613,8 +606,8 @@ mod tests {
     fn empty() {
         std::mem::drop(simple_logger::init());
 
-        let encoded = encode::<f32, _, _, Autodiff<NdArray<f32>>>(
-            &NdArrayDevice::Cpu,
+        let encoded = encode::<f32, _, _, Autodiff<Flex<f32>>>(
+            &FlexDevice,
             Array::<f32, _>::zeros((0,)),
             NonZeroUsize::MIN,
             Positive(1.0),
@@ -627,8 +620,8 @@ mod tests {
         .unwrap();
         assert!(encoded.is_empty());
         let mut decoded = Array::<f32, _>::zeros((0,));
-        decode_into::<f32, _, _, NdArray<f32>>(
-            &NdArrayDevice::Cpu,
+        decode_into::<f32, _, _, Flex<f32>>(
+            &FlexDevice,
             encoded,
             decoded.view_mut(),
             NonZeroUsize::MIN,
@@ -641,8 +634,8 @@ mod tests {
     fn ones() {
         std::mem::drop(simple_logger::init());
 
-        let encoded = encode::<f32, _, _, Autodiff<NdArray<f32>>>(
-            &NdArrayDevice::Cpu,
+        let encoded = encode::<f32, _, _, Autodiff<Flex<f32>>>(
+            &FlexDevice,
             Array::<f32, _>::zeros((1, 1, 1, 1)),
             NonZeroUsize::MIN,
             Positive(1.0),
@@ -654,8 +647,8 @@ mod tests {
         )
         .unwrap();
         let mut decoded = Array::<f32, _>::zeros((1, 1, 1, 1));
-        decode_into::<f32, _, _, NdArray<f32>>(
-            &NdArrayDevice::Cpu,
+        decode_into::<f32, _, _, Flex<f32>>(
+            &FlexDevice,
             encoded,
             decoded.view_mut(),
             NonZeroUsize::MIN,
@@ -668,8 +661,8 @@ mod tests {
     fn r#const() {
         std::mem::drop(simple_logger::init());
 
-        let encoded = encode::<f32, _, _, Autodiff<NdArray<f32>>>(
-            &NdArrayDevice::Cpu,
+        let encoded = encode::<f32, _, _, Autodiff<Flex<f32>>>(
+            &FlexDevice,
             Array::<f32, _>::from_elem((2, 1, 3), 42.0),
             NonZeroUsize::MIN,
             Positive(1.0),
@@ -681,8 +674,8 @@ mod tests {
         )
         .unwrap();
         let mut decoded = Array::<f32, _>::zeros((2, 1, 3));
-        decode_into::<f32, _, _, NdArray<f32>>(
-            &NdArrayDevice::Cpu,
+        decode_into::<f32, _, _, Flex<f32>>(
+            &FlexDevice,
             encoded,
             decoded.view_mut(),
             NonZeroUsize::MIN,
@@ -695,8 +688,8 @@ mod tests {
     fn const_batched() {
         std::mem::drop(simple_logger::init());
 
-        let encoded = encode::<f32, _, _, Autodiff<NdArray<f32>>>(
-            &NdArrayDevice::Cpu,
+        let encoded = encode::<f32, _, _, Autodiff<Flex<f32>>>(
+            &FlexDevice,
             Array::<f32, _>::from_elem((2, 1, 3), 42.0),
             NonZeroUsize::MIN,
             Positive(1.0),
@@ -708,8 +701,8 @@ mod tests {
         )
         .unwrap();
         let mut decoded = Array::<f32, _>::zeros((2, 1, 3));
-        decode_into::<f32, _, _, NdArray<f32>>(
-            &NdArrayDevice::Cpu,
+        decode_into::<f32, _, _, Flex<f32>>(
+            &FlexDevice,
             encoded,
             decoded.view_mut(),
             NonZeroUsize::MIN,
@@ -739,8 +732,8 @@ mod tests {
             Some(NonZeroUsize::MIN.saturating_add(1000)), // mini-batched, truncated
         ] {
             let mut decoded = Array::<f64, _>::zeros(data.shape());
-            let encoded = encode::<f64, _, _, Autodiff<NdArray<f64>>>(
-                &NdArrayDevice::Cpu,
+            let encoded = encode::<f64, _, _, Autodiff<Flex<f64>>>(
+                &FlexDevice,
                 data.view(),
                 fourier_features,
                 fourier_scale,
@@ -752,8 +745,8 @@ mod tests {
             )
             .unwrap();
 
-            decode_into::<f64, _, _, NdArray<f64>>(
-                &NdArrayDevice::Cpu,
+            decode_into::<f64, _, _, Flex<f64>>(
+                &FlexDevice,
                 encoded,
                 decoded.view_mut(),
                 fourier_features,
