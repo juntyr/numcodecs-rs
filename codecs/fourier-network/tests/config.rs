@@ -1,4 +1,4 @@
-#![expect(missing_docs)]
+#![expect(missing_docs, clippy::unwrap_used)]
 
 use numcodecs::StaticCodec;
 use numcodecs_fourier_network::FourierNetworkCodec;

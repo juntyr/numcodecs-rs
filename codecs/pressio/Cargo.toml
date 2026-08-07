@@ -1,0 +1,38 @@
+[package]
+name = "numcodecs-pressio"
+version = "0.1.0-beta.2"
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+description = "libpressio codec wrapper for the numcodecs API"
+readme = "README.md"
+categories = ["compression", "encoding"]
+keywords = ["libpressio", "numcodecs", "compression", "encoding"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+fragile = { workspace = true }
+libpressio = { workspace = true, features = ["bzip2", "lua", "opt", "mpi-stubs"] }
+ndarray = { workspace = true }
+numcodecs = { workspace = true }
+numcodecs-registry = { workspace = true }
+schemars = { workspace = true, features = ["derive", "preserve_order"] }
+serde = { workspace = true, features = ["std", "derive"] }
+serde-ndim = { workspace = true, features = ["ndarray"] }
+serde_json = { workspace = true, features = ["std"] }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+ndarray = { workspace = true, features = ["std"] }
+serde_json = { workspace = true, features = ["std"] }
+
+[lints]
+workspace = true
+
+[package.metadata.numcodecs-wasm]
+version = "0.2.5"  # wasi 0.2.6
+wasm-features = ["registry"]

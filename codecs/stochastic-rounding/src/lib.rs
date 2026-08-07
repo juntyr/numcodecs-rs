@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-stochastic-rounding
@@ -147,6 +147,10 @@ impl<'de> Deserialize<'de> for NonNegative<f64> {
 }
 
 impl JsonSchema for NonNegative<f64> {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("NonNegativeF64")
     }
@@ -333,6 +337,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::float_cmp)]
     fn round_minimal_precision() {
         let data = array![0.1, 1.0, 11.0, 21.0];
 

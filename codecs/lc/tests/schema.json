@@ -132,14 +132,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -156,14 +149,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -180,12 +166,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component float element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcFloatSize"
               },
               "id": {
                 "type": "string",
@@ -202,12 +183,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component float element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcFloatSize"
               },
               "id": {
                 "type": "string",
@@ -224,14 +200,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -248,24 +217,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC tuple component element size, in tuple length _ bytes",
-                "type": "string",
-                "enum": [
-                  "2_1",
-                  "3_1",
-                  "4_1",
-                  "6_1",
-                  "8_1",
-                  "12_1",
-                  "2_2",
-                  "3_2",
-                  "4_2",
-                  "6_2",
-                  "2_4",
-                  "6_4",
-                  "3_8",
-                  "6_8"
-                ]
+                "$ref": "#/$defs/LcTupleSize"
               },
               "id": {
                 "type": "string",
@@ -282,14 +234,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -306,14 +251,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -330,14 +268,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -354,14 +285,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -378,14 +302,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -402,14 +319,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -426,14 +336,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -450,14 +353,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -474,14 +370,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -498,14 +387,7 @@
             "type": "object",
             "properties": {
               "size": {
-                "description": "LC component element size, in bytes",
-                "type": "integer",
-                "enum": [
-                  1,
-                  2,
-                  4,
-                  8
-                ]
+                "$ref": "#/$defs/LcElemSize"
               },
               "id": {
                 "type": "string",
@@ -536,5 +418,45 @@
   ],
   "description": "Codec providing compression using LC",
   "title": "LcCodec",
-  "$schema": "https://json-schema.org/draft/2020-12/schema"
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "LcElemSize": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "description": "LC component element size, in bytes"
+    },
+    "LcFloatSize": {
+      "type": "integer",
+      "enum": [
+        4,
+        8
+      ],
+      "description": "LC component float element size, in bytes"
+    },
+    "LcTupleSize": {
+      "type": "string",
+      "enum": [
+        "2_1",
+        "3_1",
+        "4_1",
+        "6_1",
+        "8_1",
+        "12_1",
+        "2_2",
+        "3_2",
+        "4_2",
+        "6_2",
+        "2_4",
+        "6_4",
+        "3_8",
+        "6_8"
+      ],
+      "description": "LC tuple component element size, in tuple length _ bytes"
+    }
+  }
 }

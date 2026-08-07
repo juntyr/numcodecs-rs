@@ -96,6 +96,7 @@ impl ErasedDynCodec {
     pub fn codec_config_schema(generator: &mut SchemaGenerator) -> Schema {
         #[derive(JsonSchema)]
         #[schemars(extend("additionalProperties" = {"type": "object"}))]
+        #[schemars(inline)]
         /// The configuration for a codec.
         struct Codec {
             /// The `codec_id` of the codec, which is looked up in the global

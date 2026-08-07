@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "1.0.0"
+    }
+  },
+  "description": "Log codec which calculates `$c = \\ln(x)$` on encoding and `$d = {e}^{c}$`\non decoding.\n\nThe codec only supports finite positive floating point numbers.",
+  "title": "LogCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

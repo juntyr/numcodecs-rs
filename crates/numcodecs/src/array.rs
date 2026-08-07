@@ -677,6 +677,7 @@ impl<
     "f32", "float32",
     "f64", "float64"
 ]))]
+#[schemars(inline)]
 #[non_exhaustive]
 #[expect(missing_docs)]
 pub enum AnyArrayDType {

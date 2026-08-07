@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-swizzle-reshape
@@ -35,6 +35,9 @@ use serde::{
     ser::SerializeMap,
 };
 use thiserror::Error;
+
+#[cfg(test)]
+use ::serde_json as _;
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -71,6 +74,7 @@ pub struct SwizzleReshapeCodec {
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 #[serde(deny_unknown_fields)]
+#[schemars(inline)]
 /// An axis group, potentially from a merged combination of multiple input axes
 pub enum AxisGroup {
     /// A merged combination of zero, one, or multiple input axes
@@ -82,6 +86,7 @@ pub enum AxisGroup {
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 #[serde(deny_unknown_fields)]
+#[schemars(inline)]
 /// An axis or all remaining axes
 pub enum Axis {
     /// A single axis, as determined by its index
@@ -534,6 +539,10 @@ impl<'de> Deserialize<'de> for Rest {
 }
 
 impl JsonSchema for Rest {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("Rest")
     }
@@ -779,7 +788,10 @@ mod tests {
                 Axis::Index(2),
                 Axis::Index(1),
             ])],
-            &[1 * 3 * 1 * 721 * 1440],
+            #[expect(clippy::identity_op)]
+            {
+                &[1 * 3 * 1 * 721 * 1440]
+            },
         );
     }
 
