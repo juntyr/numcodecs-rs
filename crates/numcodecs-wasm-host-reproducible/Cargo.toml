@@ -22,9 +22,9 @@ keywords = [
 
 [dependencies]
 anyhow = { workspace = true }
-# FIXME: icu_normalizer and icu_properties 2.3 requires MSRV 1.88
-icu_normalizer = { version = "2.2.0,<2.3", default-features = false }
-icu_properties = { version = "2.2.0,<2.3", default-features = false }
+# FIXME: idna_adapter 1.2 requires icu_normalizer and icu_properties,
+#        which need MSRV 1.88
+idna_adapter = { version = "1.0,<1.2", default-features = false }
 indexmap = { workspace = true, features = ["std"] }
 log = { workspace = true }
 numcodecs = { workspace = true }
