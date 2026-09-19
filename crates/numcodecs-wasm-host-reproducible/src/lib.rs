@@ -24,6 +24,10 @@
 #[macro_use]
 extern crate log;
 
+// FIXME: idna_adapter 1.2 requires icu_normalizer and icu_properties,
+//        which need MSRV 1.88
+use ::idna_adapter as _;
+
 mod codec;
 mod engine;
 mod logging;
