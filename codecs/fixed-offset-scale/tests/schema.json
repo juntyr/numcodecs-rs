@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "offset": {
+      "type": "number",
+      "format": "double",
+      "description": "The offset of the data."
+    },
+    "scale": {
+      "type": "number",
+      "format": "double",
+      "description": "The scale of the data."
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "1.0.0"
+    }
+  },
+  "required": [
+    "offset",
+    "scale"
+  ],
+  "description": "Fixed offset-scale codec which calculates `$c = \\frac{x - o}{s}$` on\nencoding and `$d = (c \\cdot s) + o$` on decoding.\n\n- Setting `$o = \\text{mean}(x)$` and `$s = \\text{std}(x)$` normalizes that\n  data.\n- Setting `$o = \\text{min}(x)$` and `$s = \\text{max}(x) - \\text{min}(x)$`\n  standardizes the data.\n\nThe codec only supports floating point numbers.",
+  "title": "FixedOffsetScaleCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

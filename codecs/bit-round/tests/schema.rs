@@ -14,6 +14,7 @@ fn schema() {
             .to_value()
     );
 
+    #[expect(clippy::manual_assert, clippy::panic)]
     if schema != include_str!("schema.json") {
         panic!("BitRound schema has changed\n===\n{schema}\n===");
     }

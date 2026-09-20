@@ -78,6 +78,7 @@
           },
           "minItems": 3,
           "maxItems": 3,
+          "title": "Explicit",
           "description": "EBCC uses the provided explicit chunk shape."
         }
       ],

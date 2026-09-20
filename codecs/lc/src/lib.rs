@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-lc
@@ -75,6 +75,7 @@ fn deserialize_components<'de, D: Deserializer<'de>>(
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 #[serde(tag = "id")]
+#[schemars(inline)]
 /// LC preprocessor
 pub enum LcPreprocessor {
     #[serde(rename = "NUL")]
@@ -118,6 +119,7 @@ impl LcPreprocessor {
 #[derive(
     Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(inline)]
 /// LC error bound kind
 pub enum LcErrorKind {
     /// pointwise absolute error bound
@@ -145,6 +147,7 @@ impl LcErrorKind {
 #[derive(
     Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(inline)]
 /// LC quantisation decorrelation mode
 pub enum LcDecorrelation {
     #[serde(rename = "0")]
@@ -166,6 +169,7 @@ impl LcDecorrelation {
 #[derive(
     Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(inline)]
 /// LC Lorenzo preprocessor dtype
 pub enum LcLorenzoDtype {
     #[serde(rename = "i32")]
@@ -184,6 +188,7 @@ impl LcLorenzoDtype {
 #[derive(
     Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(inline)]
 /// LC quantization dtype
 pub enum LcQuantizeDType {
     #[serde(rename = "f32")]
@@ -207,6 +212,7 @@ impl LcQuantizeDType {
 )]
 #[serde(deny_unknown_fields)]
 #[serde(tag = "id")]
+#[schemars(inline)]
 /// LC component
 pub enum LcComponent {
     #[serde(rename = "NUL")]

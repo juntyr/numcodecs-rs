@@ -1,4 +1,4 @@
-#![expect(missing_docs)]
+#![expect(missing_docs, clippy::unwrap_used)]
 
 use ::{
     log as _, ndarray as _, num_traits as _, numcodecs_jpeg2000::Jpeg2000CompressionMode,

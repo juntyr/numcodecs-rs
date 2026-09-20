@@ -1,8 +1,8 @@
 #![expect(missing_docs)]
 
 use ::{
-    convert_case as _, ndarray as _, pyo3_error as _, pythonize as _, serde as _, serde_json as _,
-    serde_transcode as _, thiserror as _,
+    convert_case as _, ndarray as _, numcodecs_registry as _, pyo3_error as _, pythonize as _,
+    serde as _, serde_json as _, serde_transcode as _, thiserror as _,
 };
 use numcodecs::{
     AnyArray, AnyArrayBase, AnyArrayView, AnyArrayViewMut, AnyCowArray, Codec, DynCodecType,

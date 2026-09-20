@@ -3,7 +3,7 @@
 //! [CI Status]: https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-rs/ci.yml?branch=main
 //! [workflow]: https://github.com/juntyr/numcodecs-rs/actions/workflows/ci.yml?query=branch%3Amain
 //!
-//! [MSRV]: https://img.shields.io/badge/MSRV-1.87.0-blue
+//! [MSRV]: https://img.shields.io/badge/MSRV-1.88.0-blue
 //! [repo]: https://github.com/juntyr/numcodecs-rs
 //!
 //! [Latest Version]: https://img.shields.io/crates/v/numcodecs-ebcc
@@ -64,6 +64,7 @@ pub struct EbccCodec {
 
 #[derive(Debug, Copy, Clone, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
+#[schemars(inline)]
 /// Chunk shape that EBCC uses to handle large data.
 pub enum EbccChunkShape {
     /// EBCC chooses an appropriate chunk shape automatically.
@@ -290,6 +291,10 @@ impl<'de> Deserialize<'de> for Positive<f32> {
 }
 
 impl JsonSchema for Positive<f32> {
+    fn inline_schema() -> bool {
+        true
+    }
+
     fn schema_name() -> Cow<'static, str> {
         Cow::Borrowed("PositiveF32")
     }

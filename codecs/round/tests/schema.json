@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "precision": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "Precision of the rounding operation"
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "The codec's encoding format version. Do not provide this parameter explicitly.",
+      "default": "1.0.0"
+    }
+  },
+  "required": [
+    "precision"
+  ],
+  "description": "Codec that rounds the data on encoding and passes through the input\nunchanged during decoding.\n\nThe codec only supports floating point data.",
+  "title": "RoundCodec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
