@@ -1,0 +1,34 @@
+[build-system]
+requires = ["maturin>=1.8,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "numcodecs_native_%package_suffix%"
+version = "%crate-version%"
+description = "numcodecs-%crate-suffix% compression codec compiled to native"
+
+authors = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
+maintainers = [{ name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" }]
+
+readme = "README.md"
+license = { file = "LICENSE" }
+
+requires-python = ">=3.10"
+
+dependencies = [
+    "numcodecs>=0.13.0,<0.17",
+]
+
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.entry-points."numcodecs.codecs"]
+"%codec-id%" = "numcodecs_native_%package_suffix%:%CodecName%"
+
+[tool.maturin]
+python-source = "py"
+module-name = "numcodecs_native_%package_suffix%._native"
+features = ["pyo3/extension-module"]

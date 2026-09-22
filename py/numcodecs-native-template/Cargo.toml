@@ -1,0 +1,20 @@
+[workspace]
+
+[package]
+name = "numcodecs-native-%crate-suffix%"
+version = "%crate-version%"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "numcodecs_wasm"
+crate-type = ["cdylib"]
+
+[dependencies]
+numcodecs = { version = "0.3.2", default-features = false }
+numcodecs-my-codec = { package = "numcodecs-%crate-suffix%", version = "%crate-version%", default-features = false }
+numcodecs-python = { version = "0.7.2", default-features = false }
+pyo3 = { version = "0.26", default-features = false, features = ["macros", "abi3-py310"] }
+pyo3-error = { version = "0.6", default-features = false }
+pyo3-log = { version = "0.13.0", default-features = false }
