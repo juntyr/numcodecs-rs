@@ -28,10 +28,11 @@ properdocs
 properdocs-theme-readthedocs
 
 mkdocstrings[python]
+mkdocs-exclude
 mkdocs-include-markdown-plugin
 mkdocs-gen-files
 mkdocs-literate-nav
-mkdocs-exclude
+mkdocs-macros-plugin
 
 Pygments
 
